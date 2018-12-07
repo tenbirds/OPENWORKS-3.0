@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webAnalyzeTracking">
+
+    <!-- <insert id="trackingReferrer">
+        INSERT INTO OP_ANALYZE_REFERRER (
+                       ANLZ_DOMAIN_NM,
+                       ANLZ_SESSION_ID,
+                       ANLZ_TIME,
+                       ANLZ_REFERRER, 
+                       ANLZ_SEARCH_NAME,
+                       ANLZ_SEARCH_DOMAIN,
+                       ANLZ_SEARCH_WORD,
+                       ANLZ_SEARCH_ENGINE_YN,
+                       ANLZ_STATISTIC_FLAG
+                       ) 
+                  VALUES (
+                        #{anlzDomainNm},
+                        #{anlzSessionId},
+                        SYSDATE,
+                        SUBSTR(#{anlzReferer}, 1, 4000),
+                        #{anlzSearchName},
+                        #{anlzSearchDomain},
+                        #{anlzSearchWord},
+                        #{anlzSearchEngineYn},
+                        'A'
+                        )
+    </insert> -->
+    
+    <insert id="tracking" parameterType="trackingVO">
+        INSERT INTO OP_PGE_ANALS_L (
+                       LOG_DOMAIN_NM,
+                       LOG_SESION_ID, 
+                       LOG_IP, 
+                       LOG_TIME, 
+                       LOG_URL, 
+                       LOG_REFERER,
+                       LOG_USER_ID,
+                       LOG_PGE_TITLE,  
+                       LOG_MOBILE_AT,
+                       LOG_PGE_VIEW_CNT,
+                       LOG_STATS_FLAG
+                       )
+                  VALUES (
+                        #{anlzDomainNm}, 
+                        #{anlzSessionId}, 
+                        #{anlzIp}, 
+                        SYS_DATETIME,
+                        SUBSTR(#{anlzUrl}, 1, 4000),
+                        SUBSTR(#{anlzReferer}, 1, 4000),
+                        #{anlzUserId},
+                        #{anlzPageTitle},
+                        #{anlzMobileYn},
+                        #{anlzPageViewCnt},
+                        'A'
+                        )
+    </insert>
+
+    <!-- <insert id="trackingClientPlatform" parameterType="trackingVO">
+        INSERT INTO OP_ANALYZE_CLIENT_PLATFORM (
+                       ANLZ_DOMAIN_NM,
+                       ANLZ_SESSION_ID,
+                       ANLZ_TIME,
+                       ANLZ_USER_AGENT, 
+                       ANLZ_OS_NAME,
+                       ANLZ_BROWSER_NAME,
+                       ANLZ_BROWSER_VERSION, 
+                       ANLZ_SCREEN_WIDTH,
+                       ANLZ_SCREEN_HEIGHT,
+                       ANLZ_SCREEN_COLOR_DEPTH,
+                       ANLZ_STATISTIC_FLAG
+                       ) 
+                  VALUES (
+                        #{anlzDomainNm}, 
+                        #{anlzSessionId},
+                        SYSDATE,
+                        #{anlzUserAgent},
+                        #{anlzOSName},
+                        #{anlzBrowserName},
+                        #{anlzBrowserVersion},
+                        #{anlzScreenWidth},
+                        #{anlzScreenHeight},
+                        #{anlzScreenColorDepth},
+                        'A'
+                        )
+    </insert> -->
+</mapper>

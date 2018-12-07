@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_dmandExaminDtls">
+	<sql id="dynamicWhere">
+		<if test="q_searchKey != null  and q_searchKey != ''">
+        	<if test="q_searchKey == '1001'">
+            	AND userId LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == '1002'">
+            	AND userNm LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == '1003'">
+            	AND pblinsttNm LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == '1004'">
+            	AND upperPblinsttNm LIKE '%' || #{q_searchVal} || '%'
+            </if>
+		</if>
+		<if test="q_beginDate != null  and q_beginDate != ''">
+        	AND TO_CHAR(dmandExaminDt,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+        </if>
+    </sql>
+    
+    <select id="dmandExaminDtlsList" parameterType="map" resultType="dmandExaminDtlsVO">
+	    /*_dmandExamin.dmandExaminList*/
+		SELECT Y.* FROM (
+	    	SELECT ROWNUM NUM, X.* FROM (
+		    		SELECT  upperPblinsttNm
+					     	, pblinsttNm
+					     	, userId
+					     	, userNm
+					     	, mbtlnum
+					     	, fileSeq
+					     	, TO_CHAR(dmandExaminDt, 'YYYY-MM-DD HH24:MI') AS dmandExaminDt
+					  FROM (SELECT 
+								  			   CASE WHEN D.ORGN_NM IS NULL 	 THEN C.PBLINSTT_NM ELSE D.ORGN_NM END AS upperPblinsttNm
+											 , CASE WHEN D.ORGN_NM_ST IS NULL THEN C.PBLINSTT_NM ELSE D.ORGN_NM_ST END AS pblinsttNm
+											 , A.USER_ID AS userId
+											 , B.USER_NM AS userNm
+											 , decrypt(B.MBTLNUM, 'P007') AS mbtlnum
+											 , A.FILE_SEQ AS fileSeq
+											 , A.DMAND_EXAMIN_DT AS dmandExaminDt
+								  FROM OP_DMAND_EXAMIN_INFO A 
+					        LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+						    LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+						    LEFT JOIN TCN_ORGN_INFO_D D ON D.BUSEO_CODE = C.BUSEO_CODE
+						        WHERE A.DMAND_EXAMIN_OPRTN_YEAR = '2016'
+						   )
+					 WHERE fileSeq > 0 
+					   <include refid="dynamicWhere"/>
+					 ORDER BY dmandExaminDt DESC
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+	    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="dmandExaminDtlsCount" parameterType="map" resultType="int">
+	    /*_dmandExamin.dmandExaminCount*/      
+			SELECT COUNT(1) AS totalCount
+			  FROM (SELECT CASE WHEN D.ORGN_NM IS NULL 	 THEN C.PBLINSTT_NM ELSE D.ORGN_NM END AS upperPblinsttNm
+						   , CASE WHEN D.ORGN_NM_ST IS NULL THEN C.PBLINSTT_NM ELSE D.ORGN_NM_ST END AS pblinsttNm
+						   , A.USER_ID AS userId
+						   , B.USER_NM AS userNm
+						   , A.FILE_SEQ AS fileSeq
+						   , A.DMAND_EXAMIN_DT AS dmandExaminDt
+				      FROM OP_DMAND_EXAMIN_INFO A 
+		         LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+			     LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+			     LEFT JOIN TCN_ORGN_INFO_D D ON D.BUSEO_CODE = C.BUSEO_CODE
+			         WHERE A.DMAND_EXAMIN_OPRTN_YEAR = '2016'
+				   )
+			 WHERE fileSeq > 0
+		   <include refid="dynamicWhere"/>
+		 ORDER BY dmandExaminDt DESC
+    </select>
+    
+    <select id="dmandExaminDtlsListExcel" parameterType="map" resultType="dmandExaminDtlsVO">
+	    /*_dmandExamin.dmandExaminListExcel*/
+		SELECT upperPblinsttNm
+		     , pblinsttNm
+		     , userId
+		     , userNm
+		     , mbtlnum
+		     , fileSeq
+		     , TO_CHAR(dmandExaminDt, 'YYYY-MM-DD HH24:MI') AS dmandExaminDt
+		  FROM (SELECT CASE WHEN D.ORGN_NM IS NULL 	 THEN C.PBLINSTT_NM ELSE D.ORGN_NM END AS upperPblinsttNm
+					 , CASE WHEN D.ORGN_NM_ST IS NULL THEN C.PBLINSTT_NM ELSE D.ORGN_NM_ST END AS pblinsttNm
+					 , A.USER_ID AS userId
+					 , B.USER_NM AS userNm
+					 , decrypt(B.MBTLNUM, 'P007') AS mbtlnum
+					 , A.FILE_SEQ AS fileSeq
+					 , A.DMAND_EXAMIN_DT AS dmandExaminDt
+				  FROM OP_DMAND_EXAMIN_INFO A 
+  			 LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+		     LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+		     LEFT JOIN TCN_ORGN_INFO_D D ON D.BUSEO_CODE = C.BUSEO_CODE
+		         WHERE A.DMAND_EXAMIN_OPRTN_YEAR = '2016'
+			   )
+		 WHERE fileSeq > 0
+		   <include refid="dynamicWhere"/>
+		 ORDER BY dmandExaminDt DESC
+    </select>
+    
+</mapper>

@@ -1,0 +1,1277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmManage">
+	<!-- cmManage Where  01-->
+	<sql id="cmManageWhere01">
+		<where>
+<!-- 				b.CMMNTY_ID	 = a.CMMNTY_ID	 -->
+<!-- 사용자유형	1001	개인회원	OP_USER	USER_TY_CD -->
+<!-- 	1002	개인판매회원		 -->
+<!-- 	2001	기업회원		 -->
+<!-- 	2002	기업판매회원		 -->
+
+			     c.USER_ID = b.USER_ID
+				<if test=' cmmntySttusCd !=  "" and cmmntySttusCd  != null  '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD = #{cmmntySttusCd}
+				</if>
+				<if test=' q_cmmntySttusCd1 ==  "1002" and  q_cmmntySttusCd2 !=  "1003" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD IN ( 1002 )
+				</if>
+				<if test='  q_cmmntySttusCd1 !=  "1002" and  q_cmmntySttusCd2 ==  "1003" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD IN ( 1003 )
+				</if>
+				<if test=' q_cmmntySttusCd1 ==  "1002" and q_cmmntySttusCd2  == "1003"  '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD IN ( 1002, 1003 )
+				</if>
+				<if test=' cmmntySttusCdNotIn == "1" and  q_cmmntySttusCd1 !=  "1002"  and q_cmmntySttusCd2  != "1003" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD NOT IN ( 1001, 1004, 1005)
+				</if>
+				<if test=' cmmntySttusCdNotIn == "2" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				AND	b.CMMNTY_STTUS_CD IN ( 1004, 1005)
+				</if>
+				<if test=' q_langCode !=  "" and q_langCode  != null '> <!--  언어  -->
+				AND	b.LANG_CODE = #{q_langCode}
+				</if>
+				<if test=' q_cmmntyCtgryCd !=  "" and q_cmmntyCtgryCd  != null '> <!-- 카테고리 -->
+				AND	b.CMMNTY_CTGRY_CD = #{q_cmmntyCtgryCd}
+				</if>
+				<if test="q_startReqDt  !=  '' and q_startReqDt  !=  null and q_endReqDt  !=  '' and q_endReqDt  !=  null "> <!--  신청일 기간  -->
+				 AND b.ESTBL_REQST_DT BETWEEN  TO_DATE(#{q_startReqDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endReqDt}, 'YYYY-MM-DD')+1
+				</if>
+				<if test="q_startClsDt  !=  '' and q_startClsDt  !=  null and q_endClsDt  !=  '' and q_endClsDt  !=  null "> <!--  폐쇄일 기간  -->
+				 AND b.CMMNTY_CLS_REQST_DT BETWEEN  TO_DATE(#{q_startClsDt}', 'YYYY-MM-DD') AND TO_DATE(#{q_endClsDt}, 'YYYY-MM-DD HH24MI')+1
+				</if>
+				<if test='q_userTycdPer == "1"   and q_userTycdEnt == null'> <!--  회원구분 개인   -->
+				 AND c.USER_TY_CD IN (1001, 1002)
+				</if>
+				<if test='q_userTycdEnt == "2"  and q_userTycdPer == null '> <!-- 회원구분 기업  -->
+				 AND c.USER_TY_CD IN (2001, 2002)
+				</if>
+				<if test='q_userTycdEnt == "2"   and q_userTycdPer =="1" '> <!-- 회원구분 개인 기업  -->
+				 AND c.USER_TY_CD IN (1001, 1002, 2001, 2002)
+				</if>
+				<if test=' q_keyWordSearch ==  "1001"  '> <!-- 키워드 -->
+				AND	b.CMMNTY_NM  LIKE '%' || #{q_searchKeyWord} || '%'
+				</if>
+				<if test=' q_keyWordSearch ==  "1002"  '> <!-- 키워드 -->
+				AND	b.CMMNTY_ID LIKE '%' || #{q_searchKeyWord} || '%'
+				</if>
+				<if test=' q_keyWordSearch ==  "1003"  '> <!-- 키워드 -->
+				AND	c.USER_NM LIKE '%' || #{q_searchKeyWord} || '%'
+				</if>
+				<if test=' q_keyWordSearch ==  "1004"  '> <!-- 키워드 -->
+				AND	b.USER_ID LIKE '%' || #{q_searchKeyWord} || '%'
+				</if>
+				
+				<if test=' q_clsUser == "N" '> <!--  페쇄자 신청자 -->
+				AND b.MNGR_CLS_AT  = #{q_clsUser}
+				</if>
+				<if test=' q_clsManager ==  "Y"  '> <!--  페쇄자 관리자 -->
+				AND b.MNGR_CLS_AT  = #{q_clsManager}
+				</if>
+				
+				<if test=' cmmntySttusCd ==  "1001" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				ORDER BY   b.ESTBL_REQST_DT DESC
+				</if>
+				<if test=' cmmntySttusCdNotIn == "1" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				ORDER BY   b.CONFM_DT DESC
+				</if>
+				<if test=' cmmntySttusCd == "1004" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				ORDER BY   b.CMMNTY_CLS_DT DESC
+				</if>
+				<if test=' cmmntySttusCd == "1005" '> <!--  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				ORDER BY   b.UPDT_DT DESC
+				</if>
+				
+		</where>
+	</sql>
+	
+		<!-- cmManage Where  02-->
+	<sql id="cmManageWhere02">
+		<where>
+				b.CMMNTY_ID	 = #{cmmntyId}
+				AND b.LANG_CODE = #{langCode}
+				AND c.USER_ID = b.CMMNTY_MBER_ID
+			<if test=' q_mberStateTab ==  "1001" '> <!--  가입신청일시  -->
+				AND b.MBER_STATE_CD	= #{q_mberStateTab}
+				ORDER BY  b.SBSCRB_REQST_DT DESC
+			</if>
+			<if test=' q_mberStateTab ==  "1003" '> <!-- 가입 승인일 -->
+				AND b.MBER_STATE_CD	= #{q_mberStateTab}
+			ORDER BY   b.SBSCRB_CONFM_DT DESC
+			</if>
+			<if test=' q_mberStateTab ==  "1004" '> <!--  탈퇴일  -->
+				AND b.MBER_STATE_CD	= #{q_mberStateTab}
+			ORDER BY  b.SECSN_DT	 DESC
+			</if>
+			<if test=' q_mberStateTab ==  "" and q_mberStateTab  == null '> <!--  가입신청일시  -->
+				AND b.MBER_STATE_CD	= 1001
+			ORDER BY  b.SBSCRB_REQST_DT	 DESC
+			</if>
+		</where>
+	</sql>
+	<!-- 관리자 개설신청, 승인, 거절, 폐쇄 목록  -->
+	<select 	id="openCmManageList"  parameterType="map"  resultType="cmManageVO">
+		 /* cmManage-sqlmap.xml  _cmManage.openCmManageList */
+		SELECT * FROM
+				(SELECT	 	
+					A.userId                                                          
+					, A.langCode     
+					, A.langNm 
+					, A.langEngNm                                                
+					, A.cmmntyId                                                                                                                                           								
+					, A.logoTitleNo                                                  
+					, A.cmmntyUrl                                                   
+					, A.cmmntyNm                                                  
+					, A.cmmntyDc                                                    
+					, A.cmmntyCtgryCd     
+					, A.cmmntyCtgryNm                                       
+					, A.cmmntySbscrbMthd                                      
+					, A.logoFileSeq                                                   
+					, A.logoTitleWidthLc                                           
+					, A.logoTitleVrticlLc                                            
+					, A.logoTitleFont                                                
+					, A.logoTitleColor                                               
+					, A.estblReqstDt                                                 
+					, A.estblReqstId  
+					, A.estblReqstNm                                     
+					, A.estblReqstResn                                             
+					, A.confmRejectResn                                          
+					, A.cmmntySttusCd   
+					, A.cmmntySttusNm                                         
+					, A.cmmntyClsReqstDt                                        
+					, A.cmmntyClsDt                                                
+					, A.cmmntyClsId   
+
+					, A.cmmntyClsUserNm   
+					, A.cmmntyClsManagerNm   
+					                                             
+					, A.cmmntyClsResn                                            
+					, A.mngrClsAt                                                    
+					, A.updtId                   			                
+					, A.updtDt   
+					, A.confmDt
+					, A.nationCode                            								
+					, A.userNm                                                        
+					, A.userTyCd 
+					, A.userTyNm                                                     
+					, A.userGradCode                                               
+					, A.userSttusCd      
+					, A.cmMberCount      
+					, A.cmBbsCount                                         
+					, ROWNUM RNUM
+					FROM
+						( SELECT
+								 b.USER_ID																		AS userId                    
+								, b.LANG_CODE																AS langCode         
+								, (SELECT tsvc.LANG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 						AS langNm 
+								, (SELECT tsvc.LANG_ENG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 						AS langEngNm
+								, b.CMMNTY_ID																AS cmmntyId           
+								, b.LOGO_TITLE_NO															AS logoTitleNo            
+								, b.CMMNTY_URL																AS cmmntyUrl             
+								, b.CMMNTY_NM																AS cmmntyNm            
+								, b.CMMNTY_DC																AS cmmntyDc             
+								, b.CMMNTY_CTGRY_CD													AS cmmntyCtgryCd    
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE
+										AND opcode.GROUP_CD = 2011
+										AND opcode.INDVDLZ_CD = b.CMMNTY_CTGRY_CD) 	AS cmmntyCtgryNm
+								, b.CMMNTY_SBSCRB_MTHD												AS cmmntySbscrbMthd
+								, b.LOGO_FILE_SEQ															AS logoFileSeq             
+								, b.LOGO_TITLE_WIDTH_LC												AS logoTitleWidthLc     
+								, b.LOGO_TITLE_VRTICL_LC												AS logoTitleVrticlLc      
+								, b.LOGO_TITLE_FONT														AS logoTitleFont          
+								, b.LOGO_TITLE_COLOR														AS logoTitleColor         
+								, TO_CHAR( b.ESTBL_REQST_DT, 'YYYY-MM-DD HH24:MI')  		AS estblReqstDt        
+								, b.ESTBL_REQST_ID															AS estblReqstId           
+								,( SELECT opu.USER_NM FROM OP_USER opu WHERE opu.USER_ID  = b.ESTBL_REQST_ID	) AS estblReqstNm
+								, b.ESTBL_REQST_RESN														AS estblReqstResn       
+								, b.CONFM_REJECT_RESN													AS confmRejectResn    
+								, b.CMMNTY_STTUS_CD													AS cmmntySttusCd      
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2008
+										AND opcode.INDVDLZ_CD = b.CMMNTY_STTUS_CD) 		AS cmmntySttusNm   	
+								, TO_CHAR( b.CMMNTY_CLS_REQST_DT, 'YYYY-MM-DD HH24:MI')  		AS cmmntyClsReqstDt   
+								, TO_CHAR( b.CMMNTY_CLS_DT, 'YYYY-MM-DD HH24:MI')  				AS cmmntyClsDt
+								, TO_CHAR (b.CMMNTY_CLS_DT -1, 'YYYY-MM-DD HH24:MI') AS cmmntyBeforeClsDt
+								, b.CMMNTY_CLS_ID															AS cmmntyClsId       
+								,( SELECT opu.USER_NM FROM OP_USER opu WHERE opu.USER_ID  = b.CMMNTY_CLS_ID	) AS cmmntyClsUserNm   
+								,( SELECT opm.MNGR_NM FROM OP_MNGR opm WHERE opm.MNGR_ID  = b.CMMNTY_CLS_ID	) AS cmmntyClsManagerNm   
+								, b.CMMNTY_CLS_RESN														AS cmmntyClsResn      
+								, b.MNGR_CLS_AT															AS mngrClsAt             
+								, b.UPDT_ID																	AS updtId                   			
+								, TO_CHAR( b.UPDT_DT, 'YYYY-MM-DD HH24:MI')  				AS updtDt   
+								, TO_CHAR( b.CONFM_DT, 'YYYY-MM-DD HH24:MI')  			AS confmDt  
+								, c.NATION_CODE															AS nationCode
+								, c.USER_NM																	AS userNm
+								, c.USER_TY_CD																AS userTyCd
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD) 	AS userTyNm   
+								, c.USER_GRAD_CODE														AS userGradCode
+								, c.USER_STTUS_CD															AS userSttusCd
+								, (	SELECT  COUNT( info.CMMNTY_ID) 
+									FROM TCM_CMNT_MBER_I info 
+									WHERE
+										info.CMMNTY_ID	 = b.CMMNTY_ID
+										AND info.LANG_CODE = b.LANG_CODE
+										AND info.MBER_STATE_CD = 1003)						AS cmMberCount 
+								, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+									FROM TCM_CMNT_NTT_I tbbs
+									WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.WRTER_DELETE_AT		= 'N'
+										AND tbbs.MNGR_DELETE_AT		= 'N')						AS cmBbsCount 
+							FROM 
+<!-- 								TCM_CMNT_MBER_I A , -->
+								TCM_CMNT_INFO_I b ,
+								OP_USER c
+								
+							<include refid="cmManageWhere01"/>
+					) A
+			)
+			WHERE 
+			RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+		</select>
+		
+		<!-- 개설신청 목록 카운트 -->
+	 	<select id="openCmManageListCount" parameterType="map" resultType="int">
+	 			/* cmManage-sqlmap.xml  _cmManage.openCmManageListCount */
+				SELECT	 	
+					COUNT(	A.cmmntyId) 
+					FROM
+						( SELECT
+									b.USER_ID																AS userId                    
+								, b.LANG_CODE															AS langCode        
+								, b.CMMNTY_ID															AS cmmntyId           
+								, b.LOGO_TITLE_NO														AS logoTitleNo            
+								, b.CMMNTY_URL															AS cmmntyUrl             
+								, b.CMMNTY_NM															AS cmmntyNm            
+								, b.CMMNTY_DC															AS cmmntyDc             
+								, b.CMMNTY_CTGRY_CD												AS cmmntyCtgryCd    
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2011
+										AND opcode.INDVDLZ_CD = b.CMMNTY_CTGRY_CD) AS cmmntyCtgryNm
+								, b.CMMNTY_SBSCRB_MTHD											AS cmmntySbscrbMthd
+								, b.LOGO_FILE_SEQ														AS logoFileSeq             
+								, b.LOGO_TITLE_WIDTH_LC											AS logoTitleWidthLc     
+								, b.LOGO_TITLE_VRTICL_LC											AS logoTitleVrticlLc      
+								, b.LOGO_TITLE_FONT													AS logoTitleFont          
+								, b.LOGO_TITLE_COLOR													AS logoTitleColor         
+								, TO_CHAR( b.ESTBL_REQST_DT, 'YYYY-MM-DD HH24:MI')  AS estblReqstDt        
+								, b.ESTBL_REQST_ID														AS estblReqstId           
+								, b.ESTBL_REQST_RESN													AS estblReqstResn       
+								, b.CONFM_REJECT_RESN												AS confmRejectResn    
+								, b.CMMNTY_STTUS_CD												AS cmmntySttusCd      
+								, b.CMMNTY_CLS_REQST_DT											AS cmmntyClsReqstDt 
+								, b.CMMNTY_CLS_DT													AS cmmntyClsDt         
+								, b.CMMNTY_CLS_ID														AS cmmntyClsId          
+								, b.CMMNTY_CLS_RESN													AS cmmntyClsResn      
+								, b.MNGR_CLS_AT														AS mngrClsAt             
+								, b.UPDT_ID																AS updtId                   			
+								, TO_CHAR( b.UPDT_DT, 'YYYY-MM-DD HH24:MI')  			AS updtDt    
+								, c.USER_NM																AS userNm
+								, c.USER_TY_CD															AS userTyCd
+								, c.USER_GRAD_CODE													AS userGradCode
+								, c.USER_STTUS_CD														AS userSttusCd
+							FROM 
+<!-- 								TCM_CMNT_MBER_I A , -->
+								TCM_CMNT_INFO_I b ,
+								OP_USER c
+							<include refid="cmManageWhere01"/>
+						) A
+	 	</select>
+	 	
+	 	<!-- 관리자 신청, 승인, 거절 , 폐쇄  상세페이지  -->
+	<select 	id="openCmManageView"  parameterType="cmManageVO"  resultType="cmManageVO">
+	/* cmManage-sqlmap.xml  _cmManage.openCmManageView */
+			SELECT
+								b.USER_ID															AS userId                    
+								, b.LANG_CODE													AS langCode      
+								, (SELECT tsvc.LANG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 			AS langNm   
+								, (SELECT tsvc.LANG_ENG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 			AS langEngNm
+								, b.CMMNTY_ID													AS cmmntyId           
+								, b.LOGO_TITLE_NO												AS logoTitleNo            
+								, b.CMMNTY_URL													AS cmmntyUrl             
+								, b.CMMNTY_NM													AS cmmntyNm            
+								, b.CMMNTY_DC													AS cmmntyDc             
+								, b.CMMNTY_CTGRY_CD										AS cmmntyCtgryCd 
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2011
+										AND opcode.INDVDLZ_CD = b.CMMNTY_CTGRY_CD) 	AS cmmntyCtgryNm   
+								, b.CMMNTY_SBSCRB_MTHD	AS cmmntySbscrbMthd
+								, b.LOGO_FILE_SEQ												AS logoFileSeq     
+								,(SELECT 
+									opfile.FILE_URL
+								FROM OP_FILE opfile
+								WHERE 
+									opfile.FILE_SEQ = b.LOGO_FILE_SEQ)  					AS	logoFileUrl
+								,(SELECT 
+									opfile.FILE_URL
+								FROM OP_FILE opfile
+								WHERE 
+									opfile.FILE_SEQ = 1)  										AS	defaultLogoFileUrl
+								, b.LOGO_TITLE													AS logoTitle  
+								, b.LOGO_TITLE_WIDTH_LC									AS logoTitleWidthLc     
+								, b.LOGO_TITLE_VRTICL_LC									AS logoTitleVrticlLc      
+								, b.LOGO_TITLE_FONT											AS logoTitleFont     
+								, b.LOGO_TITLE_FONT_SIZE 									AS logoTitleFontSize     
+								, b.LOGO_TITLE_COLOR											AS logoTitleColor         
+								, TO_CHAR( b.ESTBL_REQST_DT, 'YYYY-MM-DD HH24:MI')  AS estblReqstDt        
+								, b.ESTBL_REQST_ID												AS estblReqstId           
+								, b.ESTBL_REQST_RESN											AS estblReqstResn       
+								, b.CONFM_REJECT_RESN										AS confmRejectResn    
+								, b.CMMNTY_STTUS_CD										AS cmmntySttusCd      
+								, TO_CHAR( b.CMMNTY_CLS_REQST_DT, 'YYYY-MM-DD HH24:MI') 	AS cmmntyClsReqstDt    
+								, TO_CHAR( b.CMMNTY_CLS_DT, 'YYYY-MM-DD HH24:MI') 	AS cmmntyClsDt         
+								, b.CMMNTY_CLS_ID												AS cmmntyClsId          
+								, b.CMMNTY_CLS_RESN											AS cmmntyClsResn      
+								, b.MNGR_CLS_AT												AS mngrClsAt             
+								, b.UPDT_ID														AS updtId       
+								, b.LOGO_DIRECT_REGIST_AT									AS logoDirectRegistAt            			
+								, TO_CHAR( b.UPDT_DT, 'YYYY-MM-DD HH24:MI') 	AS updtDt    
+								, TO_CHAR( b.CONFM_DT, 'YYYY-MM-DD HH24:MI')  AS confmDt  
+								, c.NATION_CODE												AS nationCode
+								, c.USER_NM														AS userNm
+								, c.USER_TY_CD													AS userTyCd
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD) 	AS userTyNm   
+								, c.USER_GRAD_CODE											AS userGradCode
+								, c.USER_STTUS_CD												AS userSttusCd
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 73
+										AND opcode.INDVDLZ_CD = c.USER_STTUS_CD) 	AS userSttusNm   
+								, decrypt(c.EMAIL, 'P008')											AS email
+								, c.TELNO																AS telno
+								, decrypt(c.MBTLNUM, 'P007')										AS mbtlnum
+								, d.CMPNY_NM            											AS entCmpnyNm
+								, d.CMPNY_REPRSNT_TELNO 										AS entCmpnyReprsntTelno
+								, e.CMPNY_NM														AS userCmpnyNm
+								, e.CMPNY_REPRSNT_TELNO										AS userCmpnyReprsntTelno
+								, f.LANG_STORE_NM 												AS langStoreNm
+								, (	SELECT  COUNT( info.CMMNTY_ID) 
+									FROM TCM_CMNT_MBER_I info 
+									WHERE
+										info.CMMNTY_ID	 = b.CMMNTY_ID
+										AND info.LANG_CODE = b.LANG_CODE
+										AND info.MBER_STATE_CD = 1003 )						AS cmMberCount 
+								, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+									FROM TCM_CMNT_NTT_I tbbs
+									WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE 
+										AND tbbs.WRTER_DELETE_AT		= 'N'
+										AND tbbs.MNGR_DELETE_AT		= 'N')						AS cmBbsCount
+							FROM 
+								TCM_CMNT_INFO_I b ,
+								OP_USER c
+								LEFT OUTER JOIN    OP_USER_ENTRPRS_OPTION d 
+        						ON  c.USER_ID 	= 	d.USER_ID 
+        						LEFT OUTER JOIN    OP_USER_OPTION e         
+        						ON  c.USER_ID    = 	e.USER_ID
+        						LEFT OUTER JOIN    TUM_SVC_STOR_I f
+        						ON  c.USER_ID    = 	f.USER_ID
+        						AND f.LANG_CODE = #{langCode}
+        		WHERE
+        					b.CMMNTY_ID = #{cmmntyId} <!-- 'opentest32' -->
+        					AND	b.LANG_CODE = #{langCode} <!-- '00' -->
+							AND c.USER_ID = b.USER_ID 
+	</select>
+	
+	<!-- 다중 체크 정보 가져오기  -->
+	<select id="openCmInfoSelect"  parameterType="cmManageVO"  resultType="cmManageVO" >
+		/* cmManage-sqlmap.xml  _cmManage.openCmInfoSelect */
+		SELECT 
+								USER_ID															AS userId                    
+								, LANG_CODE													AS langCode      
+								, CMMNTY_ID													AS cmmntyId                   
+								, CMMNTY_NM													AS cmmntyNm            
+								, CMMNTY_DC													AS cmmntyDc             
+								, CMMNTY_CTGRY_CD										AS cmmntyCtgryCd 
+							        
+								, ESTBL_REQST_ID												AS estblReqstId           
+								, ESTBL_REQST_RESN											AS estblReqstResn       
+								, CONFM_REJECT_RESN										AS confmRejectResn    
+								 
+								, CMMNTY_STTUS_CD											AS cmmntySttusCd    
+		FROM 	TCM_CMNT_INFO_I
+		WHERE       
+				CMMNTY_ID = #{cmmntyId} 
+				AND LANG_CODE = #{langCode}   
+				AND USER_ID = #{userId}   
+	</select>
+
+	<!-- 사용자 정보 및 추가 정보  -->
+	<select  id="userInfoOptionSelect"  parameterType="cmManageVO"  resultType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.userInfoOptionSelect */
+		SELECT 
+			 	OP.USER_ID						AS       userId             
+		       	, OP.LANG_CODE					AS       langCode         
+		       	, OP.NATION_CODE				AS       nationCode      
+		       	, OP.USER_NM						AS       userNm           
+		       	, decrypt(OP.EMAIL, 'P008')	AS       email              
+		       	, OP.INTRL_TELNO				AS       intrlTelno        
+		       	, OP.TELNO							AS       telno               
+		       	, OP.USER_TY_CD					AS       userTyCd         
+		       	, OP.USER_GRAD_CODE		AS       userGradCode  
+		       	, OP.USER_STTUS_CD			AS       userSttusCd     
+		       	, decrypt(OP.MBTLNUM, 'P007')		AS       mbtlnum         
+		       	, OP.BRTHDY						AS       brthdy 
+		       <if test='langCode !=  "" and langCode  != null'>
+		       	, (	SELECT opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+					opcode.LANG_CODE = #{langCode}
+					AND opcode.GROUP_CD = 5
+					AND opcode.INDVDLZ_CD = OP.USER_TY_CD )	AS userTyNm
+				, (SELECT opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode}
+						AND opcode.GROUP_CD = 73
+					AND opcode.INDVDLZ_CD = OP.USER_STTUS_CD) 	AS userSttusNm 
+				</if>
+		       	<if test='userTyCd !=  "" and userTyCd  != null'>
+		       	<if test=' userTyCd ==  "2001" or userTyCd ==  "2002" '> 
+		       	, OPT.FAX_RECPTN_AGRE_CD		AS 	faxRecptnAgreCd   
+		       	</if>
+		       	<if test=' userTyCd ==  "1001" or userTyCd ==  "1002" '>
+		       	, OPT.SMS_RECPTN_AGRE_CD		AS 	smsRecptnAgreCd   
+		       	</if>
+		       	<if test=' userTyCd ==  "2001" or userTyCd ==  "2002" '> 
+				, OPT.EMAIL_RECPTN_AGRE_CD		AS	 	emailRecptnAgreCd 
+				, OPT.CMPNY_NM						AS 	cmpnyNm               
+				, OPT.CMPNY_ZIP						AS 	cmpnyZip               
+				, OPT.CMPNY_BASS_ADRES			AS 	cmpnyBassAdres     
+				, OPT.CMPNY_DETAIL_ADRES			AS 	cmpnyDetailAdres   
+				, OPT.CMPNY_TELNO					AS 	cmpnyTelno            
+				, OPT.CMPNY_RPRSNTV_NM			AS 	cmpnyRprsntvNm    
+				, OPT.BIZRNO								AS 	bizrno                    
+				, OPT.CMPNY_REPRSNT_TELNO		AS 	cmpnyReprsntTelno 
+				, OPT.CMPNY_FXNUM				AS 	cmpnyFaxnum         
+				, OPT.CMPNY_EMAIL					AS 	cmpnyEmail            
+				, OPT.CMPNY_URL						AS 	cmpnyUrl  
+				</if>
+				</if>            
+		  FROM 
+			OP_USER OP
+			<if test='userTyCd !=  "" and userTyCd  != null'>
+			<if test=' userTyCd ==  "2001" or userTyCd ==  "2002" '> <!--  기업회원 추가 정보 // 2001    기업회원     2002   기업판매회원-->
+			LEFT OUTER JOIN    OP_USER_ENTRPRS_OPTION OPT
+			ON  op.USER_ID 	= 	opt.USER_ID 
+			</if>
+			<if test=' userTyCd ==  "1001" or userTyCd ==  "1002" '><!-- 일반회원 추가 정보 //  1001 개인회원     1002 개인판매회원  -->
+			LEFT OUTER JOIN    OP_USER_OPTION OPT         
+			ON  op.USER_ID		= 	opt.USER_ID
+			</if>
+			</if>
+		WHERE 
+			op.USER_ID  = #{userId}
+	</select>
+	<!-- 기업사용자 추가 정보  -->
+	<select id="userEntrprsOptionSelect"  parameterType="cmManageVO"  resultType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.userEntrprsOptionSelect */
+			SELECT 
+				USER_ID								AS userId                    
+				, FAX_RECPTN_AGRE_CD		AS faxRecptnAgreCd    
+				, EMAIL_RECPTN_AGRE_CD	AS emailRecptnAgreCd 
+				, CMPNY_NM						AS cmpnyNm               
+				, CMPNY_ZIP						AS cmpnyZip               
+				, CMPNY_BASS_ADRES			AS cmpnyBassAdres     
+				, CMPNY_DETAIL_ADRES		AS cmpnyDetailAdres   
+				, CMPNY_TELNO					AS cmpnyTelno            
+				, CMPNY_RPRSNTV_NM		AS cmpnyRprsntvNm    
+				, BIZRNO							AS bizrno                    
+				, CMPNY_REPRSNT_TELNO	AS cmpnyReprsntTelno 
+				, CMPNY_FXNUM				AS cmpnyFaxnum         
+				, CMPNY_EMAIL					AS cmpnyEmail            
+				, CMPNY_URL						AS cmpnyUrl     
+			FROM OP_USER_ENTRPRS_OPTION
+			WHERE 
+				USER_ID = #{userId}
+	</select>
+	
+	<!-- 일반사용자 추가 정보  -->
+	<select id="userOptionSelect"  parameterType="cmManageVO"  resultType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.userOptionSelect */
+			SELECT 
+				USER_ID								AS userId                    
+				, SMS_RECPTN_AGRE_CD		AS smsRecptnAgreCd   
+				, EMAIL_RECPTN_AGRE_CD	AS emailRecptnAgreCd 
+				, CMPNY_NM						AS cmpnyNm              
+				, CMPNY_ZIP						AS cmpnyZip               
+				, CMPNY_BASS_ADRES			AS cmpnyBassAdres     
+				, CMPNY_DETAIL_ADRES		AS cmpnyDetailAdres   
+				, CMPNY_TELNO					AS cmpnyTelno            
+				, CMPNY_RPRSNTV_NM		AS cmpnyRprsntvNm   
+				, BIZRNO							AS bizrno                    
+				, CMPNY_REPRSNT_TELNO	AS cmpnyReprsntTelno 
+				, CMPNY_FXNUM				AS cmpnyFaxnum        
+				, CMPNY_EMAIL					AS cmpnyEmail            
+				, CMPNY_URL						AS cmpnyUrl           
+		FROM 					                
+			OP_USER_OPTION
+		WHERE 
+			USER_ID = #{userId}
+	</select>
+	
+	<!--  중복체크 카운트  -->
+	<select id="getOpenCmManageCheck" parameterType="cmManageVO"  resultType="int" >
+	 /* cmManage-sqlmap.xml  _cmManage.getOpenCmManageCheck */
+			SELECT 
+				COUNT (CMMNTY_ID) 
+			FROM TCM_CMNT_INFO_I 
+			WHERE 
+				LANG_CODE 		= #{langCode}
+				<if test=' cmNmUrlCheck == "1" '>
+				AND CMMNTY_NM 		= #{cmmntyNm}
+				</if>
+				<if test=' cmNmUrlCheck == "2" '>
+				AND CMMNTY_ID 		= #{cmmntyId}
+				</if>
+	</select>
+	
+	<!--  닉네임 중복체크 카운트  -->
+	<select id="getCmNcnmCheck" parameterType="cmManageVO"  resultType="int" >
+	 /* cmManage-sqlmap.xml  _cmManage.getCmNcnmCheck */
+			SELECT 
+				COUNT (NCNM) 
+			FROM TCM_CMNT_MBER_I 
+			WHERE 
+				NCNM 					= #{ncnm}
+				AND CMMNTY_ID 		= #{cmmntyId}
+				AND LANG_CODE 		= #{langCode}
+	</select>
+	
+	<!-- 커뮤니티 사용자 최초 생성 메뉴 리스트 -->
+	<select 	id="cmMenuManageSelect"  parameterType="cmManageVO"  resultType="cmManageVO">
+	/* cmManage-sqlmap.xml  _cmManage.cmMenuManageSelect */
+		SELECT 
+				LANG_CODE							AS langCode				
+				, CMMNTY_MENU_CODE			AS cmmntyMenuCode		
+				, MENU_BBS_SE						AS menuBbsSe			
+				, ESSNTL_MENU_AT					AS essntlMenuAt			
+				, SORT_ORDR							AS sortOrdr				
+				, CMMNTY_MENU_FOLDER_NM	AS cmmntyMenuFolderNm	
+				, CMMNTY_MENU_URL				AS cmmntyMenuUrl		
+				, CMMNTY_MENU_NM				AS cmmntyMenuNm		
+				, MENU_CHARCT_CD				AS menuCharctCd	
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2002
+						AND opcode.INDVDLZ_CD = MENU_CHARCT_CD) 	AS menuCharctNm   				
+				, CMMNTY_BBS_TY_CD				AS cmmntyBbsTyCd		
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2001
+						AND opcode.INDVDLZ_CD = CMMNTY_BBS_TY_CD) 	AS cmmntyBbsTyNm  
+				, CMMNTY_BBS_CD					AS cmmntyBbsCd	
+				, UPDT_ID																AS updtId                   			
+				, TO_CHAR( UPDT_DT, 'YYYY-MM-DD HH24:MI')  			AS updtDt    
+		FROM 
+			TCM_MBER_MENU_M
+		WHERE 
+			LANG_CODE = #{langCode}
+			<if test=' essntlMenuAt !=  "" and essntlMenuAt  != null '>
+			AND ESSNTL_MENU_AT = #{essntlMenuAt} <!--  1 필수( 최초 생성시 무조건 생성 ) 2:선택 -->
+			</if>
+			ORDER BY   SORT_ORDR ASC
+	</select>
+	
+	<!-- 커뮤니티 사용자  메뉴 수정 -->
+	<update id="cmMenuManageUpdate"  parameterType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.cmMenuManageUpdate */
+		UPDATE 
+			TCM_MBER_MENU_M
+		SET    
+			ESSNTL_MENU_AT			= #{essntlMenuAt}
+			, CMMNTY_MENU_NM		= #{cmmntyMenuNm}
+			, UPDT_ID 						= #{updtId}
+			, UPDT_DT						= SYSDATETIME
+		WHERE  
+			LANG_CODE             = #{langCode}
+			AND CMMNTY_MENU_CODE =#{cmmntyMenuCode}
+	</update>
+	
+	<!-- 커뮤니티 사용자 최초 생성 메뉴 등록 -->
+	<insert id="cmMenuManageInsert"  parameterType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.cmMenuManageInsert */
+		INSERT INTO 
+		TCM_MBER_MENU_M (
+			   LANG_CODE
+			   , CMMNTY_MENU_CODE
+			   , MENU_BBS_SE
+			   , ESSNTL_MENU_AT
+			   , SORT_ORDR
+			   , CMMNTY_MENU_FOLDER_NM
+			   , CMMNTY_MENU_URL
+			   , CMMNTY_MENU_NM
+			   , MENU_CHARCT_CD
+			   , CMMNTY_BBS_TY_CD
+			   , CMMNTY_BBS_CD
+		  ) VALUES (
+				#{langCode}				         
+				, #{cmmntyMenuCode}		                 
+				, #{menuBbsSe}			         
+				, #{essntlMenuAt}			         
+				, #{sortOrdr}				         
+				, #{cmmntyMenuFolderNm}	                     
+				, #{cmmntyMenuUrl}		             
+				, #{cmmntyMenuNm}		                 
+				, #{menuCharctCd}	
+				, #{cmmntyBbsTyCd}	
+				, #{cmmntyBbsCd}
+		  )
+	</insert>
+	<!-- 커뮤니티 개설 신청  -->
+ 	<insert id="openCmManageUserInsert" parameterType="cmManageVO">
+ 		/* cmManage-sqlmap.xml  _cmTotalMain.openCmManageUserInsert */
+ 		INSERT INTO TCM_CMNT_INFO_I (
+						  LANG_CODE
+						  , CMMNTY_ID
+						  , USER_ID
+						  , LOGO_TITLE_NO
+						  , CMMNTY_URL
+						  , CMMNTY_NM
+						  , CMMNTY_DC
+						  , CMMNTY_CTGRY_CD
+						  , CMMNTY_SBSCRB_MTHD
+						  , CMMNTY_STTUS_CD
+						  , LOGO_DIRECT_REGIST_AT
+						  , LOGO_FILE_SEQ
+						  , LOGO_TITLE
+						  , LOGO_TITLE_FONT_SIZE
+						  , LOGO_TITLE_WIDTH_LC
+						  , LOGO_TITLE_VRTICL_LC
+						  , LOGO_TITLE_FONT
+						  , LOGO_TITLE_COLOR
+						  , ESTBL_REQST_DT
+						  , ESTBL_REQST_ID
+						  , ESTBL_REQST_RESN
+<!-- 						  , MNGR_CLS_AT -->
+					)VALUES (  
+						  #{langCode}
+						  , #{cmmntyId}
+						  , #{userId}
+						  , #{logoTitleNo}
+						  , #{cmmntyUrl}
+						  , #{cmmntyNm}
+						  , #{cmmntyDc}
+						  , #{cmmntyCtgryCd}
+						  , #{cmmntySbscrbMthd}
+						  , #{cmmntySttusCd}
+						  , #{logoDirectRegistAt}
+						  , #{logoFileSeq}
+						  , #{logoTitle}
+						  , #{logoTitleFontSize}
+						  , #{logoTitleWidthLc}
+						  , #{logoTitleVrticlLc}
+						  , #{logoTitleFont}
+						  , #{logoTitleColor}
+						  , SYSDATETIME
+						  , #{estblReqstId}
+						  , #{estblReqstResn}
+<!-- 						  , #{mngrClsAt} -->
+					)
+ 	</insert>
+	<!--  커뮤니티 개설 신청 승인 / 승인 정보 수정 -->
+	<update id="openCmManageApprovalUpdate" parameterType="cmManageVO" >
+	
+	 /* cmManage-sqlmap.xml  _cmManage.openCmManageApprovalUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+<!-- 			   	LANG_CODE                          		= #{langCode} -->
+<!-- 		       	, CMMNTY_URL                         		= #{cmmntyUrl} -->
+		       	CMMNTY_NM                          	= #{cmmntyNm}
+		       	, CMMNTY_DC                          		= #{cmmntyDc}
+		       	, CMMNTY_CTGRY_CD                    	= #{cmmntyCtgryCd}
+		       	, CMMNTY_SBSCRB_MTHD              	= #{cmmntySbscrbMthd} <!-- 1:신청즉시가입, 2:운영자승인후가입 -->
+			<if test=' logoDirectRegistAt  ==  "Y" '> <!--  로고 파일을 직업 올릴때   -->
+				, LOGO_FILE_SEQ								= #{logoFileSeq}
+				, LOGO_DIRECT_REGIST_AT 				= #{logoDirectRegistAt}
+				, LOGO_TITLE_WIDTH_LC                	= #{logoTitleWidthLc}
+		       	, LOGO_TITLE_VRTICL_LC               	= #{logoTitleVrticlLc}
+		       	, LOGO_TITLE_FONT                    		= #{logoTitleFont}
+		       	, LOGO_TITLE_COLOR                   	= #{logoTitleColor}
+		       	, LOGO_TITLE_FONT_SIZE					= #{logoTitleFontSize}	
+			</if>  
+			<if test=' logoDirectRegistAt  ==  "N" '> <!--  기존 로고 파일  -->
+				, LOGO_FILE_SEQ								= #{logoFileSeq}
+				, LOGO_DIRECT_REGIST_AT 				= #{logoDirectRegistAt}
+				, LOGO_TITLE_WIDTH_LC                	= #{logoTitleWidthLc}
+				, LOGO_TITLE_VRTICL_LC               	= #{logoTitleVrticlLc}
+				, LOGO_TITLE_FONT                    		= #{logoTitleFont}
+				, LOGO_TITLE_COLOR                   	= #{logoTitleColor}
+				, LOGO_TITLE_FONT_SIZE					= #{logoTitleFontSize}	
+				, LOGO_TITLE									= #{logoTitle}
+			</if>  
+		       	, ESTBL_REQST_RESN                   	= #{estblReqstResn}
+		      	, CMMNTY_STTUS_CD                    	= #{cmmntySttusCd} <!--  1001:신청  1002:승인   1003:승인보류  1004: 커뮤니티 폐쇄 1005 폐쇄중 -->
+		     <if test=' cmmntySttusCd  ==  "1002" '>
+		     	, CONFM_DT									= SYSDATETIME
+		     </if>  
+			<if test=' mngrClsAt  !=  "" and   mngrClsAt  !=  null '> <!--  커뮤니티 폐쇄 시   -->
+		       , CMMNTY_CLS_REQST_DT           = SYSDATETIME
+<!-- 		       CMMNTY_CLS_DT                     = #{cmmntyClsDt} -->
+		       , CMMNTY_CLS_ID                     	= #{cmmntyClsId}
+		       , CMMNTY_CLS_RESN                 	= #{cmmntyClsResn}
+		       , MNGR_CLS_AT                        	= #{mngrClsAt} <!-- Y:관리자가 신청, N:운영자가 신청 -->
+			</if>
+		       , UPDT_ID                            			= #{updtId}
+		       , UPDT_DT                            			= SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+	
+		<!--  커뮤니티 폐쇄 정보 수정 -->
+	<update id="closeCmManageUpdate" parameterType="cmManageVO" >
+	
+	 /* cmManage-sqlmap.xml  _cmManage.closeCmManageUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+		       CMMNTY_STTUS_CD                    	= #{cmmntySttusCd} <!--  1001:신청  1002:승인   1003:승인보류  1004: 커뮤니티 폐쇄  1005 폐쇄중 -->
+		       , CMMNTY_CLS_REQST_DT           = SYSDATETIME
+			   , CMMNTY_CLS_DT                     = TO_TIMESTAMP(#{cmmntyClsDt},'YYYY-MM-DD HH24:MI:SS')
+		       , CMMNTY_CLS_ID                     	= #{cmmntyClsId}
+		       , CMMNTY_CLS_RESN                 	= #{cmmntyClsResn}
+		       , MNGR_CLS_AT                        	= #{mngrClsAt} <!-- Y:관리자가 신청, N:운영자가 신청 -->
+		       , UPDT_ID                            			= #{updtId}
+		       , UPDT_DT                            			= SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+		<!--  커뮤니티 개설 다중 신청 승인 -->
+	<update id="openCmManageApprovalMultiUpdate" parameterType="cmManageVO" >
+	
+	 /* cmManage-sqlmap.xml  _cmManage.openCmManageApprovalMultiUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+		       CMMNTY_STTUS_CD        	= #{cmmntySttusCd} <!--  1001:신청  1002:승인   1003:승인보류 1004: 커뮤니티 폐쇄 1005 폐쇄중 -->
+		       , CONFM_DT					= SYSDATETIME			
+		       , UPDT_ID                        = #{updtId}
+		       , UPDT_DT                       = SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+	
+		<!--  커뮤니티 개설 신청 거절 -->
+	<update id="openCmManageRejectUpdate" parameterType="cmManageVO" >
+	
+	 /* cmManage-sqlmap.xml  _cmManage.openCmManageRejectUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+		       CONFM_REJECT_RESN                  	= #{confmRejectResn}
+		       , CMMNTY_STTUS_CD                   = #{cmmntySttusCd} <!--  1001:신청  1002:승인   1003:승인보류 1004: 커뮤니티 폐쇄 1005 폐쇄중  -->
+		       , UPDT_ID                            		= #{updtId}
+		       , UPDT_DT                            		= SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+	
+	 	<!-- 커뮤니티 사용자 최초 생성 메뉴  저장-->
+	<insert  id="cmMenuUserInsert" parameterType="cmManageVO" >
+	/* cmManage-sqlmap.xml  _cmManage.cmMenuUserInsert */
+		INSERT INTO TCM_MBER_MENU_I (
+		   LANG_CODE
+		   , CMMNTY_ID
+		   , CMMNTY_MENU_CODE
+		   , MENU_BBS_SE
+		   , ESSNTL_MENU_AT
+		   , SORT_ORDR
+		   , CMMNTY_MENU_FOLDER_NM
+		   , CMMNTY_MENU_URL
+		   , CMMNTY_MENU_NM
+		   , MENU_CHARCT_CD
+		   , CMMNTY_BBS_TY_CD
+		   , CMMNTY_BBS_CD
+		   ) VALUES (
+			#{langCode}	
+			, #{cmmntyId}			
+			, #{cmmntyMenuCode}	
+			, #{menuBbsSe}			
+			, #{essntlMenuAt}		
+			, #{sortOrdr}		
+			, #{cmmntyMenuFolderNm}
+			, #{cmmntyMenuUrl}		
+			, #{cmmntyMenuNm}		
+			, #{menuCharctCd}		
+			, #{cmmntyBbsTyCd}		
+			, #{cmmntyBbsCd}
+		   )
+	</insert>
+	
+	    	<!-- 커뮤니티 사용자 최초 생성 메뉴  삭제-->
+ 	<delete id="cmMenuUserDelete" parameterType="cmManageVO" >
+		/* cmManage-sqlmap.xml  _cmManage.cmMenuUserDelete */
+ 		DELETE FROM 
+ 			TCM_MBER_MENU_I
+ 		WHERE  
+		   LANG_CODE  					= #{langCode}
+		  AND    CMMNTY_ID        	= #{cmmntyId}
+ 	</delete>
+ 	<!-- 관리자 회원 목록 팝업  -->
+ 	<select  id="cmMberInfoList"   parameterType="map"  resultType="cmManageVO" >
+ 	/* cmManage-sqlmap.xml  _cmManage.cmMberInfoList */
+	 	SELECT * FROM
+					(SELECT	 	
+						A.langCode			
+						, A.cmmntyId		    
+						, A.cmmntyMberId	
+						, A.ncnm			    
+						, A.mberStateCd		    
+						, A.sbscrbRejectResn	    
+						, A.sbscrbReqstDt	    
+						, A.sbscrbConfmDt	
+						, A.enfrcSecsnCd		
+						, A.enfrcSecsnNm    
+						, A.sbscrbRejectDt  
+						, A.secsnDt
+						, A.userTyCd 
+						, A.userTyNm
+						, A.visitDt
+						, A.cmMberBbsCount
+						, A.cmMberBbsCmtCount
+						
+						, A.cmVisitCount
+						, ROWNUM RNUM
+						FROM
+							(	SELECT 
+									b.LANG_CODE					AS langCode			
+									, b.CMMNTY_ID				AS cmmntyId		
+									, b.CMMNTY_MBER_ID		AS cmmntyMberId	
+									, b.NCNM						AS ncnm			
+									, b.MBER_STATE_CD			AS mberStateCd		
+									, b.SBSCRB_REJECT_RESN	AS sbscrbRejectResn	
+									, TO_CHAR( b.SBSCRB_REQST_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbReqstDt   
+									, TO_CHAR( b.SBSCRB_CONFM_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbConfmDt   	
+									, b.ENFRC_SECSN_CD		AS enfrcSecsnCd		
+									,  (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2004
+										AND opcode.INDVDLZ_CD = b.ENFRC_SECSN_CD )	AS enfrcSecsnNm
+									, TO_CHAR( b.SBSCRB_REJECT_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbRejectDt   
+									, TO_CHAR( b.SECSN_DT, 'YYYY-MM-DD HH24:MI') 	AS secsnDt   
+									, c.USER_TY_CD				AS userTyCd
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD )	AS userTyNm
+									, TO_CHAR((SELECT MAX(cmmVisitD.VISIT_DT) 
+                                                FROM TCM_VSIT_ANAL_S cmmVisitD
+                                                WHERE
+                                                cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                                                AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                                                AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) ,'YYYY-MM-DD HH24:MI' ) AS visitDt 
+									, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+										FROM TCM_CMNT_NTT_I tbbs
+										WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.REGIST_ID = b.CMMNTY_MBER_ID )	AS cmMberBbsCount 
+				
+									, (	SELECT  COUNT( tbbscmt.CMMNTY_ID) 
+										FROM TCM_NTT_CMT_I tbbscmt
+										WHERE
+										tbbscmt.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbscmt.LANG_CODE = b.LANG_CODE
+										AND tbbscmt.REGIST_ID = b.CMMNTY_MBER_ID
+										AND tbbscmt.CMT_DELETE_CD IS NULL
+										 )	AS cmMberBbsCmtCount 
+									,  (	SELECT  COUNT( cmmVisit.CMMNTY_ID) 
+										FROM TCM_VSIT_ANAL_S cmmVisit
+										WHERE
+										cmmVisit.CMMNTY_ID	 = b.CMMNTY_ID
+										AND cmmVisit.LANG_CODE = b.LANG_CODE
+										AND cmmVisit.USER_ID = b.CMMNTY_MBER_ID )	AS cmVisitCount 
+								FROM 
+									OP_USER c,
+									TCM_CMNT_MBER_I b
+<!-- 									LEFT OUTER JOIN    TCM_VSIT_ANAL_S v -->
+<!--         							ON  b.CMMNTY_MBER_ID    = 	v.USER_ID -->
+<!--         							AND v.LANG_CODE = b.LANG_CODE -->
+<!--         							AND v.CMMNTY_ID = b.CMMNTY_ID -->
+									<include refid="cmManageWhere02"/>
+							
+							) A
+				)
+			WHERE 
+			RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+ 	</select>
+ 	<!-- 관리자 회원 목록 카운트  -->
+ 	<select  id="cmMberInfoListCount" parameterType="map" resultType="int">
+ 	/* cmManage-sqlmap.xml  _cmManage.cmMberInfoListCount */
+			 	SELECT	 	
+					COUNT (A.cmmntyId)		    
+						FROM
+							(	SELECT 
+									b.LANG_CODE					AS langCode			
+									, b.CMMNTY_ID				AS cmmntyId		
+									, b.CMMNTY_MBER_ID		AS cmmntyMberId	
+									, b.NCNM						AS ncnm			
+									, b.MBER_STATE_CD			AS mberStateCd		
+									, b.SBSCRB_REJECT_RESN	AS sbscrbRejectResn	
+									, b.SBSCRB_REQST_DT		AS sbscrbReqstDt	
+									, b.SBSCRB_CONFM_DT		AS sbscrbConfmDt	
+									, b.ENFRC_SECSN_CD		AS enfrcSecsnCd		
+									, b.SBSCRB_REJECT_DT		AS sbscrbRejectDt
+									, c.USER_TY_CD				AS userTyCd
+									,TO_CHAR((SELECT MAX(cmmVisitD.VISIT_DT) 
+                                                FROM TCM_VSIT_ANAL_S cmmVisitD
+                                                WHERE
+                                                cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                                                AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                                                AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) ,'YYYY-MM-DD HH24:MI' ) AS visitDt 
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD )	AS userTyNm
+				
+									, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+										FROM TCM_CMNT_NTT_I tbbs
+										WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.REGIST_ID = b.CMMNTY_MBER_ID )	AS cmBbsCount 
+				
+									, (	SELECT  COUNT( tbbscmt.CMMNTY_ID) 
+										FROM TCM_NTT_CMT_I tbbscmt
+										WHERE
+										tbbscmt.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbscmt.LANG_CODE = b.LANG_CODE
+										AND tbbscmt.REGIST_ID = b.CMMNTY_MBER_ID
+										AND tbbscmt.CMT_DELETE_CD IS NULL
+									 ) 	AS cmBbsCmtCount 
+									, b.ID_OTHBC_AT				AS idOthbcAt				
+									, b.NM_OTHBC_AT			AS nmOthbcAt			   
+									, b.TELNO_OTHBC_AT			AS telnoOthbcAt			   
+									, b.MBTLNUM_OTHBC_AT		AS mbtlnumOthbcAt		   
+									, b.EMAIL_OTHBC_AT			AS emailOthbcAt			   
+									, b.CMPNY_NM_OTHBC_AT		AS cmpnyNmOthbcAt		   
+									, b.REPRSNT_TELNO_OTHBC_AT	AS reprsntTelnoOthbcAt	   
+									, b.CMPNY_EMAIL_OTHBC_AT	AS cmpnyEmailOthbcAt          
+									
+								FROM 
+									OP_USER c,
+									TCM_CMNT_MBER_I b
+<!-- 									LEFT OUTER JOIN    TCM_VSIT_ANAL_S v -->
+<!--         							ON  b.CMMNTY_MBER_ID    = 	v.USER_ID -->
+<!--         							AND v.LANG_CODE = b.LANG_CODE -->
+<!--         							AND v.CMMNTY_ID = b.CMMNTY_ID -->
+									<include refid="cmManageWhere02"/>
+				
+							) A
+ 	</select>
+ 	
+ 	<!-- 커뮤니티 회원 등록 -->
+ 	<insert id="cmMemberShipJoinInsert" parameterType="cmManageVO" >
+ 		/* cmManage-sqlmap.xml  _cmManage.cmMemberShipJoinInsert */
+ 		INSERT INTO TCM_CMNT_MBER_I (
+				LANG_CODE
+				,CMMNTY_ID
+				,CMMNTY_MBER_ID
+				,NCNM
+				,MBER_STATE_CD
+				,SBSCRB_REQST_DT
+				, ID_OTHBC_AT		
+				, NM_OTHBC_AT			   
+				, TELNO_OTHBC_AT		   
+				, MBTLNUM_OTHBC_AT		   
+				, EMAIL_OTHBC_AT		   
+				, CMPNY_NM_OTHBC_AT		   
+				, REPRSNT_TELNO_OTHBC_AT   
+				, CMPNY_EMAIL_OTHBC_AT       
+				<if test=' cmmntySbscrbMthd  ==  "1" '> <!-- 바로 가입 가입승인  -->
+				,SBSCRB_CONFM_DT
+				</if>
+		) VALUES (                                                  
+			      	 #{langCode}
+		             , #{cmmntyId}
+		             , #{cmmntyMberId}
+		             , #{ncnm}
+		             , #{mberStateCd}
+		             , SYSDATETIME
+		             , #{idOthbcAt}
+		             , #{nmOthbcAt}
+		             , #{telnoOthbcAt}
+		             , #{mbtlnumOthbcAt}
+		             , #{emailOthbcAt}
+		             , #{cmpnyNmOthbcAt} 
+		             , #{reprsntTelnoOthbcAt} 
+		             , #{cmpnyEmailOthbcAt} 
+		             <if test=' cmmntySbscrbMthd  ==  "1" '> <!-- 바로 가입 가입승인  -->
+					 , SYSDATETIME		<!-- 가입승인일시  -->
+					</if>
+		  )
+ 	</insert>
+ 	 
+ 	 <!-- 커뮤니티 회원 정보 취소  -->
+ 	 <delete id="cmMemberShipCancelDelete" parameterType="cmManageVO" >
+ 	 	/* cmManage-sqlmap.xml  _cmManage.cmMemberShipCancelDelete */
+ 	 	DELETE FROM 
+ 			TCM_CMNT_MBER_I
+ 		WHERE  
+		   	LANG_CODE  						= #{langCode}
+		  	AND    CMMNTY_ID        		= #{cmmntyId}
+		  	AND    CMMNTY_MBER_ID	= #{cmmntyMberId}
+ 	 </delete>
+ 	
+ 	<!--  커뮤니티 회원 정보 수정  -->
+ 	<update id="cmMemberShipJoinUpdate" parameterType="cmManageVO">
+ 		/* cmManage-sqlmap.xml  _cmManage.memberShipInfoUpdate */
+ 		UPDATE TCM_CMNT_MBER_I
+		SET  
+			<if test=' cmmntySbscrbMthd  ==  "3" '>
+				NCNM							= #{ncnm}
+				, ID_OTHBC_AT				= #{idOthbcAt}		
+				, NM_OTHBC_AT				= #{nmOthbcAt}	
+				, TELNO_OTHBC_AT			= #{telnoOthbcAt}	
+				, MBTLNUM_OTHBC_AT	= #{mbtlnumOthbcAt}	
+				, EMAIL_OTHBC_AT			= #{emailOthbcAt}		   
+				, CMPNY_NM_OTHBC_AT	= #{cmpnyNmOthbcAt}		   
+				, REPRSNT_TELNO_OTHBC_AT = #{reprsntTelnoOthbcAt}	
+				, CMPNY_EMAIL_OTHBC_AT	= #{cmpnyEmailOthbcAt}	      
+			</if>
+			<if test=' cmmntySbscrbMthd  ==  "1" or cmmntySbscrbMthd == "2" '>
+				NCNM							= #{ncnm}
+				, MBER_STATE_CD			= #{mberStateCd}	<!-- 회원상태   1001:가입중 1002:가입거절 1003:정상 1004:탈퇴 -->
+				, SBSCRB_REQST_DT		= SYSDATE
+				, ID_OTHBC_AT				= #{idOthbcAt}		
+				, NM_OTHBC_AT				= #{nmOthbcAt}	
+				, TELNO_OTHBC_AT			= #{telnoOthbcAt}	
+				, MBTLNUM_OTHBC_AT	= #{mbtlnumOthbcAt}	
+				, EMAIL_OTHBC_AT			= #{emailOthbcAt}		   
+				, CMPNY_NM_OTHBC_AT	= #{cmpnyNmOthbcAt}		   
+				, REPRSNT_TELNO_OTHBC_AT = #{reprsntTelnoOthbcAt}	
+				, CMPNY_EMAIL_OTHBC_AT	= #{cmpnyEmailOthbcAt}	      
+				<if test=' cmmntySbscrbMthd  ==  "1" '> <!-- 바로 가입 가입승인  -->
+				, SBSCRB_CONFM_DT		= SYSDATE		<!-- 가입승인일시  -->
+				</if>
+			</if>
+		WHERE  
+				LANG_CODE			= #{langCode}
+				AND    CMMNTY_ID		= #{cmmntyId}
+				AND    CMMNTY_MBER_ID	= #{cmmntyMberId}
+ 	</update>
+ 	
+ 	<!--  커뮤니티 회원 정보 수정 : 가입 승인, 가입 거절 , 강제 탈퇴  -->
+ 	<update id="cmMemberShipInfoUpdate" parameterType="cmManageVO" >
+ 	/* cmManage-sqlmap.xml  _cmManage.memberShipInfoUpdate */
+ 		UPDATE TCM_CMNT_MBER_I
+		SET    
+			 MBER_STATE_CD			= #{mberStateCd}	<!-- 회원상태   1001:가입중 1002:가입거절 1003:정상 1004:탈퇴 -->
+			<if test=' mberStateCd  ==  "1003" '> <!--  가입승인  -->
+			, SBSCRB_CONFM_DT		= SYSDATETIME		<!-- 가입승인일시  -->
+			</if>
+			<if test=' mberStateCd  ==  "1002" '> <!-- 가입거절  -->
+			, SBSCRB_REJECT_RESN		= #{sbscrbRejectResn} <!-- 가입거절사유  -->
+			, SBSCRB_REJECT_DT		= SYSDATETIME		<!--  가입거절일시 -->
+			</if>
+			<if test=' mberStateCd  ==  "1004" '> <!-- 강제탈퇴  -->
+			, ENFRC_SECSN_CD			= #{enfrcSecsnCd}	<!-- 강제탈퇴코드 1001:운영자강제탈퇴	1002:관리자강제탈퇴   1003: 본인탈퇴 -->
+			, SECSN_DT						= SYSDATETIME		<!-- 탈퇴일시  -->
+			</if>
+		WHERE  
+				LANG_CODE			= #{langCode}
+				AND    CMMNTY_ID		= #{cmmntyId}
+				AND    CMMNTY_MBER_ID	= #{cmmntyMberId}
+ 	</update>
+
+ 	<!--  커뮤니티 회원 정보  -->
+ 	<select  id="cmMemberShipInfoView" parameterType="cmManageVO"  resultType="cmManageVO">
+ 	/* cmManage-sqlmap.xml  _cmManage.cmMemberShipInfoView */
+ 					SELECT 
+									b.LANG_CODE					AS langCode			
+									, b.CMMNTY_ID				AS cmmntyId		
+									, b.CMMNTY_MBER_ID		AS cmmntyMberId	
+									, b.NCNM						AS ncnm			
+									, b.MBER_STATE_CD			AS mberStateCd		
+									, b.SBSCRB_REJECT_RESN	AS sbscrbRejectResn	
+									, TO_CHAR( b.SBSCRB_REQST_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbReqstDt   
+									, TO_CHAR( b.SBSCRB_CONFM_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbConfmDt   	
+									, b.ENFRC_SECSN_CD		AS enfrcSecsnCd		
+									,  (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2004
+										AND opcode.INDVDLZ_CD = b.ENFRC_SECSN_CD )	AS enfrcSecsnNm
+									, TO_CHAR( b.SBSCRB_REJECT_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbRejectDt   
+									, TO_CHAR( b.SECSN_DT, 'YYYY-MM-DD HH24:MI') 	AS secsnDt   
+									
+									, c.USER_NM														AS userNm
+									, c.NATION_CODE												AS nationCode
+									, c.USER_TY_CD													AS userTyCd
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD )	AS userTyNm
+									, c.TELNO														AS telno
+									, decrypt(c.MBTLNUM, 'P007')								AS mbtlnum
+									, decrypt(c.EMAIL, 'P008')									AS email
+									,TO_CHAR((SELECT MAX(cmmVisitD.VISIT_DT) 
+                                                FROM TCM_VSIT_ANAL_S cmmVisitD
+                                                WHERE
+                                                cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                                                AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                                                AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) ,'YYYY-MM-DD HH24:MI' ) AS visitDt
+									, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+										FROM TCM_CMNT_NTT_I tbbs
+										WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.REGIST_ID = b.CMMNTY_MBER_ID )	AS cmMberBbsCount 
+				
+									, (	SELECT  COUNT( tbbscmt.CMMNTY_ID) 
+										FROM TCM_NTT_CMT_I tbbscmt
+										WHERE
+										tbbscmt.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbscmt.LANG_CODE = b.LANG_CODE
+										AND tbbscmt.REGIST_ID = b.CMMNTY_MBER_ID 
+										AND tbbscmt.CMT_DELETE_CD IS NULL
+										)	AS cmMberBbsCmtCount 
+									,  (	SELECT  COUNT( cmmVisit.CMMNTY_ID) 
+										FROM TCM_VSIT_ANAL_S cmmVisit
+										WHERE
+										cmmVisit.CMMNTY_ID	 = b.CMMNTY_ID
+										AND cmmVisit.LANG_CODE = b.LANG_CODE
+										AND cmmVisit.USER_ID = b.CMMNTY_MBER_ID )	AS cmVisitCount 
+									,(SELECT tcii.CMMNTY_NM 
+										FROM TCM_CMNT_INFO_I tcii
+									  WHERE
+									  	tcii.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tcii.LANG_CODE = b.LANG_CODE
+									)	AS cmmntyNm
+									,(SELECT tcii.CMMNTY_URL 
+										FROM TCM_CMNT_INFO_I tcii
+									  WHERE
+									  	tcii.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tcii.LANG_CODE = b.LANG_CODE
+									)	AS cmmntyUrl
+									, b.ID_OTHBC_AT				AS idOthbcAt				
+									, b.NM_OTHBC_AT			AS nmOthbcAt			   
+									, b.TELNO_OTHBC_AT			AS telnoOthbcAt			   
+									, b.MBTLNUM_OTHBC_AT		AS mbtlnumOthbcAt		   
+									, b.EMAIL_OTHBC_AT			AS emailOthbcAt			   
+									, b.CMPNY_NM_OTHBC_AT		AS cmpnyNmOthbcAt		   
+									, b.REPRSNT_TELNO_OTHBC_AT	AS reprsntTelnoOthbcAt	   
+									, b.CMPNY_EMAIL_OTHBC_AT	AS cmpnyEmailOthbcAt          
+								FROM 
+									OP_USER c,
+									TCM_CMNT_MBER_I b
+<!-- 									LEFT OUTER JOIN    TCM_VSIT_ANAL_S v -->
+<!--         							ON  b.CMMNTY_MBER_ID    = 	v.USER_ID -->
+<!--         							AND v.LANG_CODE = b.LANG_CODE -->
+<!--         							AND v.CMMNTY_ID = b.CMMNTY_ID -->
+        					WHERE
+        					b.CMMNTY_ID	 = #{cmmntyId}
+							AND b.LANG_CODE = #{langCode}
+							AND b.CMMNTY_MBER_ID = #{cmmntyMberId} 
+							AND c.USER_ID = b.CMMNTY_MBER_ID
+ 	</select>
+ 	<!--  관리자 메일 발송 리스트  -->
+ 	 <select id="cmMngrInfoSelet" parameterType="cmManageVO"  resultType="cmManageVO" >
+		/* cmManage-sqlmap.xml  _cmManage.cmMngrInfoSelet */
+ 		SELECT 
+			EMAIL		AS mngrEmail
+			, MNGR_NM	AS mngrNm
+			, MNGR_ID		AS mngrId
+		FROM OP_MNGR
+		WHERE 
+			EMAIL IS NOT NULL  
+			AND EMAIL NOT IN ('')
+			AND USE_YN ='Y'
+ 	</select>
+ 	<!--  커뮤니티 완전 폐쇄중 여부 카운트-->
+ 	 <select id="cmCloseBatchCount" parameterType="cmManageVO"  resultType="int" >
+ 	  /* cmManage-sqlmap.xml  _cmManage.cmCloseBatchCount */
+ 		SELECT COUNT(*) FROM   TCM_CMNT_INFO_I
+		WHERE 
+		CMMNTY_STTUS_CD                    	= 1005
+		AND		CMMNTY_CLS_DT              &lt;= TO_DATE(#{cmmntyClsDt},'YYYY-MM-DD')
+	</select>
+ 		<!--  커뮤니티 완전 폐쇄 업데이트 배치 파일 사용 -->
+	<update id="cmCloseBatchUpdate" parameterType="cmManageVO" >
+	 /* cmManage-sqlmap.xml  _cmManage.cmCloseBatchUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+		       CMMNTY_STTUS_CD                    	= 1004 <!--  1001:신청  1002:승인   1003:승인보류  1004: 커뮤니티 폐쇄  1005 폐쇄중 -->
+		       , UPDT_DT									= SYSDATETIME
+		       , CMMNTY_CLS_ID 						= #{cmmntyClsId}
+		WHERE 
+			CMMNTY_STTUS_CD                    	= 1005
+			AND	CMMNTY_CLS_DT                    &lt;= TO_DATE(#{cmmntyClsDt},'YYYY-MM-DD')
+	</update>
+
+	<!-- {{ 2016.05.04 BH.YANG 커뮤티니 개설자 정보 -->
+		<!-- 커뮤니티 관리자모드 관리 홈 개설자 정보-->
+	<select id="cmOptMainAdminId" parameterType="cmManageVO" resultType="cmManageVO">
+	
+	 /* cmOptMain-sqlmap.xml  _cmOptMain.cmOptMainAdminId */
+	 
+	  SELECT USER_ID  AS estblReqstId 
+      FROM TCM_CMNT_INFO_I
+      WHERE CMMNTY_ID = #{cmmntyId}
+     </select>
+     <!-- }} -->
+</mapper>

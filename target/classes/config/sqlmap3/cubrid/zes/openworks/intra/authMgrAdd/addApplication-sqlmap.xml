@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_addApplication">
+
+     <sql id="dynamicWhere">
+     <trim>
+         <if test="q_searchKey2 != null  and q_searchKey2 != ''">
+             <if test='q_searchKey2 == "A"'>
+                 AND A.RES_TYPE_CD IS NULL
+             </if>
+             <if test='q_searchKey2 == "P"'>
+                 AND A.RES_TYPE_CD = 'P'
+             </if>
+             <if test='q_searchKey2 == "C"'>
+                 AND A.RES_TYPE_CD = 'C'
+             </if>
+         </if>
+
+         <if test="q_searchVal != null  and q_searchVal != ''">
+             <if test="q_searchKey == 1002">
+                AND EXISTS(SELECT 1 FROM OP_MGR WHERE MGR_ID = A.MGR_ID AND MGR_NM LIKE '%' || #{q_searchVal} || '%')
+             </if>
+             <if test="q_searchKey == 1003">
+                 AND A.MGR_ID LIKE '%' || #{q_searchVal} || '%'
+             </if>
+         </if>
+     </trim>
+     </sql>
+
+     <select id="list" parameterType="map" resultType="AddApplicationVO">
+        SELECT (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.MGR_ID) AS mgrNm,
+               TO_CHAR(A.REQ_MODI_DTM, 'YYYY-MM-DD')               AS reqModiDtm,
+               A.RES_TYPE_CD                                       AS resTypeCd,
+               TO_CHAR(A.PRC_MODI_DTM, 'YYYY-MM-DD')               AS prcModiDtm,
+               A.SEQ_NO                                            AS seqNo,
+               A.REQ_TYPE_CD                                       AS reqTypeCd
+          FROM OP_AUTH_REQ A
+         WHERE A.MGR_ID      = #{mgrId}
+           AND A.REQ_TYPE_CD = #{reqTypeCd}
+               <include refid="dynamicWhere"/>
+         ORDER BY A.SEQ_NO DESC
+           FOR ORDERBY_NUM()
+       BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+     </select>
+
+    <select id="listCount" parameterType="map" resultType="int">
+         SELECT COUNT(A.SEQ_NO) AS totalCount
+           FROM OP_AUTH_REQ A
+          WHERE A.MGR_ID      = #{mgrId}
+            AND A.REQ_TYPE_CD = #{reqTypeCd}
+                <include refid="dynamicWhere"/>
+     </select>
+     <sql id="add">
+         SELECT A.AUTH_CD      AS authCd,
+                B.AUTH_NM      AS authNm,
+                B.AUTH_TYPE_CD AS authTypeCd
+           FROM OP_AUTH_REQ_ITEM A
+              , OP_AUTH B
+          WHERE A.AUTH_CD = B.AUTH_CD
+            AND A.SEQ_NO  = #{seqNo}
+     </sql>
+     <select id="addList2" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+         <include refid="add"/>
+            AND A.PRC_TYPE_CD = 'P'
+          ORDER BY B.AUTH_NM
+     </select>
+     <select id="addList3" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+         <include refid="add"/>
+            AND A.PRC_TYPE_CD = 'C'
+          ORDER BY B.AUTH_NM
+     </select>
+     <sql id="currently">
+         SELECT B.AUTH_NM      AS authNm,
+                B.AUTH_CD      AS authCd,
+                B.AUTH_TYPE_CD AS authTypeCd
+           FROM OP_AUTH_MGR_ASSIGN A
+              , OP_AUTH B
+          WHERE A.MGR_ID  = #{mgrId}
+            AND A.AUTH_CD = B.AUTH_CD
+     </sql>
+
+     <select id="currentlyList" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+             <include refid="currently"/>
+            AND A.AUTH_CD NOT IN (SELECT C.AUTH_CD 
+                                    FROM OP_AUTH_REQ_ITEM C
+                                   WHERE MGR_ID = #{mgrId}
+                                     AND SEQ_NO = #{seqNo}
+                                 )
+          ORDER BY B.AUTH_NM
+     </select>
+     <select id="currentlyList1" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+             <include refid="currently"/>
+          ORDER BY B.AUTH_TYPE_CD,B.AUTH_NM
+     </select>
+     <select id="authGroupList" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+         SELECT B.AUTH_CD      AS authCd,
+                B.HIGH_AUTH_CD AS highAuthCd,
+                B.AUTH_NM      AS authNm,
+                DECODE((SELECT COUNT(*)
+                          FROM OP_AUTH_MGR_ASSIGN A
+                         WHERE MGR_ID    = #{mgrId}
+                           AND A.AUTH_CD = B.AUTH_CD),0,'N','Y') AS checkYn
+           FROM OP_AUTH B
+          WHERE B.AUTH_TYPE_CD = 'G'
+          ORDER BY B.AUTH_NM
+     </select>
+     <select id="applicant" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+        SELECT (SELECT Y.DEPT_NM FROM OP_MGR X, OP_DEPT Y WHERE X.MGR_ID = A.MGR_ID AND X.DEPT_CD = Y.DEPT_CD) AS deptNm,
+               A.MGR_ID      AS mgrId,
+               (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.MGR_ID) AS mgrNm,
+               A.REQ_CONTS   AS reqConts,
+               A.RES_CONTS   AS resConts,
+               A.RES_TYPE_CD AS resTypeCd,
+               A.SEQ_NO      AS seqNo,
+               (SELECT Y.PRV_NM FROM OP_MGR X, OP_CODE_PRV Y WHERE X.MGR_ID = A.MGR_ID AND Y.GRP_CD = 9 AND Y.PRV_CD = X.GRADE_CD) AS gradeNm,
+               TO_CHAR(A.REQ_MODI_DTM, 'YYYY-MM-DD') AS reqModiDtm,
+               TO_CHAR(A.PRC_MODI_DTM, 'YYYY-MM-DD') AS prcModiDtm
+          FROM OP_AUTH_REQ A
+         WHERE SEQ_NO = #{seqNo}
+     </select>
+    <select id="assignmentMenu" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+         SELECT (SELECT MENU_NM FROM OP_MENU WHERE MENU_CD = A.MENU_CD) AS menuCd,
+                A.ASSIGN_TYPE_CD AS assignTypeCd
+           FROM OP_AUTH_MENU_ASSIGN A
+          WHERE A.AUTH_CD = #{authCd}
+     </select>
+     <select id="assignmentMenuCount" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+         SELECT COUNT(A.ASSIGN_TYPE_CD) AS authMenuAssignCount
+           FROM OP_AUTH_MENU_ASSIGN A
+          WHERE A.AUTH_CD = #{authCd}
+     </select>
+     <select id="menuAllList" parameterType="AddApplicationVO" resultType="AddApplicationVO">
+                   SELECT MENU_CD AS menuCd,
+                          MENU_NM AS menuNm,
+                          LEVEL   AS menuLevel,
+<!--                           (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'|' || Y.ASSIGN_TYPE_CD ) ORDER BY Y.MENU_CD).EXTRACT('//text()'),2) -->
+<!--                              FROM OP_AUTH_MGR_ASSIGN X, -->
+<!--                                   OP_AUTH_MENU_ASSIGN Y -->
+<!--                             WHERE X.MGR_ID = #{mgrId} -->
+<!--                               AND X.AUTH_CD = Y.AUTH_CD -->
+<!--                               AND Y.MENU_CD = A.MENU_CD) || -->
+<!--                           '' AS assignMenu, -->
+                          (SELECT COUNT(X.MGR_ID)
+                             FROM OP_AUTH_MENU_ASSIGN Z,
+                                  OP_AUTH Y,
+                                  OP_AUTH_MGR_ASSIGN X
+                            WHERE Z.MENU_CD = A.MENU_CD
+                              AND Z.AUTH_CD = Y.AUTH_CD
+                              AND Y.AUTH_CD = X.AUTH_CD) AS assignPCnt,
+                          (SELECT DECODE(COUNT(*), 0, 'N', 'Y')
+                             FROM OP_AUTH_MGR_ASSIGN Y
+                                 ,OP_AUTH X
+                                 ,OP_AUTH_MENU_ASSIGN Z
+                            WHERE Y.MGR_ID = #{mgrId}
+                              AND Y.AUTH_CD = X.AUTH_CD
+                              AND Z.AUTH_CD = Y.AUTH_CD
+                              AND Z.MENU_CD = A.MENU_CD) ||
+                          '' AS mgrAssign
+                     FROM (SELECT   A.HIGH_MENU_CD,
+                                    A.MENU_CD,
+                                    A.MENU_NM,
+                                    A.ORDER_NO
+                             FROM   OP_MENU A
+                            WHERE   A.USE_YN = 'Y') A
+         CONNECT BY PRIOR MENU_CD = HIGH_MENU_CD
+               START WITH HIGH_MENU_CD = 0
+        ORDER SIBLINGS BY ORDER_NO
+    </select>
+    <select id="newSeqNo" parameterType="AddApplicationVO" resultType="int">
+        SELECT NVL(MAX(SEQ_NO), 0) + 1
+              FROM OP_AUTH_REQ
+    </select>
+
+    <insert id="authReqInsert" parameterType="AddApplicationVO">
+        INSERT INTO OP_AUTH_REQ(
+            SEQ_NO, MGR_ID, REQ_TYPE_CD ,REQ_CONTS, REQ_REG_DTM, REQ_MODI_DTM
+        )VALUES(
+            #{seqNo}, #{mgrId}, #{reqTypeCd}, #{reqConts}, SYSDATE, SYSDATE
+        )
+    </insert>
+    <insert id="authReqItemInsert" parameterType="AddApplicationVO">
+        INSERT INTO OP_AUTH_REQ_ITEM(
+            SEQ_NO, MGR_ID, AUTH_CD, REQ_TYPE_CD
+        )VALUES(
+        #{seqNo},#{mgrId},#{authCd},#{reqTypeCd}
+
+        )
+
+    </insert>
+
+    <select id="newPersonCd" parameterType="AddApplicationVO" resultType="string">
+        SELECT #{mgrId} ||
+               (SELECT COUNT(*) + 1
+                  FROM OP_AUTH A,
+                       OP_AUTH_MGR_ASSIGN B
+                 WHERE A.AUTH_CD      = B.AUTH_CD
+                   AND A.AUTH_TYPE_CD = 'P'
+                   AND B.MGR_ID       = #{mgrId})
+          FROM DUAL
+    </select>
+    <update id="saveAssignMenu" parameterType="AddApplicationVO">
+     INSERT INTO OP_AUTH_REQ_ITEM_MENU A
+          (MENU_CD, AUTH_CD,MGR_ID,SEQ_NO, ASSIGN_TYPE_CD)
+          VALUES (#{menuCd}, #{authCd},#{mgrId},#{seqNo}, #{assignTypeCd})
+    </update>
+    <update id="creatAuth" parameterType="AddApplicationVO">
+      MERGE INTO OP_AUTH A
+          USING DUAL
+          ON( A.AUTH_CD = #{authCd}
+              AND A.AUTH_TYPE_CD = 'P')
+          WHEN NOT MATCHED THEN
+          INSERT(AUTH_CD,AUTH_TYPE_CD,REG_DTM,MODI_DTM,AUTH_NM,USE_YN)
+          VALUES(#{authCd},'P',SYSDATE,SYSDATE,#{authNm},'Y')
+    </update>
+
+</mapper>

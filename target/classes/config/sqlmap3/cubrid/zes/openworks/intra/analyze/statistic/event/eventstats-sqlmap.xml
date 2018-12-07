@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_eventstats">
+
+    <select id="eventList" parameterType="map" resultType="map">
+        /* _eventstats.eventList */
+        SELECT
+               EM.EVENT_TITLE AS EVENT_TITLE
+              ,ED.EVENT_SN AS EVENT_SN
+              ,NVL(SUM(EM.EVENT_RDCNT),0) AS RD_CNT
+              ,NVL(EP.CNT,0) AS CMT_CNT
+              , TO_CHAR(TO_DATE(EM.BEGIN_DATE, 'YYYYMMDD'), 'YYYY-MM-DD') AS BEGIN_DATE
+              , TO_CHAR(TO_DATE(EM.END_DATE, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DATE
+          FROM TRM_EVET_MGMT_M EM
+              ,TRM_EVET_DOMN_I ED
+              ,(SELECT
+                       EVENT_SN
+                      ,COUNT(EVENT_CMT_SEQ) CNT
+                  FROM TRM_EVET_PTCP_I
+                 GROUP BY EVENT_SN
+               ) EP
+         WHERE EM.EVENT_SN = ED.EVENT_SN
+           AND EM.EVENT_SN = EP.EVENT_SN(+)
+           <if test="q_domainCd != null and q_domainCd != ''">
+           AND ED.DOMAIN_CD = #{q_domainCd}
+           </if>
+           <if test="q_domainCd == null or q_domainCd == ''">
+           AND ED.DOMAIN_CD = 2
+           </if>
+           <if test="q_startDate != null  and q_startDate != ''">
+           <![CDATA[
+           AND BEGIN_DATE >= REPLACE(#{q_startDate}, '-')
+           ]]>
+           </if>
+           <if test="q_endDate != null  and q_endDate != ''">
+           <![CDATA[
+           AND END_DATE <= REPLACE(#{q_endDate}, '-')
+           ]]>
+           </if>
+         GROUP BY EM.EVENT_TITLE
+    </select>
+
+    <select id="eventView" parameterType="map" resultType="map">
+        /* _eventstats.eventView */
+        SELECT
+               '국내' AS NATION
+              ,(SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE INDVDLZ_CD = OU.USER_TY_CD AND LANG_CODE = '00' AND GROUP_CD = 5) AS USER_TY_CD
+              ,COUNT(EVENT_CMT_SEQ) AS CNT
+          FROM OP_USER OU
+              ,TRM_EVET_PTCP_I EP
+          WHERE OU.USER_ID = EP.WRTER_ID
+            AND NATION_CODE = '410'
+            AND EP.EVENT_SN = #{q_eventSn}
+          GROUP BY USER_TY_CD
+          UNION ALL 
+         SELECT
+                '해외' AS NATION
+               ,(SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE INDVDLZ_CD = OU.USER_TY_CD AND LANG_CODE = '00' AND GROUP_CD = 5) AS USER_TY_CD
+               ,COUNT(EVENT_CMT_SEQ) AS CNT
+           FROM OP_USER OU
+               ,TRM_EVET_PTCP_I EP
+          WHERE OU.USER_ID = EP.WRTER_ID
+            AND NATION_CODE != '410'
+            AND EP.EVENT_SN = #{q_eventSn}
+          GROUP BY USER_TY_CD
+    </select>
+</mapper>

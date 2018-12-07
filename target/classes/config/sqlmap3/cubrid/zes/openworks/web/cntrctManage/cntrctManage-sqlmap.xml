@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_cntrctManage">
+	<sql id="dynamicWhere">
+		<if test="userId != null  and userId != ''">
+        	AND A.USER_ID = #{userId}
+        </if>
+		<if test="q_searchKey != null  and q_searchKey != ''">
+        	<if test="q_searchKey == '1001'">
+            	AND A.REGIST_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == '1002'">
+            	AND A.USER_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+		</if>
+       <!--  <if test="q_beginDate != null  and q_beginDate != ''">
+        	AND TO_CHAR(CNTRCT_BEGIN_DE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+        </if> -->
+         <if test="q_beginDate != null ">
+        	AND TO_CHAR(CNTRCT_BEGIN_DE,'YYYYMMDD')  &gt;= REPLACE (#{q_beginDate},'-','')
+        </if> 
+        <if test="q_userType == 'ceart' ">
+        	AND  IFNULL(TEMP_USER_SN, 0) = 0 
+        </if>
+        <if test="q_userType == 'none' ">
+        	AND  IFNULL(TEMP_USER_SN, 0) != 0 
+        </if>
+        <if test="q_orgnCode != null  and q_orgnCode != '' ">
+	        AND ( CASE WHEN  A.TEMP_USER_SN != 0 THEN C.ORGN_CODE
+					ELSE D.ORGN_CODE  END ) = #{q_orgnCode}
+	   </if>
+	   <if test="q_mainList != null  and q_mainList != '' ">
+	   		<!-- AND CNTRCT_BEGIN_DE > '20151231' OR CNTRCT_SN IN (42, 22, 30)  -->
+	   		AND USE_AT ='Y'
+	   </if>
+    </sql>
+   	
+   	<sql id="pageFormSearchDynamic">
+		<if test="q_beginDate != null and q_beginDate != ''">
+			AND C.cntrct_date BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+		</if>
+        <if test="q_userType == '10'">
+        	<if test="q_searchVal != null and q_searchVal != ''">
+        	AND C.main_cntrct_entrps_nm like '%' || #{q_searchVal} || '%'
+        	</if>	
+        </if>
+        <if test="q_userType == '20'">
+        	<if test="q_searchVal != null and q_searchVal != ''">        
+        	AND C.real_orgn_nm like '%' || #{q_searchVal} || '%'
+        	</if>
+        </if>
+        <if test="q_userType == '30'">
+			<if test="q_searchVal != null and q_searchVal != ''">
+        	AND C.cntrct_nm like '%' || #{q_searchVal} || '%'
+        	</if>
+        </if>
+        
+        
+        
+    </sql>
+    <select id="cntrctManageList" parameterType="map" resultType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageList*/
+      	SELECT Y.* 
+      	  FROM (SELECT  ROWNUM NUM
+      	              , X.* 
+      	          FROM  (SELECT  A.CNTRCT_SN AS cntrctSn
+      	                       , A.USER_ID AS userId
+      	                       , A.SVC_NM AS svcNm
+      	                       , TO_CHAR(CNTR_DT,'yyyy-mm-dd') AS cntrDt
+      	                       , A.CNTRCT_BEGIN_DE AS cntrctBeginDe
+      	                       , A.CNTRCT_END_DE AS cntrctEndDe
+							   , AA.CNTRCT_AMOUNT AS cntrctamount
+      	                       /*, A.CNTRCTAMOUNT AS cntrctamount*/
+      	                       /* , (SELECT CNTRCT_AMOUNT FROM TCM_CNTRCT_SERVICE_I WHERE CNTRCT_SN = A.CNTRCT_SN) cntrctamount*/
+      	                       <!-- , A.PURCHS_INSTT_NM2 AS purchsInsttNm -->
+      	                       , NVL(A.PURCHS_INSTT_NM2,A.PURCHS_INSTT_NM)  AS purchsInsttNm
+      	                       , CASE WHEN A.goods_code IS NOT NULL THEN (SELECT  B.cmpny_nm 
+				                                                            FROM  tst_good_info_i C
+				                                                                , op_user_entrprs_option B
+				                                                           WHERE  C.user_id = B.user_id
+				                                                             AND  C.goods_code = A.goods_code) 
+				                 ELSE A.SLE_INSTT_NM END AS sleInsttNm 
+				               , A.CTRTC_SN 	AS ctrtcSn 
+				               <!-- , IFNULL(A.COMM_USER_ID,A.REGIST_ID) AS registId -->
+				               , A.COMM_USER_ID AS registId
+				               , A.REGIST_DT 	AS registDt
+				               , A.UPDT_ID 		AS updtId
+				               , A.UPDT_DT 		AS updtDt
+				               , A.DELETE_AT 	AS deleteAt
+				               , A.TEMP_USER_SN	AS tempUserSn
+				               , A.CNTR_COUNT	AS cntrCount
+				               , B.GOODS_NM		AS goodsNm
+				               , A.USE_AT 		AS useAt
+				           FROM  TCM_CNTRCT_MANAGE_I A
+				           LEFT  JOIN TCM_CNTRCT_SERVICE_I AA   ON A.CNTRCT_SN = AA.CNTRCT_SN					           
+						   LEFT  JOIN TST_GOOD_INFO_I B 		ON  AA.GOODS_CODE = B.GOODS_CODE
+				           LEFT  JOIN TCM_CNTRCT_TEMP_USER C 	ON  A.TEMP_USER_SN = C.USER_SN
+				           LEFT  JOIN OP_USER_PBLINSTT_OPTION D ON  A.COMM_USER_ID = D.USER_ID
+				           LEFT  JOIN OP_CODE_INDVDLZ G 		ON  G.GROUP_CD = '2046'
+				            AND  G.INDVDLZ_CD = A.REGIST_MTHD_CODE
+				          <!-- WHERE  A.DELETE_AT != 'Y' -->
+ 				          WHERE  1=1
+ 				            <!-- AND A.DELETE_AT != 'N' -->
+				            AND  A.ASIS = 'N'
+				   <include refid="dynamicWhere"/>
+		         ORDER BY A.REGIST_DT DESC
+        	) X  WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y  WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    <select id="naraTotalCntrctInfoList" parameterType="map" resultType="CntrctManageVO">
+    	/*_cntrctManage.naraTotalCntrctInfoList*/
+       SELECT Y.* 
+         FROM (SELECT  ROWNUM NUM
+                     , X.* 
+                 FROM  (SELECT  
+                                A.CNTR_UNUM  AS cntrUnum
+                              , A.CNTR_NUM   AS cntrNum
+                              , A.LINE_NUM   AS lineNum
+                              , A.ITEM_NAME  AS itemName
+                              , A.UNIT_PRIC  AS unitPric
+                              , A.MANU_NAME  AS manuName
+                              , A.ITEM_ENTR_DATE AS itemEntrDate
+                              , A.GOODS_CODE AS goodsCode 
+                              , B.ITEM_IDNTFC_NO AS itemIdntfcNo
+                              , C.MAIN_CNTRCT_ENTRPS_NM  AS mainCntrctEntrpsNm
+                              , C.REAL_ORGN_NM AS realOrgnNm
+                              , C.CNTRCT_NM AS cntrctNm
+							  , substr(substr(C.cntrct_date,3,8),1,2) || '/' || substr(substr(C.cntrct_date,3,8),3,2) || '/' || substr(substr(C.cntrct_date,3,8),5,2) AS cntrctDate
+                              , C.CNTRCT_PD AS cntrctPd
+                              , B.CNTRCT_ITEM_AMT AS cntrctThisTimeAmt
+                              , SUBSTR(C.cntrct_no,1,10) || '-' || SUBSTR(C.cntrct_no,11,2) AS cntrctNo
+                              , D.DELIVERY_NUM AS deliveryNum /*납품요구번호*/
+                              , D.ITEM_DESPTN AS itemDesptn /*품명설명*/
+                              , D.ITEM_QUANTITY AS itemQuantity /*규격*/
+                              , D.UNIT_PRICE AS unitPrice /*단가*/
+                              , D.ITEM_UNIT AS itemUnit /*단위*/
+                              , D.ITEM_AMOUNT AS itemAmount /*금액*/
+                              , substr(substr(D.DELIVERY_DATE,3,8),1,2) || '/' || substr(substr(D.DELIVERY_DATE,3,8),3,2) || '/' || substr(substr(D.DELIVERY_DATE,3,8),5,2) AS deliveryDate /*납품기한*/
+                              , D.DELIVERY_PLACE AS deliveryPlace /*납품장소*/
+                          FROM  TCN_PPS_GOOD_INFO_L A
+                          			 LEFT JOIN TCN_CNTRCT_INFO_D B ON A.ITEM_IDENTIFIER = B.ITEM_IDNTFC_NO
+                                     LEFT JOIN TCN_CNTRCT_INFO_L C ON B.cntrct_union_no = C.cntrct_union_no
+                                     LEFT JOIN TCN_DVYFG_INFO_L D ON B.ITEM_IDNTFC_NO = D.ITEM_IDENTIFIER AND substr(C.cntrct_no,1,10) = D.DELIVERY_NUM                                          
+                         WHERE  A.ITEM_USE ='Y'
+                           AND  A.ITEM_DELETE ='N'
+                           AND  A.ITEM_DEALSTOP ='N'
+                           AND  A.ITEM_ORDER_BLOCK ='N'
+                           AND  A.UNIT_PRIC > 0
+                           AND A.LGS_CATE_CODE = '31'
+                           AND A.MDS_CATE_CODE = '03'     
+						   AND C.cntrct_union_no IS NOT null	                        
+							<include refid="pageFormSearchDynamic"/>                           
+                         ORDER  BY A.ITEM_ENTR_DATE DESC, C.REAL_ORGN_NM ASC, C.CNTRCT_NM asc, C.cntrct_no ASC, D.DELIVERY_DATE asc, D.DELIVERY_NUM ASC, C.cntrct_date asc
+        	) X  WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y  WHERE NUM &gt;= #{pagingStartNum}
+    	
+    </select>
+    
+    <select id="cntrctManageCount" parameterType="CntrctManageVO" resultType="int">
+     	/*_cntrctManage.cntrctManageCount*/      
+        SELECT COUNT(1) AS totalCount
+          FROM TCM_CNTRCT_MANAGE_I A
+          LEFT JOIN TCM_CNTRCT_TEMP_USER C
+         	ON A.TEMP_USER_SN = C.USER_SN
+		  LEFT JOIN OP_USER_PBLINSTT_OPTION D 
+			ON A.COMM_USER_ID = D.USER_ID 
+			<!-- WHERE  A.DELETE_AT != 'Y' -->
+			<!--WHERE  A.DELETE_AT != 'N' -->
+			AND  A.ASIS = 'N'
+		   <include refid="dynamicWhere"/>
+    </select>
+    <select id="naraTotalCntrctInfoCount" parameterType="CntrctManageVO" resultType="int">
+     	/*_cntrctManage.naraTotalCntrctInfoCount*/
+
+          SELECT COUNT(1) AS totalCount
+            FROM  TCN_PPS_GOOD_INFO_L A
+            			 LEFT JOIN TCN_CNTRCT_INFO_D B ON A.ITEM_IDENTIFIER = B.ITEM_IDNTFC_NO
+						LEFT JOIN TCN_CNTRCT_INFO_L C ON B.cntrct_union_no = C.cntrct_union_no
+                        LEFT JOIN TCN_DVYFG_INFO_L D ON B.ITEM_IDNTFC_NO = D.ITEM_IDENTIFIER AND substr(C.cntrct_no,1,10) = D.DELIVERY_NUM                                          
+           WHERE  A.ITEM_USE ='Y'
+             AND  A.ITEM_DELETE ='N'
+             AND  A.ITEM_DEALSTOP ='N'
+             AND  A.ITEM_ORDER_BLOCK ='N'
+             AND  A.UNIT_PRIC > 0
+             AND A.LGS_CATE_CODE = '31'
+             AND A.MDS_CATE_CODE = '03'                           
+             AND C.cntrct_union_no IS NOT null
+		<include refid="pageFormSearchDynamic"/>    
+
+    </select>
+    
+    <select id="cntrctManageView" parameterType="map" resultType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageView*/
+		SELECT  CNTRCT_SN 		AS cntrctSn
+		      , USER_ID 		AS userId
+			  , SVC_NM 			AS svcNm
+			  , CNTRCT_BEGIN_DE	AS cntrctBeginDe
+			  , CNTRCT_END_DE	AS cntrctEndDe
+			  , CNTRCTAMOUNT	AS cntrctamount
+			  , PURCHS_INSTT_NM	AS purchsInsttNm
+			  , SLE_INSTT_NM	AS sleInsttNm
+			  , CTRTC_SN 		AS ctrtcSn
+			  , REGIST_ID 		AS registId
+			  , REGIST_DT 		AS registDt
+			  , UPDT_ID 		AS updtId
+			  , UPDT_DT 		AS updtDt
+			  , DELETE_AT 		AS deleteAt
+		  FROM  TCM_CNTRCT_MANAGE_I
+		 <!-- WHERE  DELETE_AT != 'Y' -->
+		 WHERE  DELETE_AT != 'N'
+		   AND  ASIS = 'N'
+		   AND  CNTRCT_SN = #{cntrctSn}
+		   AND  USER_ID = #{userId}
+         ORDER  BY REGIST_DT DESC
+    </select>
+    
+    <insert id="cntrctManageInsertAction" parameterType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageInsertAction*/
+		INSERT INTO TCM_CNTRCT_MANAGE_I 
+			 ( USER_ID
+			 , SVC_NM
+			 , CNTRCT_BEGIN_DE
+			 , CNTRCT_END_DE
+			 , CNTRCTAMOUNT
+			 , PURCHS_INSTT_NM
+			 , SLE_INSTT_NM
+			 , CTRTC_SN
+			 , REGIST_ID
+			 , REGIST_DT
+			 , UPDT_ID
+			 , UPDT_DT
+			 , DELETE_AT
+		     ) 
+		VALUES 
+			 ( #{userId}
+			 , #{svcNm}
+			 , #{cntrctBeginDe}
+			 , #{cntrctEndDe}
+			 , #{cntrctamount}
+			 , #{purchsInsttNm}
+			 , #{sleInsttNm}
+			 , #{ctrtcSn}
+			 , #{userId}
+			 , SYS_DATETIME
+			 , #{userId}
+			 , SYS_DATETIME
+			 , 'N'
+			 )
+	</insert>
+    
+    <update id="cntrctManageUpdateAction" parameterType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageUpdateAction*/
+    	UPDATE TCM_CNTRCT_MANAGE_I 
+		   SET SVC_NM = #{svcNm}
+			 , CNTRCT_BEGIN_DE = #{cntrctBeginDe}
+			 , CNTRCT_END_DE = #{cntrctEndDe}
+			 , CNTRCTAMOUNT = #{cntrctamount}
+			 , PURCHS_INSTT_NM = #{purchsInsttNm}
+			 , SLE_INSTT_NM = #{sleInsttNm}
+			 , CTRTC_SN = #{ctrtcSn}
+			 , UPDT_ID = #{userId}
+			 , UPDT_DT = SYS_DATETIME
+		 WHERE CNTRCT_SN = #{cntrctSn}
+		   AND USER_ID = #{userId}
+    </update>
+    
+    <update id="cntrctManageDeleteAction" parameterType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageDeleteAction*/
+    	UPDATE TCM_CNTRCT_MANAGE_I 
+		   SET DELETE_AT = 'Y'
+		 WHERE CNTRCT_SN = #{cntrctSn}
+    </update>
+    
+    
+    <update id="cntrctManageUpateUseAction" parameterType="CntrctManageVO">
+    	/*_cntrctManage.cntrctManageUpateUseAction*/
+    	UPDATE TCM_CNTRCT_MANAGE_I 
+		   SET USE_AT = #{useAt}
+		 WHERE CNTRCT_SN = #{cntrctSn}
+    </update>
+    
+    
+    <select id="serviceCnt"  parameterType="map" resultType="map">
+    	/*_cntrctManage.serviceCnt*/
+    	SELECT  COUNT(*)  AS CNT_AMT
+    	      ,	SUM(CNTRCTAMOUNT)/1000000  AS SPLY_AMT
+	      FROM  TCM_CNTRCT_MANAGE_I 
+		 <!-- WHERE  DELETE_AT !='Y' 
+		   AND  USE_AT ='Y' -->
+		  WHERE  DELETE_AT != 'N'
+		   AND  ASIS = 'N'
+             <!-- AND CNTRCT_BEGIN_DE > '20151231' OR CNTRCT_SN IN (42, 22, 30) --> 
+	</select>
+
+
+  	 <select  id="cntrctManageDetail" parameterType="map" resultType="CntrctManageVO">
+  	 	/*_cntrctManage.cntrctManageDetail*/
+        SELECT A.CNTRCT_SN                             AS cntrctSn				/*계약번호*/
+        	 , A.CNTR_NUM	                           AS cntrNum
+             , A.USER_ID                               AS suplerId				
+             , A.SVC_NM                                AS svcNm					/*사업명*/
+             , TO_CHAR(A.CNTR_DT, 'YYYY-MM-DD')        AS cntrDt				/*계약체결일*/
+             , TO_DATE(A.CNTRCT_BEGIN_DE, 'YYYYMMDD')  AS cntrctBeginDe			/*계약기간-시작*/
+             , TO_DATE(A.CNTRCT_END_DE, 'YYYYMMDD')    AS cntrctEndDe			/*계약기간-종료*/
+             , (CASE WHEN B.BUSEO_CODE = 'ZZZZZZZ' THEN '2002' 
+               ELSE '3002' END)						   AS sbscrbTyCd			/*계약정보의 이용자구분 */
+             , B.BUSEO_CODE							   AS orgnCode				/*계약정보의 기관코드 */
+             , B.ORGN_NM							   AS orgnNm				/*계약정보의 기관명 혹은 회사명 */
+             , A.PURCHS_INSTT_NM                       AS purchsInsttNm			/*이용기관명*/
+             , A.CTRTC_SN                              AS ctrtcSn				/*계약서 첨부 일련번호*/
+             ,  IFNULL(A.USER_SE,3)					   AS userSe				/*이용자구분*/
+             , A.SPORT_AT							   AS sportAt		
+             , C.REALORGNM							   AS realOrgNm
+             , C.REALBUESOCNT						   AS realBuesoCnt
+          FROM  TCM_CNTRCT_MANAGE_I A
+	         LEFT JOIN TCM_RL_USER_I B ON A.CNTRCT_SN = B.CNTRCT_SN AND RL_CNTRCT_INSTT_AT =  'N'
+	         LEFT JOIN (SELECT MIN(ORGN_NM) AS REALORGNM, 
+	         				   COUNT(CNTRCT_SN)-1 AS REALBUESOCNT, CNTRCT_SN  
+	         		      FROM TCM_RL_USER_I 
+	         		     WHERE RL_CNTRCT_INSTT_AT =  'Y'
+	         		  GROUP BY  CNTRCT_SN) C ON A.CNTRCT_SN = C.CNTRCT_SN 
+      WHERE 1 = 1
+        AND A.CNTRCT_SN = #{strCntrctSn}
+  	</select>
+
+ 	<select  id="cntrctManageDetailList" parameterType="map" resultType="SuplerCntrctGoodsVO">
+  		/*_suplerCeart.cntrctManageDetailList*/
+		 SELECT A.CNTRCT_SVC_SN 	AS cntrctSvcSn, 
+				A.CNTRCT_SN 	  	AS cntrctSn,
+				A.GOODS_CODE		AS goodsCode,
+				B.GOODS_NM 			AS goodsName,
+				A.SPLY_FORM 		AS splyForm,
+				A.SPLY_FORM_ETC		AS splyFormEtc, 
+				A.CNTRCT_COUNT		AS cntrctCount, 
+				A.CNTRCT_AMOUNT		AS cntrctAmount
+		   FROM TCM_CNTRCT_SERVICE_I A
+      LEFT JOIN TST_GOOD_INFO_I B	   ON A.GOODS_CODE = B.GOODS_CODE
+		  WHERE A.CNTRCT_SN = #{strCntrctSn}
+	  ORDER BY CNTRCT_SVC_SN ASC
+  	</select>
+	
+</mapper>

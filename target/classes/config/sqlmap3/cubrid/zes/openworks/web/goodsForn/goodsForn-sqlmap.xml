@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_goodsForn">
+
+    <select id="goodsFornList" parameterType="map" resultType="goodsFornVO">
+    	/* _bidInfo.bidInfoList */
+		SELECT Y.* FROM (
+	    	SELECT ROWNUM NUM, X.* FROM (
+				SELECT 
+				        FORN_GOODS_NM	fornGoodsNm  	<!-- 서비스명 -->	
+				       ,FORN_CMPNY_NM	fornCmpnyNm 	<!-- 회사명 -->	
+				       ,FORN_GOODS_SUMRY fornGoodsSumry	<!-- 설명 --> 
+				       ,FORN_KND_NM		fornKndNm		<!-- 분류명 -->
+				       ,FORN_NOTE		fornNote 		<!-- 비고 -->
+				       ,FORN_LINK_URL	fornLinkUrl		<!-- 연결URL -->
+				       ,(SELECT TO_CHAR(MAX(UPDATE_DT),'YYYY-MM-DD') FROM TST_FORN_GOODS_I)  updateDt	
+				  FROM  TST_FORN_GOODS_I 
+			  
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y WHERE NUM &gt;= #{pagingStartNum}
+    
+    </select>
+    
+    <select id="goodsFornCount" parameterType="map" resultType="int">
+    	/* _goodsForn.goodsFornCount */
+        SELECT COUNT(1) 
+ 		  FROM TST_FORN_GOODS_I 
+    </select>
+
+</mapper>

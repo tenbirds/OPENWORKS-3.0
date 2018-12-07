@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="component.domain">
+
+	<select id="getDomain" parameterType="domainVO" resultType="domainVO">
+		/* component.domain.getDomain */
+		SELECT
+			DOMAIN_CD AS domainCd,
+			DOMAIN_NM AS domainNm,
+			PORT_NO AS portNo,
+			CONTEXT_PATH AS contextPath,
+			DOMAIN_DC AS domainDesc,
+			USE_YN AS useYn,
+			REGIST_ID AS regId,
+			(SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.REGIST_ID) AS regNm,
+			REGIST_DT AS regDt,
+			UPDT_ID AS modId,
+			(SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.UPDT_ID) AS modNm,
+			UPDT_DT AS modDt,
+			CHARGE_DEPT_CODE AS chargeDeptCode,
+			(SELECT OD.DEPT_NM FROM OP_DEPT OD WHERE OD.DEPT_CODE = A.CHARGE_DEPT_CODE) AS chargeDeptNm,
+			CHARGER_ID AS chargerId,
+			(SELECT MNGR_NM FROM OP_MNGR OM WHERE OM.MNGR_ID = A.CHARGER_ID) AS chargerNm
+		FROM
+			OP_DOMAIN A
+		<where>
+			<if test="domainCd != null  and domainCd != ''">AND
+				DOMAIN_CD = #{domainCd}
+			</if>
+			<if test="domainNm != null  and domainNm != ''">AND
+				DOMAIN_NM = #{domainNm}
+			</if>
+			<if test="useYn != null  and useYn != ''">AND
+				USE_YN = #{useYn}
+			</if>
+		</where>
+	</select>
+
+	<select id="getDomainList" parameterType="domainVO" resultType="domainVO">
+		/* component.domain.getDomainList */
+		SELECT
+			DOMAIN_CD AS domainCd,
+            DOMAIN_NM AS domainNm,
+            PORT_NO AS portNo,
+            CONTEXT_PATH AS contextPath,
+            DOMAIN_DC AS domainDesc,
+            USE_YN AS useYn,
+            REGIST_ID AS regId,
+            (SELECT OM.MNGR_NM FROM OP_MNGR OM WHERE MNGR_ID = A.REGIST_ID) AS regNm,
+            REGIST_DT AS regDt,
+            UPDT_ID AS modId,
+            (SELECT OM.MNGR_NM FROM OP_MNGR OM WHERE MNGR_ID = A.UPDT_ID) AS modNm,
+            UPDT_DT AS modDt,
+            CHARGE_DEPT_CODE AS chargeDeptCode,
+            (SELECT OD.DEPT_NM FROM OP_DEPT OD WHERE OD.DEPT_CODE = A.CHARGE_DEPT_CODE) AS chargeDeptNm,
+            CHARGER_ID AS chargerId,
+            (SELECT OM.MNGR_NM FROM OP_MNGR OM WHERE OM.MNGR_ID = A.CHARGER_ID) AS chargerNm
+		FROM
+			OP_DOMAIN A
+		<where>
+			<if test="domainCd != null  and domainCd != ''">AND
+				DOMAIN_CD = #{domainCd}
+			</if>
+			<if test="useYn != null  and useYn != ''">AND
+				USE_YN = #{useYn}
+			</if>
+		</where>
+		ORDER BY DOMAIN_CD ASC
+	</select>
+
+	<insert id="insertDomain" parameterType="domainVO">
+		/* component.domain.insertDomain */
+		<selectKey order="BEFORE" keyProperty="domainCd" resultType="int">
+			SELECT NVL(MAX(DOMAIN_CD), 0) + 1
+				FROM OP_DOMAIN
+		</selectKey>
+		INSERT INTO OP_DOMAIN (
+					DOMAIN_CD
+		          , DOMAIN_NM
+		          , PORT_NO
+		          , CONTEXT_PATH
+		          , DOMAIN_DC
+		          , CHARGE_DEPT_CODE
+		          , CHARGER_ID
+		          , USE_YN
+		          , REGIST_ID
+		          , REGIST_DT
+		) VALUES (
+					#{domainCd}
+		          , #{domainNm}
+		          , #{portNo}
+		          , #{contextPath}
+		          , #{domainDesc}
+		          , #{chargeDeptCode}
+		          , #{chargerId}
+		          , #{useYn}
+		          , #{regId}
+		          , SYSDATETIME
+		)
+	</insert>
+
+	<update id="updateDomain" parameterType="domainVO">
+		/* component.domain.updateDomain */
+		UPDATE OP_DOMAIN
+		   SET DOMAIN_NM = #{domainNm}
+             , DOMAIN_DC = #{domainDesc}
+             , PORT_NO = #{portNo}
+             , CONTEXT_PATH = #{contextPath}
+             , CHARGE_DEPT_CODE = #{chargeDeptCode}
+             , CHARGER_ID = #{chargerId}
+             , USE_YN = #{useYn}
+             , UPDT_ID = #{modId}
+             , UPDT_DT = SYSDATE
+       WHERE DOMAIN_CD = #{domainCd}
+	</update>
+
+	<delete id="deleteDomain" parameterType="domainVO">
+		/* component.domain.deleteDomain */
+		DELETE 
+          FROM OP_DOMAIN
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+
+	<delete id="deleteLayout" parameterType="domainVO">
+		/* component.domain.deleteLayout */
+		DELETE 
+          FROM OP_USER_MENU_LAYOUT
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+
+	<select id="getDomainGroup" parameterType="domainVO" resultType="domainGroupVO">
+		/* component.domain.getDomainGroup */
+		SELECT ODG.DOMAIN_CD 		AS domainCd
+             , ODG.GROUP_IP_ADRES 	AS groupIpAddr
+             , ODG.GROUP_PORT_NO 	AS groupPortNo
+             , (SELECT CONTEXT_PATH FROM OP_DOMAIN WHERE DOMAIN_CD = ODG.DOMAIN_CD) AS contextPath
+          FROM OP_DOMAIN_GROUP ODG
+         WHERE ODG.DOMAIN_CD = #{domainCd}
+	</select>
+
+	<insert id="insertDomainGroup" parameterType="domainGroupVO">
+		/* component.domain.insertDomainGroup */
+		INSERT INTO OP_DOMAIN_GROUP (
+		            DOMAIN_CD
+		          , GROUP_IP_ADRES
+		          , GROUP_PORT_NO
+        ) VALUES (
+		            #{domainCd}
+		          , #{groupIpAddr}
+		          , #{groupPortNo}
+        )
+	</insert>
+
+	<delete id="deleteDomainGroup" parameterType="domainVO">
+		/* component.domain.deleteDomainGroup */
+		DELETE 
+          FROM OP_DOMAIN_GROUP
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<delete id="deleteUserMenuAuth" parameterType="domainVO">
+		/* component.domain.deleteUserMenuAuth */
+		DELETE 
+          FROM OP_USER_MENU_AUTH
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<delete id="deleteUserMenuSubUrls" parameterType="domainVO">
+		/* component.domain.deleteUserMenuSubUrls */
+		DELETE 
+          FROM OP_USER_MENU_SUB_URLS
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<delete id="deleteUserMenuContents" parameterType="domainVO">
+		/* component.domain.deleteUserMenuContents */
+		DELETE 
+          FROM OP_USER_MENU_CONTENTS
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<delete id="deleteUserMenuGrade" parameterType="domainVO">
+		/* component.domain.deleteUserMenuGrade */
+		DELETE 
+          FROM OP_USER_MENU_GRADE
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<delete id="deleteUserMenuDomain" parameterType="domainVO">
+		/* component.domain.deleteUserMenuDomain */
+		DELETE 
+          FROM OP_USER_MENU
+         WHERE DOMAIN_CD = #{domainCd}
+	</delete>
+	<update id="updateBbsDomainDel" parameterType="domainVO">
+		/* component.domain.updateBbsDomainDel */
+		UPDATE OP_BOARD_CONF
+           SET DOMAIN_DELETE_AT = 'Y'
+         WHERE DOMAIN_CD = #{domainCd}
+	</update>
+</mapper>

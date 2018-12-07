@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_menu">
+
+	<sql id="selectColumn">
+		A.UPPER_MENU_CD AS upperMenuCd,
+        A.MNGR_MENU_CD  AS menuCd,
+        A.MNGR_MENU_NM  AS mngrMenuNm,
+        A.MENU_URL AS menuUrl,
+        A.CONTROLLER_NM AS controllerNm,
+	</sql>
+
+	<select id="list" parameterType="menuVO" resultType="menuVO">
+		SELECT <include refid="selectColumn"/>
+               A.USE_YN   AS useYn,
+               DECODE(
+                  (SELECT COUNT(MNGR_MENU_CD)
+                     FROM OP_MENU
+                    WHERE UPPER_MENU_CD = A.MNGR_MENU_CD), 0, '1', '0') AS leaf
+          FROM OP_MENU A
+         WHERE A.MNGR_MENU_CD &gt; 0
+           AND A.UPPER_MENU_CD = #{upperMenuCd}
+         ORDER BY A.MENU_ORDR_NO ASC
+	</select>
+
+	<select id="treeList" parameterType="menuVO" resultType="treeVO">
+		SELECT
+               A.MNGR_MENU_CD  AS id,
+               A.MNGR_MENU_NM  AS text,
+               A.MENU_URL AS href,
+               DECODE(A.USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE(
+                  (SELECT COUNT(MNGR_MENU_CD)
+                     FROM OP_MENU
+                    WHERE UPPER_MENU_CD = A.MNGR_MENU_CD), 0, '1', '0') AS leaf
+          FROM OP_MENU A
+         WHERE A.MNGR_MENU_CD &gt; 0
+           AND A.UPPER_MENU_CD = #{upperMenuCd}
+           <!-- AND A.USE_YN       = 'Y' -->
+         ORDER BY A.MENU_ORDR_NO ASC
+	</select>
+
+	<resultMap id="menuListMap" type="menuVO">
+		<result property="id" column="id"/>
+        <result property="text" column="text"/>
+        <result property="href" column="href"/>
+        <result property="leaf" column="leaf"/>
+        <association property="children" select="_menu.myListAll" column="{upperMenuCd=id, mngrId=mngrId}"/>
+	</resultMap>
+
+	<select id="myListAll" parameterType="menuVO" resultMap="menuListMap">
+		/* _menu.myListAll */
+		SELECT  upperMenuCd
+		      , menuCd     	AS id
+		      , mngrMenuNm	AS text
+		      , menuUrl    	AS href
+		      , leaf       	AS leaf
+		      , #{mngrId}   AS mngrId
+          FROM  (SELECT  <include refid="selectColumn"/>
+		                 A.MENU_ORDR_NO     AS menuOrdrNo
+		               , DECODE((SELECT COUNT(MNGR_MENU_CD)
+		                           FROM OP_MENU
+		                          WHERE UPPER_MENU_CD = A.MNGR_MENU_CD), 0, '1', '0') AS leaf
+		           FROM  OP_MENU A
+		               , (SELECT  DISTINCT B.MNGR_MENU_CD 
+		                    FROM  OP_AUTH_MNGR_ASSIGN A
+		                        , OP_AUTH_MENU_ASSIGN B
+		                   WHERE  A.MNGR_ID  = #{mngrId}
+		                     AND  A.AUTH_CODE = B.AUTH_CODE
+		                   ORDER  BY B.MNGR_MENU_CD ) B
+		          WHERE  A.MNGR_MENU_CD   &gt; 0
+		            AND  A.UPPER_MENU_CD = #{upperMenuCd}
+		            AND  A.MNGR_MENU_CD  = B.MNGR_MENU_CD
+		            AND  A.USE_YN        = 'Y')
+         ORDER BY menuOrdrNo
+	</select>
+
+	<select id="menuItemList" parameterType="map" resultType="menuItemVO">
+		/* _menu.menuItemList */
+		SELECT mngrMenuNm,        menuCd,    menuUrl,
+               menuItemDesc,  checked,   level
+          FROM (SELECT <include refid="selectColumn"/>
+		               A.MENU_ORDR_NO     AS menuOrdrNo,
+		               (SELECT MENU_ITEM_DESC FROM OP_MENU_ITEM
+		                 WHERE MENU_GROUP_CD = #{menuGrpCd}
+		                   AND MNGR_MENU_CD = A.MNGR_MENU_CD) AS menuItemDesc,
+		               DECODE(
+		               (SELECT MNGR_MENU_CD FROM OP_MENU_ITEM
+		                 WHERE MENU_GROUP_CD = #{menuGrpCd}
+		                   AND MNGR_MENU_CD = A.MNGR_MENU_CD), NULL, 'N', 'Y') AS checked
+		          FROM OP_MENU A
+		         WHERE A.MNGR_MENU_CD != #{upperMenuCd}
+		           AND A.USE_YN   = 'Y'
+		          )
+        CONNECT BY PRIOR menuCd = upperMenuCd
+          START WITH upperMenuCd = #{upperMenuCd}
+          ORDER SIBLINGS BY orderNo
+	</select>
+
+	<resultMap id="menuMap" type="menuVO">
+		<result property="upperMenuCd" column="upperMenuCd"/>
+        <result property="menuCd" column="menuCd"/>
+        <result property="mngrMenuNm" column="mngrMenuNm"/>
+        <result property="menuUrl" column="menuUrl"/>
+        <result property="controllerNm" column="controllerNm"/>
+        <result property="menuOrdrNo" column="menuOrdrNo"/>
+        <result property="useYn" column="useYn"/>
+        <result property="registDt" column="registDt"/>
+        <result property="updtDt" column="updtDt"/>
+	</resultMap>
+	<select id="view" parameterType="menuVO" resultMap="menuMap">
+		/* _menu.view */
+		SELECT <include refid="selectColumn"/>
+               A.MENU_ORDR_NO     AS menuOrdrNo,
+               A.USE_YN       AS useYn,
+               TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS') AS registDt,
+               TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS updtDt
+          FROM OP_MENU A
+         WHERE A.MNGR_MENU_CD = #{menuCd}
+	</select>
+
+	<select id="assignMenuAuthNm" parameterType="string" resultType="string">
+		/* _menu.assignMenuAuthNm */
+		SELECT C.AUTH_NM AS authNms 
+          FROM OP_MENU A
+             , OP_AUTH_MENU_ASSIGN B
+             , OP_AUTH C 
+         WHERE A.MNGR_MENU_CD = B.MNGR_MENU_CD 
+           AND B.AUTH_CODE = C.AUTH_CODE 
+           AND A.MNGR_MENU_CD = #{menuCd} 
+         ORDER BY MNGR_MENU_NM ASC
+	</select>
+
+	<insert id="insert" parameterType="menuVO">
+		/* _menu.insert */
+		<selectKey order="BEFORE" keyProperty="menuCd" resultType="int">
+            SELECT NVL(MAX(MNGR_MENU_CD), 1000) + 1
+              FROM OP_MENU
+        </selectKey>
+        INSERT INTO OP_MENU (
+            MNGR_MENU_CD,        MNGR_MENU_NM,    UPPER_MENU_CD,    MENU_URL,
+            MENU_FOLDER,    MENU_ORDR_NO,    CONTROLLER_NM
+        ) VALUES (
+            #{menuCd},        #{mngrMenuNm},    #{upperMenuCd},    #{menuUrl},
+            #{menuFolder},
+            (SELECT NVL(MAX(MENU_ORDR_NO), 0) + 1
+              FROM OP_MENU
+             WHERE UPPER_MENU_CD = #{upperMenuCd}),
+            #{controllerNm}
+        )
+	</insert>
+
+	<update id="infoUpdate" parameterType="menuVO">
+		/* _menu.infoUpdate */
+		UPDATE OP_MENU
+           <set>
+               <if test="mngrMenuNm != null  and mngrMenuNm != ''">
+               MNGR_MENU_NM     = #{mngrMenuNm},
+               </if>
+               <if test="menuFolder != null  and menuFolder != ''">
+               MENU_FOLDER = #{menuFolder},
+               </if>
+               <if test="useYn != null  and useYn != ''">
+               USE_YN      = #{useYn},
+               </if>
+               MENU_URL    = #{menuUrl},
+               CONTROLLER_NM = #{controllerNm},
+               UPDT_DT     = SYSDATE
+           </set>
+         WHERE MNGR_MENU_CD     = #{menuCd}
+	</update>
+
+	<update id="orderUpdate" parameterType="menuVO">
+		/* _menu.orderUpdate */
+		UPDATE OP_MENU
+           SET MENU_ORDR_NO		= #{menuOrdrNo},
+               UPPER_MENU_CD 	= #{upperMenuCd}
+         WHERE MNGR_MENU_CD     = #{menuCd}
+	</update>
+
+	<select id="sameLevelList" parameterType="menuVO" resultType="menuVO">
+		/* _menu.sameLevelList */
+		SELECT MNGR_MENU_CD     AS menuCd,
+               UPPER_MENU_CD 	AS upperMenuCd,
+               MENU_ORDR_NO     AS menuOrdrNo
+          FROM OP_MENU
+         WHERE MNGR_MENU_CD   &gt; 0
+           AND MNGR_MENU_CD     != #{menuCd}
+           AND UPPER_MENU_CD = #{upperMenuCd}
+         ORDER BY MENU_ORDR_NO ASC
+	</select>
+	
+	<select id="assignMenuCnt" parameterType="menuVO" resultType="int">
+		SELECT COUNT(*) AS cnt
+  		  FROM OP_AUTH_MENU_ASSIGN
+ 		 WHERE MNGR_MENU_CD = #{menuCd}
+    </select>
+	
+	<delete id="delete" parameterType="menuVO">
+		/* _menu.delete */
+		DELETE
+          FROM OP_MENU
+         WHERE MNGR_MENU_CD = #{menuCd}
+	</delete>
+</mapper>

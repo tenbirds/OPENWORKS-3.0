@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_advtsm">
+	<sql id="dynamicWhere">
+		<if test="q_advrts_reqest_entrps_nm != null and q_advrts_reqest_entrps_nm != &quot;&quot;"><!-- 광고주업체명 검색 -->
+			AND ADVRTS_REQEST_ENTRPS_NM LIKE '%' || #{advrtsReqestEntrpsNm} || '%'				
+		</if>
+		<choose>
+			<when test="q_del_yn_sel != null and q_del_yn_sel != &quot;&quot; and q_del_yn_sel == &quot;Y&quot;"><!-- 삭제여부 -->
+				AND DELETE_AT = 'Y'
+			</when>
+			<when test="q_del_yn_sel == null or q_del_yn_sel == &quot;&quot; or q_del_yn_sel == &quot;N&quot;">
+				AND DELETE_AT = 'N'
+			</when>
+			<otherwise></otherwise>
+		</choose>
+	</sql>
+	<sql id="selectColumns">
+		, ADVRTS_REQEST_ENTRPS_NM	AS advrtsReqestEntrpsNm				<!-- 광고의뢰업체명 -->
+	   	, ADVRTS_CHARGER_NM         AS advrtsChargerNm                  <!-- 광고담당자명 -->
+	   	, ADVRTS_CHARGER_TELNO      AS advrtsChargerTelno               <!-- 광고담당자연락처 -->
+	   	, ADVRTS_CHARGER_EMAIL      AS advrtsChargerEmail               <!-- 광고담당자이메일 -->
+	   	, ADVRTS_CHARGER_MBTLNUM    AS advrtsChargerMbtlnum             <!-- 광고담당자휴대전화번호 -->
+	   	, REGIST_ID                 AS registId                         <!-- 등록아이디 -->
+	   	, REGIST_DT                 AS registDt                         <!-- 등록일자 -->
+	   	, UPDT_ID                  	AS updtId                           <!-- 수정자아이디 -->
+	   	, UPDT_DT                  	AS updtDt                           <!-- 수정일자 -->
+	   	, NVL(DELETE_AT,'N')		AS deleteAt							<!-- 삭제여부 -->
+	</sql>
+
+	<!-- 광고주정보 목록 조회 -->
+	<select id="list" parameterType="map" resultType="AdvrtsVO">
+		/* advertisement-sqlmap.xml_list */
+		SELECT B.*
+       	  FROM (SELECT ROWNUM NUM, A.*                                                                           
+                  FROM (SELECT ADVRTS_CLIENT_SEQ				AS advrtsClientSeq	<!-- 광고의뢰인 일련번호 -->
+							   <include refid="selectColumns"/>							   
+						  FROM TRM_AVTS_CINT_M
+                     	 WHERE 1 = 1
+		<include refid="dynamicWhere"/>
+                     	 ORDER BY REGIST_DT DESC
+                       ) A
+                 WHERE ROWNUM &lt;= #{pagingEndNum}
+               ) B
+         WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<!-- 광고주정보 목록 카운트 -->
+	<select id="listCount" parameterType="map" resultType="int">
+		/* advertisement-sqlmap.xml_listCount */
+		SELECT COUNT(ADVRTS_CLIENT_SEQ)
+		  FROM TRM_AVTS_CINT_M
+		 WHERE 1 = 1
+		<include refid="dynamicWhere"/>
+	</select>
+
+	<!-- 광고주정보 등록 -->
+	<insert id="advtsmInsert" parameterType="AdvrtsVO">
+		<selectKey order="BEFORE" keyProperty="advrtsClientSeq" resultType="int">
+            SELECT SEQ_AUTO_PLUS.NEXTVAL 
+        </selectKey>
+		/* advertisement-sqlmap.xml_advtsmInsert */
+		INSERT INTO TRM_AVTS_CINT_M (
+						ADVRTS_CLIENT_SEQ
+						,ADVRTS_REQEST_ENTRPS_NM
+						,ADVRTS_CHARGER_NM
+						,ADVRTS_CHARGER_TELNO
+						,ADVRTS_CHARGER_EMAIL
+						,ADVRTS_CHARGER_MBTLNUM
+						,REGIST_ID
+						,REGIST_DT						
+		            )
+	     	 VALUES (
+					    #{advrtsClientSeq}				<!-- 광고주일련번호 -->
+					   	,#{advrtsReqestEntrpsNm}        <!-- 광고주명 -->
+	                    ,#{advrtsChargerNm}             <!-- 담당자명 -->
+	                    ,#{advrtsChargerTelno}          <!-- 담당자연락처 -->
+	                    ,#{advrtsChargerEmail}          <!-- 담당자이메일 -->
+	                    ,#{advrtsChargerMbtlnum}        <!-- 담당자휴대전화번호 -->
+	                    ,#{registId}                    <!-- 등록아이디 -->
+	                    ,sys_datetime         			<!-- 등록일자 -->
+			)
+	</insert>
+
+	<!-- 광고주정보 수정 -->
+	<update id="advtsmUpdate" parameterType="AdvrtsVO">
+		 UPDATE TRM_AVTS_CINT_M
+           	SET ADVRTS_REQEST_ENTRPS_NM		=       #{advrtsReqestEntrpsNm}				<!-- 광고주명 -->
+			  , ADVRTS_CHARGER_NM           =       #{advrtsChargerNm}                	<!-- 담당자명 -->
+			  , ADVRTS_CHARGER_TELNO        =       #{advrtsChargerTelno}             	<!-- 담당자연락처 -->
+			  , ADVRTS_CHARGER_EMAIL        =       #{advrtsChargerEmail}             	<!-- 담당자이메일 -->
+			  , ADVRTS_CHARGER_MBTLNUM      =       #{advrtsChargerMbtlnum}           	<!-- 담당자휴대전화번호 -->
+			  , UPDT_ID                     =       #{registId}                      	<!-- 수정자아이디 -->
+			  , UPDT_DT						=       sys_datetime                        <!-- 수정일자 -->
+			  , DELETE_AT					=       NVL(#{deleteAt},'N')
+		  WHERE ADVRTS_CLIENT_SEQ = #{advrtsClientSeq}
+	</update>
+
+	<!-- 광고주 사용/미사용처리 -->
+	<update id="advtsmDelUpdate" parameterType="AdvrtsVO">
+		 UPDATE TRM_AVTS_CINT_M
+           	SET DELETE_AT = NVL(#{deleteAt},'N')
+           	  , UPDT_ID = #{updtId}
+			  , UPDT_DT = sys_datetime
+		  WHERE ADVRTS_CLIENT_SEQ = #{advrtsClientSeq}
+	</update>
+
+	<!-- 광고주정보 조회 -->
+	<select id="updateForm" parameterType="AdvrtsVO" resultType="AdvrtsVO">	
+		SELECT ADVRTS_CLIENT_SEQ				AS advrtsClientSeq
+			   <include refid="selectColumns"/>
+          FROM TRM_AVTS_CINT_M
+		 WHERE ADVRTS_CLIENT_SEQ = #{advrtsClientSeq}
+	</select>
+	<!-- 배너/팝업에서 등록 시 사용하는 광고주 목록 -->
+	<select id="advrtsList" parameterType="AdvrtsVO" resultType="AdvrtsVO">
+    	SELECT ADVRTS_CLIENT_SEQ		AS advrtsClientSeq			<!-- 광고의뢰인 일련번호 -->
+			 , ADVRTS_REQEST_ENTRPS_NM	AS advrtsReqestEntrpsNm		<!-- 광고의뢰업체명 -->									   
+	  	  FROM TRM_AVTS_CINT_M
+	</select>
+</mapper>

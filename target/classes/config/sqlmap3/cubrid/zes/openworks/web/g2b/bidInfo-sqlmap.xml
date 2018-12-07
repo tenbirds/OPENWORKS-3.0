@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_bidInfo">
+	<sql id="dynamicWhere">
+    	<if test="searchType != null  and searchType != '' and searchNmVal != null  and searchNmVal != ''">
+            AND ${searchType} LIKE '%' || #{searchNmVal} || '%'
+        </if>
+        <if test="searchKey != null and searchKey != '' and searchVal != null and searchVal != ''">
+            AND ${searchKey} LIKE '%' || #{searchVal} || '%'
+        </if>
+        <if test="dateType != null and dateType != '' and sDate != null and sDate != '' and eDate != null and eDate != ''">
+            AND ${dateType} BETWEEN TO_DATE(#{sDate},'YYYY-MM-DD') AND TO_DATE(#{eDate},'YYYY-MM-DD') + 1
+        </if>
+	</sql>
+
+    <select id="bidInfoList" parameterType="map" resultType="bidInfoVO">
+    	/* _bidInfo.bidInfoList */
+		SELECT Y.* FROM (
+	    	SELECT ROWNUM NUM, X.* FROM (
+				SELECT BID_UNION_NO as bidUnionNo
+				     , BID_NOTIFY_NO as bidNotifyNo
+				     , BID_NOTIFY_SEQ_NO as bidNotifySeqNo
+				     , BID_NM as bidNm
+				     , TO_CHAR(PBLANC_START_DATE,'YYYY-MM-DD HH24:MI') as pblancStartDate
+				     , ORDER_ORGN_NM as orderOrgnNm
+				     , REAL_ORGN_NM as realOrgnNm
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2021'
+						   AND B.RELATION_CD = CNTRCT_MTH) as cntrctMth
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2019'
+						   AND B.RELATION_CD = BID_MTHD) as bidMthd
+				     , SCSBID_MTH as scsbidMth
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2018'
+						   AND B.RELATION_CD = BID_TYPE) as bidType
+				     , TO_CHAR(BID_STRT_DATE,'YYYY-MM-DD HH24:MI') as bidStrtDate
+				     , TO_CHAR(BID_END_DATE,'YYYY-MM-DD HH24:MI') as bidEndDate
+				     , PRSMP_AMT as prsmpAmt
+				     , SENDER_ID as senderId
+				     , MESS_TYPE as messType
+				     , MESS_NM as messNm
+				     , DOCU_MANG_NO as docuMangNo
+				  FROM TCN_BID_INFO_L
+	             WHERE (UPPER(BID_NM) LIKE '%' || UPPER('클라우드') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('cloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('가상화') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('virtualization') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('하이퍼바이저') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('Hypervisor') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('IaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('PaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('SaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('DaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('VDI') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('데스크탑가상화') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('SLA') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('g-cloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('gcloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('멀티테넌트') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenant') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multitenant') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('멀티네넌시') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenancy') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multitenancy') || '%')
+	           <include refid="dynamicWhere"/>
+	             ORDER BY BID_STRT_DATE DESC
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y WHERE NUM &gt;= #{pagingStartNum}
+
+    </select>
+
+    <select id="bidInfoCount" parameterType="map" resultType="int">
+    	/* _bidInfo.bidInfoCount */
+        SELECT COUNT(1) 
+          FROM TCN_BID_INFO_L
+         WHERE (UPPER(BID_NM) LIKE '%' || UPPER('클라우드') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('cloud') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('가상화') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('virtualization') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('하이퍼바이저') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('Hypervisor') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('IaaS') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('PaaS') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('SaaS') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('DaaS') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('VDI') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('데스크탑가상화') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('SLA') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('g-cloud') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('gcloud') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('멀티테넌트') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenant') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('multitenant') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('멀티네넌시') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenancy') || '%'
+			OR UPPER(BID_NM) LIKE '%' || UPPER('multitenancy') || '%')
+        <include refid="dynamicWhere"/>
+    </select>
+    
+    <select id="bidInfoCheck"  parameterType="bidInfoVO" resultType="int">
+    	/* _bidInfo.bidInfoCheck */
+        SELECT COUNT(1) 
+          FROM TCN_BID_INFO_L
+         WHERE BID_UNION_NO = #{bidUnionNo}
+           AND BID_NOTIFY_NO = #{bidNotifyNo}
+           AND BID_NOTIFY_SEQ_NO = #{bidNotifySeqNo}
+    </select>
+    
+    <insert id="bidInfoInsertAction"  parameterType="bidInfoVO" >
+    	/* _bidInfo.bidInfoInsertAction */
+		INSERT INTO TCN_BID_INFO_L (
+			   BID_UNION_NO
+			 , BID_NOTIFY_NO 
+			 , BID_NOTIFY_SEQ_NO 
+			 , BID_NM
+			<if test="pblancStartDate != null and pblancStartDate != ''">
+			 , PBLANC_START_DATE 
+			</if>
+			 , ORDER_ORGN_NM
+			 , REAL_ORGN_NM
+			<if test="cntrctMth != null and cntrctMth != ''">
+			 , CNTRCT_MTH 
+			</if>
+			<if test="bidMthd != null and bidMthd != ''">
+			 , BID_MTHD
+			</if>
+			<if test="scsbidMth != null and scsbidMth != ''">
+			 , SCSBID_MTH 
+			</if>
+			 , BID_TYPE
+			<if test="bidStrtDate != null and bidStrtDate != ''">
+			 , BID_STRT_DATE 
+			</if>
+			<if test="bidEndDate != null and bidEndDate != ''">
+			 , BID_END_DATE
+			</if>
+			<if test="prsmpAmt != null and prsmpAmt != ''">
+			 , PRSMP_AMT
+			</if>
+			 , SENDER_ID
+			 , MESS_TYPE 
+			 , MESS_NM
+			 , DOCU_MANG_NO 
+		) 
+		VALUES 
+		(
+			   #{bidUnionNo}
+			 , #{bidNotifyNo} 
+			 , #{bidNotifySeqNo} 
+			 , #{bidNm}
+			<if test="pblancStartDate != null and pblancStartDate != ''">
+			 , #{pblancStartDate} 
+			</if>
+			 , #{orderOrgnNm}
+			 , #{realOrgnNm} 
+			<if test="cntrctMth != null and cntrctMth != ''">
+			 , #{cntrctMth} 
+			</if>
+			<if test="bidMthd != null and bidMthd != ''">
+			 , #{bidMthd}
+			</if>
+			<if test="scsbidMth != null and scsbidMth != ''">
+			 , #{scsbidMth} 
+			</if>
+			 , #{bidType}
+			<if test="bidStrtDate != null and bidStrtDate != ''">
+			 , #{bidStrtDate} 
+			</if>
+			<if test="bidEndDate != null and bidEndDate != ''">
+			 , #{bidEndDate} 
+			</if>
+			<if test="prsmpAmt != null and prsmpAmt != ''">
+			 , #{prsmpAmt}
+			</if>
+			 , #{senderId}
+			 , #{messType} 
+			 , #{messNm}
+			 , #{docuMangNo} 
+		)
+    </insert>
+    
+    <update id="bidInfoUpdateAction" parameterType="bidInfoVO">
+    	/* _bidInfo.bidInfoUpdateAction */
+        UPDATE TCN_BID_INFO_L
+           SET BID_NM = #{bidNm}
+             <if test="pblancStartDate != null and pblancStartDate != ''">
+             , PBLANC_START_DATE = #{pblancStartDate}
+             </if>
+             , ORDER_ORGN_NM = #{orderOrgnNm}
+             , REAL_ORGN_NM = #{realOrgnNm}
+             <if test="cntrctMth != null and cntrctMth != ''">
+             , CNTRCT_MTH = #{cntrctMth}
+             </if>
+             <if test="bidMthd != null and bidMthd != ''">
+             , BID_MTHD = #{bidMthd}
+             </if>
+             <if test="scsbidMth != null and scsbidMth != ''">
+             , SCSBID_MTH = #{scsbidMth}
+             </if>
+             , BID_TYPE = #{bidType}
+             <if test="bidStrtDate != null and bidStrtDate != ''">
+             , BID_STRT_DATE = #{bidStrtDate}
+             </if>
+             <if test="bidEndDate != null and bidEndDate != ''">
+             , BID_END_DATE = #{bidEndDate}
+             </if>
+             <if test="prsmpAmt != null and prsmpAmt != ''">
+             , PRSMP_AMT = #{prsmpAmt}
+             </if>
+             , SENDER_ID = #{senderId}
+             , MESS_TYPE = #{messType}
+             , MESS_NM = #{messNm}
+             , DOCU_MANG_NO = #{docuMangNo}
+         WHERE BID_UNION_NO = #{bidUnionNo}
+           AND BID_NOTIFY_NO = #{bidNotifyNo}
+           AND BID_NOTIFY_SEQ_NO = #{bidNotifySeqNo}
+    </update>    
+
+</mapper>

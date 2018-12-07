@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<!-- 게시판 관리 기본 설정-->
+
+	<board>
+		<!-- 게시판 생성시 기본 설정 값(설정이 필요한 컬럼만 사용) -->
+		<defaultColumn>
+<!-- 			<REGISTER_NM /> -->
+			<ESTN_COLUMN1 /><ESTN_COLUMN2 /><ESTN_COLUMN3 /><ESTN_COLUMN4 /><ESTN_COLUMN5 />
+			<ESTN_COLUMN6 /><ESTN_COLUMN7 /><ESTN_COLUMN8 /><ESTN_COLUMN9 /><ESTN_COLUMN10 />
+		</defaultColumn>
+
+		<defaultConfig table="OP_BOARD">
+<!-- 			<REGISTER_NM columnId="REGISTER_NM" columnNm="등록자명" columnTy="" columnCm="" searchCndYn="Y" searchTy=""  essntlYn="Y" useYn="Y" /> -->
+
+			<ESTN_COLUMN1 columnId="ESTN_COLUMN1" columnNm="확장컬럼1" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN2 columnId="ESTN_COLUMN2" columnNm="확장컬럼2" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN3 columnId="ESTN_COLUMN3" columnNm="확장컬럼3" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN4 columnId="ESTN_COLUMN4" columnNm="확장컬럼4" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN5 columnId="ESTN_COLUMN5" columnNm="확장컬럼5" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN6 columnId="ESTN_COLUMN6" columnNm="확장컬럼6" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN7 columnId="ESTN_COLUMN7" columnNm="확장컬럼7" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN8 columnId="ESTN_COLUMN8" columnNm="확장컬럼8" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN9 columnId="ESTN_COLUMN9" columnNm="확장컬럼9" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+			<ESTN_COLUMN10 columnId="ESTN_COLUMN10" columnNm="확장컬럼10" columnTy="" columnCm="" searchCndYn="N" searchTy="" essntlYn="N" useYn="N" />
+		</defaultConfig>
+	</board>
+
+</configuration>

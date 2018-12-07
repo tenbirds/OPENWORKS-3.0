@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_boardtemp">
+
+	<select id="boardTempPager" resultType="boardTempVO" parameterType="java.util.Map">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempPager */
+        SELECT B.* FROM (
+            SELECT ROWNUM NUM, A.* FROM (
+                SELECT 
+                       A.TMPLAT_TY AS tmplatTy,
+                       A.TMPLAT_ID AS tmplatId,
+                       A.TMPLAT_NM AS tmplatNm,
+                       A.TMPLAT_FILE_PATH AS tmplatFilePath,
+                       A.SCREENSHOT_FILE_PATH AS screenshotFilePath,
+                       TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS registDt,
+                       A.REGIST_ID AS registId,
+                       TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD') AS updtDt,
+                       A.UPDT_ID AS updtId
+                  FROM OP_BOARD_TEMPLATE A
+                 WHERE A.TMPLAT_TY = #{tmplatTy}
+                ) A
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+         ) B
+         WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    
+	<select id="boardTempListCount" resultType="int" parameterType="java.util.Map">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempListCount */
+        SELECT COUNT(A.TMPLAT_TY) AS templateCount
+          FROM OP_BOARD_TEMPLATE A
+         WHERE TMPLAT_ATE_TYPE = #{tmplatTy}
+    </select>
+
+    <select id="boardTempList" resultType="boardTempVO" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempList */
+        SELECT 
+               A.TMPLAT_TY AS tmplatTy,
+               A.TMPLAT_ID AS tmplatId,
+               A.TMPLAT_NM AS tmplatNm,
+               A.TMPLAT_FILE_PATH AS tmplatFilePath,
+               A.SCREENSHOT_FILE_PATH AS screenshotFilePath,
+               TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS registDt,
+               A.REGIST_ID AS registId,
+               TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD') AS updtDt,
+               A.UPDT_ID AS updtId
+          FROM OP_BOARD_TEMPLATE A
+         WHERE A.TMPLAT_TY = #{tmplatTy}
+         ORDER BY A.REGIST_DT ASC
+    </select>
+
+	<select id="boardTempView" resultType="boardTempVO" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempView */
+        SELECT 
+               A.TMPLAT_TY AS tmplatTy,
+               A.TMPLAT_ID AS tmplatId,
+               A.TMPLAT_NM AS tmplatNm,
+               A.TMPLAT_FILE_PATH AS tmplatFilePath,
+               A.SCREENSHOT_FILE_PATH AS screenshotFilePath,
+               TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS registDt,
+               A.REGIST_ID AS registId,
+               TO_CHAR(A.UPDT_DT,  'YYYY-MM-DD') AS updtDt,
+               A.UPDT_ID AS updtId
+          FROM OP_BOARD_TEMPLATE A
+         WHERE A.TMPLAT_TY = #{tmplatTy}
+           AND A.TMPLAT_ID = #{tmplatId}
+    </select>
+
+    <select id="checkTemplateUsed" resultType="int" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : checkTemplateUsed */
+         SELECT COUNT(*) AS cnt
+          FROM OP_BOARD_CONF A, OP_BOARD_CONF_GLOBAL B 
+         WHERE A.BBS_CD = B.BBS_CD
+           AND A.USE_YN = 'Y'
+        <trim>
+            <if test='tmplatTy != null and tmplatTy == "L"'>
+                AND B.LIST_SKIN = #{tmplatId}
+            </if>
+            <if test='tmplatTy != null and tmplatTy == "V"'>
+                AND B.VIEW_SKIN = #{tmplatId}
+            </if>
+            <if test='tmplatTy != null and tmplatTy == "F"'>
+                AND B.FORM_SKIN = #{tmplatId}
+            </if>
+        </trim>
+    </select>
+
+    <select id="dupCheckTemplateId" resultType="int" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : dupCheckTemplateId */
+         SELECT COUNT(*) AS cnt
+          FROM OP_BOARD_TEMPLATE A
+         WHERE A.TMPLAT_TY = #{tmplatTy}
+           AND A.TMPLAT_ID = #{tmplatId}
+    </select>
+
+	<insert id="boardTempInsert" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempInsert */
+        INSERT INTO OP_BOARD_TEMPLATE (
+               TMPLAT_TY,        TMPLAT_ID,            TMPLAT_NM,
+               TMPLAT_FILE_PATH,    SCREENSHOT_FILE_PATH,        REGIST_ID
+        ) VALUES (
+               #{tmplatTy},        #{tmplatId},            #{tmplatNm},
+               #{tmplatFilePath},  #{screenshotFilePath} ,    #{registId}
+        )
+    </insert>
+
+    <update id="boardTempUpdate" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempUpdate */
+        UPDATE OP_BOARD_TEMPLATE SET
+               TMPLAT_ID = #{tmplatId},
+               TMPLAT_NM = #{tmplatNm},
+            <trim>
+                <if test="tmplatFilePath != null  and tmplatFilePath != ''">
+                    TMPLAT_FILE_PATH = #{tmplatFilePath},
+                </if>
+                <if test="screenshotFilePath != null  and screenshotFilePath != ''">
+                    SCREENSHOT_FILE_PATH = #{screenshotFilePath},
+                </if>
+            </trim>
+               UPDT_DT = SYS_DATETIME,
+               UPDT_ID = #{updtId}
+         WHERE TMPLAT_TY = #{tmplatTy}
+           AND TMPLAT_ID = #{oldtemplateId}
+    </update>
+
+	<delete id="boardTempDelete" parameterType="boardTempVO">
+    /*_boardtemp : boardtemp-sqlmap.xml : boardTempDelete */
+        DELETE FROM OP_BOARD_TEMPLATE
+         WHERE TMPLAT_TY = #{tmplatTy}
+           AND TMPLAT_ID = #{tmplatId}
+    </delete>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+       <!-- 
+    <bean id="fciRequestLinkClient" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+        <property name="serviceUrl" value="rmi://192.168.100.20:1099/FciRequestLink"/>
+        <property name="serviceInterface" value="egovframework.mgt.fci.link.service.EgovFciRequestLink"/>
+    </bean>
+       -->
+      
+  	<bean id="fciRequestLinkClient" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+        <!--<property name="serviceUrl" value="rmi://175.114.128.45:1099/FciRequestLink"/>-->
+        <!-- 향후 진흥원 이전시 프레임워크센터가 분리되면 포트허용신청 필요함 11099, 11100 -->
+        <!--<property name="serviceUrl" value="rmi://202.30.70.31:11099/FciRequestLink"/>-->
+        <!-- 프레임워크센터 웹서버 IP가 변경 됨. 아래 두 IP 중 하나로 연결되어야 함. 2015-12-16 -->
+        <!--<property name="serviceUrl" value="rmi://192.168.200.21:11099/FciRequestLink"/>-->
+        <property name="serviceUrl" value="rmi://202.30.69.14:11099/FciRequestLink"/>
+        <property name="serviceInterface" value="egovframework.mgt.fci.link.service.EgovFciRequestLink"/>
+    </bean>
+      
+</beans>

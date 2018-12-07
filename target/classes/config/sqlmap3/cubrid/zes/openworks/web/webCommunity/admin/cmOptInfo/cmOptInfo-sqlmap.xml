@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmOptInfo">
+
+		<!--  커뮤니티 정보 수정 및 폐쇄 -->
+	<update id="cmOptInfoUpdate" parameterType="cmManageVO" >
+	
+	 /* cmOptInfo-sqlmap.xml  _cmOptInfo.cmOptInfoUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET 
+				
+			<if test=' cmmntySbscrbMthd  !=  "" and   cmmntySbscrbMthd  !=  null '> <!--  커뮤니티 폐쇄 시   -->
+				CMMNTY_DC                          		= #{cmmntyDc} 			<!--  커뮤니티 설명 -->
+		       	, CMMNTY_SBSCRB_MTHD              	= #{cmmntySbscrbMthd} <!-- 1:신청즉시가입, 2:운영자승인후가입 -->
+				<if test=' logoDirectRegistAt  ==  "Y" '> <!--  로고 파일을 직업 올릴때 구분  -->
+					, LOGO_FILE_SEQ								= #{logoFileSeq}
+					, LOGO_DIRECT_REGIST_AT 				= #{logoDirectRegistAt}
+			       	, LOGO_TITLE_WIDTH_LC                	= #{logoTitleWidthLc}
+			       	, LOGO_TITLE_VRTICL_LC               	= #{logoTitleVrticlLc}
+			       	, LOGO_TITLE_FONT                    		= #{logoTitleFont}
+			       	, LOGO_TITLE_COLOR                   	= #{logoTitleColor}
+			       	, LOGO_TITLE_FONT_SIZE					= #{logoTitleFontSize}	
+			    </if>
+			    <if test=' logoDirectRegistAt  ==  "N" '> <!--  기존 로고 파일  -->
+					, LOGO_FILE_SEQ								= #{logoFileSeq}
+					, LOGO_DIRECT_REGIST_AT 				= #{logoDirectRegistAt}
+					, LOGO_TITLE_WIDTH_LC                	= #{logoTitleWidthLc}
+					, LOGO_TITLE_VRTICL_LC               	= #{logoTitleVrticlLc}
+					, LOGO_TITLE_FONT                    		= #{logoTitleFont}
+					, LOGO_TITLE_COLOR                   	= #{logoTitleColor}
+					, LOGO_TITLE_FONT_SIZE					= #{logoTitleFontSize}	
+					, LOGO_TITLE									= #{logoTitle}
+				</if>  
+			</if>
+			<if test=' mngrClsAt  !=  "" and   mngrClsAt  !=  null '> <!--  커뮤니티 폐쇄 시   -->
+				CMMNTY_STTUS_CD                 		= #{cmmntySttusCd}  <!--  1001:신청  1002:승인   1003:승인보류  1004: 커뮤니티 폐쇄  1005 폐쇄중 -->
+		       	, CMMNTY_CLS_REQST_DT           		= SYSDATETIME
+		        , CMMNTY_CLS_DT                          = TO_TIMESTAMP(#{cmmntyClsDt},'YYYY-MM-DD HH24:MI:SS')
+		       	, CMMNTY_CLS_ID                     		= #{cmmntyClsId}
+		      	, CMMNTY_CLS_RESN                 		= #{cmmntyClsResn}
+		       	, MNGR_CLS_AT                        		= #{mngrClsAt} <!-- Y:관리자가 신청, N:운영자가 신청 -->
+			</if>
+		       	, UPDT_ID                            			= #{updtId}
+		       	, UPDT_DT                            			= SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+	<!--  커뮤니티 폐쇄 취소 수정 -->
+	<update id="closeCancleCmOptInfoUpdate" parameterType="cmManageVO" >
+	
+	 /* cmOptInfo-sqlmap.xml  _cmOptInfo.closeCancleCmOptInfoUpdate */
+		UPDATE 
+			TCM_CMNT_INFO_I
+		SET    
+		       CMMNTY_STTUS_CD                    	= #{cmmntySttusCd} <!--  1001:신청  1002:승인   1003:승인보류  1004: 커뮤니티 폐쇄  1005 폐쇄중 -->
+		       , MNGR_CLS_AT                        	= #{mngrClsAt} <!-- Y:관리자가 신청, N:운영자가 신청 -->
+		       , CMMNTY_CLS_ID                     		= #{cmmntyClsId}
+		       , CMMNTY_CLS_RESN                 		= #{cmmntyClsResn}
+		       , UPDT_ID                            			= #{updtId}
+		       , UPDT_DT                            			= SYSDATETIME
+		WHERE 
+				LANG_CODE			=	#{langCode}
+				AND CMMNTY_ID	=	#{cmmntyId}
+				AND USER_ID			=  #{userId}
+	</update>
+</mapper>

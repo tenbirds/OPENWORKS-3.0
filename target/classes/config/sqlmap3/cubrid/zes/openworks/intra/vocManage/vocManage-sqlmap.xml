@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vocManage">
+	<!-- 
+		- 2017-10-23 이준범 신규생성
+		- 관리자 페이지 - VOC관리
+	 -->
+	
+	<!-- VOC 목록 리스트 -->    
+	<select id="vocManageList" parameterType="map" resultType="vocManageVO">
+	    /*vocManage.vocManageList*/
+	    		
+			SELECT 
+				VOC_BBSCTT_SN 		AS vocBbscttSn,
+				MEMBER_AT 			AS memberAt,
+				USER_NM 			AS userNm,
+				INSTT_TY_NM 			AS insttTyNm,
+				PSTINST_NM 			AS pstinstNm,
+				TELNO 				AS telno,
+				VOC_INQRY_TY 		AS vocInqryTy,
+				VOC_PROGRESS_STTUS AS vocProgressSttus,
+				VOC_INQRY_CN 		AS vocInqryCn,
+				VOC_ANSWER_CN 		AS vocAnswerCn,
+				VOC_CHARGER 		AS vocCharger,
+				RECPT_DE 			AS recptDe,
+				REGIST_ID 			AS registId,
+				REGIST_DT 			AS registDt,
+				RECENT_UPDT_ID 		AS recentUpdtId,
+				RECENT_UPDT_DT 		AS recentUpdtDt 
+			FROM 
+				OP_VOC_BOARD 	    		
+	    	ORDER BY REGIST_DT DESC	
+    </select>
+    
+    <!-- VOC 상세 리스트 -->    
+	<select id="vocManageView" parameterType="map" resultType="vocManageVO">
+	    /*vocManage.vocManageList*/
+	    		
+			SELECT 
+				VOC_BBSCTT_SN 		AS vocBbscttSn,
+				MEMBER_AT 			AS memberAt,
+				USER_NM 			AS userNm,
+				INSTT_TY_NM 		AS insttTyNm,
+				PSTINST_NM 			AS pstinstNm,
+				TELNO 				AS telno,
+				VOC_INQRY_TY 		AS vocInqryTy,
+				VOC_PROGRESS_STTUS 	AS vocProgressSttus,
+				VOC_INQRY_CN 		AS vocInqryCn,
+				VOC_ANSWER_CN 		AS vocAnswerCn,
+				VOC_CHARGER 		AS vocCharger,
+				RECPT_DE 			AS recptDe,
+				REGIST_ID 			AS registId,
+				REGIST_DT 			AS registDt,
+				RECENT_UPDT_ID 		AS recentUpdtId,
+				RECENT_UPDT_DT 		AS recentUpdtDt 
+			FROM 
+				OP_VOC_BOARD
+			WHERE
+				VOC_BBSCTT_SN = #{vocBbscttSn}  	    		
+    </select>
+    
+</mapper>

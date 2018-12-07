@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <bean id="autoProxyCreator"
+        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <!-- [ Use Annotations ] =============================================================== -->
+    <context:annotation-config />
+
+    <!-- [ Component-scan ] ================================================================ -->
+    <context:component-scan base-package="zes.openworks">
+        <context:include-filter type="annotation"
+            expression="org.springframework.stereotype.Controller" />
+        <context:exclude-filter type="annotation"
+            expression="org.springframework.stereotype.Service" />
+        <context:exclude-filter type="annotation"
+            expression="org.springframework.stereotype.Repository" />
+    </context:component-scan>
+
+    <!-- [ HandlerMapping ] =============================================================== -->
+    <bean
+        class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+        <property name="order" value="0" />
+        <property name="alwaysUseFullPath" value="true" />
+        <property name="interceptors">
+            <list>
+                <ref bean="multipartInterceptor" />
+                <ref bean="requestInfoLogInterceptor" />
+<!--                 <ref bean="userMileageAccuInterceptor" /> -->
+                <ref bean="manageLoginCheckInterceptor" />
+            </list>
+        </property>
+    </bean>
+    
+    <!--  -->
+    <mvc:annotation-driven/>
+
+    <bean id="multipartInterceptor" class="zes.openworks.common.interceptor.MultipartInterceptor"></bean>
+    <bean id="requestInfoLogInterceptor" class="zes.base.log.RequestInfoLogInterceptor"></bean>
+<!--     <bean id="userMileageAccuInterceptor" class="zes.openworks.common.interceptor.UserMileageAccuInterceptor"> -->
+<!--         <property name="include"> -->
+<!--             <list> -->
+<!--                 <value>/web/**/*</value> -->
+<!--                 <value>/user/**/*</value> -->
+<!--             </list> -->
+<!--         </property> -->
+<!--     </bean> -->
+    <bean id="manageLoginCheckInterceptor" class="zes.openworks.common.interceptor.ManageLoginCheckInterceptor">
+        <property name="include">
+            <list>
+                <value>/intra/**/*</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- [ ExceptionResolver ] =============================================================== -->
+    <bean id="exceptionMapping" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="defaultErrorView" value="common/errors/501" />
+        <property name="exceptionMappings">
+        	<props>
+				<prop key="zes.base.auth.NoAuthException">common/errors/MgrNoAuth</prop>
+			</props>
+        </property>
+    </bean>
+
+    <!-- [ ViewResolver ] =============================================================== -->
+    <bean p:order="1" class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+        p:viewClass="org.springframework.web.servlet.view.JstlView" p:order="2"
+        p:prefix="/WEB-INF/pages/" p:suffix=".jsp" />
+
+
+    <!-- [ MultipartResolver ] =============================================================== -->
+    <bean id="multipartResolver" class="zes.base.spring.multipart.CustomMultipartResolver">
+        <property name="maxUploadSize" value="-1" />
+    </bean>
+
+    <!-- [Cache Init ] =============================================================== -->
+    <bean class="zes.core.spi.oscache.CacheClassInitializer" init-method="initialize"
+        destroy-method="destroy">
+        <property name="sqlSession" ref="sqlSessionTmpl" />
+        <property name="cacheClassList">
+            <list>
+                <value>zes.openworks.common.cache.BoardConfCache</value>
+<!--                 <value>zes.openworks.common.cache.MileageCache</value> -->
+<!--                 <value>zes.openworks.common.cache.MenuHelpCache</value> -->
+                <value>zes.openworks.common.cache.CmsCache</value>
+<!--                 <value>zes.openworks.common.cache.SnsCache</value> -->
+                <!-- <value>zes.openworks.common.cache.impl.CodeCache</value>  -->
+            </list>
+        </property>
+    </bean>
+
+</beans>

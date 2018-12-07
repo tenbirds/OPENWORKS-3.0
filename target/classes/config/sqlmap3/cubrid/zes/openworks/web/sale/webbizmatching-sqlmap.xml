@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webBiz">
+
+    <sql id="searchDynamic">
+        <trim>
+            <if test="bizProgression != null  and bizProgression != ''">  <!-- 비즈매칭 진행상태 검색 -->
+                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                <if test="bizProgression == 'COM'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'Y'
+                </if>
+                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                <if test="bizProgression == 'INC'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL
+                </if>
+                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+                <if test="bizProgression == 'PRO'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL
+                </if>
+            </if>
+            <if test="q_estnColumn5 != null  and q_estnColumn5 != ''"><!-- 비즈매칭선정여부 검색 -->
+                <!-- 대기중은 S이므로 조건이 다르게 검색되어야함 -->
+                <choose>
+                    <when test='q_estnColumn5 == "N"'>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = #{q_estnColumn5}
+                        AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6
+                        AND ESTN_COLUMN6 IS NOT NULL
+                    </when>
+                    <when test='q_estnColumn5 == "S"'>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = #{q_estnColumn5}
+                        AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6
+                        AND ESTN_COLUMN6 IS NOT NULL
+                    </when>
+                    <otherwise>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = #{q_estnColumn5}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                <if test="q_searchType == 1001">
+                    AND A.${q_searchKey} = #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1002">
+                   AND A.${q_searchKey} LIKE '%' || #{q_searchVal} || '%'
+                </if>
+                <if test="q_searchType == 1003">
+                   AND A.${q_searchKey} &lt;= #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1004">
+                   AND A.${q_searchKey} &gt;= #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1006"> <!-- 제목+내용 -->
+                    AND (A.BBSCTT_SJ LIKE '%' || #{q_searchVal} || '%'  OR A.BBSCTT_CN LIKE '%' || #{q_searchVal} || '%')
+                </if>
+                <if test="q_searchType == 1007"> <!-- 댓글 등록자명+ 댓글아이디 -->
+                    AND (C.REGISTER_NM LIKE '%' || #{q_searchVal} || '%'  OR C.REGIST_ID LIKE '%' || #{q_searchVal} || '%')
+                </if>
+                <if test="q_searchType == 1008">  <!-- 등록자명+ 아이디 -->
+                    AND (A.REGISTER_NM LIKE '%' || #{q_searchVal} || '%'  OR A.REGIST_ID LIKE '%' || #{q_searchVal} || '%')
+                </if>
+            </if>
+        </trim>
+    </sql>
+
+    <!-- 목록용-->
+    <sql id="boardListBody">
+    /*_webBiz : webbizmatching-sqlmap.xml : boardListBody */
+        SELECT 
+                A.DOMAIN_CD                 AS domainCd
+              , A.BBS_CD                    AS bbsCd
+              , A.BBSCTT_SEQ                AS bbscttSeq
+            <if test="cutTitleNum != null  and cutTitleNum != ''">
+              , SUBSTRB(A.BBSCTT_SJ, 0, (#{cutTitleNum} * 2))   AS bbscttSj
+            </if>
+            <if test="cutTitleNum == null or cutTitleNum == ''">
+              , A.BBSCTT_SJ                 AS bbscttSj
+            </if>
+              , LENGTH(A.BBSCTT_SJ)        AS bbscttSjLength
+              , A.BBSCTT_CN                 AS bbscttCn 
+              , A.CN_SUMRY                  AS cnSumry
+              , A.REGISTER_NM               AS registerNm
+              , A.REGIST_ID                 AS registId
+              , A.USER_KEY                  AS userKey
+              , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD HH24:MI') AS registDt
+              <choose>
+                 <when test="bbsCd == '1010'">
+                 , (CASE
+                    <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                         WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'Y'   AND  SUBSTR (A.ESTN_COLUMN5,3) = C.CMT_SEQ                                                      THEN 'Y'
+                    <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                         WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; A.ESTN_COLUMN6 AND A.ESTN_COLUMN6 IS NOT NULL    THEN 'N'
+                    <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 대기중-->
+                         WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; A.ESTN_COLUMN6 AND A.ESTN_COLUMN6 IS NOT NULL   THEN 'S'
+                         ELSE ''
+                      END)                  AS estnColumn5
+                , TO_CHAR(TO_TIMESTAMP(ESTN_COLUMN6,  'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI' ) AS estnColumn6
+                 </when>
+                 <otherwise>
+              , A.ESTN_COLUMN5              AS estnColumn5
+              , A.ESTN_COLUMN6              AS estnColumn6
+                 </otherwise>
+             </choose>
+             <if test="bbsCd == '1010'">
+              , (CASE
+                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                     WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'Y'                    THEN 'COM'
+                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                     WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'N'  AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; A.ESTN_COLUMN6 AND A.ESTN_COLUMN6 IS NOT NULL   THEN 'INC'
+                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+                     WHEN SUBSTR (A.ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; A.ESTN_COLUMN6 AND A.ESTN_COLUMN6 IS NOT NULL   THEN 'PRO'
+                     ELSE ''
+                  END)                      AS bizProgression
+              </if>
+              , A.ESTN_COLUMN7              AS estnColumn7
+              , A.ESTN_COLUMN8              AS estnColumn8
+              , A.ESTN_COLUMN9              AS estnColumn9
+              , A.ESTN_COLUMN10             AS estnColumn10
+            FROM OP_NTT_CMT C , OP_BOARD A
+            WHERE C.DOMAIN_CD = A.DOMAIN_CD
+			  AND C.BBS_CD = A.BBS_CD
+			  AND C.BBSCTT_SEQ =A.BBSCTT_SEQ
+			  AND C.BBS_CD = #{bbsCd}
+			  AND C.DOMAIN_CD = #{domainCd}
+			  AND C.USER_KEY = #{userKey}
+      </sql>        
+              
+    
+    <!-- 나의비즈매칭 활동내역 -->          
+    <select id="boardList" parameterType="java.util.Map" resultMap="Select">
+    /*_webBiz : webbizmatching-sqlmap.xml : boardList */
+        SELECT
+            Z.*
+        FROM (
+            SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (
+                    <include refid="boardListBody"/>
+                    <include refid="searchDynamic"/>
+	                ORDER BY A.ESTN_COLUMN6 ASC , A.REGIST_DT DESC 
+                    ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+             ) Y
+             WHERE NUM &gt;= #{pagingStartNum} ) Z
+    </select>
+    
+    
+    <!-- 게시물 갯수 페이져용 -->
+    <select id="boardListCount" parameterType="java.util.Map" resultType="int"> 
+    /*_webBiz : webbizmatching-sqlmap.xml : boardListCount */
+                  SELECT
+                  COUNT(*) AS totalCount
+              FROM OP_BOARD
+             WHERE DOMAIN_CD = #{domainCd}
+               AND BBS_CD = #{bbsCd}
+               AND ESTN_COLUMN1 LIKE '%'|| #{userKey} || '%'
+               AND (ESTN_COLUMN8 IN(<include refid="userAllCtgryCode"/>)
+               OR ESTN_COLUMN9 IN(<include refid="userAllCtgryCode"/>)
+               OR ESTN_COLUMN10 IN(<include refid="userAllCtgryCode"/>))
+           
+    </select>
+    
+    
+    <resultMap id="Select" type="boardVO">
+        <collection property="ctgryList" column="{estnColumn8=estnColumn8,estnColumn9=estnColumn9,estnColumn10=estnColumn10}" ofType="boardVO" select="ctgrySelect"/>
+    </resultMap>
+    <!-- 비즈매칭 구분값 가져오기 -->
+    <select id="ctgrySelect"  parameterType="boardVO" resultType="boardVO">
+        /*_boardWeb : board-sqlmap.xml : ctgrySelect */ 
+        SELECT
+                A.CTGRY_CODE  AS ctgryCode,
+                (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE GROUP_CD = 1005
+                    AND LANG_CODE = A.LANG_CODE
+                    AND INDVDLZ_CD = A.CTGRY_CL_CD) AS ctgryClNm,
+                (SELECT SYS_CONNECT_BY_PATH(B.LANG_CTGRY_NM, ' > ')
+                   FROM TST_CATE_MGMT_M B
+                  WHERE B.CTGRY_CODE = A.CTGRY_CODE                       
+             START WITH B.PARNTS_CTGRY_CODE = '0'
+       CONNECT BY PRIOR B.CTGRY_CODE = B.PARNTS_CTGRY_CODE  ) AS ctgryPath
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_DELETE_AT = 'N'    
+           AND A.CTGRY_CODE IN (#{estnColumn8},#{estnColumn9},#{estnColumn10})
+           ORDER BY A.CTGRY_CODE DESC
+    </select>
+    
+    <select id="boardRecentList" parameterType="java.util.Map" resultType="boardVO">
+    /*_webBiz : webbizmatching-sqlmap.xml : boardRecentList */
+    		SELECT Y.* FROM (
+				SELECT ROWNUM NUM, X.* FROM (
+			        SELECT * FROM (
+			            SELECT
+			                  A.DOMAIN_CD             AS domainCd           
+			                , A.BBS_CD                AS bbsCd
+			                , A.BBSCTT_SEQ            AS bbscttSeq
+			                , A.BBSCTT_SJ             AS bbscttSj
+			                , A.register_nm 			AS registerNm
+			                , LENGTHB(A.BBSCTT_SJ)    AS bbscttSjLength
+			                , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+			                , A.ESTN_COLUMN1        AS estnColumn1
+			                , A.ESTN_COLUMN2        AS estnColumn2	                
+			                , TO_CHAR(TO_TIMESTAMP(A.ESTN_COLUMN6,  'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI' ) AS estnColumn6          
+			                , (CASE
+			                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+			                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'COM'
+			                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+			                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N'  AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'INC'
+			                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+			                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'PRO'
+			                     ELSE ''
+			                  END)                      AS bizProgression
+			                , (SELECT COUNT(BBS_CD)
+				               FROM OP_NTT_CMT
+				               WHERE DOMAIN_CD = #{domainCd}
+				                 AND BBS_CD = #{bbsCd}
+				                 AND BBSCTT_SEQ = A.BBSCTT_SEQ) AS commentCnt
+				             , #{userKey} AS userId
+			             FROM  (SELECT DISTINCT * FROM OP_BOARD) A
+			            WHERE A.DOMAIN_CD = #{domainCd}
+			              AND A.BBS_CD = #{bbsCd}
+			              AND A.ESTN_COLUMN1 LIKE '%'|| #{userKey} || '%'
+			              AND (ESTN_COLUMN8 IN(<include refid="userAllCtgryCode"/>)
+			               OR ESTN_COLUMN9 IN(<include refid="userAllCtgryCode"/>)
+			               OR ESTN_COLUMN10 IN(<include refid="userAllCtgryCode"/>)  )
+			            ORDER BY REGIST_DT DESC ) 
+		        ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+			) Y WHERE NUM &gt;= #{pagingStartNum}
+        
+        <!-- WHERE ROWNUM &lt;= #{rowNum} -->
+    </select>
+    
+    <sql id="userCtgryCode" >
+         SELECT CTGRY_CODE 
+         FROM TUM_ITST_CATE_I 
+         WHERE USER_ID = #{userKey}
+           AND LANG_CODE = #{langCode}
+    </sql>
+    
+    <sql id="userAllCtgryCode" >
+         SELECT CTGRY_CODE 
+         FROM TUM_ITST_CATE_I 
+         WHERE USER_ID = #{userKey}
+           AND LANG_CODE = #{langCode}
+         UNION
+         SELECT DISTINCT B.CTGRY_CODE
+         FROM  TST_GOOD_INFO_I A , TST_GOOD_CATE_I B
+         WHERE A.GOODS_CODE = B.GOODS_CODE 
+           AND A.USER_ID = #{userKey} 
+           AND A.LANG_CODE = #{langCode}
+    </sql>
+    
+    <select id="categoryList"  parameterType="boardVO" resultType="boardVO">
+    /*_webBiz : webbizmatching-sqlmap.xml : categoryList */
+        SELECT * FROM (
+            SELECT
+                A.CTGRY_CODE  AS ctgryCode,
+                A.LANG_CTGRY_NM  AS langCtgryNm,
+                (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE GROUP_CD = 1005
+                    AND LANG_CODE = A.LANG_CODE
+                    AND INDVDLZ_CD = A.CTGRY_CL_CD) AS ctgryClNm,         
+                (SELECT SYS_CONNECT_BY_PATH(B.LANG_CTGRY_NM, ' > ')
+                   FROM TST_CATE_MGMT_M B
+                  WHERE B.CTGRY_CODE = A.CTGRY_CODE                       
+             START WITH B.PARNTS_CTGRY_CODE = '0'
+	       CONNECT BY PRIOR B.CTGRY_CODE = B.PARNTS_CTGRY_CODE  ) AS ctgryPath
+	          FROM TST_CATE_MGMT_M A
+	         WHERE A.CTGRY_DELETE_AT = 'N'    
+	           AND A.CTGRY_CODE IN (<include refid="userCtgryCode"/>)
+	           ORDER BY A.CTGRY_CODE DESC
+           )
+    </select>
+    
+    <!-- 게시물 보기에서 하나 삭제 -->
+    <delete id="userCategoryDelete" parameterType="boardVO">
+    /*_webBiz : webbizmatching-sqlmap.xml : userCategoryDelete */
+        DELETE FROM TUM_ITST_CATE_I
+         WHERE USER_ID = #{userId}
+           AND LANG_CODE = #{langCode}
+    </delete>
+    
+    <insert id="userCategoryInsert" parameterType="boardVO">
+	    /*_webBiz : webbizmatching-sqlmap.xml : userCategoryInsert */
+	    <selectKey order="BEFORE" keyProperty="seq" resultType="int">
+	        SELECT SEQ_AUTO_PLUS.NEXT_VALUE FROM DB_ROOT
+	    </selectKey>
+	    INSERT INTO TUM_ITST_CATE_I
+	    (
+	         USER_ID
+	         ,INTRST_CTGRY_SEQ
+	         ,LANG_CODE
+	         ,CTGRY_CODE
+	    )
+	    VALUES
+	    (
+	         #{userId}
+	         ,#{seq}
+	         ,#{langCode}
+	         ,#{ctgryCode}
+	    )
+    </insert>
+    
+</mapper>

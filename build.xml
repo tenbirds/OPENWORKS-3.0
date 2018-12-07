@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    
+<project name="openworks-3.0" default="help">
+
+    <target name="init">
+        <property name="src.dir" value="${basedir}/src/main/java" />
+        <property name="classes.dir" value="${basedir}/target/openworks-3.0/WEB-INF/classes" />
+        <property name="tomcat.lib.dir" value="${basedir}/docs/libs/servlet" />
+    	<!-- MAVEN 빌드 후 앤트 빌드 실행할 것 -->
+        <property name="maven.lib.dir" value="${basedir}/target/openworks-3.0/WEB-INF/lib" />
+        <property name="docs.dir" value="${basedir}/docs" />
+
+        <path id="classpath">
+        	<!--
+            <fileset dir="${lib.dir}">
+                <include name="**/*.jar"/>
+                <include name="**/*.zip"/>
+            </fileset>
+            -->
+            <fileset dir="${tomcat.lib.dir}">
+                <include name="**/*.jar"/>
+                <include name="**/*.zip"/>
+            </fileset>
+            <fileset dir="${maven.lib.dir}">
+                <include name="**/*.jar"/>
+                <include name="**/*.zip"/>
+            </fileset>
+        </path>
+    </target>
+
+    <target name="prepare" depends="init">
+        <mkdir dir="${src.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <target name="main" depends="compile, copy-prop, core-jar"/>
+
+    <target name="compile" depends="prepare">
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               classpathref="classpath"
+               encoding="utf-8"
+               debug="on"
+               optimize="on"
+               deprecation="on"
+               includeantruntime="false">
+             <!-- <compilerarg line="-Xlint:unchecked -Xlint:deprecated"/> -->
+            <include name="zes/**/*.java" />
+       </javac>
+    </target>
+
+    <target name="copy-prop" depends="compile">
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.*" />
+                <exclude name="**/*_ko.properties" />
+                <exclude name="**/*.java" />
+                <exclude name="**/*.class" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="core-jar" depends="copy-prop">
+        <delete>
+            <fileset dir="${docs.dir}/libs/op-lib" includes="openworks3.0.lib.jar"/>
+        </delete>
+        <jar jarfile="${docs.dir}/libs/op-lib/openworks3.0.lib.jar">
+            <fileset dir="${classes.dir}">
+                <include name="zes/core/**/*.class" />
+                <include name="zes/core/**/*.ser" />
+                <include name="zes/core/**/*.TTC" />
+                <include name="zes/core/**/*.properties" />
+                <include name="zes/base/**/*.class" />
+            </fileset>
+            <manifest>
+                <attribute name="Built-By" value="op"/>
+            </manifest>
+        </jar>
+
+    </target>
+
+    <target name="help">
+        <echo>-------------------------------------------------------</echo>
+        <echo>main            compile, copy_prop                     </echo>
+        <echo>core-jar        core jar pakaging                      </echo>
+        <echo>-------------------------------------------------------</echo>
+    </target>
+
+</project>

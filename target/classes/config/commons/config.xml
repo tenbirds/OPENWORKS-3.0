@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- -->
+
+<configuration>
+
+	<!-- System.getProperties() 항목을 로드한다. -->
+	<system />
+
+	<!-- Global Configuration -->
+	<xml fileName="global-config.xml" encoding="UTF-8" />
+
+	<!-- Core Message Configuration -->
+	<xml fileName="message-config.xml" encoding="UTF-8" />
+
+	<!-- Core JavaScript 관리 Configuration -->
+	<xml fileName="js-plugins.xml" encoding="UTF-8" />
+
+	<!-- Board Configuration -->
+	<xml fileName="board-config.xml" encoding="UTF-8" />
+
+    <!-- 웹로그 Configuration -->
+    <xml fileName="analyze-config.xml" encoding="UTF-8" />
+
+    <!-- CMS Configuration -->
+    <xml fileName="cms-config.xml" encoding="UTF-8" />
+
+    <!-- SNS Configuration -->
+    <xml fileName="sns-config.xml" encoding="UTF-8" />
+
+	<!-- prefix 항목에 해당하는 네임들을 로드한다. -->
+	<!-- <jndi prefix="java:comp/env"/> -->
+
+</configuration>

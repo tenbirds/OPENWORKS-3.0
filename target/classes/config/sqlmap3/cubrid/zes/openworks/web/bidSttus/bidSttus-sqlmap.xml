@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_bidSttus">
+	<!--
+     * SQL 명      : _bidSttus.bidSttusListCount
+     * 기능(설명)  : 입찰공고 - 공고현황 목록 조회 총 건수
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-09
+    -->
+	<select id="bidSttusListCount" parameterType="map" resultType="int"> 
+	    /*_bidSttus.bidSttusListCount*/
+        SELECT COUNT(1) AS  totalCount
+          FROM TCN_BID_NOTIFY_I A
+         WHERE A.BID_GBN_CD = '1001' /* 입찰 공고건만 조회*/
+           <if test="bidKndCd != null  and bidKndCd != ''">
+               AND A.BID_KND_CD = #{bidKndCd}
+           </if>
+         <choose>
+             <when test="closeYn != null  and closeYn != ''">
+                 AND (A.CLSE_DT &lt; SYSDATETIME OR 
+                      A.BID_PGES_STAT IN ('1004','1005','1006','1007','1011')) /*개찰,유찰,낙찰완료,낙찰취소,공고취소*/
+             </when>
+             <otherwise>
+                 AND A.CLSE_DT &gt; SYSDATETIME
+                 AND A.BID_PGES_STAT NOT IN ('1004','1005','1006','1007','1011') /*개찰,유찰,낙찰완료,낙찰취소,공고취소*/
+             </otherwise>
+         </choose>
+         <choose>
+             <when test="searchDiv01 == 1001">
+                 <if test="searchKeyWord01 != null  and searchKeyWord01 != ''">
+                     AND A.BID_NOTIFY_NM LIKE '%'||#{searchKeyWord01}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+                 <if test="searchKeyWord01 != null  and searchKeyWord01 != ''">
+                     AND (A.NOTIFY_NUM || A.NOTIFY_SEQ) LIKE '%'||REPLACE(#{searchKeyWord01}, '-', '')||'%'
+                 </if>
+             </when>
+         </choose>
+         <choose>
+             <when test="searchDiv02 == 1001">
+                 <if test="searchStartDt != null  and searchStartDt != '' and searchEndDt != null  and searchEndDt != '' ">
+                     AND TO_CHAR(A.STRT_DT,'YYYYMMDD') BETWEEN REPLACE(#{searchStartDt},'-','') AND REPLACE(#{searchEndDt},'-','')
+                 </if>
+             </when>
+             <when test="searchDiv02 == 1002">
+                 <if test="searchStartDt != null  and searchStartDt != '' and searchEndDt != null  and searchEndDt != '' ">
+                     AND TO_CHAR(A.OPEN_DT,'YYYYMMDD') BETWEEN REPLACE(#{searchStartDt},'-','') AND REPLACE(#{searchEndDt},'-','')
+                 </if>
+             </when>
+         </choose>
+         <if test="searchKeyWord02 != null  and searchKeyWord02 != '' ">
+             AND A.REAL_DMND_ORGN LIKE '%'||#{searchKeyWord02}||'%'
+         </if>
+         <choose>
+             <when test="searchDiv03 == 1003">
+                 AND A.CNTR_MOTHOD = '1003'
+             </when>
+         </choose>
+    </select>
+
+	<!--
+     * SQL 명      : _bidSttus.bidSttusList
+     * 기능(설명)  : 입찰공고 - 공고현황 목록 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-09
+    -->
+    <select id="bidSttusList" parameterType="map" resultType="BidSttusListVO">
+    	/*_bidSttus.bidSttusList*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+                        SELECT A.NOTIFY_NUM                     AS notifyNum
+                             , A.NOTIFY_SEQ                     AS notifySeq
+                             , A.BID_CLASS_CD                   AS bidClassCd
+                             , B.INDVDLZ_CD_NM                  AS bidClassNm
+                             , A.BID_NOTIFY_NM                  AS bidNotifyNm
+                             , A.REAL_DMND_ORGN                 AS realDmndOrgn
+                             , A.CNTR_MOTHOD                    AS cntrMothod
+                             , C.INDVDLZ_CD_NM                  AS cntrMothodNm
+                             , A.BID_PGES_STAT                  AS bidPgesStat
+                             , (CASE WHEN A.CLSE_DT &lt;= SYSDATETIME 
+											THEN (CASE WHEN A.BID_PGES_STAT = 1001 OR A.BID_PGES_STAT = 1002 
+														THEN '마감' 
+														ELSE D.INDVDLZ_CD_NM 
+														 END) 
+								 			ELSE D.INDVDLZ_CD_NM
+								 			 END)              AS bidPgesStatNm
+				             <!-- , D.INDVDLZ_CD_NM                 AS bidPgesStatNm 제외-->
+                             , TO_CHAR(A.STRT_DT, 'YYYY-MM-DD') AS strtDt
+                             , TO_CHAR(A.STRT_DT, 'HH24')       AS strtTime
+                             , TO_CHAR(A.CLSE_DT, 'YYYY-MM-DD') AS clseDt
+                             , TO_CHAR(A.CLSE_DT, 'HH24')       AS clseTime
+                             , A.USER_ID                        AS endsUserId
+                          FROM TCN_BID_NOTIFY_I A
+                               LEFT JOIN OP_CODE_INDVDLZ B
+                                      ON B.GROUP_CD = '2039'
+                                     AND A.BID_CLASS_CD = B.INDVDLZ_CD
+                               LEFT JOIN OP_CODE_INDVDLZ C
+                                      ON C.GROUP_CD = '2040'
+                                     AND A.CNTR_MOTHOD = C.INDVDLZ_CD
+                               LEFT JOIN OP_CODE_INDVDLZ D
+                                      ON D.GROUP_CD = '2044'
+                                     AND A.BID_PGES_STAT = D.INDVDLZ_CD
+                         WHERE A.BID_GBN_CD = '1001' /* 입찰 공고건만 조회*/
+				           <if test="bidKndCd != null  and bidKndCd != ''">
+				               AND A.BID_KND_CD = #{bidKndCd}
+				           </if>
+				         <choose>
+				             <when test="closeYn != null  and closeYn != ''">
+				                 AND (A.CLSE_DT &lt; SYSDATETIME OR 
+				                      A.BID_PGES_STAT IN ('1004','1005','1006','1007','1011')) /*개찰,유찰,낙찰완료,낙찰취소,공고취소*/
+				             </when>
+				             <otherwise>
+				                 AND A.CLSE_DT &gt; SYSDATETIME
+				                 AND A.BID_PGES_STAT NOT IN ('1004','1005','1006','1007','1011') /*개찰,유찰,낙찰완료,낙찰취소,공고취소*/
+				             </otherwise>
+				         </choose>
+				         <choose>
+				             <when test="searchDiv01 == 1001">
+				                 <if test="searchKeyWord01 != null  and searchKeyWord01 != ''">
+				                     AND A.BID_NOTIFY_NM LIKE '%'||#{searchKeyWord01}||'%'
+				                 </if>
+				             </when>
+				             <when test="searchDiv01 == 1002">
+				                 <if test="searchKeyWord01 != null  and searchKeyWord01 != ''">
+				                     AND A.NOTIFY_NUM||A.NOTIFY_SEQ LIKE '%'||REPLACE(#{searchKeyWord01}, '-', '')||'%'
+				                 </if>
+				             </when>
+				         </choose>
+				         <choose>
+				             <when test="searchDiv02 == 1001">
+				                 <if test="searchStartDt != null  and searchStartDt != '' and searchEndDt != null  and searchEndDt != '' ">
+				                     AND TO_CHAR(A.STRT_DT,'YYYYMMDD') BETWEEN REPLACE(#{searchStartDt},'-','') AND REPLACE(#{searchEndDt},'-','')
+				                 </if>
+				             </when>
+				             <when test="searchDiv02 == 1002">
+				                 <if test="searchStartDt != null  and searchStartDt != '' and searchEndDt != null  and searchEndDt != '' ">
+				                     AND TO_CHAR(A.OPEN_DT,'YYYYMMDD') BETWEEN REPLACE(#{searchStartDt},'-','') AND REPLACE(#{searchEndDt},'-','')
+				                 </if>
+				             </when>
+				         </choose>
+				         <if test="searchKeyWord02 != null  and searchKeyWord02 != '' ">
+				             AND A.REAL_DMND_ORGN LIKE '%'||#{searchKeyWord02}||'%'
+				         </if>
+				         <choose>
+				             <when test="searchDiv03 == 1001">
+				                 ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+				             </when>
+				             <when test="searchDiv03 == 1002">
+				                 ORDER BY A.CLSE_DT
+				             </when>
+				             <when test="searchDiv03 == 1003">
+				                 AND A.CNTR_MOTHOD = '1003'
+				                 ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+				             </when>
+				             <when test="searchDiv03 == 1004">
+				             </when>
+				         </choose>
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+
+    <!--
+     * SQL 명      : _bidSttus.suplerBidSttusInfo
+     * 기능(설명)  : 입찰공고 공급자 확인정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-05
+    -->
+    <select id="suplerBidSttusInfo" parameterType="map" resultType="SuplerCeartNotifySplyVO">
+        /*_bidSttus.suplerBidSttusInfo*/
+        SELECT #{notifyNum}                   AS notifyNum
+             , #{notifySeq}                   AS notifySeq
+             , A.USER_ID                      AS suplerId
+             , B.CMPNY_NM                     AS cmpnyNm
+             , B.BIZRNO                       AS bizrno
+             , B.CMPNY_RPRSNTV_NM             AS cmpnyRprsntvNm
+             , DECRYPT(B.CMPNY_TELNO ,'P007') AS reprsntTelno
+             , C.GOODS_CODE                   AS goodsCode
+             , D.GOODS_NM                     AS goodsName
+             , C.SPLY_AMT                     AS splyAmt
+             , C.VAT_GBN                      AS vatGbn
+             , C.ADD_ANSWER                   AS addAnswer
+             , C.SPLY_NOTE                    AS splyNote
+             , C.SPLY_FILE                    AS splyFile
+             , E.LOCAL_ORGINL_NM              AS splyFileOrgNm
+             , E.FILE_ID                      AS splyFileId
+             , E.FILE_SIZE                    AS splyFileSize
+             , E.FILE_TY                      AS splyFileTy
+          FROM OP_USER A
+               LEFT JOIN OP_USER_ENTRPRS_OPTION B
+                      ON A.USER_ID = B.USER_ID
+               LEFT JOIN (SELECT *
+                            FROM TCN_NOTIFY_SPLY_I
+                           WHERE NOTIFY_NUM = #{notifyNum}
+                             AND NOTIFY_SEQ = #{notifySeq}) C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TST_GOOD_INFO_I D
+	                  ON C.GOODS_CODE = D.GOODS_CODE
+               LEFT JOIN OP_FILE E
+                      ON C.SPLY_FILE = E.FILE_SEQ
+         WHERE A.USER_ID = #{suplerId}
+    </select>
+
+    <!--
+     * SQL 명      : _bidSttus.suplerServiceList
+     * 기능(설명)  : 공급자의 서비스 구분에 대한 서비스 목록 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-09
+    -->
+    <select id="suplerServiceList" parameterType="map" resultType="SuplerServiceVO">
+        /*_bidSttus.suplerServiceList*/
+        SELECT GOODS_CODE  AS goodsCode
+             , GOODS_NM    AS goodsNm
+          FROM TST_GOOD_INFO_I
+         WHERE MNGR_DELETE_AT     = 'N'
+           AND GOODS_ACTVTY_AT    = 'Y'
+           AND GOODS_REGIST_STTUS = '1006'
+           AND LANG_CODE          = '00'
+           AND GOODS_KND_CD       = #{goodKndCd}
+           AND USER_ID            = #{suplerId}
+    </select>
+
+    <!--
+     * SQL 명      : _bidSttus.updateBidNotifyStatus
+     * 기능(설명)  : 입찰공고 마스터 정보의 입찰진행상태 변경
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-05
+    -->
+    <update id="updateBidNotifyStatus">
+        /*_bidSttus.updateBidNotifyStatus*/
+        UPDATE TCN_BID_NOTIFY_I SET BID_PGES_STAT = #{bidPgesStat}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _bidSttus.insertNotifySply
+     * 기능(설명)  : 입찰공고 공급자 확인정보 등록
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-09
+    -->
+    <insert id="insertNotifySply">
+        /*_bidSttus.insertNotifySply*/
+        INSERT INTO TCN_NOTIFY_SPLY_I(NOTIFY_NUM
+                                    , NOTIFY_SEQ
+                                    , USER_ID
+                                    , GOODS_CODE
+                                    , CONFM_GBN
+                                    , ASK_APPLY_CD
+                                    , BID_PGES_STAT
+                                    , BID_SUSS_GBN
+                                    , CNTR_GBN
+                                    , SPLY_AMT
+                                    , VAT_GBN
+                                    , ADD_ANSWER
+                                    , SPLY_NOTE
+                                    , SPLY_FILE
+                                    , ENTR_DT)
+                               VALUES(#{notifyNum}
+                                    , #{notifySeq}
+                                    , #{suplerId}
+                                    , #{goodsCode}
+                                    , 'Y'
+                                    , '1003'
+                                    , #{bidPgesStat}
+                                    , 'N'
+                                    , 'N'
+                                    , #{splyAmt}
+                                    , #{vatGbn}
+                                    , #{addAnswer}
+                                    , #{splyNote}
+                                    , #{splyFile}
+                                    , SYSDATETIME )
+    </insert>
+
+    <!--
+     * SQL 명      : _bidSttus.updateNotifySply
+     * 기능(설명)  : 입찰공고 공급자 확인정보 수정
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-09
+    -->
+    <update id="updateNotifySply">
+        /*_bidSttus.updateNotifySply*/
+        UPDATE TCN_NOTIFY_SPLY_I SET ASK_APPLY_CD  = '1003'
+                                   , BID_PGES_STAT = #{bidPgesStat}
+                                   , SPLY_AMT      = #{splyAmt}
+                                   , VAT_GBN       = 'Y'
+                                   , ADD_ANSWER    = #{addAnswer}
+                                   , SPLY_NOTE     = #{splyNote}
+                                   , SPLY_FILE     = #{splyFile}
+                                   , ENTR_DT       = SYSDATETIME
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{suplerId}
+    </update>
+</mapper>

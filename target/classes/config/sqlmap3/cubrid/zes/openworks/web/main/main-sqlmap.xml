@@ -1,0 +1,871 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_main">
+    <select id="eventRecentList" parameterType="map" resultType="WebEventVO">
+		/* _main.eventRecentList */
+     	SELECT *
+     	  FROM (SELECT TEM.EVENT_SN            									AS eventSn
+		  			 , TEM.REGIST_DT   											AS registDt
+		  			 , TEM.EVENT_RDCNT             								AS eventRdcnt
+		  			 , (SELECT FILE_URL FROM OP_FILE C WHERE C.FILE_SEQ = TEM.EVENT_THUMB_FILE_SEQ) AS eventFilePath
+		  			 , TEM.BEGIN_DATE     										AS beginDate
+		  			 , TEM.END_DATE      										AS endDate
+		           	 , SUBSTRB(TEM.EVENT_TITLE, 0, (#{cutTitleEventNum} * 2)) 	AS eventTitle
+		           	 , TEL.EVENT_LC_SE_CD										AS eventLcSeCd
+		 		  FROM TRM_EVET_MGMT_M TEM
+		 		     , TRM_EVET_DOMN_I TED
+		 		     , TRM_EVET_LC_M TEL
+			  	 WHERE 1 = 1
+		  		   AND TEM.EVENT_SN = TED.EVENT_SN
+		  		   AND TEM.EVENT_SN = TEL.EVENT_SN
+	  	           AND TED.DOMAIN_CD = #{domainCd}
+	  	           AND TEM.EVENT_DELETE_AT = 'N'
+                   AND CASE WHEN (TO_CHAR(SYS_DATE, 'YYYYMMDD') BETWEEN TEM.BEGIN_DATE AND TEM.END_DATE) AND ( TEM.ENFRC_CLOS_AT = 'N' )
+                            THEN 'Y'
+           			        ELSE 'N'
+                        END = 'Y'
+         		<if test="ctgryClCd != null  and ctgryClCd != ''">
+				   AND TEL.EVENT_LC_SE_CD = #{ctgryClCd}
+                </if>
+				 ORDER BY TEM.REGIST_DT DESC
+		       )
+		 WHERE ROWNUM &lt;= #{rowNum}
+    </select>
+
+    <select id="PopupZoneListToday" parameterType="map" resultType="bannerVO">
+        /* _main.PopupZoneListToday */
+    	SELECT
+               A.BANNER_TITLE     AS bannerTitle
+             , A.LINK_TY_CD       AS linkTyCd
+             , A.LINK_URL         AS linkUrl
+             , A.IMAGE_ALT        AS imageAlt
+             , A.BANNER_FILE_PATH AS bannerFilePath
+             , A.BANNER_DC        AS bannerDc
+             , A.BANNER_SN        AS bannerSn
+          FROM OP_BANNER A
+             , OP_BANNER_DOMAIN B
+         WHERE A.BANNER_TY_CD = #{bannerTyCd}
+           AND B.DOMAIN_CD = #{domainCd}
+           AND A.BANNER_SN = B.BANNER_SN
+           AND A.USE_YN = 'Y'
+           AND (A.BEGIN_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD')
+               OR A.END_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD')
+               )
+         ORDER BY B.BANNER_SORT_NO
+    </select>
+    <select id="bannerListToday" parameterType="map" resultType="bannerVO">
+        /* _main.bannerListToday */
+        SELECT
+               A.BANNER_TITLE     AS bannerTitle
+             , A.LINK_TY_CD       AS linkTyCd
+             , A.LINK_URL         AS linkUrl
+             , A.IMAGE_ALT        AS imageAlt
+             , A.BANNER_FILE_PATH AS bannerFilePath
+             , A.BANNER_DC        AS bannerDc
+          FROM OP_BANNER A
+             , OP_BANNER_DOMAIN B
+             , OP_BANNER_LC_INFO C
+         WHERE A.BANNER_TY_CD = #{bannerTyCd}
+           AND B.DOMAIN_CD = #{domainCd}
+           AND A.BANNER_SN = B.BANNER_SN
+           AND A.USE_YN = 'Y'
+           AND (A.BEGIN_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD')
+               OR A.END_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD')
+               )
+           AND C.BANNER_SN = A.BANNER_SN
+           AND C.BANNER_LC_SE_CD = #{bannerLcSeCd}
+         ORDER BY B.BANNER_SORT_NO
+    </select>
+
+    <!-- 게시판 최근 목록 -->
+    <select id="boardRecentList" parameterType="java.util.Map" resultType="boardVO">
+        /* _main.boardRecentList */
+        SELECT
+               *
+          FROM (
+	            SELECT A.DOMAIN_CD             AS domainCd
+	                 , A.BBS_CD                AS bbsCd
+	                 , A.BBSCTT_SEQ            AS bbscttSeq
+	                 <if test="cutTitleNum > 0">
+			         , SUBSTRB(A.BBSCTT_SJ, 0, (#{cutTitleNum} * 2)) AS bbscttSj
+			         </if>
+			         <if test="cutTitleNum == 0">
+			         , A.BBSCTT_SJ AS bbscttSj
+			         </if>
+	                 , ${cutTitleNum} 		   AS cutTitleNum
+	                 , LENGTHB(A.BBSCTT_SJ)    AS bbscttSjLength
+	                 , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+	                 , (SELECT CTG_NM
+					      FROM OP_BOARD_CTG
+					     WHERE A.DOMAIN_CD = DOMAIN_CD
+					       AND A.BBS_CD = BBS_CD
+					       AND A.CTG_CD = CTG_CD) AS ctgNm
+					 , A.CN_SUMRY AS cnSumry
+					 , 50 AS cutSumryNum
+					 , LENGTHB(A.CN_SUMRY) AS cnSumryLength
+					 , A.FILE_SEQ AS fileSeq
+					 , TRUNC(TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD')) - TRUNC(TO_DATE(TO_CHAR(A.REGIST_DT , 'YYYYMMDD'), 'YYYYMMDD')) AS passDay
+	              FROM OP_BOARD A
+	             WHERE A.DOMAIN_CD = #{domainCd}
+	               AND A.MNGR_DELETE_AT = 'N'
+	               AND A.BBS_CD = #{bbsCd}
+	             ORDER BY A.REGIST_DT DESC
+        	   )
+         WHERE ROWNUM &lt;= #{rowNum}
+    </select>
+    <select id="boardRecentList1" parameterType="java.util.Map" resultType="String">
+        /* _main.boardRecentList1 */
+        SELECT
+               max(passDay) as passDay
+          FROM (
+				  SELECT
+					 TO_CHAR(A.REGIST_DT , 'yyyymmddhh24miss') AS passDay
+	              FROM OP_BOARD A
+	             WHERE A.DOMAIN_CD = #{domainCd}
+	               AND A.MNGR_DELETE_AT = 'N'
+	               AND A.BBS_CD = #{bbsCd}
+	             ORDER BY A.REGIST_DT DESC
+        	   )
+    </select>
+    
+    <!-- 지식허브 최근 목록 -->
+    <select id="knwldgHubList" parameterType="java.util.Map" resultType="boardVO">
+        
+        /* _main.knwldgHubList */
+        
+        SELECT *
+          FROM (
+                  SELECT A.DOMAIN_CD             AS domainCd
+                        ,A.BBS_CD                AS bbsCd
+                        ,A.BBSCTT_SEQ            AS bbscttSeq
+                        ,SUBSTRB(A.BBSCTT_SJ, 0, ( 20 /**P*/ * 2)) AS bbscttSj
+                        ,20                      AS cutTitleNum
+                        ,LENGTHB(A.BBSCTT_SJ)    AS bbscttSjLength
+                        ,(SELECT CTG_NM
+                            FROM OP_BOARD_CTG
+                           WHERE A.DOMAIN_CD = DOMAIN_CD
+                             AND A.BBS_CD = BBS_CD
+                             AND A.CTG_CD = CTG_CD
+                         ) AS ctgNm
+                        ,A.CN_SUMRY AS cnSumry
+                        ,50 AS cutSumryNum
+                        ,LENGTHB(A.CN_SUMRY) AS cnSumryLength
+                        ,A.FILE_SEQ AS fileSeq
+                        ,B.BBS_NM AS bbsNm
+                        ,TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+                    FROM OP_BOARD A
+                        ,OP_BOARD_CONF B
+                   WHERE A.BBS_CD = B.BBS_CD
+                     AND A.DOMAIN_CD = B.DOMAIN_CD
+                     AND A.DOMAIN_CD =  #{domainCd}
+                     AND A.MNGR_DELETE_AT = 'N'
+                     AND A.BBS_CD = 1023
+                ORDER BY A.REGIST_DT DESC
+                   LIMIT 0,1
+               )           
+    UNION ALL 
+        SELECT *
+          FROM (
+                  SELECT A.DOMAIN_CD             AS domainCd
+                        ,A.BBS_CD                AS bbsCd
+                        ,A.BBSCTT_SEQ            AS bbscttSeq
+                        ,SUBSTRB(A.BBSCTT_SJ, 0, ( 20 /**P*/ * 2)) AS bbscttSj
+                        ,20                      AS cutTitleNum
+                        ,LENGTHB(A.BBSCTT_SJ)    AS bbscttSjLength
+                        ,(SELECT CTG_NM
+                            FROM OP_BOARD_CTG
+                           WHERE A.DOMAIN_CD = DOMAIN_CD
+                             AND A.BBS_CD = BBS_CD
+                             AND A.CTG_CD = CTG_CD
+                         ) AS ctgNm
+                        ,A.CN_SUMRY AS cnSumry
+                        ,50 AS cutSumryNum
+                        ,LENGTHB(A.CN_SUMRY) AS cnSumryLength
+                        ,A.FILE_SEQ AS fileSeq
+                        ,B.BBS_NM AS bbsNm
+                        ,TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+                    FROM OP_BOARD A
+                        ,OP_BOARD_CONF B
+                   WHERE A.BBS_CD = B.BBS_CD
+                     AND A.DOMAIN_CD = B.DOMAIN_CD
+                     AND A.DOMAIN_CD =  #{domainCd}
+                     AND A.MNGR_DELETE_AT = 'N'
+                     AND A.BBS_CD = 1024
+                ORDER BY A.REGIST_DT DESC
+                   LIMIT 0,1
+               )
+                          
+    </select>
+
+    <select id="getMobileMTList" parameterType="map" resultType="CmsVO">
+        <!-- SELECT DOMAIN_CD             AS domainCd
+		     , MENU_CODE             AS menuCode
+             , MENU_NM               AS menuNm
+		     , TITLE                 AS title
+		     , MENU_PATH             AS menuPath
+		     , TOP_MENU_CODE         AS topMenuCode
+		     , PARENT_MENU_CODE      AS parentMenuCode
+		     , MENU_DEPTH            AS menuDepth
+		     , SORT_ORDER            AS sortOrder
+		     , USER_MENU_URL         AS userMenuUrl
+             , SHOW_YN               AS showYn
+             , USE_YN                AS useYn
+          FROM OP_USER_MENU
+		 WHERE DOMAIN_CD = #{domainCd}
+		   AND TOP_MENU_CODE = #{topMenuCode}
+		   AND PARENT_MENU_CODE = #{parentMenuCode}
+		   AND USE_YN = 'Y'
+		 ORDER BY SORT_ORDER ASC -->
+    </select>
+
+    <select id="getMobileMenuList" parameterType="map" resultType="CmsVO">
+        <!-- SELECT DOMAIN_CD             AS domainCd
+		     , MENU_CODE             AS menuCode
+             , MENU_NM               AS menuNm
+		     , TITLE                 AS title
+		     , MENU_PATH             AS menuPath
+		     , TOP_MENU_CODE         AS topMenuCode
+		     , PARENT_MENU_CODE      AS parentMenuCode
+		     , MENU_DEPTH            AS menuDepth
+		     , SORT_ORDER            AS sortOrder
+		     , USER_MENU_URL         AS userMenuUrl
+             , SHOW_YN               AS showYn
+             , USE_YN                AS useYn
+          FROM OP_USER_MENU
+		 WHERE DOMAIN_CD = #{domainCd}
+		   AND PARENT_MENU_CODE = #{parentMenuCode}
+		   AND USE_YN = 'Y'
+		 ORDER BY SORT_ORDER ASC -->
+    </select>
+
+
+    <!-- 추천솔루션/프리미엄 -->
+    <resultMap id="rcmdResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <collection property="goodsMarkList" column="GOODS_CODE" ofType="map" select="goodsMarkImageList"/>
+    </resultMap>
+    <select id="rcmdList" parameterType="premiumVO" resultMap="rcmdResult">
+        /* _main.rcmdList */
+        <!--
+        SELECT A.GOODS_CODE
+             , B.GOODS_NM AS goodsNm
+             , B.GOODS_SUMRY AS goodsSumry
+             , B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+             , (SELECT LANG_STORE_NM
+                  FROM TUM_SVC_STOR_I
+                 WHERE USER_ID = B.USER_ID
+                   AND LANG_CODE = B.LANG_CODE) AS langStoreNm
+             , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9')
+                  FROM TST_GOOD_EVL_I
+                 WHERE GOODS_CODE = B.GOODS_CODE) AS evlScore
+             , (SELECT COUNT(GOODS_CODE)
+                  FROM TST_GOOD_ORDR_I
+                 WHERE GOODS_CODE = B.GOODS_CODE) AS sellCnt
+          FROM TST_RCMD_GOOD_M A
+             , TST_GOOD_INFO_I B
+         WHERE A.GOODS_CODE = B.GOODS_CODE
+           AND A.RECOMEND_LC_SE_CD = 1001
+           AND A.RECOMEND_SE_CD = #{goodsTyCd}
+           AND B.GOODS_ACTVTY_AT = 'Y'
+           AND B.MNGR_DELETE_AT = 'N'
+           AND B.GOODS_REGIST_STTUS = 1006
+           AND B.LANG_CODE = c
+        <choose>
+            <when test="goodsTyCd == 1001">AND ROWNUM &lt;= 4</when>
+            <when test="goodsTyCd == 1002">AND ROWNUM &lt;= 3</when>
+        </choose>
+        ORDER BY A.PRIORT ASC, A.APPN_DT DESC, B.REGIST_DT DESC
+        -->
+
+        SELECT A.GOODS_CODE
+             , B.GOODS_NM AS goodsNm
+             , B.GOODS_SUMRY AS goodsSumry
+             , B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+             , (SELECT LANG_STORE_NM
+                  FROM TUM_SVC_STOR_I
+                 WHERE USER_ID = B.USER_ID
+                   AND LANG_CODE = B.LANG_CODE) AS langStoreNm
+             , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9')
+                  FROM TST_GOOD_EVL_I
+                 WHERE GOODS_CODE = B.GOODS_CODE) AS evlScore
+             , (SELECT COUNT(GOODS_CODE)
+                  FROM TST_GOOD_ORDR_I
+                 WHERE GOODS_CODE = B.GOODS_CODE) AS sellCnt
+          FROM (SELECT A.GOODS_CODE, MIN(B.CTGRY_CL_CD) AS CTGRY_CL_CD
+                  FROM TST_GOOD_CATE_I A
+                     , TST_CATE_MGMT_M B
+                 WHERE A.CTGRY_CODE = B.CTGRY_CODE 
+                   AND B.LANG_CODE = '00'
+                GROUP BY A.GOODS_CODE) A
+             , TST_GOOD_INFO_I B
+         WHERE A.GOODS_CODE = B.GOODS_CODE
+           AND A.CTGRY_CL_CD IN (1001,1002,1003)
+           AND B.GOODS_ACTVTY_AT = 'Y'
+           AND B.MNGR_DELETE_AT = 'N'
+           AND B.GOODS_REGIST_STTUS = 1006
+           AND B.LANG_CODE = '00'
+           <choose>
+	           <when test="goodsTyCd == 1001">
+	           AND B.GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_MARK_I C WHERE C.MARK_CD = 1001) 
+	           </when>
+	           <when test="goodsTyCd != 1001">
+	           AND B.GOODS_CODE IN (SELECT GOODS_CODE FROM TST_RCMD_GOOD_M WHERE RECOMEND_LC_SE_CD=1001 AND RECOMEND_SE_CD=#{goodsTyCd} ORDER BY PRIORT)
+	           </when>
+           </choose>
+        <if test="goodsTyCd == 1001">
+        ORDER BY RANDOM()
+        </if>
+        LIMIT 3
+
+    </select>
+    <select id="goodsMarkImageList" resultType="map">
+    	/* _main.goodsMarkImageList */
+		SELECT B.MARK_IMAGE_FILE_SEQ AS MARKIMAGEFILESEQ
+             , B.MARK_NM AS MARKNM
+          FROM TST_GOOD_MARK_I A
+             , TST_GOOD_MARK_M B
+         WHERE A.MARK_CD = B.MARK_CD
+           AND A.GOODS_CODE = #{goodsCode}
+         ORDER BY A.MARK_CD
+    </select>
+
+    <!-- 컨설팅 TOP3 목록, 20151020 최신 IT 전문가 서비스로 명칭 변경함. -->
+    <!-- 최신 IT 전문가 서비스 -->
+    <select id="cntl5List" parameterType="premiumVO" resultMap="rcmdResult">
+        /* _main.cntl5List */
+   <!-- SELECT ROWNUM NUM, X.*
+          FROM (SELECT B.GOODS_CODE
+                     , B.GOODS_NM AS goodsNm
+                     , B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+                     , (SELECT LANG_STORE_NM
+                          FROM TUM_SVC_STOR_I
+                         WHERE USER_ID = B.USER_ID
+                           AND LANG_CODE = B.LANG_CODE) AS langStoreNm
+                     , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9')
+                          FROM TST_GOOD_EVL_I
+                         WHERE GOODS_CODE = B.GOODS_CODE) AS evlScore
+                     , (SELECT COUNT(GOODS_CODE)
+                          FROM TST_GOOD_ORDR_I
+                         WHERE GOODS_CODE = B.GOODS_CODE) AS sellCnt
+                  FROM TST_GOOD_INFO_I B
+                 WHERE B.GOODS_ACTVTY_AT = 'Y'
+                   AND B.MNGR_DELETE_AT = 'N'
+                   AND B.GOODS_REGIST_STTUS = 1006
+                   AND B.LANG_CODE = #{langCode}
+                   AND B.GOODS_CODE IN (SELECT TGC.GOODS_CODE
+                                          FROM TST_GOOD_CATE_I TGC
+                                             , TST_CATE_MGMT_M TCM
+                                         WHERE TGC.CTGRY_CODE = TCM.CTGRY_CODE
+                                           AND TCM.LANG_CODE = #{langCode}
+                                           AND TCM.CTGRY_CL_CD = 1003
+                                         GROUP BY TGC.GOODS_CODE)
+                ORDER BY sellCnt DESC, GOODS_RDCNT DESC, REGIST_DT DESC
+               ) X
+        LIMIT 3 -->
+        SELECT A.GOODS_CODE
+             , A.GOODS_NM AS goodsNm
+             , A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+             , (SELECT LANG_STORE_NM
+                  FROM TUM_SVC_STOR_I
+                 WHERE USER_ID = A.USER_ID
+                   AND LANG_CODE = A.LANG_CODE) AS langStoreNm
+             , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9')
+                  FROM TST_GOOD_EVL_I
+                 WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore
+             , (SELECT COUNT(GOODS_CODE)
+                  FROM TST_GOOD_ORDR_I
+                 WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt
+          FROM TST_GOOD_INFO_I A
+         WHERE A.GOODS_CODE IN (SELECT B.GOODS_CODE
+                                  FROM TST_GOOD_INFO_I B
+                                 WHERE B.GOODS_ACTVTY_AT = 'Y'
+                                   AND B.MNGR_DELETE_AT = 'N'
+                                   AND B.GOODS_REGIST_STTUS = 1006
+                                   AND B.LANG_CODE = #{langCode}
+                                   AND B.GOODS_CODE IN (SELECT TGC.GOODS_CODE
+                                                          FROM TST_GOOD_CATE_I TGC
+                                                             , TST_CATE_MGMT_M TCM
+                                                         WHERE TGC.CTGRY_CODE = TCM.CTGRY_CODE
+                                                           AND TCM.LANG_CODE = #{langCode}
+                                                           AND TCM.CTGRY_CL_CD = 1003
+                                                        GROUP BY TGC.GOODS_CODE)
+                                GROUP BY B.USER_ID
+                                ORDER BY MAX(B.REGIST_DT) DESC
+                                LIMIT 3)
+        ORDER BY A.REGIST_DT DESC
+    </select>
+
+    <!-- TOP10 목록 -->
+    <sql id="listSort">
+        <choose>
+	        <when test="se == &quot;E&quot;"><!-- 평가순 -->
+	            ORDER BY evlScore DESC, GOODS_RDCNT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="se == &quot;N&quot;"><!-- 신규서비스순 에서 랜럼으로 수정-->
+	            /*ORDER BY CONFM_DT DESC, REGIST_DT DESC*/
+	            ORDER BY RANDOM()
+	        </when>
+	        <when test="se == &quot;EPR&quot;"><!-- 체험서비스 -->
+	            ORDER BY CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="se == &quot;R&quot;"><!-- 신청순 -->
+	            ORDER BY sellCnt DESC, GOODS_RDCNT DESC, REGIST_DT DESC
+	        </when>
+	        <otherwise>
+	            ORDER BY REGIST_DT DESC
+	        </otherwise>
+        </choose>
+    </sql>
+
+    <select id="top10List" parameterType="hmap" resultType="premiumVO">
+		/* _main.top10List */
+		SELECT ROWNUM NUM, X.*
+		  FROM (SELECT
+		               A.GOODS_CODE AS goodsCode
+		             , A.LANG_CODE AS langCode
+		             , A.GOODS_NM AS goodsNm
+		             , A.USER_ID AS userId
+		             , A.GOODS_KND_CD AS goodsKndCd
+		             , A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+		             , (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt
+		             , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore
+		             , (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm
+		             , SUBSTRB(A.GOODS_SUMRY,0,65) AS goodsSumry
+		          FROM TST_GOOD_INFO_I A
+		         WHERE A.MNGR_DELETE_AT = 'N'
+		           AND A.GOODS_ACTVTY_AT = 'Y'
+		           AND A.GOODS_REGIST_STTUS = 1006
+		           AND A.LANG_CODE = #{langCode}
+		           AND A.GOODS_CODE IN (SELECT A.GOODS_CODE
+					                      FROM TST_GOOD_CATE_I A
+					                         , TST_CATE_MGMT_M B
+					                     WHERE A.CTGRY_CODE = B.CTGRY_CODE
+					                       AND B.LANG_CODE = #{langCode}
+					                     GROUP BY A.GOODS_CODE )
+		            <include refid="listSort"/>
+	           ) X
+		LIMIT 12
+    </select>
+    
+    <select id="mainGoodsList" parameterType="hmap" resultType="premiumVO">
+		/* _main.mainGoodsList */
+		SELECT ROWNUM NUM, X.*
+		  FROM (SELECT
+		               A.GOODS_CODE AS goodsCode
+		             , A.LANG_CODE 	AS langCode
+		             , B.GOODSTYNM	AS goodsTyNm	//SaaS, PaaS, IaaS
+		             , A.GOODS_NM	AS goodsNm
+		             , A.USER_ID	AS userId
+		             , A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+		             , (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt
+		             , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore
+		             , (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm
+		             , GOODS_SUMRY AS goodsSumry
+		          FROM TST_GOOD_INFO_I A
+		          	LEFT JOIN (   SELECT A.GOODS_CODE, (SELECT INDVDLZ_CD_NM
+														  FROM OP_CODE_INDVDLZ
+														 WHERE LANG_CODE = #{langCode} AND GROUP_CD = 1005 AND INDVDLZ_CD = B.CTGRY_CL_CD) AS GOODSTYNM
+				          		    FROM TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+				         		   WHERE A.CTGRY_CODE = B.CTGRY_CODE
+				           				AND  B.LANG_CODE = #{langCode}
+				      			GROUP BY A.GOODS_CODE, B.CTGRY_CL_CD
+				      		) B ON A.GOODS_CODE = B.GOODS_CODE
+		         WHERE A.MNGR_DELETE_AT = 'N'
+		           AND A.GOODS_ACTVTY_AT = 'Y'
+		           AND A.GOODS_REGIST_STTUS = 1006
+		           AND A.LANG_CODE = #{langCode}
+		           <if test="se != null  and se != '' and se == &quot;EPR&quot;">
+				   AND TRIM(A.ITEM_VOD_URL) != ''
+	               </if>
+		           AND A.GOODS_CODE IN (SELECT A.GOODS_CODE
+					                      FROM TST_GOOD_CATE_I A
+					                         , TST_CATE_MGMT_M B
+					                     WHERE A.CTGRY_CODE = B.CTGRY_CODE
+					                       AND B.LANG_CODE = #{langCode}
+					                     GROUP BY A.GOODS_CODE )
+		            <include refid="listSort"/>
+	           ) X
+		<choose>
+	        <when test="se == &quot;E&quot;"><!-- 평가순 -->
+	            LIMIT 12
+	        </when>
+	        <when test="se == &quot;N&quot;"><!-- 기존 신규서비스  을 랜덤으로 표현하기  -->
+	            LIMIT 12 
+	        </when>
+	        <when test="se == &quot;EPR&quot;"><!-- 체험서비스 -->
+	            LIMIT 15
+	        </when>
+	        <when test="se == &quot;R&quot;"><!-- 신청순 -->
+	            LIMIT 12
+	        </when>
+	        <otherwise>
+	            LIMIT 12
+	        </otherwise>
+        </choose>
+    </select>
+    
+    <select id="bestSellerList" parameterType="premiumVO" resultType="premiumVO">
+        SELECT ROW_NUMBER() OVER (ORDER BY CNT DESC, GOODS_RDCNT DESC) AS rankNum
+             , USER_ID AS userId
+             , langStoreNm
+          FROM (SELECT
+		               B.USER_ID
+		             , (SELECT LANG_STORE_NM
+		                  FROM TUM_SVC_STOR_I
+		                 WHERE USER_ID = B.USER_ID
+		                   AND LANG_CODE = b.LANG_CODE) AS langStoreNm
+		             , COUNT(B.USER_ID) AS CNT
+		             , B.GOODS_RDCNT
+		          FROM TST_GOOD_ORDR_I A
+		             , TST_GOOD_INFO_I B
+		         WHERE A.GOODS_CODE = B.GOODS_CODE
+		           AND A.ORDER_CNFIRM_AT = 'Y'
+		           AND B.GOODS_ACTVTY_AT = 'Y'
+		           AND B.MNGR_DELETE_AT = 'N'
+		           AND B.GOODS_REGIST_STTUS = 1006
+		           AND A.GOODS_CODE IN (SELECT A.GOODS_CODE
+		                                  FROM TST_GOOD_CATE_I A
+		                                     , TST_CATE_MGMT_M B
+		                                 WHERE A.CTGRY_CODE = B.CTGRY_CODE
+		                                   AND B.LANG_CODE = #{langCode}
+		                                 GROUP BY A.GOODS_CODE)
+		         GROUP BY B.USER_ID
+        	   )
+         LIMIT 10
+    </select>
+    
+    <select id="bidInfoMainList" parameterType="map" resultType="bidInfoVO">
+    	/* _main.bidInfoMainList */
+			SELECT ROWNUM NUM, X.* FROM (
+				SELECT BID_UNION_NO as bidUnionNo
+				     , BID_NOTIFY_NO as bidNotifyNo
+				     , BID_NOTIFY_SEQ_NO as bidNotifySeqNo
+				     , '['||ORDER_ORGN_NM||']'||BID_NM as bidNm
+				     , TO_CHAR(PBLANC_START_DATE,'YYYYMMDDHH24MI') as pblancStartDate
+				     , ORDER_ORGN_NM as orderOrgnNm
+				     , REAL_ORGN_NM as realOrgnNm
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2021'
+						   AND B.RELATION_CD = CNTRCT_MTH) as cntrctMth
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2019'
+						   AND B.RELATION_CD = BID_MTHD) as bidMthd
+				     , SCSBID_MTH as scsbidMth
+				     , (SELECT B.INDVDLZ_CD_NM
+						  FROM OP_CODE_INDVDLZ B
+						 WHERE B.USE_YN = 'Y'
+						   AND B.LANG_CODE = '00'
+						   AND B.GROUP_CD = '2018'
+						   AND B.RELATION_CD = BID_TYPE) as bidType
+				     , TO_CHAR(BID_STRT_DATE,'YYYY-MM-DD HH24:MI') as bidStrtDate
+				     , TO_CHAR(BID_END_DATE,'YYYY-MM-DD HH24:MI') as bidEndDate
+				     , PRSMP_AMT as prsmpAmt
+				     , SENDER_ID as senderId
+				     , MESS_TYPE as messType
+				     , MESS_NM as messNm
+				     , DOCU_MANG_NO as docuMangNo
+				  FROM TCN_BID_INFO_L
+	             WHERE (UPPER(BID_NM) LIKE '%' || UPPER('클라우드') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('cloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('가상화') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('virtualization') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('하이퍼바이저') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('Hypervisor') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('IaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('PaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('SaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('DaaS') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('VDI') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('데스크탑가상화') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('SLA') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('g-cloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('gcloud') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('멀티테넌트') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenant') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multitenant') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('멀티네넌시') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multi-tenancy') || '%'
+					OR UPPER(BID_NM) LIKE '%' || UPPER('multitenancy') || '%')
+	             ORDER BY PBLANC_START_DATE DESC
+			) X 
+			LIMIT 5
+    </select>
+<!--     
+    <select id="bizMatchingMainList" parameterType="map" resultType="bizMatchingVO">
+	SELECT
+            Z.*
+            , (SELECT COUNT(F.FILE_ORDR_NO)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = Z.fileSeq) AS fileCnt
+            , (SELECT SUM(F.DWLD_CNT)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = Z.fileSeq) AS downCnt
+            , (SELECT COUNT(C.BBS_CD)
+                  FROM OP_NTT_CMT C
+                 WHERE C.DOMAIN_CD =  2 /**P*/ 
+                   AND C.BBS_CD =  1010 /**P*/       
+                   AND C.BBSCTT_SEQ = Z.bbscttSeq) AS commentCnt             
+        FROM (
+            SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (	                     
+	/*_boardWeb : board-sqlmap.xml : boardListBody */
+		SELECT 
+		        A.DOMAIN_CD                 AS domainCd
+              , A.BBS_CD                    AS bbsCd
+              , A.BBSCTT_SEQ                AS bbscttSeq
+              , A.REFRN_SEQ                 AS refrnSeq
+              , A.BBSCTT_ORDR_NO            AS bbscttOrdrNo
+              , A.BBSCTT_DP                 AS bbscttDp
+              , A.CTG_CD                    AS ctgCd
+			  , (SELECT CTG_NM FROM OP_BOARD_CTG 
+                WHERE DOMAIN_CD = A.DOMAIN_CD 
+                  AND BBS_CD = A.BBS_CD 
+                  AND CTG_CD = A.CTG_CD)    AS ctgNm
+             , DECODE (A.NOTICE_BBSCTT_AT, 'Y', 'Y', 'N')       AS noticeBbscttAt
+              , SUBSTRB(A.BBSCTT_SJ, 0, ( 15 /**P*/ * 2))   AS bbscttSj
+              , LENGTH(A.BBSCTT_SJ)        AS bbscttSjLength
+              , A.BBSCTT_CN                 AS bbscttCn 
+              , A.CN_SUMRY                  AS cnSumry
+              , A.FILE_SEQ                  AS fileSeq
+              , A.RDCNT                     AS rdCnt
+              , TO_CHAR(A.REPLY_DT,'YYYY.MM.DD HH24:MI') AS replyDt
+			  , A.ACCUSE_CNT                AS accuseCnt
+              , A.RECOMEND_CNT              AS recomendCnt
+              , A.IP_ADRES                  AS ipAdres
+              , A.BRWSR_AGENT               AS brwsrAgent
+              , A.OTHBC_AT                  AS othbcAt
+              , A.BANNED_WRD_AT            AS bannedWordAt
+			  , DECODE(A.REGIST_PASSWORD, '', 'N', 'Y') AS registPassword
+              , A.REGISTER_NM               AS registerNm
+              , A.REGIST_ID                 AS registId
+              , A.USER_KEY                  AS userKey
+              , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD HH24:MI') AS registDt
+              , A.UPDT_ID                   AS updtId
+              , TO_CHAR(A.UPDT_DT, 'YYYY/MM/DD') AS updtDt
+              , A.MNGR_ID                   AS mngrId
+              , A.MNGR_NM                   AS mngrNm
+              , A.DEPT_CODE                 AS deptCode
+              , A.DEPT_NM                   AS deptNm
+			  , TO_NUMBER(TO_CHAR(SYS_DATE, 'YYYYMMDD') - TO_CHAR(A.REGIST_DT, 'YYYYMMDD')) AS passDay
+			  , A.ESTN_COLUMN1              AS estnColumn1
+              , A.ESTN_COLUMN2              AS estnColumn2
+              , A.ESTN_COLUMN3              AS estnColumn3
+              , A.ESTN_COLUMN4              AS estnColumn4              
+                 , (CASE                    
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'Y'                    
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') > ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL    THEN 'N'                    
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') < ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'S'
+                         ELSE ''
+                      END)                  AS estnColumn5
+                , TO_CHAR(TO_TIMESTAMP(ESTN_COLUMN6,  'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI' ) AS estnColumn6
+              , A.ESTN_COLUMN7              AS estnColumn7
+              , A.ESTN_COLUMN8              AS estnColumn8
+              , A.ESTN_COLUMN9              AS estnColumn9
+              , A.ESTN_COLUMN10             AS estnColumn10
+              , A.MNGR_DELETE_AT            AS mngrDeleteAt
+              , A.REPLY_ID                  AS replyId               
+              , (CASE                
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'COM'                
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N'  AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') > ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'INC'                
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') < ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'PRO'
+                     ELSE ''
+                  END)                      AS bizProgression               
+		  FROM  (SELECT DISTINCT * FROM OP_BOARD) A             
+         WHERE A.BBS_CD =  1010 /**P*/
+           AND A.MNGR_DELETE_AT = 'N'
+           AND A.DOMAIN_CD =  2 /**P*/
+	                     AND A.NOTICE_BBSCTT_AT = 'N' 
+         AND A.BANNED_WRD_AT = 'N'      
+	                    GROUP BY A.BBSCTT_SEQ	                     
+         ORDER BY A.REGIST_DT DESC, A.REFRN_SEQ DESC, A.BBSCTT_ORDR_NO ASC 
+                    ) X
+                WHERE ROWNUM lgt=  10 /**P*/
+             ) Y
+             WHERE NUM >=  '1' /**P*/ ) Z
+    </select>
+ -->
+ 
+   <select id="bidNofiyMainList" parameterType="map" resultType="MyCeartBidNotifyVO">
+      SELECT A.NOTIFY_NUM 	 				 AS notifyNum,	     /* 공고번호 */
+      		 A.NOTIFY_SEQ     				 As notifySeq,     	 /* 입찰공고명 */
+    	     A.BID_NOTIFY_NM  				 As bidNotifyNm,     /* 입찰공고명 */
+    	     A.REAL_DMND_ORGN  				 As realDmndOrgn,    /* 실수요기관 */
+    	     (SELECT INDVDLZ_CD_NM 
+    	        FROM OP_CODE_INDVDLZ 
+    	       WHERE GROUP_CD ='2040' 
+    	         AND INDVDLZ_CD=A.CNTR_MOTHOD) AS cntrMothod,	 	 /* 계약방법코드(2040)  */
+    	     TO_CHAR(A.ENTR_DT,'YYYY.MM.DD')   AS entrDt,			 /* 입력일자 */
+    	     A.BID_KND_CD					   AS bidKndCd		 /* 공고종류코드 */
+    	FROM TCN_BID_NOTIFY_I A
+       WHERE A.BID_GBN_CD = '1001'
+      <choose>
+         <when test="clseDt != null  and clseDt != '' and clseDt == 'end'">
+        	AND (A.CLSE_DT &lt; SYSDATE OR A.BID_PGES_STAT IN ('1004','1005','1006','1007','1011')) 
+		 </when>	
+		  <when test="clseDt != null  and clseDt != '' and clseDt == 'ing'">
+		    AND A.CLSE_DT &gt; SYSDATE AND A.BID_PGES_STAT NOT IN ('1004','1005','1006','1007','1011')
+		  </when>	
+	   </choose>	
+       LIMIT 5
+   </select>
+   
+	<select id="serviceCnt"  parameterType="map" resultType="map">
+		/*_main.serviceCnt*/
+		// _introduction.agremManageListCount 참조
+		SELECT /* SUM(CASE WHEN  KND_CD = 'U2002' THEN CNT END)  AS SUPPLY_CNT                       협약기업*/
+		       (SELECT COUNT(*)
+		          FROM (SELECT  USER_ID
+		                      , CMPNY_NM
+		                  FROM  TCM_BASS_AGREM_MANAGE_I
+		                 WHERE  AGREM_STAT = '1004' // 협약승인되고
+		                   AND  DELETE_AT = 'N'     // 삭제되지 않으며..
+		                   AND  AGREM_ORDER = (SELECT MAX(AGREM_ORDER) FROM TCM_BASS_AGREM_MANAGE_I ) /* 마지막 차수기준..*/
+		                   <if test="q_companyName != null and q_companyName != ''">
+			                 AND  CMPNY_NM LIKE '%' || #{q_companyName} || '%'
+			                 </if>
+			               GROUP  BY USER_ID, CMPNY_NM)
+		       ) AS SUPPLY_CNT                                                                  /*협약기업*/ 
+			 , SUM(CASE WHEN  KND_CD = 'U3000' THEN CNT END)  AS ORGAN_CNT 			                	/*수요기관*/
+			 , SUM(CASE WHEN  KND_CD IN('G1001' ,'G1002', 'G1003', 'G1004')THEN CNT END) GOOD_TOT	/*등록서비스*/
+			 , SUM(CASE WHEN  KND_CD = 'G1002' THEN CNT END)  AS SaaS_CNT						    					/*등록서비스SaaS*/
+			 , SUM(CASE WHEN  KND_CD = 'G1001' THEN CNT END)  AS PaaS_CNT						    					/*등록서비스PaaS*/
+			 , SUM(CASE WHEN  KND_CD = 'G1003' THEN CNT END)  AS IaaS_CNT						    					/*등록서비스IaaS*/
+			 , SUM(CASE WHEN  KND_CD = 'G1004' THEN CNT END)  AS SCS_CNT						    					/*등록서비스SCS*/
+			 , (SELECT COUNT(*) 
+			      FROM TCM_CNTRCT_MANAGE_I 
+				 WHERE DELETE_AT !='Y' 
+				   AND USE_AT ='Y'
+				   AND ASIS = 'N'
+				   <!--   AND CNTRCT_BEGIN_DE > '20151231' OR CNTRCT_SN IN (42, 22, 30) --> ) AS CNT_AMT								    /*구매건수*/
+	     , (SELECT SUM(CNTRCTAMOUNT)/1000000 
+			      FROM TCM_CNTRCT_MANAGE_I  
+				   WHERE DELETE_AT !='Y' 
+				     AND USE_AT ='Y'
+				     AND ASIS = 'N'
+				 <!--   AND CNTRCT_BEGIN_DE > '20151231' OR CNTRCT_SN IN (42, 22, 30)  -->) AS SPLY_AMT								    /*구매금액*/
+		 FROM (
+				SELECT 'G'||GOODS_KND_CD AS KND_CD,
+				       COUNT(GOODS_CODE)  CNT
+				  FROM TST_GOOD_INFO_I
+				 WHERE MNGR_DELETE_AT ='N' 
+			       AND GOODS_ACTVTY_AT ='Y'
+			       AND GOODS_REGIST_STTUS ='1006'
+			  GROUP BY GOODS_KND_CD
+		     UNION ALL	
+				SELECT 'U2002' AS KND_CD
+	                 , COUNT(A.USER_ID) CNT
+	              FROM OP_USER A
+	                 , (SELECT AA.USER_ID
+	                      FROM TCM_BASS_AGREM_MANAGE_I AA, TCM_BASS_DEGREE_I BB 
+	                     WHERE AA.AGREM_ORDER = BB.BASS_DEGREE 
+	                       AND AA.AGREM_STAT = 1004
+	                       AND TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN BB.BASS_DEGREE_STDT AND BB.BASS_DEGREE_ENDDT 
+	                       AND AA.DELETE_AT = 'N' 
+	                       AND (AA.AGREM_END_DE = '' OR AA.AGREM_END_DE >= TO_CHAR(SYSDATE, 'YYYY-MM-DD'))
+	                  GROUP BY AA.USER_ID) B
+	             WHERE A.USER_ID = B.USER_ID
+	               AND A.USER_STTUS_CD IN (1001, 1004)
+	               AND A.USER_TY_CD = 2002
+	         UNION ALL 
+	            SELECT 'U3000' AS KND_CD
+	                 , COUNT(orgn_code) CNT
+	              FROM (SELECT B.orgn_code
+	                      FROM OP_USER A
+	                         , op_user_pblinstt_option B
+	                     WHERE A.USER_ID = B.USER_ID
+	                       AND A.user_ty_cd IN (3001,3002)
+	                       AND A.USER_STTUS_CD IN (1001, 1004)
+	                       AND B.orgn_code IS NOT NULL 
+	                  GROUP BY B.orgn_code)
+		   )
+    <!-- SELECT SUM(CASE WHEN  KND_CD IN( 'U1001', 'U1002' ,'U2001' )THEN CNT END)  AS DEMAND_CNT,	
+		   SUM(CASE WHEN  KND_CD = 'U2002' THEN CNT END)  AS SUPPLY_CNT	,
+		   SUM(CASE WHEN  KND_CD IN ('U3001','U3002') THEN CNT END)  AS ORGAN_CNT, 
+		   SUM(CASE WHEN  KND_CD IN('G1001' ,'G1002', 'G1003')THEN CNT END) GOOD_TOT,
+		   SUM(CASE WHEN  KND_CD = 'G1001' THEN CNT END)  AS PaaS_CNT,
+		   SUM(CASE WHEN  KND_CD = 'G1002' THEN CNT END)  AS SaaS_CNT,
+		   SUM(CASE WHEN  KND_CD = 'G1003' THEN CNT END)  AS IaaS_CNT,
+		   (SELECT SUM(CNTRCTAMOUNT)/1000000 FROM TCM_CNTRCT_MANAGE_I WHERE DELETE_AT !='Y' ) AS SPLY_AMT,
+		   (SELECT COUNT(*) FROM TCM_CNTRCT_MANAGE_I WHERE DELETE_AT !='Y' )       AS CNT_AMT
+	 FROM (
+			SELECT 'G'||GOODS_KND_CD AS KND_CD,
+			       COUNT(GOODS_CODE)  CNT
+			  FROM TST_GOOD_INFO_I
+			 WHERE MNGR_DELETE_AT ='N' 
+		       AND GOODS_ACTVTY_AT ='Y'
+		       AND GOODS_REGIST_STTUS ='1006'
+		  GROUP BY GOODS_KND_CD
+	     UNION ALL	
+			SELECT 'U'||USER_TY_CD AS KND_CD, 
+			       COUNT(USER_ID)  CNT
+			  FROM OP_USER
+			 WHERE USER_STTUS_CD ='1001'
+		  GROUP BY USER_TY_CD
+	   ) -->
+	</select>
+	
+	<select id="boardViewM" parameterType="BoardVO" resultType="BoardVO">
+		/* _main.boardViewM  (모바일 메인 화면) */
+			SELECT 
+				 	 A.DOMAIN_CD 		AS 		domainCd
+					,A.BBS_CD 			AS 		bbsCd
+					,A.BBSCTT_SEQ 		AS 		bbscttSeq
+					,A.REFRN_SEQ 		AS 		refrnSeq
+					,A.BBSCTT_SJ 		AS 		bbscttSj
+					,A.BBSCTT_CN 		AS 		bbscttCn
+					,A.FILE_SEQ 		AS 		fileSeq
+					,A.OTHBC_AT			AS		othbcAt
+					,A.REGIST_PASSWORD	AS		registPassword
+					,(SELECT file_url FROM op_file WHERE file_seq=A.FILE_SEQ LIMIT 1) AS fileUrl
+					,A.CN_SUMRY 		AS		cnSumry
+					,TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+			  FROM  OP_BOARD A
+			 WHERE  A.DOMAIN_CD = #{domainCd}
+			   AND  A.BBS_CD=#{bbsCd}
+	      ORDER BY  A.BBSCTT_SEQ DESC
+			 LIMIT  5
+	</select>    
+    
+    <select id="communicationListCount" parameterType="map" resultType="int">
+    /*_main.communicationListCount 모바일 화면 커뮤니티 리스트 갯수*/
+    			     SELECT 
+							COUNT(1) AS totalNum
+				   FROM TCM_CMNT_NTT_I A, TCM_CMNT_INFO_I B
+				  WHERE A.CMMNTY_ID IN (SELECT 
+				  							   CMMNTY_ID 
+				  						   FROM TCM_CMNT_MBER_I WHERE CMMNTY_MBER_ID = #{q_userId})
+					AND A.CMMNTY_ID= B.CMMNTY_ID
+			   ORDER BY A.REGIST_DT DESC, A.UPDT_DT DESC
+    </select>
+    
+    <select id="communicationList" parameterType="BoardVO" resultType="BoardVO">
+    /*_main.communicationList 모바일 화면 커뮤니티 리스트 */
+				SELECT Y.* FROM (
+                	SELECT ROWNUM NUM, X.* FROM (
+						 SELECT 
+								 A.CMMNTY_ID AS cmmntyId
+								,A.CMMNTY_MENU_CODE AS cmmntyMenuCode
+								,A.CMMNTY_BBS_SEQ AS cmmntyBbsSeq
+								,A.REGIST_ID AS registId
+								,A.BBSCTT_SJ AS bbscttSj
+								,TO_CHAR(A.REGIST_DT,'YYYY-MM-DD  HH:MM')  AS registDt
+								,B.CMMNTY_NM AS cmmntyNm
+					  	 FROM TCM_CMNT_NTT_I A, TCM_CMNT_INFO_I B
+					 	 WHERE A.CMMNTY_ID IN (
+												SELECT 
+					  							      CMMNTY_ID 
+					  						     FROM TCM_CMNT_MBER_I 
+					  						    WHERE CMMNTY_MBER_ID = #{q_userId})
+					AND A.CMMNTY_ID = B.CMMNTY_ID
+			   ORDER BY A.REGIST_DT DESC, A.UPDT_DT DESC
+			                      ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                ) Y WHERE NUM &gt;= #{pagingStartNum}     
+    </select>
+    
+</mapper>

@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_auth">
+
+	<select id="groupAuthList" parameterType="authVO" resultType="authVO">
+		/* _auth.groupAuthList */
+		SELECT AUTH_CODE AS authCode
+			 , AUTH_NM AS authNm
+			 , USE_YN  AS useYn
+			 ,(SELECT COUNT(*)
+				 FROM OP_MNGR X, OP_AUTH_MNGR_ASSIGN Y
+				WHERE X.MNGR_ID = Y.MNGR_ID
+				  AND X.USE_YN = 'Y'
+				  AND Y.AUTH_CODE = A.AUTH_CODE) AS authPCnt
+			 ,
+			<if test="mngrId != null and mngrId != ''">
+			  (SELECT DECODE(COUNT(*), 0, 'N', 'Y')
+				 FROM OP_AUTH_MNGR_ASSIGN Y
+				WHERE Y.MNGR_ID = #{mngrId}
+				  AND Y.AUTH_CODE = A.AUTH_CODE) ||
+			</if>
+			   '' AS mgrAssign
+		  FROM OP_AUTH A
+		 WHERE A.AUTH_TY_CODE = 'G'
+		 ORDER BY A.USE_YN DESC, A.AUTH_NM, A.AUTH_CODE
+	</select>
+
+	<select id="mgrAuthList" parameterType="authMgrVO" resultType="authMgrVO">
+		/* _auth.mgrAuthList */
+		SELECT B.AUTH_CODE AS authCode
+             , B.MNGR_ID  AS mngrId
+             , C.MNGR_NM  AS mngrNm
+			  ,B.USE_YN AS useYn
+		  FROM OP_AUTH A,
+			   OP_AUTH_MNGR_ASSIGN B,
+			   OP_MNGR C
+		 WHERE A.AUTH_TY_CODE = 'P'
+		   AND A.AUTH_CODE = B.AUTH_CODE
+		   AND B.MNGR_ID	= C.MNGR_ID
+		<if test="mngrId != null and mngrId != ''">
+			AND B.MNGR_ID = #{mngrId}
+		</if>
+		 ORDER BY C.MNGR_NM, A.AUTH_CODE
+	</select>
+
+	<select id="authView" parameterType="authVO" resultType="authVO">
+		/* _auth.authView */
+		SELECT AUTH_CODE    	AS authCode
+             , AUTH_NM      	AS authNm
+             , AUTH_DC    		AS authDc
+             , USE_YN       	AS useYn
+             , UPPER_AUTH_CODE 	AS upperAuthCode
+             , AUTH_TY_CODE 	AS authTyCode
+             , REGIST_DT      	AS registDt
+             , REGIST_ID       	AS registId
+			 , (SELECT MNGR_NM FROM OP_MNGR Z WHERE Z.MNGR_ID = A.REGIST_ID) AS regNm
+             , UPDT_DT     		AS updtDtm
+             , UPDT_ID      	AS updtId
+             , (SELECT MNGR_NM FROM OP_MNGR Z WHERE Z.MNGR_ID = A.UPDT_ID) AS modiNm
+		  FROM OP_AUTH A
+		 WHERE A.AUTH_CODE = #{authCode}
+	</select>
+
+	<insert id="insertAuth" parameterType="authVO">
+		/* _auth.insertAuth */
+		INSERT INTO OP_AUTH (
+		            AUTH_CODE
+		          , UPPER_AUTH_CODE
+		          , AUTH_TY_CODE
+		          , AUTH_NM
+		          , AUTH_DC
+		          , USE_YN
+		          , REGIST_DT
+		          , REGIST_ID
+		    	<if test="oldAuthCd == 'authCode'">
+		          , UPDT_DT
+		          , UPDT_ID
+		        </if>
+        ) VALUES (
+             	 	#{authCode}
+            	  , #{upperAuthCode}
+                  , #{authTyCode}
+                  , #{authNm}
+                  , #{authDc}
+            	  , #{useYn}
+            	  , NVL((SELECT REGIST_DT FROM OP_AUTH Z WHERE Z.AUTH_CODE = #{oldAuthCd}), SYSDATE)
+            	  , NVL((SELECT REGIST_ID FROM OP_AUTH Z WHERE Z.AUTH_CODE = #{oldAuthCd}), #{registId})
+            	<if test="oldAuthCd == 'authCode'">
+            	  , SYS_DATETIEM
+            	  , #{updtId}
+              	</if>
+        )
+	</insert>
+
+	<update id="updateAuth" parameterType="authVO">
+		/* _auth.updateAuth */
+		UPDATE OP_AUTH
+		   SET AUTH_CODE      	= #{authCode}
+             , UPPER_AUTH_CODE 	= #{upperAuthCode}
+             , AUTH_TY_CODE 	= #{authTyCode}
+             , AUTH_NM      	= #{authNm}
+             , AUTH_DC    		= #{authDc}
+             , USE_YN       	= #{useYn}
+             , UPDT_DT     		= SYS_DATETIME
+             , UPDT_ID      	= #{updtId}
+         WHERE AUTH_CODE      	= #{oldAuthCd}
+	</update>
+
+	<update id="updateAuthMgrAssign">
+		/* _auth.updateAuthMgrAssign */
+		UPDATE OP_AUTH_MNGR_ASSIGN
+           SET AUTH_CODE = #{authCode}
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</update>
+
+	<update id="updateAuthMenuAssign">
+		/* _auth.updateAuthMenuAssign */
+		UPDATE OP_AUTH_MENU_ASSIGN
+           SET AUTH_CODE = #{authCode}
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</update>
+
+	<update id="updateAuthReqItem">
+		/* _auth.updateAuthReqItem */
+		UPDATE OP_AUTH_REQ_ITEM
+           SET AUTH_CODE = #{authCode}
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</update>
+
+	<delete id="deleteAuth" parameterType="authVO">
+		/* _auth.deleteAuth */
+		DELETE 
+          FROM OP_AUTH
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</delete>
+
+	<delete id="deleteAuthMenuAssign" parameterType="authVO">
+		/* _auth.deleteAuthMenuAssign */
+		DELETE 
+          FROM OP_AUTH_MENU_ASSIGN
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</delete>
+
+	<delete id="deleteAuthMgrAssign" parameterType="authVO">
+		/* _auth.deleteAuthMgrAssign */
+		DELETE 
+          FROM OP_AUTH_MNGR_ASSIGN
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</delete>
+
+	<delete id="deleteAuthReqItem" parameterType="authVO">
+		/* _auth.deleteAuthReqItem */
+		DELETE 
+          FROM OP_AUTH_REQ_ITEM
+         WHERE AUTH_CODE = #{oldAuthCd}
+	</delete>
+
+	<select id="dupCheckAuth" parameterType="authVO" resultType="int">
+		/* _auth.dupCheckAuth */
+		SELECT COUNT(*) AS cnt
+          FROM OP_AUTH A
+         WHERE A.AUTH_CODE = #{authCode}
+	</select>
+
+	<select id="menuAllList" parameterType="authVO" resultType="authMenuVO">
+		/* _auth.menuAllList */
+		SELECT MNGR_MENU_CD 		AS menuCd,
+	           MNGR_MENU_NM 		AS mngrMenuNm,
+	           LEVEL   				AS menuLevel,
+			<if test="authCode != null and authCode != ''">
+	           (SELECT Z.ASGN_TY_CODE
+	              FROM OP_AUTH_MENU_ASSIGN Z
+	             WHERE Z.AUTH_CODE = #{authCode}
+	               AND Z.MNGR_MENU_CD = A.MNGR_MENU_CD) ||
+	         </if>
+	         <!-- authCd가 없는 경우에는 mngrId가 있음 -->
+	         <if test="mngrId != null and mngrId != ''">
+	           (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'|' || Y.ASGN_TY_CODE) ORDER BY Y.MNGR_MENU_CD).EXTRACT('//text()'),2)
+	              FROM OP_AUTH_MNGR_ASSIGN X,
+	                   OP_AUTH_MENU_ASSIGN Y
+	             WHERE X.MNGR_ID 	= #{mngrId}
+	               AND X.AUTH_CODE 	= Y.AUTH_CODE
+	               AND Y.MNGR_MENU_CD 	= A.MNGR_MENU_CD) ||
+	         </if>
+	           '' AS assignMenu,
+			   (SELECT COUNT(X.MNGR_ID)
+	              FROM OP_AUTH_MENU_ASSIGN Z,
+	                   OP_AUTH Y,
+	                   OP_AUTH_MNGR_ASSIGN X,
+	                   OP_MNGR W
+	             WHERE Z.MNGR_MENU_CD = A.MNGR_MENU_CD
+	               AND Z.AUTH_CODE = Y.AUTH_CODE
+	               AND Y.AUTH_CODE = X.AUTH_CODE
+	               AND X.MNGR_ID = W.MNGR_ID
+	               AND W.USE_YN = 'Y') AS assignPCnt,
+			<if test="mngrId != null and mngrId != ''">
+	           (SELECT DECODE(COUNT(*), 0, 'N', 'Y')
+	              FROM OP_AUTH_MNGR_ASSIGN Y
+	                  ,OP_AUTH X
+	                  ,OP_AUTH_MENU_ASSIGN Z
+	             WHERE Y.MNGR_ID = #{mngrId}
+	               AND Y.AUTH_CODE = X.AUTH_CODE
+	               AND Z.AUTH_CODE = Y.AUTH_CODE
+	               AND Z.MNGR_MENU_CD = A.MNGR_MENU_CD) ||
+	         </if>
+	           '' AS mgrAssign
+		  FROM (SELECT A.UPPER_MENU_CD,
+	                   A.MNGR_MENU_CD,
+	                   A.MNGR_MENU_NM,
+	                   A.MENU_ORDR_NO
+	              FROM OP_MENU A
+	             WHERE A.USE_YN = 'Y') A
+       CONNECT BY PRIOR MNGR_MENU_CD = UPPER_MENU_CD
+         START WITH UPPER_MENU_CD = 0
+         ORDER SIBLINGS BY MENU_ORDR_NO
+	</select>
+
+	<delete id="deleteAssignMenu" parameterType="authMgrVO">
+		/* _auth.deleteAssignMenu */
+		DELETE 
+          FROM OP_AUTH_MENU_ASSIGN
+         WHERE AUTH_CODE = #{authCode}
+	</delete>
+
+	<insert id="saveAssignMenu" parameterType="authMgrVO">
+		/* _auth.saveAssignMenu */
+		INSERT INTO OP_AUTH_MENU_ASSIGN (AUTH_CODE, MNGR_MENU_CD, ASGN_TY_CODE)
+          VALUES (#{authCode}, #{menuCd}, #{asgnTyCode})
+	</insert>
+
+	<select id="mgrList4Auth" parameterType="map" resultType="authMgrVO">
+		/* _auth.mgrList4Auth */
+		SELECT Y.* 
+		  FROM (SELECT  ROWNUM NUM
+		              , X.* 
+		          FROM  (SELECT  A.MNGR_ID    AS mngrId
+		                       , (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm
+		                       , A.MNGR_NM    AS mngrNm
+		                       <if test="langCode != null and langCode != ''">
+		                       , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		                       </if>
+		                       <if test="langCode == null or langCode == ''">
+		                       , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		                       </if>
+                           FROM  OP_MNGR A
+                               , OP_AUTH_MNGR_ASSIGN B
+                               <if test="menuCd != null and menuCd != ''">
+                               , OP_AUTH_MENU_ASSIGN C
+                               </if>
+                          WHERE  A.MNGR_ID = B.MNGR_ID
+                            AND  A.USE_YN = 'Y'
+                            <if test="q_searchKey == 'mngrId'">
+                            <if test="q_searchVal != null and q_searchVal != ''">
+                            AND  A.MNGR_ID = #{q_searchVal}
+                            </if>
+                            </if>
+                            <if test="q_searchKey == 'mngrNm'">
+                            <if test="q_searchVal != null and q_searchVal != ''">
+                            AND A.MNGR_NM = #{q_searchVal}
+                            </if>
+                            </if>
+                            <if test="authCode != null and authCode != ''">
+                            AND B.AUTH_CODE = #{authCode}
+                            </if>
+                            <if test="menuCd != null and menuCd != ''">
+                            AND B.AUTH_CODE = C.AUTH_CODE
+                            AND C.MNGR_MENU_CD = #{menuCd}
+                            </if>
+                          ORDER BY A.MNGR_NM ASC
+                        ) X
+                   WHERE  ROWNUM &lt;= #{pagingEndNum}
+               ) Y
+          WHERE  NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="mgrList4AuthCount" parameterType="map" resultType="int">
+		/* _auth.mgrList4AuthCount */
+		SELECT  COUNT(*) AS totalCount
+          FROM  OP_MNGR A
+              , OP_AUTH_MNGR_ASSIGN B
+             <if test="menuCd != null and menuCd != ''">
+              , OP_AUTH_MENU_ASSIGN C
+             </if>
+         WHERE  A.MNGR_ID = B.MNGR_ID
+           AND  A.USE_YN = 'Y'
+        <if test="authCode != null and authCode != ''">
+           AND  B.AUTH_CODE = #{authCode}
+        </if>
+        <if test="menuCd != null  and menuCd != ''">
+           AND  B.AUTH_CODE = C.AUTH_CODE
+           AND  C.MNGR_MENU_CD = #{menuCd}
+        </if>
+	</select>
+
+	<select id="mgrDeptAllList" parameterType="map" resultType="authMgrVO">
+		/* _auth.mgrDeptAllList */
+		SELECT  A.MNGR_ID    	AS mngrId
+		      , A.DEPT_CODE   	AS deptCode
+		      , (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm
+		      , A.MNGR_NM    	AS mngrNm
+		      , A.USE_YN    		AS useYn
+           	<if test="langCode != null and langCode != ''">
+		      , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		    </if>
+		    <if test="langCode == null or langCode == ''">
+		      , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		    </if>
+              , (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'/' || X.AUTH_NM ) ORDER BY X.AUTH_NM).EXTRACT('//text()'),2)
+                  FROM (SELECT Y.AUTH_NM, Z.MNGR_ID
+                          FROM OP_AUTH_MNGR_ASSIGN Z,
+                               OP_AUTH Y
+                         WHERE Z.AUTH_CODE = Y.AUTH_CODE
+                           AND Y.AUTH_TY_CODE = 'G') X
+                 WHERE A.MNGR_ID = X.MNGR_ID) AS authListString
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = A.MNGR_ID
+        <trim>
+        <if test="mngrId != null and mngrId != ''">
+          AND A.MNGR_ID = #{mngrId}
+        </if>
+        <if test="deptCode != null and deptCode != ''">
+          AND A.DEPT_CODE = #{deptCode}
+        </if>
+        </trim>
+        ORDER BY A.MNGR_NM ASC
+	</select>
+
+
+	<sql id="mgrListWhere">
+		WHERE A.MNGR_ID = A.MNGR_ID
+          AND A.USE_YN = 'Y'
+        <if test="mngrId != null and mngrId != ''">
+          AND A.MNGR_ID = #{mngrId}
+        </if>
+        <if test="deptCode != null and deptCode != ''">
+          AND A.DEPT_CODE = #{deptCode}
+        </if>
+
+        <!-- 개인별 권한할당 관리 -->
+        <if test="q_searchType == 'mngrNm'">
+            <if test="q_searchText != null  and q_searchText != ''">
+                AND A.MNGR_NM LIKE '%' || #{q_searchText} || '%'
+            </if>
+        </if>
+        <if test="q_searchType == 'mngrId'">
+            <if test="q_searchText != null  and q_searchText != ''">
+                AND A.MNGR_ID LIKE '%' || #{q_searchText} || '%'
+            </if>
+        </if>
+	</sql>
+
+	<select id="mgrList" parameterType="map" resultType="authMgrVO">
+		/* _auth.mgrList */
+		SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT A.MNGR_ID    	AS mngrId,
+                       A.DEPT_CODE   	AS deptCode,
+                       (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm,
+                       A.MNGR_NM    	AS mngrNm,
+                       A.USE_YN    		AS useYn,
+		            <if test="langCode != null and langCode != ''">
+				       (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+				    </if>
+				    <if test="langCode == null or langCode == ''">
+				       (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+				    </if>
+                       (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'/' || X.AUTH_NM ) ORDER BY X.AUTH_NM).EXTRACT('//text()'),2)
+                          FROM (SELECT Y.AUTH_NM, Z.MNGR_ID
+                                  FROM OP_AUTH_MNGR_ASSIGN Z,
+                                       OP_AUTH Y
+                                 WHERE Z.AUTH_CODE = Y.AUTH_CODE
+                                   AND Y.AUTH_TY_CODE = 'G') X
+                         WHERE A.MNGR_ID = X.MNGR_ID) AS authListString
+                  FROM OP_MNGR A
+                 <include refid="mgrListWhere"/>
+                 ORDER BY A.MNGR_NM ASC) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}) Y
+        WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="mgrListCount" parameterType="map" resultType="int">
+		/* _auth.mgrListCount */
+		SELECT COUNT(*) AS totalCount
+          FROM OP_MNGR A
+         <include refid="mgrListWhere"/>
+	</select>
+
+	<update id="saveAssignMgr" parameterType="authMgrVO">
+		/* _auth.saveAssignMgr */
+		MERGE INTO OP_AUTH_MNGR_ASSIGN A
+        USING DUAL
+        ON (    A.AUTH_CODE = #{authCode}
+            AND A.MNGR_ID  = #{mngrId}
+           )
+        WHEN NOT MATCHED THEN
+          INSERT (AUTH_CODE, MNGR_ID)
+          VALUES (#{authCode}, #{mngrId})
+	</update>
+
+	<select id="authMenuList" parameterType="authVO" resultType="authMenuVO">
+		/* _auth.authMenuList */
+		SELECT B.PATH AS mngrMenuNm,
+               A.ASGN_TY_CODE AS asgnTyCode
+          FROM OP_AUTH_MENU_ASSIGN A,
+               (SELECT MNGR_MENU_CD,
+                       SUBSTR(SYS_CONNECT_BY_PATH (MNGR_MENU_NM, ' &gt; '), 4) AS PATH
+                  FROM (SELECT A.UPPER_MENU_CD,
+                               A.MNGR_MENU_CD,
+                               A.MNGR_MENU_NM,
+                               A.MENU_ORDR_NO
+                          FROM OP_MENU A
+                         WHERE A.USE_YN = 'Y') A
+       CONNECT BY PRIOR MNGR_MENU_CD = UPPER_MENU_CD
+         START WITH UPPER_MENU_CD = 0
+         ORDER SIBLINGS BY MENU_ORDR_NO) B
+         WHERE A.MNGR_MENU_CD = B.MNGR_MENU_CD
+           AND A.AUTH_CODE = #{authCode}
+	</select>
+
+
+	<sql id="assignMgrListWhere">
+		WHERE A.MNGR_ID = A.MNGR_ID
+        <if test="q_authType == 'ATH'">
+            <if test="q_authcd != null and q_authcd != ''">
+                AND A.MNGR_ID IN (SELECT Z.MNGR_ID FROM OP_AUTH_MNGR_ASSIGN Z WHERE Z.AUTH_CODE = #{q_authcd})
+            </if>
+        </if>
+        <!--isEqual property="q_searchType" compareValue="ALL">
+            AND (A.MNGR_ID = #{q_searchText}
+                 OR
+                 A.MNGR_NM = #{q_searchText})
+        </isEqual-->
+        <if test="q_searchType == 'mngrNm'">
+            AND A.MNGR_NM = #{q_searchText}
+        </if>
+        <if test="q_searchType == 'mngrId'">
+            AND A.MNGR_ID = #{q_searchText}
+        </if>
+	</sql>
+
+	<select id="assignMgrList" parameterType="map" resultType="authMgrVO">
+		/* _auth.assignMgrList */
+		SELECT Y.* FROM (
+            SELECT ROWNUM rn, X.* FROM (
+                SELECT A.MNGR_ID    	AS mngrId,
+                       A.DEPT_CODE   	AS deptCode,
+                       (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm,
+                       A.MBGR_NM    	AS mngrNm,
+                       A.USE_YN    		AS useYn,
+            		<if test="langCode != null and langCode != ''">
+				       (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+				    </if>
+				    <if test="langCode == null or langCode == ''">
+				       (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+				    </if>
+                       (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'/' || X.AUTH_NM ) ORDER BY X.AUTH_NM).EXTRACT('//text()'),2)
+                          FROM (SELECT Y.AUTH_NM, Z.MNGR_ID
+                                  FROM OP_AUTH_MNGR_ASSIGN Z,
+                                       OP_AUTH Y
+                                 WHERE Z.AUTH_CODE = Y.AUTH_CODE
+                                   AND Y.AUTH_TY_CODE = 'G') X
+                         WHERE X.MNGR_ID = A.MNGR_ID) AS authListString
+                  FROM OP_MNGR A
+                 <include refid="assignMgrListWhere"/>
+                 ORDER BY A.MNGR_NM ASC) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}) Y
+        WHERE rn &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="assignMgrListExcel" parameterType="map" resultType="authMgrVO">
+		/* _auth.assignMgrListExcel */
+		SELECT A.MNGR_ID    	AS mngrId,
+               A.DEPT_CODE   	AS deptCode,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm,
+               A.MNGR_NM    	AS mngrNm,
+               A.USE_YN    		AS useYn,
+         	<if test="langCode != null and langCode != ''">
+       			(SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+    		</if>
+    		<if test="langCode == null or langCode == ''">
+       			(SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm,
+    		</if>
+               (SELECT SUBSTR(XMLAGG(XMLELEMENT(A,'/' || X.AUTH_NM ) ORDER BY X.AUTH_NM).EXTRACT('//text()'),2)
+                  FROM (SELECT Y.AUTH_NM, Z.MNGR_ID
+                          FROM OP_AUTH_MNGR_ASSIGN Z,
+                               OP_AUTH Y
+                         WHERE Z.AUTH_CODE = Y.AUTH_CODE
+                           AND Y.AUTH_TY_CODE = 'G') X
+                 WHERE X.MNGR_ID = A.MNGR_ID) AS authListString
+          FROM OP_MNGR A
+         <include refid="assignMgrListWhere"/>
+         ORDER BY A.MNGR_NM ASC
+	</select>
+
+	<select id="assignMgrListCount" parameterType="map" resultType="int">
+		/* _auth.assignMgrListCount */
+		SELECT COUNT(*) AS totalCount
+          FROM OP_MNGR A
+        <include refid="assignMgrListWhere"/>
+	</select>
+
+	<select id="newPersonCd" parameterType="authMgrVO" resultType="string">
+		/* _auth.newPersonCd */
+		SELECT 'P_AUTH_' || #{mngrId}
+          FROM DB_ROOT
+	</select>
+
+</mapper>

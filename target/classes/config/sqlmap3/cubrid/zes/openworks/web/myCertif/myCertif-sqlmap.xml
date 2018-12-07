@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     * 작   성   자  : (주)케이원 정보통신
+     * 작   성   일  : 2017-11-24
+-->
+    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_myCertif">
+     <!-- 
+     	* 기능(설명)  : 이용실적증명서 발급 신청 을위 한 계앿서비스건 건수 
+     -->
+	<select id="certifRequListCount" parameterType="map" resultType="int"> 
+	    /*_myCertif.certifRequListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM TCM_CNTRCT_MANAGE_I A
+          		LEFT JOIN TCM_CNTRCT_SERVICE_I B ON A.CNTRCT_SN = B.CNTRCT_SN
+          		LEFT JOIN TST_GOOD_INFO_I C	   ON B.GOODS_CODE = C.GOODS_CODE
+          		LEFT JOIN TUM_SVC_STOR_I J		ON A.USER_ID = J.USER_ID AND J.LANG_CODE = '00'
+          		LEFT JOIN TCM_RL_USER_I  K		ON A.CNTRCT_SN = K.CNTRCT_SN
+         WHERE 1=1
+          	   AND K.BUSEO_CODE = #{commonBuseoCode}
+          	   <!-- (SELECT BUSEO_CODE FROM OP_USER_PBLINSTT_OPTION  WHERE USER_ID =#{commUserId}) -->
+        	   AND C.GOODS_CODE IS NOT NULL
+        	<choose>
+    	 	<when test="searchDiv01 == 1000">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND A.SVC_NM  LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1001">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND J.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND C.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+         	</choose>
+         	<if test="cntrctSvcSns != null  and cntrctSvcSns != ''">
+	          	 AND   B.CNTRCT_SVC_SN	
+	          	  <foreach collection="cntrctSvcSns" item="item" index="index" separator="," open="IN (" close=") ">
+					TRIM(#{item})
+				  </foreach>
+	        </if>
+	         <if test="q_searchStartDt != null  and q_searchStartDt != ''">
+	            AND REPLACE(#{q_searchStartDt},'-','') BETWEEN TO_CHAR(A.CNTRCT_BEGIN_DE,'YYYYMMDD') AND TO_CHAR(A.CNTRCT_END_DE,'YYYYMMDD')
+	        </if>
+	        <if test="q_searchEndDt != null  and q_searchEndDt != ''">
+	            AND REPLACE(#{q_searchEndDt},'-','') BETWEEN TO_CHAR(A.CNTRCT_BEGIN_DE,'YYYYMMDD') AND TO_CHAR(A.CNTRCT_END_DE,'YYYYMMDD')
+	        </if>
+    </select>
+
+	<!--
+     * 기능(설명)  : 이용실적증명서 발급 신청 을위 한 계앿서비스건 조회
+    -->
+    <select id="certifRequList" parameterType="map" resultType="MyCertifGoodsVO">
+    	 /*_myCertif.certifRequList*/
+    	  SELECT A.SVC_NM 								 AS svcNm			/*사업명*/
+    	  		, B.CNTRCT_SVC_SN						 AS cntrctSvcSn		/*계약관리구매내역일련번호*/
+    	  		, CA.GOODSTYNM							 AS goodsTyNm		/*서비스구분*/
+    	  		, C.GOODS_NM 							 AS goodsNm			/*서비스명 */
+    	  		, TO_DATE(A.CNTRCT_BEGIN_DE, 'YYYYMMDD') AS cntrctBeginDe	/*계약시작일*/
+    	  		, TO_DATE(A.CNTRCT_END_DE, 'YYYYMMDD')	 AS cntrctEndDe		/*계약종료일*/
+    	  		, TO_CHAR(A.CNTR_DT, 'YYYY-MM-DD')		 AS cntrDt			/*계약체결일*/
+    	  		, B.SPLY_FORM_ETC || (CASE WHEN B.SPLY_FORM IN ('1','2') THEN '개월' WHEN B.SPLY_FORM IN ('3') THEN  '일'  ELSE '' END)	 AS splyFromPeriod   /*구매금액*/
+    	  		, B.CNTRCT_AMOUNT 						 AS cntrctaMount   	/*구매금액*/
+    	  		, IFNULL(A.SPORT_AT,'N')				 AS sportAt			/*지원사업여부*/
+				, J.LANG_STORE_NM                     AS suplerStoreNm
+				, A.CNTRCT_SN						  AS cntrctSn
+				, COUNT(B.CNTRCT_SVC_SN	) OVER (PARTITION BY B.CNTRCT_SN ORDER BY B.CNTRCT_SN) AS serviceCnt
+				, RL_CNTRCT_INSTT_AT				  AS  rlCntrctInsttAt
+    	 	FROM TCM_CNTRCT_MANAGE_I A
+    	 		 LEFT JOIN TCM_CNTRCT_SERVICE_I B  ON A.CNTRCT_SN = B.CNTRCT_SN
+    	 		 LEFT JOIN TST_GOOD_INFO_I C	   ON B.GOODS_CODE = C.GOODS_CODE
+    	 		 LEFT JOIN (SELECT A.GOODS_CODE, (SELECT INDVDLZ_CD_NM
+														  FROM OP_CODE_INDVDLZ
+														 WHERE LANG_CODE = '00'
+														   AND GROUP_CD = 1005
+														   AND INDVDLZ_CD = B.CTGRY_CL_CD) AS GOODSTYNM
+				          	 FROM TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+				         	WHERE A.CTGRY_CODE = B.CTGRY_CODE AND  B.LANG_CODE =  '00'
+				         GROUP BY A.GOODS_CODE, B.CTGRY_CL_CD) CA ON C.GOODS_CODE = CA.GOODS_CODE
+    	 		 LEFT JOIN TUM_SVC_STOR_I J		ON C.USER_ID = J.USER_ID AND J.LANG_CODE = '00'
+    	 		 LEFT JOIN TCM_RL_USER_I  K		ON A.CNTRCT_SN = K.CNTRCT_SN 
+			WHERE 1=1
+		 	  AND K.BUSEO_CODE = #{commonBuseoCode}
+		 	  <!-- /*(SELECT BUSEO_CODE FROM OP_USER_PBLINSTT_OPTION  WHERE USER_ID =#{commUserId})*/ -->
+		 	  AND C.GOODS_CODE IS NOT NULL
+    	 	<choose>
+    	 	<when test="searchDiv01 == 1000">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND A.SVC_NM  LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1001">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND J.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND C.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+         	</choose>
+	        <if test="searchDiv02 != null  and searchDiv02 != ''">
+	             AND B.BID_GBN_CD = #{searchDiv02}
+	        </if>
+	        <if test="cntrctSvcSns != null  and cntrctSvcSns != ''">
+	          	 AND   B.CNTRCT_SVC_SN	
+	          	  <foreach collection="cntrctSvcSns" item="item" index="index" separator="," open="IN (" close=") ">
+					TRIM(#{item})
+				  </foreach>
+	        </if>
+	        <if test="q_searchStartDt != null  and q_searchStartDt != ''">
+	            AND REPLACE(#{q_searchStartDt},'-','') BETWEEN TO_CHAR(A.CNTRCT_BEGIN_DE,'YYYYMMDD') AND TO_CHAR(A.CNTRCT_END_DE,'YYYYMMDD')
+	        </if>
+	        <if test="q_searchEndDt != null  and q_searchEndDt != ''">
+	            AND REPLACE(#{q_searchEndDt},'-','') BETWEEN TO_CHAR(A.CNTRCT_BEGIN_DE,'YYYYMMDD') AND TO_CHAR(A.CNTRCT_END_DE,'YYYYMMDD')
+	        </if>
+         ORDER BY A.CNTRCT_SN DESC , B.CNTRCT_SVC_SN ASC
+    </select>
+
+ 	<select id="certifApplyListCount" parameterType="map" resultType="int"> 
+	    /*_myCertif.certifApplyListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM ROU_ISSU_APPLY_I A
+          WHERE 1=1
+         <choose>
+         	<when test="userTyCd == 3001">
+           	AND A.BUSEO_CODE = #{buseoCode}
+         	</when>
+         	<when test="userTyCd == 3002">
+           	AND A.BUSEO_CODE = #{buseoCode}
+         	</when>
+         	<otherwise>
+         		AND A.USER_ID    = #{userId}
+         	</otherwise>
+         </choose>
+          	
+          <if test="q_issuSttus != null  and q_issuSttus != ''">
+          		AND ISSU_STTUS = #{q_issuSttus}
+           </if>
+           <if test="q_beginDate != null  and q_beginDate != ''">
+          		 AND A.REGIST_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+          	</if>
+    </select>
+ 
+	<!--
+     * 기능(설명)  : 견적요청서 관리 목록 조회
+    -->
+    <select id="certifApplyList" parameterType="map" resultType="MyCertifApplyVO">
+    	/*_myCeart.certifApplyList*/
+        SELECT Y.* 
+          FROM (SELECT  ROWNUM NUM
+                      , X.*
+                  FROM  (SELECT  ROU_SN 										AS rouSn	/*이용신청발급번호*/
+                               , ISSU_RESN									AS issuResn
+                               , (CASE WHEN ISSU_MTH='E' THEN '이메일' 
+                                       WHEN ISSU_MTH='Z' THEN '우편발송' END) 	AS issuMthNm	/*발급방법*/
+                               , INDVDLZ_CD_NM								AS issuSttusNm		/*진행상태*/
+                               , A.ISSU_STTUS								AS issuSttus				/*진행상태*/
+                               , FILE_SEQ									AS fileSeq
+                               , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD HH24:mi') 	AS registDt	/*발급신청일*/
+                               , TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD') AS sndngDe
+                               , A.ROU_ISSU_NO								AS rouIssuNo		/*발급번호*/
+							             FROM  ROU_ISSU_APPLY_I A
+							             LEFT  JOIN OP_CODE_INDVDLZ B 
+							               ON  B.GROUP_CD='2045' 
+							              AND  A.ISSU_STTUS = B.INDVDLZ_CD
+									         <choose>
+									         	<when test="userTyCd == 3001">
+									           	AND A.BUSEO_CODE = #{buseoCode}
+									         	</when>
+									         	<when test="userTyCd == 3002">
+									           	AND A.BUSEO_CODE = #{buseoCode}
+									         	</when>
+									         	<otherwise>
+									         		AND A.USER_ID    = #{userId}
+									         	</otherwise>
+									         </choose>
+                           <if test="q_issuSttus != null  and q_issuSttus != ''">
+                           		AND ISSU_STTUS = #{q_issuSttus}
+                           </if>
+                         	<if test="q_beginDate != null  and q_beginDate != ''">
+                         		 AND A.REGIST_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+                         	</if>
+                         ORDER BY ROU_SN DESC
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum} 
+    </select>
+    
+    <insert id="certifRequInsert" parameterType="MyCertifApplyVO">
+   	  <selectKey order="BEFORE" keyProperty="rouSn" resultType="int">
+            SELECT NVL(MAX(ROU_SN), 0) + 1 FROM ROU_ISSU_APPLY_I 
+      </selectKey>
+       /*_myCertif.certifRequInsert*/
+		INSERT INTO ROU_ISSU_APPLY_I 
+			( ROU_SN, 
+			  USER_ID, 
+			  ISSU_RESN, 
+			  ISSU_MTH, 
+			  EMAIL, 
+			  ZIP, 
+			  BASS_ADRES, 
+			  DETAIL_ADRES,
+			  ISSU_STTUS, 
+			  REGIST_ID, 
+			  REGIST_DT,
+			  BUSEO_CODE
+		     ) 
+		VALUES 
+			 ( #{rouSn}
+			  ,#{userId}
+			  ,#{issuResn}
+		 	  ,#{issuMth}
+ 		 	  ,encrypt(#{email}, 'P008')
+ 		 	  ,#{zip}
+ 		 	  ,#{bassAdres}
+ 		 	  ,#{detailAdres}
+  		 	  ,'1001'
+  		 	  ,#{registId}
+  		 	  ,SYS_DATETIME
+  		 	  ,(SELECT BUSEO_CODE FROM OP_USER_PBLINSTT_OPTION  WHERE USER_ID =#{userId})
+			 )
+	</insert>
+	
+	<insert id="certifServiceInsert" parameterType="MyCertifApplyVO">
+	/*_myCertif.certifServiceInsert*/
+		INSERT INTO ROU_ISSU_SERVICE_I 
+			(
+			ROU_SN, 
+			CNTRCT_SVC_SN
+			)
+		  SELECT #{rouSn},
+		    	 CNTRCT_SVC_SN
+		  	FROM TCM_CNTRCT_SERVICE_I
+		   WHERE CNTRCT_SVC_SN 
+		  	<foreach collection="cntrctSvcSns" item="sn" index="index"	separator="," open="IN (" close=") ">
+				TRIM(#{sn})
+			</foreach>
+	</insert>
+	
+	<select id="certifApplyDetail" parameterType="map" resultType="MyCertifApplyVO">
+	/*_myCertif.certifApplyDetail*/
+		SELECT 	ROU_SN 														AS rouSn,
+				ISSU_RESN													AS issuResn,
+				ISSU_MTH													AS issuMth,
+				(CASE WHEN ISSU_MTH='E' THEN '이메일' 
+					  WHEN ISSU_MTH='Z' THEN '우편발송' END) 					AS issuMthNm,
+				decrypt(A.EMAIL, 'P008')									AS email,
+				ZIP															AS zip,
+				BASS_ADRES													AS bassAdres,
+				DETAIL_ADRES												AS detailAdres,
+				A.ISSU_STTUS												AS issuSttus,
+				A.ROU_ISSU_NO												AS rouIssuNo,
+				B.INDVDLZ_CD_NM												AS issuSttusNm,
+				FILE_SEQ													AS fileSeq,
+				A.REGIST_DT													AS registDt,
+				TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD')	AS sndngDe
+		   FROM ROU_ISSU_APPLY_I A
+				LEFT JOIN OP_CODE_INDVDLZ B ON B.GROUP_CD='2045' AND A.ISSU_STTUS = B.INDVDLZ_CD
+          WHERE A.USER_ID   = #{userId}
+            	AND ROU_SN 	= #{rouSn}
+       ORDER BY ROU_SN DESC
+	</select> 
+	
+	<select id="certifApplyGoodsList" parameterType="map" resultType="MyCertifGoodsVO">
+	/*_myCertif.certifApplyGoodsList*/
+		SELECT  
+		
+				(SELECT CC.LANG_STORE_NM 	
+				 FROM tst_good_info_i BB,TUM_SVC_STOR_I CC 
+				 WHERE C.GOODS_CODE= BB.goods_code 
+				 AND BB.user_id = CC.user_id ) 		  AS cmpnyNm			/*제공기관*/
+				, D.SVC_NM 							  AS svcNm				/*사업명*/
+				, B.CNTRCT_SVC_SN					  AS cntrctSvcSn		/*계약관리구매내역일련번호*/
+    	  		, CA.GOODSTYNM						  AS goodsTyNm			/*서비스구분*/
+    	  		, C.GOODS_NM 						  AS goodsNm			/*서비스명 */
+    	  		, TO_DATE(D.CNTRCT_BEGIN_DE, 'YYYYMMDD')
+    	  											  AS cntrctBeginDe  	/*계약시작일*/
+    	  		, TO_DATE(D.CNTRCT_END_DE, 'YYYYMMDD')
+    	  											  AS cntrctEndDe		/*계약종료일*/
+    	  		, B.SPLY_FORM_ETC || (CASE WHEN B.SPLY_FORM IN ('1','2') THEN '개월' WHEN B.SPLY_FORM IN ('3') THEN  '일'  ELSE '' END)	 AS splyFromPeriod   /*총계약기간*/
+    	  		, B.CNTRCT_AMOUNT 					  AS cntrctAmount   	/*구매금액*/
+    	  		, IFNULL(D.SPORT_AT,'N')			  AS sportAt			/*지원사업여부*/
+				, RL_CNTRCT_INSTT_AT				  AS rlCntrctInsttAt	
+		  FROM ROU_ISSU_SERVICE_I A
+		  LEFT JOIN ROU_ISSU_APPLY_I A1 ON A1.ROU_SN = A.ROU_SN
+		  LEFT JOIN TCM_CNTRCT_SERVICE_I B ON A.CNTRCT_SVC_SN = B.CNTRCT_SVC_SN
+		  LEFT JOIN TST_GOOD_INFO_I C	   ON B.GOODS_CODE = C.GOODS_CODE
+    	  LEFT JOIN (SELECT A.GOODS_CODE, (SELECT INDVDLZ_CD_NM
+														  FROM OP_CODE_INDVDLZ
+														 WHERE LANG_CODE = '00' 
+														   AND GROUP_CD = 1005 
+														   AND INDVDLZ_CD = B.CTGRY_CL_CD) AS GOODSTYNM
+				          	 FROM TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+				         	WHERE A.CTGRY_CODE = B.CTGRY_CODE AND  B.LANG_CODE =  '00'
+				         GROUP BY A.GOODS_CODE, B.CTGRY_CL_CD) CA ON C.GOODS_CODE = CA.GOODS_CODE
+		  LEFT JOIN TCM_CNTRCT_MANAGE_I D  ON D.CNTRCT_SN = B.CNTRCT_SN
+		  LEFT JOIN TCM_RL_USER_I  K	   ON D.CNTRCT_SN = K.CNTRCT_SN AND A1.BUSEO_CODE= K.BUSEO_CODE
+		 WHERE A.ROU_SN 	= #{rouSn}
+	</select>
+	
+	<select id="certifApplyGoodsListCount" parameterType="map" resultType="int"> 
+	/*_myCertif.certifApplyGoodsListCount*/
+		SELECT COUNT(1) AS totalCount
+		  FROM ROU_ISSU_SERVICE_I A
+		 WHERE ROU_SN 	= #{rouSn}
+	</select>
+	
+</mapper>

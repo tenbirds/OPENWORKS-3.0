@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =========================================================
+    * Description : 사용자 컨텐츠 승인/반려 관리 sqlmap 정의 파일
+    * Create      : xanadu
+    * $Id: content-manage-sqlmap.xml 398 2010-02-17 05:03:33Z xanadu $
+    =========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="intra.cms.manage">
+
+    <select id="getApproveContent" parameterType="map" resultType="contentManageVO">
+		/* intra.cms.manage.getApproveContent */
+        SELECT
+            DOMAIN_CD AS domainCd,
+            (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD) AS domainNm,
+            MENU_CODE AS menuCode,
+            (SELECT LAYOUT_CODE FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND MENU_CODE = OP_USER_MENU_CONTENTS.MENU_CODE) AS layoutCode,
+            (SELECT MENU_NM FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND MENU_CODE = OP_USER_MENU_CONTENTS.MENU_CODE) AS menuNm,
+            (SELECT MENU_PATH FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND MENU_CODE = OP_USER_MENU_CONTENTS.MENU_CODE) AS menuPath,
+            CONTENT_SEQ_NO AS contentSeqNo,
+            (SELECT LAYOUT_CODE FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND MENU_CODE = OP_USER_MENU_CONTENTS.MENU_CODE) AS layoutCode,
+            HEAD_CONTENT AS headContent,
+            BODY_CONTENT AS bodyContent,
+            PUBLISH_REASON AS publishReason,
+            APPLY_YN AS applyYn,
+            APPROVAL_ST AS approvalSt,
+            APPROVAL_ID AS approvalId,
+            (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = OP_USER_MENU_CONTENTS.APPROVAL_ID) AS approvalNm,
+            APPROVAL_DT AS approvalDt,
+            REG_ID AS regId,
+            (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = OP_USER_MENU_CONTENTS.REG_ID) AS regNm,
+            TO_CHAR(REG_DT, 'YYYY-MM-DD') AS regDt,
+            MOD_ID AS modId,
+            (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = OP_USER_MENU_CONTENTS.MOD_ID) AS modNm,
+            TO_CHAR(MOD_DT, 'YYYY-MM-DD') AS modDt
+        FROM
+            OP_USER_MENU_CONTENTS
+        WHERE
+                DOMAIN_CD = #{q_domainCd}
+            AND MENU_CODE = #{q_menuCode}
+            AND CONTENT_SEQ_NO = #{q_contentSeqNo}
+    </select>
+
+    <select id="getApproveContentList" parameterType="map" resultType="contentManageVO">
+		/* intra.cms.manage.getApproveContentList */
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT
+                    A.DOMAIN_CD AS domainCd,
+                    (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = A.DOMAIN_CD) AS domainNm,
+                    B.LAYOUT_CODE AS layoutCode,
+                    A.MENU_CODE AS menuCode,
+                    B.MENU_NM AS menuNm,
+                    B.MENU_PATH AS menuPath,
+                    A.CONTENT_SEQ_NO AS contentSeqNo,
+                    A.APPLY_YN AS applyYn,
+                    A.APPROVAL_ST AS approvalSt,
+                    A.APPROVAL_ID AS approvalId,
+                    A.PUBLISH_REASON AS publishReason,
+                    (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.APPROVAL_ID) AS approvalNm,
+                    A.APPROVAL_DT AS approvalDt,
+                    A.REG_ID AS regId,
+                    (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.REG_ID) AS regNm,
+                    TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS regDt,
+                    A.MOD_ID AS modId,
+                    (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.MOD_ID) AS modNm,
+                    TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS modDt
+                FROM
+                    OP_USER_MENU_CONTENTS A, OP_USER_MENU B
+                WHERE
+                        A.DOMAIN_CD = B.DOMAIN_CD
+                    AND A.MENU_CODE = B.MENU_CODE
+                    <if test="q_searchDomainCd != null  and q_searchDomainCd != ''">AND
+                        A.DOMAIN_CD = #{q_searchDomainCd}
+                    </if>
+<!--                     <if test="q_menuCode != null  and q_menuCode != ''">AND -->
+<!--                         A.MENU_CODE = #{q_menuCode} -->
+<!--                     </if> -->
+                    <if test="q_searchKey != null  and q_searchKey != ''">
+                        <if test="q_searchKey == 1001">AND
+                            B.MENU_PATH LIKE '%' ||  #{q_searchVal} || '%'
+                        </if>
+                        <if test="q_searchKey == 1002">AND
+                            A.REG_ID IN (SELECT MGR_ID FROM OP_MGR WHERE MGR_NM LIKE '%'|| #{q_searchVal} ||'%')
+                        </if>
+                    </if>
+                    <if test="q_approvalSt != null  and q_approvalSt != '' and q_approvalSt != '1000'">AND
+                            A.APPROVAL_ST = #{q_approvalSt}
+                            AND A.APPROVAL_ST != '1010'
+                    </if>
+                    <if test="q_approvalSt == null or q_approvalSt == ''">AND
+                        A.APPROVAL_ST = '1002'
+                    </if>
+                ORDER BY A.CONTENT_SEQ_NO DESC
+                ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+         ) Y
+         WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="getApproveContentListCount" parameterType="map" resultType="int">
+		/* intra.cms.manage.getApproveContentListCount */
+        SELECT
+            COUNT(A.MENU_CODE) AS cnt
+        FROM
+            OP_USER_MENU_CONTENTS A, OP_USER_MENU B
+        WHERE
+                A.DOMAIN_CD = B.DOMAIN_CD
+            AND A.MENU_CODE = B.MENU_CODE
+            <if test="q_searchDomainCd != null  and q_searchDomainCd != ''">AND
+                A.DOMAIN_CD = #{q_searchDomainCd}
+            </if>
+<!--             <if test="q_menuCode != null  and q_menuCode != ''">AND -->
+<!--                 A.MENU_CODE = #{q_menuCode} -->
+<!--             </if> -->
+            <if test="q_searchKey != null  and q_searchKey != ''">
+                <if test="q_searchKey == 1001">AND
+                    B.MENU_NM LIKE '%' ||  #{q_searchVal} || '%'
+                </if>
+                <if test="q_searchKey == 1002">AND
+                    A.REG_ID IN (SELECT MGR_ID FROM OP_MGR WHERE MGR_NM LIKE '%'|| #{q_searchVal} ||'%')
+                </if>
+            </if>
+            <if test="q_approvalSt != null  and q_approvalSt != '' and q_approvalSt != '1000'">AND
+                    A.APPROVAL_ST = #{q_approvalSt}
+                    AND A.APPROVAL_ST != '1010'
+            </if>
+            <if test="q_approvalSt == null or q_approvalSt == ''">AND
+                A.APPROVAL_ST = '1002'
+            </if>
+    </select>
+
+    <update id="updateApplyN" parameterType="contentManageVO">
+		/* intra.cms.manage.updateApplyN */
+        UPDATE OP_USER_MENU_CONTENTS SET
+            APPLY_YN = 'N'
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND MENU_CODE = #{menuCode}
+            AND APPLY_YN = 'Y'
+    </update>
+
+    <update id="updateApprovalSt" parameterType="contentManageVO">
+		/* intra.cms.manage.updateApprovalSt */
+        UPDATE OP_USER_MENU_CONTENTS SET
+            APPROVAL_ST = #{approvalSt},
+            APPROVAL_REASON = #{approvalReason}
+            <if test="approvalSt == 1040">
+                , APPROVAL_ID = #{approvalId}
+                , APPROVAL_DT = SYSDATE
+                , APPLY_YN = 'Y'
+            </if>
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND MENU_CODE = #{menuCode}
+            AND CONTENT_SEQ_NO = #{contentSeqNo}
+    </update>
+
+</mapper>

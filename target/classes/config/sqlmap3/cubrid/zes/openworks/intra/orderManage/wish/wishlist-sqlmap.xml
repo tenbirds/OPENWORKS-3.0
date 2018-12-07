@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_wishList">
+
+     <sql id="dynamicWhere">
+            
+            <!-- AND MNGR_DELETE_AT = 'N' -->
+            <if test="q_beginDate != null  and q_beginDate != ''">
+                AND TO_CHAR(A.SRC_DT,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+            </if>
+            <if test="q_searchKey != null  and q_searchKey != ''">
+                <if test="q_searchKey == '1001'">
+                    AND A.USER_ID LIKE '%' || #{q_searchVal} || '%'
+                </if>
+                <if test="q_searchKey == '1002'">
+                    AND A.AUDITLOG_NM LIKE '%' || #{q_searchVal} || '%'
+                </if>
+           </if>
+           <if test="q_userId != null  and q_grpSeq != ''">
+                AND A.USER_ID = #{q_userId} 
+                AND A.GRP_SEQ = #{q_grpSeq}
+           </if>
+    </sql>
+    
+    <sql id="dynaminLangCode">
+       
+    </sql>
+    
+    <select id="wishList" parameterType="map" resultType="wishListVO">
+    /*_wishList.wishList*/
+	SELECT Y.* FROM (
+    	SELECT ROWNUM NUM, X.* FROM (
+    		SELECT userId
+				 , grpSeq
+				 , auditlogNm
+				 , goodsTycd
+				 , keyWord
+				 , CASE WHEN ctgryNm IS NULL THEN goodsTyNm
+						ELSE goodsTyNm || ' > ' || ctgryNm
+					END as ctgryCode
+				 , filterCon
+				 , goodsCode
+				 , srcDt
+			  FROM (
+					SELECT A.USER_ID as userId
+						 , A.GRP_SEQ as grpSeq
+						 , A.AUDITLOG_NM as auditlogNm
+						 , A.GOODS_TYCD as goodsTycd
+						 , C.INDVDLZ_CD_NM as goodsTyNm
+						 , A.KEY_WORD as keyWord
+						 , (SELECT SUBSTRB(SYS_CONNECT_BY_PATH(LANG_CTGRY_NM, ' > '),4)
+	                		  FROM TST_CATE_MGMT_M 
+	              			 WHERE CTGRY_CODE = B.CTGRY_CODE
+	               			 START WITH PARNTS_CTGRY_CODE = '0'
+	          			   CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE) as ctgryNm
+						 , A.FILTER_CON as filterCon
+						 , A.GOODS_CODE as goodsCode
+						 , TO_CHAR(A.SRC_DT,'YYYY-MM-DD HH24:MI') AS srcDt
+					  FROM TCM_WISHORDER_INFO_I A
+					  LEFT OUTER JOIN TST_CATE_MGMT_M B
+					    ON A.CTGRY_CODE = B.CTGRY_CODE
+					   AND A.GOODS_TYCD = B.CTGRY_CL_CD
+					   AND B.LANG_CODE = '00'
+					  LEFT OUTER JOIN OP_CODE_INDVDLZ C 
+					    ON A.GOODS_TYCD = C.INDVDLZ_CD 
+					   AND GROUP_CD = 1005 
+					   AND C.LANG_CODE = '00'
+			 		 WHERE 1=1
+        	   		   <include refid="dynamicWhere"/>
+        	   	   )
+        	 ORDER BY srcDt DESC
+		) X WHERE ROWNUM &lt;= #{pagingEndNum}
+    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+     <select id="wishCount" parameterType="map" resultType="int">
+     /*_wishList.wishCount*/      
+         SELECT
+                COUNT(1) AS totalCount
+           FROM TCM_WISHORDER_INFO_I A
+          WHERE 1=1
+          <include refid="dynamicWhere"/>
+    </select>
+    
+    <select id="wishDetailList" parameterType="map" resultType="wishListVO">
+     /*_wishList.wishDetailList*/
+      SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (
+											   SELECT 
+													  A.LOG_SEQ 	 as logSeq
+													, A.USER_ID 	 as userId
+													, A.GRP_SEQ 	 as grpSeq
+													, A.GOODS_CODE   as goodsCode
+													, A.SEL_CHK	 	 as selChk
+													, A.REG_DT 	 	 as regDt
+													, B.GOODS_NM 	 as goodsNm
+													, C.LANG_STORE_NM as langStoreNm
+												FROM 
+													TCM_WISHORDER_DETAIL_L A
+													LEFT OUTER JOIN TST_GOOD_INFO_I B
+																ON A.GOODS_CODE = B.GOODS_CODE
+													LEFT OUTER JOIN TUM_SVC_STOR_I C
+																ON  B.USER_ID = C.USER_ID
+																AND C.LANG_CODE = '00'
+												WHERE A.GRP_SEQ = #{grpSeq}
+												AND	  A.USER_ID = #{userId}
+        										  ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    
+    <select id="wishDetailCount" parameterType="map" resultType="int">
+     /*_wishList.wishDetailCount*/      
+         SELECT
+                COUNT(1) AS totalCount
+           FROM 
+				TCM_WISHORDER_DETAIL_L A
+				LEFT OUTER JOIN TST_GOOD_INFO_I B
+							ON A.GOODS_CODE = B.GOODS_CODE
+				LEFT OUTER JOIN TUM_SVC_STOR_I C
+							ON  A.USER_ID = C.USER_ID
+							AND C.LANG_CODE = '00'
+			WHERE A.GRP_SEQ = #{grpSeq}
+			AND	  A.USER_ID = #{userId}
+          <include refid="dynamicWhere"/>
+    </select>
+    
+    
+    <select id="wishExcelList" parameterType="map" resultType="wishListVO">
+     /*_wishList.wishExcelList*/
+	   SELECT 
+			  A.LOG_SEQ 	 as logSeq
+			, A.USER_ID 	 as userId
+			, A.GRP_SEQ 	 as grpSeq
+			, A.GOODS_CODE   as goodsCode
+			, A.SEL_CHK	 	 as selChk
+			, A.REG_DT 	 	 as regDt
+			, B.GOODS_NM 	 as goodsNm
+			, C.LANG_STORE_NM as langStoreNm
+		FROM 
+			TCM_WISHORDER_DETAIL_L A
+			LEFT OUTER JOIN TST_GOOD_INFO_I B
+						ON A.GOODS_CODE = B.GOODS_CODE
+			LEFT OUTER JOIN TUM_SVC_STOR_I C
+						ON  B.USER_ID = C.USER_ID
+						AND C.LANG_CODE = '00'
+		WHERE A.GRP_SEQ = #{grpSeq}
+		AND	  A.USER_ID = #{userId}					 
+    </select>
+    
+</mapper>

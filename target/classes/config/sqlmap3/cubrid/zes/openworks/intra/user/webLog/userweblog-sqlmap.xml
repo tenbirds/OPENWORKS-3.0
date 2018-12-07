@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webLog">
+
+    <sql id="dynamicWhere">
+        <if test="q_searchKey0 != null  and q_searchKey0 != ''">AND
+                A.USER_TY_CD = #{q_searchKey0}
+        </if>
+        <if test="q_searchKey1 != null  and q_searchKey1 != ''">AND
+                A.SBSCRB_TY_CD = #{q_searchKey1}
+        </if>
+        <if test="q_searchKey2 != null  and q_searchKey2 != '' and q_searchKey2 != '1000'">AND
+                A.USER_GRAD_CODE = #{q_searchKey2}
+        </if>
+        <if test="q_searchVal != null  and q_searchVal != ''">
+            <if test="q_searchKey == 1001">
+                AND (A.USER_ID LIKE '%' || #{q_searchVal} || '%' OR A.USER_NM LIKE '%' || #{q_searchVal} || '%')
+            </if>
+            <if test="q_searchKey == 1002">
+                AND A.USER_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == 1003">
+                AND A.USER_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+        </if>
+        <if test="q_stDate != null  and q_stDate != ''">
+            <if test="q_enDate != null  and q_enDate != ''">AND
+                SUBSTR(TO_CHAR(A.RECENT_LOGIN_DT,'YYYY-MM-DD HH24:MI:SS'), 0,19) BETWEEN #{q_stDate} || ' 00:00:00'
+                AND #{q_enDate} || ' 23:59:59'
+            </if>
+        </if>
+    </sql>
+
+    <!-- 회원 접속 이력 리스트 -->
+    <select id="userWebLogList" parameterType="map" resultType="userVO">
+       /* _webLog.userWebLogList */
+       SELECT
+              A.USER_ID                                                                        AS userId
+             ,A.USER_NM                                                                        AS userNm
+             ,NVL(TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS'),  '')                          AS registDt
+             ,SUBSTR(TO_CHAR(A.RECENT_LOGIN_DT,'YYYY-MM-DD HH24:MI:SS'), 0,19)                 AS recentLoginDt
+             ,A.LOGIN_CNT                                                                      AS loginCnt
+             ,(SELECT USER_GRAD_NM FROM OP_USER_GRADE WHERE USER_GRAD_CODE = A.USER_GRAD_CODE) AS userGradNm
+             ,A.USER_TY_CD                                                                     AS userTyCd
+             ,(SELECT
+                      INDVDLZ_CD_NM
+                 FROM OP_CODE_INDVDLZ
+                WHERE LANG_CODE = '00'
+                  AND GROUP_CD = 5
+                  AND INDVDLZ_CD = A.USER_TY_CD
+              ) AS userTyNm
+         FROM OP_USER A
+        WHERE SUBSTR(TO_CHAR(A.RECENT_LOGIN_DT,'YYYY-MM-DD HH24:MI:SS'), 0,19) IS NOT NULL
+          AND A.LOGIN_CNT&gt;0
+          <include refid="dynamicWhere"/>
+        ORDER BY A.REGIST_DT DESC
+          FOR ORDERBY_NUM()
+      BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+
+    <select id="userWebLogListCount" parameterType="map" resultType="int">
+        /* _webLog.userWebLogListCount */
+        SELECT
+               COUNT(A.USER_ID) AS totalCount
+          FROM OP_USER A , OP_USER_OPTION B, OP_USER_GRADE C
+         WHERE A.USER_ID = B.USER_ID(+)
+           AND A.USER_GRAD_CODE = C.USER_GRAD_CODE(+)
+           AND SUBSTR(TO_CHAR(A.RECENT_LOGIN_DT,'YYYY-MM-DD HH24:MI:SS'), 0,19) IS NOT NULL
+           AND A.LOGIN_CNT &gt; 0
+          <include refid="dynamicWhere"/>
+    </select>
+
+    <!-- 개별 회원 접속 이력 리스트 -->
+    <select id="userWebLog" parameterType="map" resultType="userWebLogVO">
+        /* _webLog.userWebLog */
+          SELECT CONECT_IP AS loginIp
+                ,CONECT_RESULT_CO   AS loginResult
+                ,CONECT_DT       AS loginDt
+                ,(SELECT
+                        (SELECT
+                                INDVDLZ_CD_NM
+                           FROM OP_CODE_INDVDLZ
+                          WHERE INDVDLZ_CD = SBSCRB_TY_CD
+                            AND GROUP_CD = 71
+                        )
+                    FROM OP_USER
+                   WHERE USER_ID = A.USER_ID
+                 ) AS regType
+            FROM OP_USER_CONECT_HIST A
+           WHERE USER_ID = #{userId}
+     <if test="q_stDate != null  and q_stDate != ''">
+         <if test="q_enDate != null  and q_enDate != ''">
+             AND TO_CHAR(CONECT_DT,'YYYYMMDD') BETWEEN REPLACE(#{q_stDate},'-')
+             AND REPLACE(#{q_enDate},'-')
+         </if>
+     </if>
+           ORDER BY CONECT_DT DESC
+         FOR ORDERBY_NUM()
+         BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+
+    <select id="userWebLogCount" parameterType="map" resultType="int">
+        /* _webLog.userWebLogCount */
+        SELECT COUNT(USER_ID) AS totalCount
+          FROM OP_USER_CONECT_HIST
+          WHERE USER_ID = #{userId}
+           <if test="q_stDate != null  and q_stDate != ''">
+               <if test="q_enDate != null  and q_enDate != ''">
+                   AND TO_CHAR(CONECT_DT,'YYYYMMDD') BETWEEN REPLACE(#{q_stDate},'-')
+                            AND REPLACE(#{q_enDate},'-')
+               </if>
+           </if>
+    </select>
+
+    <select id="userLoginIp" parameterType="userWebLogVO" resultType="string">
+        /* _webLog.userLoginIp */
+        SELECT 
+               CONECT_IP AS conectIp
+          FROM OP_USER_CONECT_HIST
+          WHERE ROWNUM = 1
+            AND USER_ID = #{userId}
+          ORDER BY CONECT_DT DESC
+    </select>
+
+    <!-- 회원 엑셀 출력 -->
+    <select id="userWebLogListExcel" parameterType="map" resultType="userVO">
+        /* _webLog.userWebLogListExcel */
+        SELECT  A.USER_ID                                                         AS userId
+                   ,A.USER_NM                                                     AS userNm
+                   ,NVL(TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS'),  ' ')      AS registDt
+                   ,NVL(TO_CHAR(A.RECENT_LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS'), ' ') AS recentLoginDt
+                   ,A.LOGIN_CNT                                                   AS loginCnt
+                   ,C.USER_GRAD_NM                                                AS userGradNm
+                   ,(SELECT
+                            INDVDLZ_CD_NM
+                       FROM OP_CODE_INDVDLZ
+                      WHERE INDVDLZ_CD = A.SBSCRB_TY_CD
+                        AND GROUP_CD = 71
+                    ) AS sbscrbTyNm
+          FROM OP_USER A, OP_USER_OPTION B, OP_USER_GRADE C
+          WHERE A.USER_ID = B.USER_ID(+)
+                AND A.RECENT_LOGIN_DT IS NOT NULL
+                AND A.USER_GRAD_CODE = C.USER_GRAD_CODE(+)
+                <include refid="dynamicWhere"/>
+           ORDER BY A.REGIST_DT DESC
+    </select>
+
+    <!-- 개별 회원 엑셀 출력 sql  -->
+    <select id="userWebLogExcel" parameterType="map" resultType="userWebLogVO">
+        /* _webLog.userWebLogExcel */
+        SELECT
+               CONECT_IP        AS loginIp
+              ,CONECT_RESULT_CO AS loginResult
+              ,CONECT_DT        AS loginDt
+              ,(SELECT 
+                      (SELECT
+                              INDVDLZ_CD_NM
+                         FROM OP_CODE_INDVDLZ
+                        WHERE INDVDLZ_CD = B.SBSCRB_TY_CD
+                          AND GROUP_CD = 71
+                      ) AS userTyNm
+                  FROM OP_USER B
+                 WHERE USER_ID = A.USER_ID
+               ) AS regType
+          FROM OP_USER_CONECT_HIST A
+         WHERE USER_ID = #{userId}
+         <if test="q_stDate != null  and q_stDate != ''">
+          <if test="q_enDate != null  and q_enDate != ''">
+           AND TO_CHAR(CONECT_DT,'YYYYMMDD') BETWEEN REPLACE(#{q_stDate},'-')
+           AND REPLACE(#{q_enDate},'-')
+          </if>
+         </if>
+         ORDER BY CONECT_DT DESC
+    </select>
+    <!--// 개별 회원 엑셀 출력 sql  -->
+    <!-- 금일 로그인 통계 -->
+
+    <!-- 그룹코드로 코드목록 출력 sql  -->
+    <select id="codePrvList" parameterType="codeVO" resultType="codeVO">
+        /* _webLog.codePrvList */
+        SELECT INDVDLZ_CD AS prvCd,
+               INDVDLZ_CD_NM AS prvNm
+          FROM OP_CODE_INDVDLZ
+         WHERE LANG_CODE = <if test="langCode != null and langCode != ''">#{lang_Code}</if><if test="langCode == null or langCode == ''">'00'</if>
+           AND GROUP_CD = #{grpCd}
+           AND USE_YN = 'Y'
+         ORDER BY CD_SORT_NO
+    </select>
+</mapper>

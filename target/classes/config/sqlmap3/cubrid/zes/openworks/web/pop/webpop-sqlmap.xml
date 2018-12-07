@@ -1,0 +1,980 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webpop">
+
+    <select id="userView" parameterType="popVO" resultType="popVO">
+    
+        <!-- SELECT 
+               (SELECT indvdlz_cd_nm FROM op_code_indvdlz WHERE GROUp_CD = 5 AND indvdlz_cd =  A.USER_TY_CD AND LANG_CODE= A.LANG_CODE ) userTyNm
+              ,A.USER_ID userId
+              ,A.USER_NM userNm
+              ,A.USER_TY_CD userTycd
+              ,DECRYPT(A.EMAIL,'P008') email
+              ,DECRYPT(A.MBTLNUM,'P007') AS  mbtlnum
+              ,A.TELNO telno
+              ,A.BASS_ADRES bassAdres
+              ,A.DETAIL_ADRES detailAdres
+              ,B.CMPNY_NM AS indvdlCmpnyNm        /* 회사명 */
+              ,B.CMPNY_REPRSNT_TELNO AS indvdlCmpnyReprsntTelno /* 회사대표번호 */
+              ,B.CMPNY_RPRSNTV_NM AS indvdlCmpnyRprsntvNm /* 회사대표자명 */
+              ,B.CMPNY_TELNO AS indvdlCmpnyTelno  /* 회사전화번호 */
+              ,B.CMPNY_FXNUM AS indvdlCmpnyFxnum /* 회사팩스번호 */
+              ,B.CMPNY_EMAIL AS indvdlCmpnyEmail /* 회사이메일*/
+              ,B.CMPNY_URL indvdlCmpnyUrl /* 회사URL*/
+              ,B.CMPNY_BASS_ADRES indvdlCmpnyBassAdres /* 회사기본주소*/
+              ,B.CMPNY_DETAIL_ADRES indvdlCmpnyDetailAdres /* 회사상세주소*/
+              ,B.BIZRNO indvdlBizrNo /* 사업자 번호*/
+              
+              ,C.CMPNY_NM AS entrprsCmpnyNm /* 회사명 */
+              ,C.CMPNY_REPRSNT_TELNO AS entrprsCmpnyReprsntTelno /* 회사대표번호 */
+              ,C.CMPNY_RPRSNTV_NM AS entrprsCmpnyRprsntvNm /* 회사대표자명 */
+              ,C.CMPNY_TELNO AS entrprsCmpnyTelno  /* 회사전화번호 */
+              ,C.CMPNY_FXNUM AS entrprsCmpnyFxnum /* 회사팩스번호 */
+              ,C.CMPNY_EMAIL AS entrprsCmpnyEmail /* 회사이메일*/
+              ,C.CMPNY_URL entrprsCmpnyUrl /* 회사URL*/
+              ,C.CMPNY_BASS_ADRES entrprsCmpnyBassAdres /* 회사기본주소*/
+              ,C.CMPNY_DETAIL_ADRES entrprsCmpnyDetailAdres /* 회사상세주소*/
+              ,C.BIZRNO entrprsBizrNo /* 사업자 번호*/
+              
+              ,D.LANG_STORE_NM langStoreNm /* 언어별상점명*/
+              ,D.LANG_STORE_INTRCN langStoreIntrcn /* 언어별상점소개*/
+              ,D.STORE_CHARGER_NM  storeChargerNm /* 담당자명*/
+              ,D.REPRSNT_TELNO reprsntTelno /* 담당자 연락처*/
+              ,DECRYPT(D.REPRSNT_EMAIL,'P008') reprsntEmail /* 담당자 이메일*/
+              
+            
+        FROM OP_USER A, OP_USER_OPTION B, OP_USER_ENTRPRS_OPTION  C  , TUM_SVC_STOR_I D
+        WHERE A.USER_ID = B.USER_ID(+)
+        AND A.USER_ID =C.USER_ID(+) 
+        AND A.USER_ID = D.USER_ID(+)
+        AND A.LANG_CODE = D.LANG_CODE(+)
+        AND A.USER_ID =  #{userId} 
+        undefined 수정 -->
+        
+        SELECT 
+               (SELECT indvdlz_cd_nm FROM op_code_indvdlz WHERE GROUp_CD = 5 AND indvdlz_cd =  A.USER_TY_CD AND LANG_CODE= A.LANG_CODE ) userTyNm
+              ,A.USER_ID AS userId
+              ,A.USER_NM AS userNm
+              ,A.USER_TY_CD AS userTycd
+              ,DECRYPT(A.EMAIL,'P008') AS email
+              ,DECRYPT(A.MBTLNUM,'P007') AS  mbtlnum
+              ,A.TELNO AS telno
+              ,A.BASS_ADRES AS bassAdres
+              ,A.DETAIL_ADRES AS detailAdres
+              ,B.CMPNY_NM AS indvdlCmpnyNm        /* 회사명 */
+              ,B.CMPNY_REPRSNT_TELNO AS indvdlCmpnyReprsntTelno /* 회사대표번호 */
+              ,B.BIZRNO AS indvdlBizrNo /* 사업자 번호*/
+              
+              ,C.CMPNY_NM AS entrprsCmpnyNm /* 회사명 */
+              ,C.CMPNY_REPRSNT_TELNO AS entrprsCmpnyReprsntTelno /* 회사대표번호 */
+              ,C.BIZRNO AS entrprsBizrNo /* 사업자 번호*/
+             
+              ,E.PBLINSTT_NM AS pblinsttNm /* 회사명 */
+              ,E.BIZRNO AS pblinsttBizrNo /* 회사대표번호 */
+              ,E.PBLINSTT_TELNO AS  pblinsttTelno /* 사업자 번호*/
+             
+              ,D.LANG_STORE_NM  AS langStoreNm /* 언어별상점명*/
+              ,D.STORE_CHARGER_NM AS storeChargerNm /* 담당자명*/
+              ,D.REPRSNT_TELNO AS reprsntTelno /* 담당자 연락처*/              
+            
+        FROM OP_USER A, OP_USER_OPTION B, OP_USER_ENTRPRS_OPTION  C  , TUM_SVC_STOR_I D, OP_USER_PBLINSTT_OPTION E
+        WHERE A.USER_ID = B.USER_ID(+)
+        AND A.USER_ID =C.USER_ID(+) 
+        AND A.USER_ID = D.USER_ID(+)
+        AND A.USER_ID = E.USER_ID(+)
+        AND A.LANG_CODE = D.LANG_CODE(+)
+        AND A.USER_ID =  #{userId} 
+            
+    </select>
+    
+    
+     <select id="tempUserView" parameterType="popVO" resultType="popVO">
+     /*webpop.tempUserView*/
+         SELECT     DECRYPT(A.EMAIL,'P008')                   AS Email      /*비회원 이메일*/
+                 , DECRYPT(A.MBTLNUM, 'P007')               AS mbtlnum      /*비회원 휴대폰*/
+                 , USER_TY_CD                               AS userTyCd   /*구분(3002 공공, 2002 민간)*/ 
+                 , ORGN_CODE                               AS orgnCode   /*기관코드*/
+                 , BUSEO_CODE                               AS buseoCode  /*부서코드*/
+                 
+                 , USER_TY_CD                               AS sbscrbTyCd
+                 , CASE WHEN user_ty_cd = 3002 THEN  NVL(( SELECT ORGN_NM FROM TCN_ORGN_INFO_D O WHERE   A.ORGN_CODE     = O.ORGN_CODE  and A.ORGN_CODE     = O.BUSEO_CODE LIMIT 1 ), A.ORGN_CODE) 
+                     WHEN user_ty_cd = 2002 THEN  CMPNY_NM END                                   AS entrprsCmpnyNm
+                 , NVL(( SELECT ORGN_NM_ST FROM tcn_orgn_info_d O WHERE  A.ORGN_CODE     = O.ORGN_CODE and A.BUSEO_CODE     = O.BUSEO_CODE LIMIT 1 ), A.BUSEO_CODE) AS pblinsttNm    
+                 , USER_NM                                   AS userNm
+          FROM TCM_CNTRCT_TEMP_USER A
+          WHERE USER_SN    =  #{userId}  
+    </select>
+      
+    <select id="regstCnView" parameterType="popVO" resultType="popVO">
+      /* _webpop.regstCnView */
+      SELECT 
+             A.PURCHS_NO AS purchsNo
+            ,A.ORDER_CNFIRM_AT AS orderCnfirmAt
+            ,nvl(DECRYPT(A.MBTLNUM,'P007'),'') AS orderMbtlnum /* 오더 연락처*/
+            ,DECRYPT(A.EMAIL,'P008') AS orderEmail /* 오더 메일*/
+            ,nvl(DECRYPT(A.CMPNY_REPRSNT_TELNO,'P007'),'')   AS orderCmpnyReprsntTelno   /* 회사대표번호 */
+            ,A.CHARGER_NM AS orderChargerNm   /* 담당자 명*/
+            ,DECRYPT(A.CHARGER_CTTPC,'P007')    AS orderChargerCttpc /* 담당자 연락처*/
+            ,DECRYPT(A.CHARGER_EMAIL,'P008')   AS orderChargerEmail /* 담당자 이메일*/
+            ,A.DLIV_MSSAGE  AS orderDlivMssage /* 전달메시지*/
+    
+            ,B.USER_ID userId
+            ,B.USER_NM userNm
+            ,B.USER_TY_CD userTycd
+            ,DECRYPT(B.EMAIL,'P008') email
+            ,DECRYPT(B.MBTLNUM,'P007') AS  mbtlnum
+            ,B.TELNO telno
+            ,C.CMPNY_NM AS indvdlCmpnyNm        /* 회사명 */
+            ,C.CMPNY_REPRSNT_TELNO AS indvdlCmpnyReprsntTelno /* 회사대표번호 */
+            ,C.CMPNY_RPRSNTV_NM AS indvdlCmpnyRprsntvNm /* 회사대표자명 */
+            ,C.CMPNY_TELNO AS indvdlCmpnyTelno  /* 회사전화번호 */
+            ,C.CMPNY_FXNUM AS indvdlCmpnyFxnum /* 회사팩스번호 */
+            ,C.CMPNY_EMAIL AS indvdlCmpnyEmail /* 회사이메일*/
+            
+            ,D.CMPNY_NM AS entrprsCmpnyNm       /* 회사명 */
+            ,D.CMPNY_REPRSNT_TELNO AS entrprsCmpnyReprsntTelno /* 회사대표번호 */
+            ,D.CMPNY_RPRSNTV_NM AS entrprsCmpnyRprsntvNm /* 회사대표자명 */
+            ,D.CMPNY_TELNO AS entrprsCmpnyTelno  /* 회사전화번호 */
+            ,D.CMPNY_FXNUM AS entrprsCmpnyFxnum /* 회사팩스번호 */
+            ,D.CMPNY_EMAIL AS entrprsCmpnyEmail /* 회사이메일*/
+            
+        FROM  tst_good_ordr_i A ,OP_USER B, OP_USER_OPTION C, OP_USER_ENTRPRS_OPTION  D
+        WHERE A.ORDRR_ID = B.USER_ID(+)
+        AND  A.ORDRR_ID =C.USER_ID(+) 
+        AND  A.ORDRR_ID =D.USER_ID(+) 
+        AND A.PURCHS_NO = #{purchsNo}
+
+
+    </select>
+
+    <select id="purchsView" parameterType="popVO" resultType="popVO">
+        /* _webpop.purchsView */
+        SELECT
+               B.USER_ID userId
+              ,B.USER_NM userNm
+              ,B.USER_TY_CD userTycd
+              ,DECRYPT(B.EMAIL,'P008') email
+              ,DECRYPT(B.MBTLNUM,'P007') AS  mbtlnum
+              ,B.TELNO telno
+              ,C.CMPNY_NM AS indvdlCmpnyNm        /* 회사명 */
+              ,C.CMPNY_REPRSNT_TELNO AS indvdlCmpnyReprsntTelno /* 회사대표번호 */
+              ,C.CMPNY_RPRSNTV_NM AS indvdlCmpnyRprsntvNm /* 회사대표자명 */
+              ,C.CMPNY_TELNO AS indvdlCmpnyTelno  /* 회사전화번호 */
+              ,C.CMPNY_FXNUM AS indvdlCmpnyFxnum /* 회사팩스번호 */
+              ,C.CMPNY_EMAIL AS indvdlCmpnyEmail /* 회사이메일*/
+              ,D.CMPNY_NM AS entrprsCmpnyNm       /* 회사명 */
+              ,D.CMPNY_REPRSNT_TELNO AS entrprsCmpnyReprsntTelno /* 회사대표번호 */
+              ,D.CMPNY_RPRSNTV_NM AS entrprsCmpnyRprsntvNm /* 회사대표자명 */
+              ,D.CMPNY_TELNO AS entrprsCmpnyTelno  /* 회사전화번호 */
+              ,D.CMPNY_FXNUM AS entrprsCmpnyFxnum /* 회사팩스번호 */
+              ,D.CMPNY_EMAIL AS entrprsCmpnyEmail /* 회사이메일*/
+        FROM TST_GOOD_INFO_I A  ,OP_USER B, OP_USER_OPTION C, OP_USER_ENTRPRS_OPTION  D
+       WHERE A.USER_ID = B.USER_ID(+)
+         AND goods_code = #{goodsCode}
+         AND B.USER_ID =C.USER_ID(+) 
+         AND B.USER_ID =D.USER_ID(+) 
+    </select>
+    
+    <!-- 카테고리 가져오기 -->
+    <select id="treeList" parameterType="categoryVO" resultType="treeVO">
+        
+        /* _webpop.treeList */
+        
+        SELECT id, text, href, cls, leaf,
+            <if test="ctgryCodes != null and ctgryCodes != ''">
+                (CASE WHEN     
+                   id IN
+                <foreach item="item" index="index" collection="ctgryCodes" open="(" separator="," close=")">#{item}</foreach>
+                 THEN
+                   '1' ELSE (CASE WHEN leaf='1' THEN '0' ELSE NULL END) END)
+            </if>
+                
+            <if test="ctgryCodes == null or ctgryCodes == ''">
+                (CASE WHEN leaf='1' THEN '0' ELSE NULL END) 
+            </if>                
+            as checked
+        FROM      
+        ( 
+         SELECT id
+         , text
+         , href
+         , cls
+         , leaf
+         , sortOrdr
+         , ctgryClCd
+ 	 FROM (
+			SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344', '6202_349', '6202_350', '6202_341', '6202_350', '6202_351', '6202_348', '6202_337', '6202_353', '6202_363', '6202_363', A.CTGRY_CODE) AS  id
+			         , DECODE(A.CTGRY_CODE, '6202_343', '마케팅/세일즈', '6202_350', '산업', '6202_349', '산업', '6202_341', '산업', '6202_348', '교육/도서', '6202_351', '교육/도서', '6202_353', '방송/문화/콘텐츠', '6202_337', '방송/문화/콘텐츠', A.LANG_CTGRY_NM) AS text
+			         , '' AS href
+			         , DECODE(A.CTGRY_USE_YN, 'Y', '', 'no-use') AS cls
+			         , DECODE((SELECT COUNT(CTGRY_CODE) FROM TST_CATE_MGMT_M WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE AND CTGRY_DELETE_AT = 'N'), 0, '1', '0') AS leaf
+			         , A.SORT_ORDR AS sortOrdr
+			         , A.CTGRY_CL_CD AS ctgryClCd
+			 FROM TST_CATE_MGMT_M A
+			WHERE A.PARNTS_CTGRY_CODE &gt;= '0'
+			   AND A.LANG_CODE =  #{langCd}
+			   AND A.CTGRY_DELETE_AT = 'N'
+			   AND A.CTGRY_USE_YN = 'Y'
+			   AND A.LANG_CODE =  #{langCd}
+			   AND A.CTGRY_CL_CD =  #{ctgryClCd}
+	      )
+     GROUP BY id 
+     ORDER BY sortOrdr
+       ) B
+    </select>
+    
+    <!--     다운로드/신청하기     -->
+    <select id="purchsKey" resultType="string">
+        SELECT PURCHS_NO_SEQ.NEXT_VALUE AS purchsNo
+    </select>
+    <insert id="pchsInsert" parameterType="premiumVO">
+        INSERT INTO TUM_GOOD_PCHS_I 
+        ( 
+          USER_ID,  PURCHS_NO,  GOODS_CODE,  PURCHS_DT,  SELER_ID 
+        )
+        VALUES 
+        (
+          #{loginUserId}, #{purchsNo}, #{goodsCode}, SYSDATETIME,  #{userId}
+        )
+    </insert>
+    <insert id="ordrInsert" parameterType="premiumVO">
+        INSERT INTO TST_GOOD_ORDR_I 
+        (
+          GOODS_CODE, PURCHS_NO, ORDRR_ID,  ORDER_DT, 
+          MBTLNUM, EMAIL, CMPNY_REPRSNT_TELNO, CHARGER_NM, 
+          CHARGER_CTTPC, CHARGER_EMAIL, DLIV_MSSAGE, ORDER_CNFIRM_AT 
+        )
+        VALUES 
+        (
+          #{goodsCode}, #{purchsNo}, #{loginUserID}, SYSDATETIME, 
+          #{mbtlnum},   #{email},   #{cmpnyReprsntTelno},   #{chargerNm}, 
+          #{chargerCttpc},  #{chargerEmail},    #{dlivMssage},  #{orderCnfirmAt}
+        )        
+    </insert>
+    
+    <update id="reqstCnUpdateAction" parameterType="popVO">
+        UPDATE tst_good_ordr_i SET
+             ORDER_CNFIRM_AT = #{orderCnfirmAt}
+         WHERE PURCHS_NO = #{purchsNo}
+    </update>
+
+    <select id="storeImageSeq" parameterType="premiumVO" resultType="int">
+        /* _webpop.storeImageSseq */
+        SELECT
+               A.STORE_IMAGE_FILE_SEQ AS storeImageFileSeq
+          FROM TUM_SVC_STOR_I A
+         WHERE A.USER_ID   = #{userId}
+           AND A.LANG_CODE = #{langCode}
+    </select>
+
+    <select id="markImageSeq" parameterType="int" resultType="int">
+        /* _webpop.markImageSeq */
+        SELECT
+               MARK_IMAGE_FILE_SEQ AS markImageFileSeq
+          FROM TST_GOOD_MARK_M
+         WHERE MARK_CD = #{goodsMarkCd}
+    </select>
+    
+    <select id="metaPop" parameterType="popVO" resultType="popVO">
+         SELECT  INDVDLZ_CD AS codeIndvdlzCd, INDVDLZ_CD_NM AS codeIndvdlzCdNm
+           FROM  OP_CODE_INDVDLZ 
+          WHERE  LANG_CODE = #{codeLangCode}
+            AND  GROUP_CD = #{codeGroupCd}            
+            AND  USE_YN = 'Y'
+            <if test="cdStart != null and cdStart != '' and cdEnd != null and cdEnd != ''">
+            AND  INDVDLZ_CD BETWEEN #{cdStart}  AND #{cdEnd}
+            </if>
+       ORDER BY  CD_SORT_NO
+    </select>
+    
+    <select id="subDomain" parameterType="String" resultType="String">
+         SELECT LCASE(LANG_ENG_NM) 
+           FROM TCO_SVC_LANG_C
+          WHERE LANG_CODE = #{langCode}
+    </select>
+     
+
+   
+    <select id="categoryUserPop" parameterType="popVO" resultType="popVO">   
+           SELECT    K.LANG_STORE_NM   langStoreNm 
+                    ,K.USER_ID         UserId
+                     ,(SELECT USER_NM FROM OP_USER WHERE USER_ID = K.USER_ID) AS userNm 
+             FROM 
+                    (SELECT  C.LANG_STORE_NM LANG_STORE_NM
+                               ,C.USER_ID  USER_ID
+                       FROM TST_GOOD_CATE_I A, TST_GOOD_INFO_I B, TUM_SVC_STOR_I C, OP_USER D
+                      WHERE A.GOODS_CODE = B.GOODS_CODE 
+                        AND B.USER_ID = C.USER_ID 
+                        AND B.USER_ID = D.USER_ID
+                        AND B.GOODS_REGIST_STTUS = '1006'    //서비스상태(전시)
+                        AND B.MNGR_DELETE_AT = 'N' 
+                        AND B.GOODS_ACTVTY_AT = 'Y'            //서비스삭제여부가(정상)
+                        AND D.USER_STTUS_CD = '1001'                            //유저상태(1001)
+                        AND ifnull(C.LANG_STORE_NM, '') != '' 
+                        AND C.LANG_CODE = '00'
+                    <choose>
+                        <when test="columnVal2 == 'NULL' and columnVal3 == 'NULL'">
+                        AND A.CTGRY_CODE IN (#{columnVal1})
+                        </when>
+                        <when test="columnVal3 == 'NULL'">
+                        AND A.CTGRY_CODE IN (#{columnVal1},#{columnVal2})
+                        </when>
+                        <otherwise>
+                        AND A.CTGRY_CODE IN (#{columnVal1},#{columnVal2},#{columnVal3})
+                        </otherwise>
+                    </choose>                        
+                   GROUP BY  C.LANG_STORE_NM, C.USER_ID
+         ) K
+         ORDER BY  K.LANG_STORE_NM   
+    </select>           
+   
+   
+    <sql id="selectGoodsCompare">
+                  SELECT  B.GOODS_NM
+                        , (SELECT   LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS LANG_STORE_NM    /**공급자*/
+                        , DECODE(B.SMLPZ_CHK, 'Y', '중소기업', 'M', '중견기업', 'B', '대기업') AS SMLPZ_CHK     /**기업구분*/
+                        , B.GOODS_MAKR                 /**제조사*/
+                        , B.ORGPLCE     AS ORG_PLCE    /**제조국(원산지)*/
+                        , TO_CHAR(TO_DATE(B.COMOU_DE, 'YYYYMMDD'), 'YYYY. MM. DD') AS COMOU_DE  /**출시일*/
+                        , B.GOODS_PC     /**단가*/
+                        , (SELECT LIST( SELECT E.INDVDLZ_CD_NM 
+                                          FROM TST_GOOD_META_I D, OP_CODE_INDVDLZ E
+                                         WHERE D.GROUP_CD = E.GROUP_CD
+                                           AND D.INDVDLZ_CD = E.INDVDLZ_CD
+                                           AND D.LANG_CD = E.LANG_CODE
+                                           AND D.GOODS_CODE = B.GOODS_CODE
+                                           AND D.GROUP_CD = '2028'
+                                           AND E.LANG_CODE = B.LANG_CODE
+                                           AND E.USE_YN = 'Y'
+                                      )) AS GOODS_META_CNTRCT_UNIT    /**계약단위*/
+                        , ( SELECT LIST( SELECT  CTGRYPATH
+                                           FROM  (SELECT  (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE =  B.LANG_CODE /**P*/ AND GROUP_CD = 1005 AND INDVDLZ_CD = E.CTGRY_CL_CD) AS CTGRYCLNM
+                                                        , (SELECT F.LANG_CTGRY_NM FROM TST_CATE_MGMT_M F WHERE F.CTGRY_CODE = D.CTGRY_CODE START WITH F.PARNTS_CTGRY_CODE = '0' CONNECT BY PRIOR F.CTGRY_CODE = F.PARNTS_CTGRY_CODE  ) AS CTGRYPATH
+                                                    FROM  TST_GOOD_CATE_I D
+                                                        , TST_CATE_MGMT_M E
+                                                   WHERE  D.CTGRY_CODE = E.CTGRY_CODE
+                                                     AND  E.CTGRY_DELETE_AT = 'N'
+                                                     AND  D.GOODS_CODE =  B.GOODS_CODE))) AS GOODS_CTGRY    /**서비스분류*/
+                        , (SELECT LIST( SELECT  E.INDVDLZ_CD_NM FROM  TST_GOOD_META_I D, OP_CODE_INDVDLZ E
+                                         WHERE  D.GROUP_CD   = E.GROUP_CD AND D.INDVDLZ_CD = E.INDVDLZ_CD AND D.LANG_CD = E.LANG_CODE
+                                           AND  D.GOODS_CODE =  A.GOODS_CODE
+                                           AND  D.GROUP_CD   = '2030'
+                                           AND  E.LANG_CODE  = B.LANG_CODE
+                                           AND  E.USE_YN     = 'Y')) AS GOODS_META_SVC    /**서비스 관리기준*/
+                        , (SELECT LIST( SELECT  E.INDVDLZ_CD_NM FROM  TST_GOOD_META_I D, OP_CODE_INDVDLZ E 
+                                         WHERE  D.GROUP_CD = E.GROUP_CD AND D.INDVDLZ_CD = E.INDVDLZ_CD AND D.LANG_CD = E.LANG_CODE
+                                           AND  D.GOODS_CODE = A.GOODS_CODE
+                                           AND  D.GROUP_CD = '2031'
+                                           AND  E.LANG_CODE = B.LANG_CODE
+                                           AND  E.USE_YN = 'Y')) AS  GOODS_META_STD    /**호환성*/
+                        , (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = B.LANG_CODE) AS LANG_NM /**지원언어*/
+                        , (SELECT LIST( SELECT  E.INDVDLZ_CD_NM FROM  TST_GOOD_META_I D, OP_CODE_INDVDLZ E 
+                                         WHERE  D.GROUP_CD = E.GROUP_CD AND D.INDVDLZ_CD = E.INDVDLZ_CD AND D.LANG_CD = E.LANG_CODE
+                                           AND  D.GOODS_CODE = A.GOODS_CODE
+                                           AND  D.GROUP_CD = '2032'
+                                           AND  E.LANG_CODE = B.LANG_CODE
+                                           AND  E.USE_YN = 'Y')) AS GOODS_META_CNSTC_MTHD        /**구축방식*/
+                        , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = B.LANG_CODE AND GROUP_CD = 2034 AND INDVDLZ_CD = B.SERVICE_OFFER_METHOD) AS SERVICE_OFFER_METHOD_NM    /**(서비스 유형)*/
+                        , DECODE(B.ARCHTC_SE, 1, '32-bit', 2, '64-bit', 3, '32-bit, 64-bit') AS ARCHTC_SE
+                        , (SELECT LIST( SELECT  E.INDVDLZ_CD_NM FROM  TST_GOOD_META_I D, OP_CODE_INDVDLZ E 
+                                         WHERE  D.GROUP_CD = E.GROUP_CD AND D.INDVDLZ_CD = E.INDVDLZ_CD AND D.LANG_CD = E.LANG_CODE
+                                           AND  D.GOODS_CODE = A.GOODS_CODE
+                                           AND  D.GROUP_CD = '1021'
+                                           AND  E.LANG_CODE = B.LANG_CODE
+                                           AND  E.USE_YN = 'Y')) AS GOODS_META_AS /**A/S*/
+                        , (SELECT LIST( SELECT  E.INDVDLZ_CD_NM FROM  TST_GOOD_META_I D, OP_CODE_INDVDLZ E 
+                                         WHERE  D.GROUP_CD = E.GROUP_CD AND D.INDVDLZ_CD = E.INDVDLZ_CD AND D.LANG_CD = E.LANG_CODE
+                                           AND  D.GOODS_CODE = A.GOODS_CODE
+                                           AND  D.GROUP_CD = '1020'
+                                           AND  E.LANG_CODE = B.LANG_CODE
+                                           AND  E.USE_YN = 'Y')) AS GOODS_META_OS /**지원OS*/
+                        , (SELECT LIST( SELECT  D.INDVDLZ_CD_NM 
+                                          FROM  OP_CODE_INDVDLZ D
+                                               , (SELECT GOODS_CODE, MARK_CD FROM TST_GOOD_MARK_I WHERE mark_cd = D.INDVDLZ_CD) E
+                                             --, (SELECT CRTFC_SE_CD, GOODS_CODE FROM TST_CTFC_ATCH_I WHERE CRTFC_SE_CD = D.INDVDLZ_CD ) F
+                                            WHERE  D.LANG_CODE = B.LANG_CODE
+                                              AND  E.GOODS_CODE = A.GOODS_CODE
+                                           -- AND  F.GOODS_CODE = A.GOODS_CODE
+                                              AND  D.GROUP_CD = '1011'
+                                              AND  D.USE_YN = 'Y'
+                                            ORDER  BY D.CD_SORT_NO)) AS GOODS_MARK_LIST    /**인증정보*/
+                    FROM TST_GOOD_INFO_I B
+                   WHERE B.MNGR_DELETE_AT     = 'N'    /** 관리자삭제 여부*/ 
+                     AND B.GOODS_ACTVTY_AT    = 'Y'    /** 활성화된 상품*/
+                     AND B.GOODS_REGIST_STTUS = '1006' /** 전시상품 */
+                     AND B.GOODS_CODE         = A.GOODS_CODE
+    </sql>   
+    
+     <select id="goodsCompInfoView" parameterType="map" resultType="HashMap">
+         
+         /*_webpop.goodsCompInfoView*/
+         
+         SELECT  A.GOODS_CODE
+               , A.GOODS_NM
+               , A.USER_ID
+               , A.SESSION_ID
+               , C.LANG_STORE_NM             /**공급자*/
+               , C.SMLPZ_CHK                 /**기업구분*/
+               , C.GOODS_MAKR                /**제조사*/
+               , C.ORG_PLCE                  /**제조국(원산지)*/
+               , C.COMOU_DE                  /**출시일*/
+               , C.GOODS_PC                  /**단가*/
+               , C.GOODS_META_CNTRCT_UNIT    /**계약단위*/
+               , C.GOODS_CTGRY               /**서비스분류*/
+               , C.GOODS_META_SVC            /**서비스 관리기준*/
+               , C.GOODS_META_STD            /**호환성*/
+               , C.LANG_NM                   /**지원언어*/
+               , C.GOODS_META_CNSTC_MTHD     /**구축방식*/
+               , C.SERVICE_OFFER_METHOD_NM   /**(서비스 유형)*/
+               , C.ARCHTC_SE
+               , C.GOODS_META_AS             /**A/S*/
+               , C.GOODS_META_OS             /**지원OS*/
+               , C.GOODS_MARK_LIST           /**인증정보*/
+           FROM  TST_GOOD_TMP_M A 
+               , (
+               
+                   <include refid="selectGoodsCompare"/>
+                   
+                 ) C
+           WHERE 1=1
+           <if test="userId != null  and userId != ''">
+             AND USER_ID = #{userId} 
+           </if>
+       
+           <if test="reqSessionId != null  and reqSessionId != ''">
+             AND (USER_ID = #{userId} OR SESSION_ID = #{reqSessionId})
+           </if>
+
+           <if test="item != null  and item != ''">
+             AND GOODS_CODE IN (${item})
+           </if>
+           GROUP BY GOODS_CODE
+    </select>
+    
+    <select id="goodsWishCompInfoView" parameterType="map" resultType="HashMap">
+
+         /*_webpop.goodsWishCompInfoView*/
+
+         SELECT A.GOODS_CODE
+               ,C.GOODS_NM
+               ,A.USER_ID
+               ,A.GRP_SEQ
+               ,C.LANG_STORE_NM              /** 공급자           */
+               ,C.SMLPZ_CHK                  /** 기업구분         */
+               ,C.GOODS_MAKR                 /** 제조사           */
+               ,C.ORG_PLCE                   /** 제조국(원산지)   */
+               ,C.COMOU_DE                   /** 출시일           */
+               ,C.GOODS_PC                   /** 단가             */
+               ,C.GOODS_META_CNTRCT_UNIT     /** 계약단위         */
+               ,C.GOODS_CTGRY                /** 서비스분류       */
+               ,C.GOODS_META_SVC             /** 서비스 관리기준  */
+               ,C.GOODS_META_STD             /** 호환성           */
+               ,C.LANG_NM                    /** 지원언어         */
+               ,C.GOODS_META_CNSTC_MTHD      /** 구축방식         */
+               ,C.SERVICE_OFFER_METHOD_NM    /** (서비스 유형)    */
+               ,C.ARCHTC_SE
+               ,C.GOODS_META_AS              /** A/S              */
+               ,C.GOODS_META_OS              /** 지원OS           */
+               ,C.GOODS_MARK_LIST            /** 인증정보         */
+               ,E.NOTIFY_NUM --
+               ,E.NOTIFY_SEQ --
+           FROM TCM_WISHORDER_DETAIL_L A 
+      LEFT JOIN (  SELECT A1.GOODS_CODE
+                         ,A1.CONFM_GBN
+                         ,A1.NOTIFY_NUM --
+                         ,A1.NOTIFY_SEQ --
+                         ,A2.GRP_SEQ 
+                         ,A2.USER_ID
+                         ,A1.SPLY_AMT
+                     FROM TCN_BEFORE_ESTE_SPLY A1
+                         ,TCN_BEFORE_ESTE_NOFY A2
+                    WHERE A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                      AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                ) E
+             ON E.GRP_SEQ    = A.GRP_SEQ 
+            AND E.USER_ID    = A.USER_ID  
+            AND E.GOODS_CODE = A.GOODS_CODE
+               ,(
+                   <include refid="selectGoodsCompare"/>
+                ) C
+          WHERE 1=1
+            AND A.GRP_SEQ    = #{grpSeq}
+            AND A.USER_ID    = #{userId}
+            AND A.GOODS_CODE = #{goodsCd}
+            <if test="notifyNum != null  and notifyNum != ''">
+            AND E.NOTIFY_NUM = #{notifyNum} 
+            </if>
+            <if test="notifySeq != null  and notifySeq != ''">
+            AND E.NOTIFY_SEQ = #{notifySeq}
+            </if>
+            
+    </select>
+
+    <select  id="realUserOrganList" parameterType="map" resultType="SuplerCntrctVO">
+    /* _suplerCeart.realUserOrganList*/
+        SELECT BUSEO_CODE    AS buseoCode,    
+               ORGN_NM        AS buseoNm
+          FROM TCM_RL_USER_I
+            WHERE RL_CNTRCT_INSTT_AT = 'Y'
+              AND BUSEO_CODE != 'ZZZZZZZ'
+            AND CNTRCT_SN = #{cntrctSn}
+    </select>
+
+    <select  id="searchOrganList" parameterType="map" resultType="organPagerVo">
+    /*  _suplerCeart.searchOrganList*/
+        SELECT <!-- COUNT(1) over() AS totalNum
+              , ORDERBY_NUM() AS num -->
+                B.buseo_code AS orgnCode
+              , A.buseo_code AS buseoCode
+              , A.orgn_nm AS orgnNm
+              , A.orgn_nm_st AS orgnNmSt
+          FROM  TCN_ORGN_INFO_D A
+                  LEFT JOIN TCM_RL_USER_I B ON A.buseo_code = B.buseo_code AND CNTRCT_SN =  #{cntrctSn}
+         WHERE  MNTNAB_DATE = 0
+           AND  A.${q_searchKey} like '%${q_searchVal}%'
+         ORDER  BY A.ORGN_NM, A.orgn_nm_st
+     </select>
+     
+    <insert id="realUserOrganInsert" parameterType="SuplerCntrctVO">
+    /*_suplerCeart.realUserOrganInsert*/
+        INSERT INTO TCM_RL_USER_I
+        (
+            CNTRCT_SN, 
+            BUSEO_CODE, 
+            ORGN_NM, 
+            RL_CNTRCT_INSTT_AT 
+        )
+        SELECT  #{cntrctSn}
+              , BUSEO_CODE
+              , ORGN_NM
+              , 'Y' 
+          FROM  TCN_ORGN_INFO_D
+         WHERE  MNTNAB_DATE = 0 
+           AND  BUSEO_CODE  
+        <foreach collection="buseoCodes" item="bc" index="index"    separator="," open="IN (" close=") ">
+          TRIM(#{bc})
+        </foreach>
+    </insert>
+    
+    <delete id="realUserOrganDelete">
+        DELETE FROM TCM_RL_USER_I
+              WHERE RL_CNTRCT_INSTT_AT ='Y' 
+                  AND CNTRCT_SN = #{cntrctSn}
+                  AND BUSEO_CODE  
+              <foreach collection="realBuseoCodes" item="bc" index="index"    separator="," open="IN (" close=") ">
+                TRIM(#{bc})
+            </foreach>
+    </delete>
+    
+    
+    <select id="estimatePaasCompList" parameterType="map" resultType="HashMap">
+         
+         /*_webpop.estimatePaasCompList*/
+         
+         SELECT A.GOODS_CODE
+               ,A.USER_ID
+               ,A.GRP_SEQ
+               ,G.GOODS_NM
+               
+               ,BP.NOTIFY_NUM 
+               ,BP.NOTIFY_SEQ 
+               ,BP.APPLY_GBN
+               ,BP.HOSTINGMETHOD
+               ,BP.SCALING
+               ,BP.PLATFORM
+               ,BP.RUNTIMES
+               ,BP.MIDDLEWARE
+               ,BP.FRAMEWORKS
+               ,BP.SERVICES
+               ,BP.ADDONS
+               ,BP.EXTENDFUNCTION
+               ,BP.GEOLOCATIONS
+               
+               ,E.HOPE_PUCH_AMT               
+               ,NVL(TO_CHAR(E.RPLY_DT,'YYYY-MM-DD'),'') AS RPLY_DT
+               ,E.DELY_FILE
+               ,E.ADD_CONT                              
+           FROM TCM_WISHORDER_DETAIL_L A 
+           JOIN (  SELECT A1.NOTIFY_NUM
+                         ,A1.NOTIFY_SEQ
+                         ,A1.GOODS_CODE
+                         ,A1.CONFM_GBN
+                         ,A1.SPLY_AMT
+                         ,A2.GRP_SEQ 
+                         ,A2.USER_ID
+                         ,A2.HOPE_PUCH_AMT
+                         ,A2.RPLY_DT
+                         ,K.LOCAL_ORGINL_NM AS DELY_FILE
+                         ,A2.ADD_CONT                         
+                     FROM TCN_BEFORE_ESTE_SPLY A1
+                LEFT JOIN TCN_BEFORE_ESTE_NOFY A2
+                       ON A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                      AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                LEFT JOIN OP_FILE K
+                       ON K.FILE_SEQ = A2.DELY_FILE                      
+                    WHERE 1=1                      
+                ) E
+             ON E.GOODS_CODE = A.GOODS_CODE
+           JOIN (           
+					        SELECT A.NOTIFY_NUM    
+					              ,A.NOTIFY_SEQ     
+					              ,A.APPLY_GBN     
+					             
+					              ,A.HOSTINGMETHOD  
+					              ,A.SCALING        
+					              ,A.PLATFORM       
+					              ,A.RUNTIMES       
+					              ,A.MIDDLEWARE     
+					              ,A.FRAMEWORKS     
+					              ,A.SERVICES       
+					              ,A.ADDONS         
+					              ,A.EXTENDFUNCTION 
+					              ,A.GEOLOCATIONS   
+					          FROM TCN_BEFORE_PAAS2_I A
+					         WHERE A.USER_ID    = #{userId} 
+					           
+					        UNION ALL
+					        
+					        SELECT A.NOTIFY_NUM   
+					              ,A.NOTIFY_SEQ    
+					              ,B.APPLY_GBN       
+					             
+					              ,B.HOSTINGMETHOD  
+					              ,B.SCALING        
+					              ,B.PLATFORM       
+					              ,B.RUNTIMES       
+					              ,B.MIDDLEWARE     
+					              ,B.FRAMEWORKS     
+					              ,B.SERVICES       
+					              ,B.ADDONS         
+					              ,B.EXTENDFUNCTION 
+					              ,B.GEOLOCATIONS   
+					          FROM TCN_BEFORE_PAAS2_I A
+					     LEFT JOIN TCN_BEFORE_PAAS2_I B
+					            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+					           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+					           AND B.USER_ID  &lt;&gt; #{userId} 
+					         WHERE A.USER_ID  = #{userId} 
+           
+                ) BP
+             ON BP.NOTIFY_NUM = E.NOTIFY_NUM 
+            AND BP.NOTIFY_SEQ = E.NOTIFY_SEQ
+           JOIN TST_GOOD_INFO_I G 
+             ON G.GOODS_CODE = A.GOODS_CODE          
+          WHERE 1=1
+            AND A.GRP_SEQ = #{grpSeq}
+            AND A.USER_ID = #{userId}
+            AND A.GOODS_CODE = #{goodsCd}
+            AND BP.NOTIFY_NUM = #{notifyNum} 
+            AND BP.NOTIFY_SEQ = #{notifySeq}
+            
+    </select>
+    
+    <select id="estimateSaasICompList" parameterType="map" resultType="HashMap">
+         
+         /*_webpop.estimateSaasICompList*/
+         
+         SELECT A.GOODS_CODE
+               ,A.USER_ID
+               ,A.GRP_SEQ               
+               ,G.GOODS_NM
+               
+               ,BS.NOTIFY_NUM 
+               ,BS.NOTIFY_SEQ 
+               ,BS.APPLY_GBN
+               ,BS.SUPPORT_METHOD
+               ,BS.USER_MANAGER_SEPARATE
+               ,BS.SERVICE_SUPPLY_METHOD
+               ,BS.ENCRYPTION
+               ,BS.MULTIPLATFORM
+               
+               ,BS.NEED_FUNCTIONNAME 
+               ,BS.NEED_AMOUNT       
+               ,BS.NEED_UNITCODE 
+               ,BS.OPTION_FUNCTIONNAME 
+               ,BS.OPTION_AMOUNT       
+               ,BS.OPTION_UNITCODE
+               
+           FROM TCM_WISHORDER_DETAIL_L A 
+           JOIN (  SELECT A1.NOTIFY_NUM
+                         ,A1.NOTIFY_SEQ
+                         ,A1.GOODS_CODE
+                         ,A1.CONFM_GBN
+                         ,A2.GRP_SEQ 
+                         ,A2.USER_ID
+                         ,A1.SPLY_AMT
+                     FROM TCN_BEFORE_ESTE_SPLY A1
+                LEFT JOIN TCN_BEFORE_ESTE_NOFY A2
+                       ON A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                      AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                    WHERE 1=1    
+                    
+			          AND A1.NOTIFY_NUM = #{notifyNum}
+			          AND A1.NOTIFY_SEQ = #{notifySeq}                    
+                ) E
+             ON E.GOODS_CODE = A.GOODS_CODE
+           JOIN (
+           
+				        SELECT A.NOTIFY_NUM
+				              ,A.NOTIFY_SEQ
+				              ,A.APPLY_GBN
+				              
+				              ,A.SUPPORT_METHOD        /** 제공방법 C */
+				              ,A.USER_MANAGER_SEPARATE /** 사용자/관리자 분리 D */
+				              ,A.SERVICE_SUPPLY_METHOD /** 서비스제공방식 */
+				              ,A.ENCRYPTION            /** 암호화 */
+                              ,A.MULTIPLATFORM         /** 다중플랫폼지원 */
+                              
+                              ,A.NEED_FUNCTIONNAME 
+                              ,A.NEED_AMOUNT       
+                              ,A.NEED_UNITCODE 
+                              ,A.OPTION_FUNCTIONNAME 
+                              ,A.OPTION_AMOUNT       
+                              ,A.OPTION_UNITCODE                              
+                          FROM TCN_BEFORE_SAAS2_I A
+                         WHERE A.USER_ID    = #{userId}
+                           
+                        UNION ALL
+                        
+                        SELECT A.NOTIFY_NUM   
+                              ,A.NOTIFY_SEQ   
+                              ,B.APPLY_GBN    
+                              
+                              ,B.SUPPORT_METHOD        /** 제공방법 C */
+                              ,B.USER_MANAGER_SEPARATE /** 사용자/관리자 분리 D */
+                              ,B.SERVICE_SUPPLY_METHOD /** 서비스제공방식 */
+                              ,B.ENCRYPTION            /** 암호화 */
+                              ,B.MULTIPLATFORM         /** 다중플랫폼지원 */
+                              
+                              ,B.NEED_FUNCTIONNAME 
+                              ,B.NEED_AMOUNT       
+                              ,B.NEED_UNITCODE 
+                              ,B.OPTION_FUNCTIONNAME 
+                              ,B.OPTION_AMOUNT       
+                              ,B.OPTION_UNITCODE                                  
+				          FROM TCN_BEFORE_SAAS2_I A
+				     LEFT JOIN TCN_BEFORE_SAAS2_I B
+				            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+					       AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+					       AND B.USER_ID  &lt;&gt; #{userId} 
+					     WHERE A.USER_ID  = #{userId}
+           
+                ) BS
+             ON BS.NOTIFY_NUM = E.NOTIFY_NUM 
+            AND BS.NOTIFY_SEQ = E.NOTIFY_SEQ
+           JOIN TST_GOOD_INFO_I G 
+             ON G.GOODS_CODE = A.GOODS_CODE          
+          WHERE 1=1
+            AND A.GRP_SEQ = #{grpSeq}
+            AND A.USER_ID = #{userId}
+            AND A.GOODS_CODE = #{goodsCd}
+            AND BS.NOTIFY_NUM = #{notifyNum} 
+            AND BS.NOTIFY_SEQ = #{notifySeq}
+
+    </select>
+    
+    <select id="estimateIaasICompList" parameterType="map" resultType="HashMap">
+         
+         /*_webpop.estimateIaasICompList*/
+
+         SELECT A.GOODS_CODE
+               ,A.USER_ID
+               ,A.GRP_SEQ
+               ,G.GOODS_NM
+               ,E.NOTIFY_NUM 
+               ,E.NOTIFY_SEQ 
+               ,BI.APPLY_GBN
+               ,BI.CHK_DB
+               ,BI.CHK_STORAGE
+               ,BI.CHK_CDN
+               ,BI.CHK_WEBFIREWALL
+               ,BI.CHK_MONITORING
+               ,BI.CHK_BACKUP
+               ,BI.CHK_ADDEDSERVICE
+               ,BI.SERVER_IP
+               ,BI.SERVER_NETWORK
+               ,BI.SERVER_GSLB
+               ,BI.SERVER_LDBL
+               ,BI.SERVER_SNAP
+               ,BI.SERVER_IMG
+               ,BI.DB_IP
+               ,BI.DB_NETWORK
+               ,BI.DB_ADDDISK
+               ,BI.DB_BACKSTORG
+               ,BI.DB_STORG_SPACE
+               ,BI.DB_TRANS_VLMN
+               ,BI.CDN_TRANS_VLMN
+               ,BI.CDN_REQU_CNT
+               ,BI.WEB_GOODS_KIND
+               ,BI.WEB_ACCESS
+               ,BI.MNTING_VM
+               ,BI.MNTING_ID_CNT
+               ,BI.BAKUP_CNT
+               ,BI.BAKUP_STORG
+               ,BI.MANG_FUNC
+               ,BI.SECTY_VPN
+               ,BI.SECTY_SSLVPN
+               ,BI.ADDED_ETC           
+               
+               ,BI.SERVER_USE      
+               ,BI.SERVER_OS       
+               ,BI.SERVER_CPU      
+               ,BI.SERVER_MEMORY   
+               ,BI.SERVER_DISK     
+               ,BI.SERVER_QNTY     
+
+               ,BI.DB_USE     
+               ,BI.DB_OS      
+               ,BI.DB_CPU     
+               ,BI.DB_MEMORY  
+               ,BI.DB_DISK    
+               ,BI.DB_QNTY
+                                               
+           FROM TCM_WISHORDER_DETAIL_L A 
+           JOIN (  SELECT A1.NOTIFY_NUM
+                         ,A1.NOTIFY_SEQ
+                         ,A1.GOODS_CODE
+                         ,A1.CONFM_GBN
+                         ,A2.GRP_SEQ 
+                         ,A2.USER_ID
+                         ,A1.SPLY_AMT
+                     FROM TCN_BEFORE_ESTE_SPLY A1
+                LEFT JOIN TCN_BEFORE_ESTE_NOFY A2
+                       ON A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                      AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                    WHERE 1=1  
+			          AND A1.NOTIFY_NUM = #{notifyNum}
+			          AND A1.NOTIFY_SEQ = #{notifySeq}
+                ) E
+             ON E.GOODS_CODE = A.GOODS_CODE
+           JOIN (
+           
+           
+                       SELECT A.NOTIFY_NUM        
+                             ,A.NOTIFY_SEQ        
+                             ,A.APPLY_GBN         
+                             
+                             ,A.CHK_DB              
+                             ,A.CHK_STORAGE         
+                             ,A.CHK_CDN             
+                             ,A.CHK_WEBFIREWALL     
+                             ,A.CHK_MONITORING      
+                             ,A.CHK_BACKUP          
+                             ,A.CHK_ADDEDSERVICE                                 
+                             
+                             ,A.SERVER_IP         
+                             ,A.SERVER_NETWORK    
+                             ,A.SERVER_GSLB       
+                             ,A.SERVER_LDBL       
+                             ,A.SERVER_SNAP       
+                             ,A.SERVER_IMG        
+                             ,A.DB_IP             
+                             ,A.DB_NETWORK        
+                             ,A.DB_ADDDISK        
+                             ,A.DB_BACKSTORG      
+                             ,A.DB_STORG_SPACE    
+                             ,A.DB_TRANS_VLMN     
+                             ,A.CDN_TRANS_VLMN    
+                             ,A.CDN_REQU_CNT      
+                             ,A.WEB_GOODS_KIND    
+                             ,A.WEB_ACCESS        
+                             ,A.MNTING_VM         
+                             ,A.MNTING_ID_CNT     
+                             ,A.BAKUP_CNT         
+                             ,A.BAKUP_STORG       
+                             ,A.MANG_FUNC         
+                             ,A.SECTY_VPN         
+                             ,A.SECTY_SSLVPN      
+                             ,A.ADDED_ETC     
+                             
+                             ,A.SERVER_USE      
+                             ,A.SERVER_OS       
+                             ,A.SERVER_CPU      
+                             ,A.SERVER_MEMORY   
+                             ,A.SERVER_DISK     
+                             ,A.SERVER_QNTY     
+
+                             ,A.DB_USE     
+                             ,A.DB_OS      
+                             ,A.DB_CPU     
+                             ,A.DB_MEMORY  
+                             ,A.DB_DISK    
+                             ,A.DB_QNTY
+                                 
+                         FROM TCN_BEFORE_IAAS2_I A
+                        WHERE A.USER_ID    = #{userId}
+                           
+                        UNION ALL
+                        
+                       SELECT A.NOTIFY_NUM        
+                             ,A.NOTIFY_SEQ        
+                             ,B.APPLY_GBN         
+                             
+                             ,B.CHK_DB              
+                             ,B.CHK_STORAGE         
+                             ,B.CHK_CDN             
+                             ,B.CHK_WEBFIREWALL     
+                             ,B.CHK_MONITORING      
+                             ,B.CHK_BACKUP          
+                             ,B.CHK_ADDEDSERVICE                                 
+                                                          
+                             ,B.SERVER_IP         
+                             ,B.SERVER_NETWORK    
+                             ,B.SERVER_GSLB       
+                             ,B.SERVER_LDBL       
+                             ,B.SERVER_SNAP       
+                             ,B.SERVER_IMG        
+                             ,B.DB_IP             
+                             ,B.DB_NETWORK        
+                             ,B.DB_ADDDISK        
+                             ,B.DB_BACKSTORG      
+                             ,B.DB_STORG_SPACE    
+                             ,B.DB_TRANS_VLMN     
+                             ,B.CDN_TRANS_VLMN    
+                             ,B.CDN_REQU_CNT      
+                             ,B.WEB_GOODS_KIND    
+                             ,B.WEB_ACCESS        
+                             ,B.MNTING_VM         
+                             ,B.MNTING_ID_CNT     
+                             ,B.BAKUP_CNT         
+                             ,B.BAKUP_STORG       
+                             ,B.MANG_FUNC         
+                             ,B.SECTY_VPN         
+                             ,B.SECTY_SSLVPN      
+                             ,B.ADDED_ETC         
+                             
+                             ,B.SERVER_USE      
+                             ,B.SERVER_OS       
+                             ,B.SERVER_CPU      
+                             ,B.SERVER_MEMORY   
+                             ,B.SERVER_DISK     
+                             ,B.SERVER_QNTY     
+
+                             ,B.DB_USE     
+                             ,B.DB_OS      
+                             ,B.DB_CPU     
+                             ,B.DB_MEMORY  
+                             ,B.DB_DISK    
+                             ,B.DB_QNTY
+                                 
+                         FROM TCN_BEFORE_IAAS2_I A
+                    LEFT JOIN TCN_BEFORE_IAAS2_I B
+                           ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                          AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                          AND B.USER_ID  &lt;&gt; #{userId} 
+                        WHERE A.USER_ID  = #{userId}
+                           
+                ) BI
+             ON BI.NOTIFY_NUM = E.NOTIFY_NUM 
+            AND BI.NOTIFY_SEQ = E.NOTIFY_SEQ
+           JOIN TST_GOOD_INFO_I G 
+             ON G.GOODS_CODE = A.GOODS_CODE          
+          WHERE 1=1
+            AND A.GRP_SEQ    = #{grpSeq}
+            AND A.USER_ID    = #{userId}
+            AND A.GOODS_CODE = #{goodsCd}
+           
+    </select>
+    
+    
+</mapper>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <!-- USER_MENU 관리 기본 설정-->
+
+    <cms>
+
+        <rootMenu>
+            <topMenuCode>ROOT</topMenuCode>
+            <parentMenuCode>DOMAIN</parentMenuCode>
+            <menuCode>web</menuCode>
+            <menuNm></menuNm>
+            <menuDepth>-1</menuDepth>
+            <sortOrder>-1</sortOrder>
+        </rootMenu>
+
+        <defaultMenu>
+            <topMenuCode>DOMAIN</topMenuCode>
+            <parentMenuCode>web</parentMenuCode>
+            <menuNm>HOME</menuNm>
+            <menuDepth>0</menuDepth>
+            <sortOrder>0</sortOrder>
+        </defaultMenu>
+
+        <defaultLinkType>base</defaultLinkType>
+
+        <!-- TOP 메뉴 표시 뎁스 범위 지정 -->
+        <topMenuDepth>
+            <minDepth>0</minDepth>
+            <maxDepth>1</maxDepth>
+        </topMenuDepth>
+
+        <menuTypes>
+            <url>단순링크</url>
+            <content>컨텐츠</content>
+            <reference>프로그램</reference>
+        </menuTypes>
+
+        <defaultLinkType>base</defaultLinkType>
+        <linkTypes>
+            <base>기본화면</base>
+            <popup>팝업(새창)</popup>
+            <layer>레이어</layer>
+        </linkTypes>
+
+        <contentTypes>
+            <static>정적컨텐츠</static>
+            <!--
+            <dinamic>동적컨텐츠</dinamic>
+            -->
+        </contentTypes>
+
+        <authTypes>
+            <INC_DEPT>하위부서포함</INC_DEPT>
+            <EQ_DEPT>동일부서</EQ_DEPT>
+            <MGR>담당자</MGR>
+            <ADMIN>지정않함</ADMIN>
+        </authTypes>
+
+        <defaultDecorator>base</defaultDecorator>
+
+        <approval>
+            <write name="작성중" code="1010"/>
+            <request name="승인요청" code="1020"/>
+            <reject name="승인반려" code="1030"/>
+            <complete name="승인완료" code="1040"/>
+        </approval>
+
+        <htmlOp>
+            <![CDATA[
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>
+            ]]>
+        </htmlOp>
+
+        <metaOp>
+            <![CDATA[
+    </title>
+            ]]>
+        </metaOp>
+
+        <bodyOp>
+            <![CDATA[
+</head>
+<body>
+            ]]>
+        </bodyOp>
+        
+        <htmlEd>
+            <![CDATA[
+</body>
+</html>
+            ]]>
+        </htmlEd>
+
+        <adminUrl>/intra/cms/content/NR_ContentForm.do</adminUrl>
+
+        <basePath>
+            <decoratorRoot>WEB-INF/pages/common/decorator/web</decoratorRoot>
+            <menuRoot>/webcontent/CMS_MENU</menuRoot>
+            <resourceRoot>resources</resourceRoot>
+        </basePath>
+
+        <resourcePath>
+            <css>/css</css>
+            <js>/js</js>
+            <jpg>/images</jpg>
+            <jpeg>/images</jpeg>
+            <bmp>/images</bmp>
+            <gif>/images</gif>
+            <swf>/images/flash</swf>
+            <doc>/document</doc>
+            <ppt>/document</ppt>
+            <xls>/document</xls>
+            <hwp>/document</hwp>
+            <txt>/document</txt>
+            <etc>/etc</etc>
+        </resourcePath>
+
+        <messages-kr>
+            <move>
+                <success>컨텐츠가 이동되었습니다.</success>
+                <failed>컨텐츠 이동을 실패하였습니다.</failed>
+            </move>
+            <delete>
+                <success>컨텐츠를 삭제하였습니다.</success>
+                <failed>컨텐츠 삭제를 실패하였습니다.</failed>
+            </delete>
+            <create>
+                <success>컨텐츠를 생성하였습니다.</success>
+                <failed>컨텐츠 생성을 실패하였습니다.</failed>
+            </create>
+            <update>
+                <success>컨텐츠를 수정하였습니다.</success>
+                <failed>컨텐츠 수정을 실패하였습니다.</failed>
+            </update>
+        </messages-kr>
+
+    </cms>
+
+</configuration>

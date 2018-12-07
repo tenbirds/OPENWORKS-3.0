@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	=========================================================
+	* Description : BoardLog sqlmap 정의 파일
+	* Create	  : wisepms
+	* $Id: boardlog-sqlmap.xml 896 $
+	=========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_boardlog">
+
+	<!-- ================ 게시물 관련 통계 ================ -->
+	<!-- 연간 게시물 등록 통계 -->
+	<select id="yearCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearCreateLog */
+		SELECT YEARZ || '년' AS label,
+			   (SELECT COUNT(A.BBSCTT_SEQ)
+				  FROM OP_BOARD A
+				 WHERE A.DOMAIN_CD = #{domainCd}
+                   AND A.BBS_CD = #{bbsCd}
+                   <if test="ctgCd != null  and ctgCd != ''">
+	                AND A.CTG_CD = #{ctgCd} 
+	                </if>
+				   AND YEAR(A.REGIST_DT) = YEARZ.YEARZ ) AS [value]
+		  FROM (SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+				  FROM DB_ROOT
+			   CONNECT BY LEVEL &lt; 4
+		 ) YEARZ
+	</select>
+
+	<!-- 연간 게시물 삭제 통계 -->
+	<select id="yearDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearDeleteLog */
+		SELECT YEARZ || '년' AS label,
+		   (SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND YEAR(A.STDR_YM) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 게시물 등록 통계 -->
+	<select id="monthCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthCreateLog */
+		SELECT MONTHS || '월' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMM') = #{searchYear} || LPAD(MONTHLIST.MONTHS, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHS
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHLIST
+	</select>
+
+	<!-- 월간 게시물 삭제 통계 -->
+	<select id="monthDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthDeleteLog */
+		SELECT MONTHS || '월' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND TO_CHAR(A.STDR_YM, 'YYYYMM') = #{searchYear} || LPAD(MONTHLIST.MONTHS, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHS
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHLIST
+	</select>
+
+	<!-- 연간 통계 -->
+	<select id="yearList" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearList */
+		SELECT DISTINCT YEAR(REGIST_DT) AS label, YEAR(REGIST_DT) AS [value]
+		  FROM OP_BOARD
+		 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+	</select>
+
+	<!-- 일간 게시물 등록 통계 -->
+	<select id="dayCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayCreateLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 일간 게시물 삭제 통계 -->
+	<select id="dayDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayDeleteLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			  AND TO_CHAR(A.STDR_YM, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 게시물 등록 통계 -->
+	<select id="hourCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourCreateLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		   FROM (
+			SELECT ROWNUM-1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+	<!-- 시간별 게시물 삭제 통계 -->
+	<select id="hourDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourDeleteLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_BOARD_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND TO_CHAR(A.STDR_YM, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		   FROM (
+			SELECT ROWNUM-1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+
+	<!-- ================ 댓글 관련 통계 ================ -->
+	<!-- 연간 댓글 등록 통계 -->
+	<select id="yearCmtCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearCmtCreateLog */
+		SELECT YEARZ || '년' AS label,
+			  (SELECT COUNT(A.BBSCTT_SEQ)
+				  FROM OP_NTT_CMT A
+				 WHERE A.DOMAIN_CD = #{domainCd}
+                   AND A.BBS_CD = #{bbsCd}
+                   <if test="ctgCd != null  and ctgCd != ''">
+                   AND A.BBSCTT_SEQ IN (SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                   </if>
+				   AND YEAR(A.REGIST_DT) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 연간 댓글 삭제 통계 -->
+	<select id="yearCmtDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearCmtDeleteLog */
+		SELECT YEARZ || '년' AS label,
+		   (SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND YEAR(A.STDR_YM) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 댓글 등록 통계 -->
+	<select id="monthCmtCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthCmtCreateLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMM') = #{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 월간 댓글 삭제 통계 -->
+	<select id="monthCmtDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthCmtDeleteLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.STDR_YM, 'YYYYMM') = #{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 일간 댓글 등록 통계 -->
+	<select id="dayCmtCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayCmtCreateLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 일간 댓글 삭제 통계 -->
+	<select id="dayCmtDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayCmtDeleteLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.STDR_YM, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS DAYZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 댓글 등록 통계 -->
+	<select id="hourCmtCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourCmtCreateLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		   FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+	<!-- 시간별 댓글 삭제 통계 -->
+	<select id="hourCmtDeleteLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourCmtDeleteLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(A.BBSCTT_SEQ)
+			  FROM OP_NTT_CMT_TRASH A
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN(SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD = #{ctgCd})
+                </if>
+			   AND TO_CHAR(A.STDR_YM, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		   FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+
+	<!-- ================ 첨부파일 총계 통계 ================ -->
+	<!-- 연간 첨부 파일 총계 -->
+	<select id="yearFileCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearFileCreateLog */
+		SELECT YEARZ || '년' AS label,
+			(SELECT COUNT(B.FILE_ID)
+			  FROM OP_BOARD A, OP_FILE B
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+			   AND A.FILE_SEQ = B.FILE_SEQ 
+			   AND YEAR(A.REGIST_DT) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 첨부 파일 총계 -->
+	<select id="monthFileCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthFileCreateLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT COUNT(B.FILE_ID)
+			  FROM OP_BOARD A, OP_FILE B 
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+               AND A.FILE_SEQ = B.FILE_SEQ
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMM') = #{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0)) AS [value]
+	   FROM (
+		 SELECT ROWNUM AS MONTHZ
+		   FROM DB_ROOT
+		 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 일간 첨부 파일 총계 -->
+	<select id="dayFileCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayFileCreateLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(B.FILE_ID)
+			  FROM OP_BOARD A, OP_FILE B 
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+               AND A.FILE_SEQ = B.FILE_SEQ
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 첨부 파일 총계 -->
+	<select id="hourFileCreateLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourFileCreateLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(B.FILE_ID)
+			  FROM OP_BOARD A, OP_FILE B 
+			 WHERE A.DOMAIN_CD = #{domainCd}
+               AND A.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd} 
+                </if>
+               AND A.FILE_SEQ = B.FILE_SEQ
+			   AND TO_CHAR(A.REGIST_DT, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		  FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+
+	<!-- ================ 첨부파일 다운 총계 관련 통계 ================ -->			
+	<!-- 연간 첨부 파일 다운로드 총계 -->
+	<select id="yearFileDownCntLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearFileDownCntLog */
+		SELECT YEARZ || '년' AS label,
+			(SELECT COUNT(B.FILE_SEQ)
+			  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+			   AND C.FILE_SEQ = A.FILE_SEQ
+			   AND A.FILE_SEQ = B.FILE_SEQ
+			   AND A.FILE_ID = B.FILE_ID
+			   AND C.FILE_SEQ = B.FILE_SEQ
+			   AND SUBSTR(B.REGIST_DT, 1, 4) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 첨부 파일 다운로드 총계 -->
+	<select id="monthFileDownCntLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthFileDownCntLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT COUNT(B.FILE_SEQ)
+			  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND A.FILE_SEQ = B.FILE_SEQ
+               AND A.FILE_ID = B.FILE_ID
+               AND C.FILE_SEQ = B.FILE_SEQ
+			   AND SUBSTR(B.REGIST_DT, 1, 6) = #{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 일간 첨부 파일 다운로드 총계-->
+	<select id="dayFileDownCntLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayFileDownCntLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT COUNT(B.FILE_SEQ)
+			  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND A.FILE_SEQ = B.FILE_SEQ
+               AND A.FILE_ID = B.FILE_ID
+               AND C.FILE_SEQ = B.FILE_SEQ
+			   AND SUBSTR(B.REGIST_DT, 1, 8) = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 첨부 파일 다운로드 총계-->
+	<select id="hourFileDownCntLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourFileDownCntLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT COUNT(B.FILE_SEQ)
+			  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND A.FILE_SEQ = B.FILE_SEQ
+               AND A.FILE_ID = B.FILE_ID
+               AND C.FILE_SEQ = B.FILE_SEQ
+			   AND SUBSTR(B.REGIST_DT, 1, 10) = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		  FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+
+	<!-- ================ 첨부파일 업로드 용량 관련 통계 ================ -->
+	<!-- 연간 첨부 파일 업로드 총용량-->
+	<select id="yearFileUploadSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearFileUploadSizeLog */
+	SELECT YEARZ || '년' AS label,
+		(SELECT NVL(SUM(A.FILE_BYTE_SIZE), 0) / 1024 / 1024
+		  FROM OP_FILE A, OP_BOARD C
+		 WHERE C.DOMAIN_CD = #{domainCd}
+           AND C.BBS_CD = #{bbsCd}
+           <if test="ctgCd != null  and ctgCd != ''">
+           AND C.CTG_CD = #{ctgCd} 
+           </if>
+           AND C.FILE_SEQ = A.FILE_SEQ
+		   AND YEAR(C.REGIST_DT) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 첨부 파일 업로드 총용량-->
+	<select id="monthFileUploadSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthFileUploadSizeLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT NVL(SUM(A.FILE_BYTE_SIZE), 0) / 1024 / 1024
+			  FROM OP_FILE A, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+			   AND TO_CHAR(C.REGIST_DT, 'YYYYMM') = #{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0)) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 일간 첨부 파일 업로드 총용량-->
+	<select id="dayFileUploadSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayFileUploadSizeLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT NVL(SUM(A.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE A, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+			   AND TO_CHAR(C.REGIST_DT, 'YYYYMMDD') = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 첨부 파일 업로드 총용량-->
+	<select id="hourFileUploadSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourFileUploadSizeLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT NVL(SUM(A.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE A, OP_BOARD C
+			 WHERE C.DOMAIN_CD = #{domainCd}
+               AND C.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD = #{ctgCd} 
+                </if>
+               AND C.FILE_SEQ = A.FILE_SEQ
+			   AND TO_CHAR(C.REGIST_DT, 'YYYYMMDDHH24') = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		  FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+
+
+	<!-- ================ 첨부파일 다운 용량 관련 통계 ================ -->
+	<!-- 연간 첨부 파일 다운로드 총용량-->
+	<select id="yearFileDownSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.yearFileDownSizeLog */
+		SELECT YEARZ || '년' AS label,
+			(SELECT NVL(SUM(C.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE_LOG A, OP_BOARD B, OP_FILE C
+			 WHERE B.DOMAIN_CD = #{domainCd}
+               AND B.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND B.CTG_CD = #{ctgCd} 
+                </if>
+               AND B.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_ID = A.FILE_ID
+			   AND SUBSTR(A.REGIST_DT, 1, 4) = YEARZ.YEARZ) AS [value]
+		  FROM (
+			SELECT (TO_NUMBER(#{startYear}) - 3) + ROWNUM AS YEARZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 4
+		) YEARZ
+	</select>
+
+	<!-- 월간 첨부 파일 다운로드 총용량-->
+	<select id="monthFileDownSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.monthFileDownSizeLog */
+		SELECT MONTHZ || '월' AS label,
+			(SELECT NVL(SUM(C.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE_LOG A, OP_BOARD B, OP_FILE C
+			 WHERE B.DOMAIN_CD = #{domainCd}
+               AND B.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND B.CTG_CD = #{ctgCd} 
+                </if>
+               AND B.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_ID = A.FILE_ID
+			   AND SUBSTR(A.REGIST_DT, 1, 6) = (#{searchYear} || LPAD(MONTHZ.MONTHZ, 2, 0))) AS [value]
+		   FROM (
+			 SELECT ROWNUM AS MONTHZ
+			   FROM DB_ROOT
+			 CONNECT BY LEVEL &lt; 13
+		) MONTHZ
+	</select>
+
+	<!-- 일간 첨부 파일 다운로드 총용량-->
+	<select id="dayFileDownSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.dayFileDownSizeLog */
+		SELECT DAYZ || '일' AS label,
+			(SELECT NVL(SUM(C.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE_LOG A, OP_BOARD B, OP_FILE C
+			 WHERE B.DOMAIN_CD = #{domainCd}
+               AND B.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND B.CTG_CD = #{ctgCd} 
+                </if>
+               AND B.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_ID = A.FILE_ID
+			   AND SUBSTR(A.REGIST_DT, 1, 8) = (#{startMonth} || LPAD(DAYZ.DAYZ, 2, 0))) AS [value]
+		  FROM (
+			 SELECT LEVEL AS DAYZ
+			   FROM DB_ROOT
+			CONNECT BY LEVEL &lt;= LAST_DAY(TO_DATE(#{startMonth} || '01', 'YYYYMMDD')) - TO_DATE(#{startMonth} || '01', 'YYYYMMDD') + 1
+		) DAYZ
+	</select>
+
+	<!-- 시간별 첨부 파일 다운로드 총용량-->
+	<select id="hourFileDownSizeLog" parameterType="java.util.HashMap" resultType="boardLogVO">
+		/* _boardlog.hourFileDownSizeLog */
+		SELECT HOURZ || '시' AS label,
+			(SELECT NVL(SUM(C.FILE_BYTE_SIZE), 0)/1024/1024
+			  FROM OP_FILE_LOG A, OP_BOARD B, OP_FILE C
+			 WHERE B.DOMAIN_CD = #{domainCd}
+               AND B.BBS_CD = #{bbsCd}
+               <if test="ctgCd != null  and ctgCd != ''">
+                AND B.CTG_CD = #{ctgCd} 
+                </if>
+               AND B.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_SEQ = A.FILE_SEQ
+               AND C.FILE_ID = A.FILE_ID
+			   AND SUBSTR(A.REGIST_DT, 1, 10) = (#{startDay} || LPAD(HOURZ.HOURZ, 2, 0))) AS [value]
+		  FROM (
+			SELECT ROWNUM - 1 AS HOURZ
+			  FROM DB_ROOT
+			CONNECT BY LEVEL &lt; 25
+		) HOURZ
+	</select>
+	
+	   <!-- 언어별 게시판 목록 불러오기 -->
+    <select id="boardConfList" parameterType="boardConfVo" resultType="boardConfVo">
+    /** boardConfList : boardlog-sqlmap  */
+        SELECT A.DOMAIN_CD         AS domainCd
+             , A.BBS_CD            AS bbsCd
+             , A.BBS_NM            AS bbsNm
+             , A.BBS_DC            AS bbsDc
+          FROM OP_BOARD_CONF A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.USE_YN = 'Y'
+         ORDER BY A.BBS_CD ASC
+    </select>
+    
+	<!-- 게시판 분류 목록 불러오기 -->
+    <select id="boardCtgNmsList" parameterType="boardConfVo" resultType="boardConfVo">
+        SELECT 
+              CTG_CD AS ctgCd
+            , CTG_NM AS ctgNm 
+        FROM OP_BOARD_CTG
+        WHERE DOMAIN_CD  = #{domainCd}
+          AND BBS_CD  = #{bbsCd}
+    
+    </select>
+
+</mapper>

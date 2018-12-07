@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_bassDegreeManage">
+	<select id="bassDegreeManageListCount" parameterType="map" resultType="int">
+	 /* _bassDegreeManage.bassDegreeManageListCount 협약차수관리 리스트 카운트*/
+	 			
+	 					SELECT 
+							   COUNT(1)
+						  FROM TCM_BASS_DEGREE_I
+				
+	</select>   
+	<select id="bassDegreeManageList" parameterType="BassDegreeManageVO" resultType="BassDegreeManageVO">
+	 /* _bassDegreeManage.bassDegreeManageList 협약차수관리 리스트*/
+	      	SELECT Y.* FROM (
+	      		SELECT ROWNUM NUM, X.* FROM (
+	      			SELECT 
+							DEGREE_SEQ 		 AS 	degreeSeq
+							,BASS_DEGREE 		 AS 	bassDegree
+							,TO_DATE(BASS_DEGREE_STDT, 'yyyymmdd') 	AS 	bassDegreeStdt
+							,TO_DATE(BASS_DEGREE_ENDDT, 'yyyymmdd')	AS 	bassDegreeEnddt
+							,(SELECT MAX(BASS_DEGREE)+1 FROM TCM_BASS_DEGREE_I ) AS bassDegreeMax
+							,(SELECT MAX(TO_DATE(bass_degree_enddt, 'yyyymmdd')+1) FROM TCM_BASS_DEGREE_I) AS bassDegreeEnddtMax
+					  FROM TCM_BASS_DEGREE_I
+					 ORDER BY bass_degree DESC
+				) X  WHERE ROWNUM &lt;= #{pagingEndNum}
+			) Y  WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+	
+	<!-- 기본협약차수관리 추가기능 	-->
+	<insert id="bassDegreeManageInsert" parameterType="BassDegreeManageVO">
+	/* _bassDegreeManage.bassDegreeManageInsert*/
+		INSERT INTO tcm_bass_degree_i(
+					bass_degree
+					,bass_degree_stdt
+					,bass_degree_enddt) 
+		VALUES (
+					#{bassDegree}
+					, #{bassDegreeStdt}
+					, #{bassDegreeEnddt});
+	</insert>
+	
+		
+	<!-- 기본협약차수관리 삭제 	-->
+	<delete id="bassDegreeManageDelete" parameterType="BassDegreeManageVO">
+	/* _bassDegreeManage.bassDegreeManageDelete*/
+		DELETE FROM TCM_BASS_DEGREE_I 
+		WHERE  BASS_DEGREE = #{bassDegree}
+	</delete>
+	
+		
+	<!-- 기본협약차수관리 수정 	-->
+	<update id="bassDegreeManageUpdate" parameterType="BassDegreeManageVO">
+	/* _bassDegreeManage.bassDegreeManageUpdate*/
+		UPDATE TCM_BASS_DEGREE_I
+		   SET BASS_DEGREE_ENDDT = #{bassDegreeEnddt}
+	     WHERE BASS_DEGREE = #{bassDegree}
+	</update>
+</mapper>

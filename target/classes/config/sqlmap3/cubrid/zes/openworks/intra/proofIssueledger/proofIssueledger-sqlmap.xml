@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_proofIssueledger">
+
+	<sql id="dynamicWhere">
+	
+		<if test="q_searchKey == '1001' and q_searchVal != null and q_searchVal != ''">
+               AND A.COMM_USER_ID LIKE '%' || TRIM(#{q_searchVal}) || '%'
+        </if>
+        <if test="q_searchKey == '1002' and q_searchVal != null and q_searchVal != ''">
+                AND A.COMM_USER_ID IN (SELECT USER_ID 
+                               FROM OP_USER 
+                              WHERE USER_ID = A.COMM_USER_ID
+                                      AND USER_NM LIKE '%'||TRIM(#{q_searchVal})||'%')       
+        </if>
+
+        <if test="q_searchType != null and q_searchType !=''">
+        	   AND A.CERT_RESULT_CODE = #{q_searchType}
+        </if>
+	</sql>
+
+
+ 	<select id="poofIssueledgerListCount" parameterType="map" resultType="int">
+    	/*  _proofIssueledger.poofIssueledgerListCount */
+			         SELECT
+			                COUNT(1) AS totalCount
+						 FROM TCM_CNTRCT_MANAGE_I A LEFT OUTER JOIN TCN_BID_NOTIFY_I B ON A.NOTIFY_NUM = B.NOTIFY_NUM AND A.NOTIFY_SEQ = B.NOTIFY_SEQ 
+						WHERE <!-- A.CNTRCTAMOUNT != 0
+						    AND --> A.CERT_RESULT_CODE IS NOT NULL
+						    AND A.CNTR_DT IS NOT NULL
+							AND TO_CHAR(regist_dt,'YYYYMMDD') &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')
+					<include refid="dynamicWhere"/>
+        
+    </select>
+
+
+
+ 	<select id="poofIssueledgerList" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+    	/*  _proofIssueledger.poofIssueledgerList 메인화면에 뿌릴 리스트 목록*/
+    			SELECT Y.* FROM (
+	    			SELECT ROWNUM NUM, X.* FROM (
+						SELECT 
+								 A.CNTRCT_SN AS cntrctSn
+								,A.USER_ID AS userId
+								,A.COMM_USER_ID AS commUserId
+								,A.NOTIFY_NUM AS notifyNum
+								,A.NOTIFY_SEQ AS notifySeq
+								,A.SVC_NM AS svcNm
+								,TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') AS registDt
+								,A.CNTRCT_BEGIN_DE AS cntrctBeginDe
+								,A.CNTRCT_END_DE AS cntrctEnd
+								,FORMAT(A.CNTRCTAMOUNT,'0') AS cntrctMount
+								
+								,(SELECT INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ 
+								   WHERE GROUP_CD = '2045' 
+								     AND INDVDLZ_CD = A.CERT_RESULT_CODE) AS codeNm
+								     
+								,TO_CHAR(A.CNTR_DT,'YYYY-MM-DD') AS cntrDt
+								,CASE WHEN B.BID_GBN_CD IS NULL 
+											THEN (CASE WHEN A.SPLY_FORM = 9 
+															THEN '수의계약' 
+															ELSE '수기입력' 
+															 END)
+											ELSE (SELECT INDVDLZ_CD_NM 
+													FROM OP_CODE_INDVDLZ 
+												   WHERE INDVDLZ_CD = B.BID_GBN_CD 
+												     AND GROUP_CD ='2037')
+										     END AS bidGbnCd
+					      	
+								,(SELECT
+										 USER_NM 
+								    FROM OP_USER 
+								   WHERE USER_ID = A.COMM_USER_ID) AS userNm
+								   
+								,CASE WHEN B.REAL_DMND_ORGN  IS NULL 
+										THEN (SELECT PURCHS_INSTT_NM FROM TCM_CNTRCT_MANAGE_I  WHERE CNTRCT_SN = A.CNTRCT_SN)
+								 		ELSE  B.REAL_DMND_ORGN
+								 		 END AS realDmndOrgn 
+								,A.CERT_RESULT_DT AS certResultDt
+								,TO_CHAR(A.RECOG_DT,'YYYY-MM-DD') AS recogDt
+						 FROM TCM_CNTRCT_MANAGE_I A LEFT OUTER JOIN TCN_BID_NOTIFY_I B ON A.NOTIFY_NUM = B.NOTIFY_NUM AND A.NOTIFY_SEQ = B.NOTIFY_SEQ 
+						WHERE <!--  A.CNTRCTAMOUNT != 0
+						    AND  --> A.CERT_RESULT_CODE IS NOT NULL
+						    AND A.CNTR_DT IS NOT NULL
+							AND TO_CHAR(regist_dt,'YYYYMMDD') &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')
+						<include refid="dynamicWhere"/>
+						ORDER BY A.COMM_USER_ID DESC, A.REGIST_DT DESC
+					) X WHERE ROWNUM &lt;= #{pagingEndNum}
+	    		) Y WHERE NUM &gt;= #{pagingStartNum}
+        
+    </select>
+	
+		
+	<update id="poofIssueledgerCodeUpdate"  parameterType="ProofIssueledgerVO">
+	 /*_proofIssueledger.poofIssueledgerUpdate 실적증명신청상태 변경*/
+				  UPDATE tcm_cntrct_manage_i
+				     SET CERT_RESULT_CODE = #{q_certResultCode}
+				     <if test="q_certResultCode == '1003'">
+				     ,CERT_RESULT_DT = TO_CHAR(SYSDATETIME,'YYYYMMDD')
+				     </if>
+				      <if test="q_certResultCode == '1004'">
+				     ,RECOG_DT = SYSDATETIME
+				     </if>
+				   WHERE CNTRCT_SN = #{q_cntrctSn}
+	</update>
+
+
+
+</mapper>

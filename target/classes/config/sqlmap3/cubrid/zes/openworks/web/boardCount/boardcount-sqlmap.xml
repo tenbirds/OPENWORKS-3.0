@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_boardCount">
+
+	<update id="menuInsert" parameterType="int">
+		/* _boardCount.menuInsert */
+		UPDATE OP_BOARD_CONF
+		   SET ACCES_CNT = ACCES_CNT + 1,
+			   ACCES_UPDT_DT = SYS_DATETIME
+		 WHERE BBS_CD = #{bbsCd}
+	</update>
+
+	<!-- <insert id="menuInsert" parameterClass="boardCountVO">
+	MERGE INTO OP_USER_MENU_STATISTICS A
+		USING (
+			SELECT
+				#{domainCd} AS DOMAIN_CD,
+				#{ymdDate} AS YMD_DATE,
+				#{menuCode} AS MENU_CODE
+			FROM DUAL 
+		) B
+		ON (
+			A.DOMAIN_CD = B.DOMAIN_CD
+			AND A.YMD_DATE = B.YMD_DATE
+			AND A.MENU_CODE = B.MENU_CODE
+		)
+		WHEN MATCHED THEN
+			UPDATE SET COUNT = COUNT + 1
+		WHEN NOT MATCHED THEN
+			INSERT (
+				DOMAIN_CD, YMD_DATE, MENU_CODE, COUNT
+			)
+			VALUES (
+				#{domainCd}, B.YMD_DATE, B.MENU_CODE, 1
+			)
+	</insert> -->
+	<!-- <insert id="viewInsert" parameterClass="boardCountVO">
+	INSERT INTO OP_ISSUE(
+		ISSUE_SEQ,
+		BBS_CD,
+		BBS_SEQ,
+		ISSUE_URL,
+		REG_DT
+	)VALUES(
+		(SELECT NVL(MAX(ISSUE_SEQ), 0) + 1
+			   FROM OP_ISSUE),
+		#{bbsCd},
+		#{bbsSeq},
+		#{contentUrl},
+		TO_CHAR(SYS_DATE, 'YYYYMMDDhh24miss')
+	)
+	</insert> -->
+</mapper>

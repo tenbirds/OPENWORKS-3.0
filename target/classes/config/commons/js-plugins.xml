@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  - ${contextPath} 설정은 WAS 서버에서 사용되는 것과 WEB 서버에서의 리소스 경로가
+  - 달라질 수 있기 때문에 컨텍스트 패스를 사용하는 리소스에 대하여 설정한다.
+  -->
+<configuration>
+
+    <javascript>
+        <!-- 프레임워크 라이브러리 -->
+        <openworks>
+            <admin-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.global.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/theme/default/css/openworks_all.css" />
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/theme/default/css/openworks_all_print.css" media="print"/>
+                    ]]>
+                </css>
+            </admin-core>
+            <web-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+					<script type="text/javascript" src="${contextPath}/resources/web/theme/default/js/common.js"></script>
+					<script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/html5shiv.js"></script> 
+					<script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+            </web-core>
+            <mobile-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="/new_cloud_m/js/jquery-1.11.3.min.js"></script>
+					<script type="text/javascript" src="/new_cloud_m/js/style.js"></script>
+					<script type="text/javascript" src="/new_cloud_m/js/common.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+					<script type="text/javascript" src="${contextPath}/resources/web/theme/default/js/common.js"></script>
+                    ]]>
+                </js>
+            </mobile-core>
+            <web-pop-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+					<script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+					<script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+					<script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/html5shiv.js"></script> 
+					<script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+            </web-pop-core>
+            <cmweb-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/fakeselect.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/html5shiv.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/jquery.imageScroller.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                  	<script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+					<script type="text/javascript" src="${contextPath}/resources/cmmnty/common/ui/jquery-ui-1.11.2.custom.min.js"></script>
+					<script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/ui/jquery.ui.datepicker-ko.min.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/cmmnty/common/ui/jquery-ui-1.11.2.custom.min.css" />
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/cmmnty/default/css/common.css" />
+					<link rel="stylesheet" type="text/css" href="${contextPath}/resources/cmmnty/default/css/style.css" />
+					<link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/colobox/themes/theme8/colorbox.css" />
+                    ]]>
+                </css>
+            </cmweb-core>
+            <eng-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/english/js/common.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/html5shiv.js"></script> 
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+            </eng-core>
+            <esp-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/spanish/js/common.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/html5shiv.js"></script> 
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+            </esp-core>
+            <validate>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/validate/openworks.validate.js"></script>
+                    ]]>
+                </js>
+            </validate>
+            <form>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.form.js"></script>
+                    ]]>
+                </js>
+            </form>
+            <ui>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.ui.js"></script>
+                    ]]>
+                </js>
+            </ui>
+            <tree>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.tree.js"></script>
+                    ]]>
+                </js>
+            </tree>
+            <ckeditor>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/editor/ckeditor/ckeditor.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/editor/ckeditor/adapters/jquery.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/editor/ckeditor/ckeditor.toolbar.set.js"></script>
+                    ]]>
+                </js>
+            </ckeditor>
+            <innova>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/editor/LIVEEditor/scripts/innovaeditor.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/editor/LIVEEditor/scripts/innovaeditor.toolbar.set.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/openworks/editor/LIVEEditor/styles/default.css" />
+                    ]]>
+                </css>
+            </innova>
+            <store-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.global.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/web/theme/default/css/style.css" />
+                    ]]>
+                </css>
+            </store-core>
+            <storeEng-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.global.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/web/theme/english/css/style.css" />
+                    ]]>
+                </css>
+            </storeEng-core>
+            <storeSpn-core>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+                    <script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_globalConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.global.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/openworks/openworks.function.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/component/javascript/MD_massageConfig.do"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/web/theme/common/js/fakeselect.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/web/theme/spanish/css/style.css" />
+                    ]]>
+                </css>
+            </storeSpn-core>
+        </openworks>
+        <!-- 외부 라이브러리 -->
+        <spi>
+            <!-- 레이아웃(텝브라우징, 트리등) js 코어 -->
+            <extjs>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-jquery-adapter.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-all.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-lang-ko.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/extjs/resources/css/ext-all.css" />
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/theme/default/css/openworks_all.css" />
+                    ]]>
+                </css>
+            </extjs>
+            <cmextjs>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-jquery-adapter.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-all.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ext-lang-ko.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/extjs/resources/css/ext-all.css" />
+                    ]]>
+                </css>
+            </cmextjs>
+            <extjs4>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs4.1/ext-all.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs4.1/locale/ext-lang-ko.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/extjs4.1/resources/css/ext-all.css" />
+                    ]]>
+                </css>
+            </extjs4>
+            <!-- 레이아웃(텝브라우징, View 패널등) -->
+            <extjs-ux>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ux/TabCloseMenu.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/extjs/ux/miframe.js"></script>
+                    ]]>
+                </js>
+            </extjs-ux>
+            <!-- jquery core -->
+            <jquery>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/jquery-1.7.1.min.js"></script>
+                    ]]>
+                </js>
+            </jquery>
+            <!-- 메시지 패널 : 전체 사이즈 http://www.givainc.com/labs/jnotify_jquery_plugin.htm -->
+            <jnotify>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/jnotify/jquery.jnotify.min.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/jnotify/jquery.jnotify.min.css" />
+                    ]]>
+                </css>
+            </jnotify>
+            <!-- 메시지 패널 : 우측상단 http://code.google.com/p/jquery-notice/ http://www.timbenniks.nl/ -->
+            <notice>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+                    ]]>
+                </css>
+            </notice>
+            <!-- 폼 유틸 http://malsup.com/jquery/form/ -->
+            <form>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/form/jquery.form.js"></script>
+                    ]]>
+                </js>
+            </form>
+            <!-- 폼 벨리데이터 http://bassistance.de/jquery-plugins/jquery-plugin-validation/ -->
+            <validate>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/validate/jquery.validate.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/validate/additional-methods.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/validate/jquery.validate.settings.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/validate/jquery.validate.messages.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/validate/jquery.validate.css" />
+                    ]]>
+                </css>
+            </validate>
+            <!-- 파일 업로드 폼 유틸 http://www.fyneworks.com/jquery/multiple-file-upload/ -->
+            <multifile>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/MultiFile/jquery.MultiFile.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/MultiFile/jquery.MultiFile.pack.js"></script>
+                    ]]>
+                </js>
+            </multifile>
+             <cmmultifile>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/MultiFile/jquery.MultiFile.pack.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/cmmnty/common/js/MultiFile/jquery.MultiFile.min.js"></script>
+                    ]]>
+                </js>
+            </cmmultifile>
+            <!-- 디버그 로그 -->
+            <blackbird>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/blackbird/blackbird.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/blackbird/blackbird.css" />
+                    ]]>
+                </css>
+            </blackbird>
+            <!-- 컬러박스 http://www.jacklmoore.com/colorbox -->
+            <colorbox>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/colobox/themes/theme8/colorbox.css" />
+                    ]]>
+                </css>
+            </colorbox>
+            <!-- Text Highlight http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html -->
+            <highlight>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/highlight/jquery.highlight-3.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/highlight/jquery.highlight-3.css" />
+                    ]]>
+                </css>
+            </highlight>
+            <!-- timer : javascript의 Interval 메소드에 해당 http://www.mattptr.net -->
+            <timer>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/timer/jquery.timer.js"></script>
+                    ]]>
+                </js>
+            </timer>
+            <!-- jQuery ui Plugin 전체 http://jqueryui.com/demos/ -->
+            <ui>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/ui/jquery-ui-1.8.18.custom.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/ui/jquery-ui-1.8.18.custom.option.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/ui/jquery.ui.datepicker-ko.min.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/ui/jquery-ui-1.8.18.custom.css" />
+                    ]]>
+                </css>
+            </ui>
+            <!-- select tag util http://www.texotela.co.uk/code/jquery/select/ -->
+            <selectbox>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/selectbox/jquery.selectboxes.js"></script>
+                    ]]>
+                </js>
+            </selectbox>
+            <!-- print preview -->
+            <printpreview>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+                    ]]>
+                </css>
+            </printpreview>
+            <!-- Datepicker(달력) http://docs.jquery.com/UI/Datepicker -->
+            <datepicker>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+                    ]]>
+                </css>
+            </datepicker>
+            <!-- Cookie Plugin -->
+            <cookie>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+                    ]]>
+                </js>
+            </cookie>
+            <!-- ad-gallery -->
+            <adgallery>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/ad-gallery/jquery.ad-gallery.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/ad-gallery/jquery.ad-gallery.css" />
+                    ]]>
+                </css>
+            </adgallery>
+            <!-- ToolTip Plugin http://flowplayer.org/tools/ -->
+            <tooltip>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/tools/jquery.tools.min.js"></script>
+                    ]]>
+                </js>
+            </tooltip>
+            <!-- FusionChart -->
+            <fchart>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/monitor/FusionCharts_Evaluation/Charts/FusionCharts.js"></script>
+                    ]]>
+                </js>
+            </fchart>
+                        <!-- ColorPicker : http://colpick.com/plugin -->
+            <colorpicker>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/colorpicker/colpick.js"></script>
+                    ]]>
+                </js>
+                <css>
+                    <![CDATA[
+                    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/openworks/spi/jquery/colorpicker/colpick.css" />
+                    ]]>
+                </css>
+            </colorpicker>
+            <maskinput>
+                <js>
+                    <![CDATA[
+                    <script type="text/javascript" src="${contextPath}/resources/openworks/spi/jquery/maskedinput/maskedinput.js"></script>
+                    ]]>
+                </js>
+                <css>
+                </css>
+            </maskinput>
+        </spi>
+
+    </javascript>
+</configuration>

@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_dmandExaminQuery">
+
+	<!-- 마이페이지 수요조사 -->
+	<select id="selectDmandExaminInfo" resultType="dmandExaminVO" parameterType="dmandExaminVO">
+		/* _dmandExaminQuery.selectDmandExaminInfo */
+		<![CDATA[
+			SELECT DEI.user_id AS userId
+			     , DEI.file_seq AS fileSeq
+				 , DEI.dmand_examin_dt AS dmandExaminDt
+			  FROM op_dmand_examin_info DEI
+			 WHERE 1 = 1
+			   AND DEI.user_id = #{userId}
+		]]>
+		<if test="dmandExaminOprtnYear != null and dmandExaminOprtnYear != ''">
+               AND DMAND_EXAMIN_OPRTN_YEAR = #{dmandExaminOprtnYear}
+        </if>
+	</select>
+	
+	<!-- 마이페이지 수요조사 상세 리스트 -->
+	<select id="selectDmandExaminDetailList" resultType="dmandExaminVO" parameterType="String">
+		/* _dmandExaminQuery.selectDmandExaminDetailList */
+		<![CDATA[
+			SELECT 
+				dmand_examin_sn AS dmandExaminSn
+				, user_id AS userId
+				, dmand_survey_no AS dmandSurveyNo
+				, dmand_survey_highorgname AS dmandSurveyHighorgname
+				, dmand_survey_orgname AS dmandSurveyOrgname
+				, dmand_survey_sysname AS dmandSurveySysname
+				, dmand_survey_sysobj AS dmandSurveySysobj
+				, dmand_survey_division AS dmandSurveyDivision
+				, dmand_survey_manager AS dmandSurveyManager
+				, dmand_survey_mail AS dmandSurveyMail
+				, dmand_survey_phone AS dmandSurveyPhone
+				, dmand_survey_buildy AS dmandSurveyBuildy
+				, dmand_survey_upy AS dmandSurveyUpy
+				, dmand_survey_buildcost AS dmandSurveyBuildcost
+				, dmand_survey_maint AS dmandSurveyMaint
+				, dmand_survey_expenses AS dmandSurveyExpenses
+				, dmand_survey_clouduse AS dmandSurveyClouduse
+				, dmand_survey_separation AS dmandSurveySeparation
+				, dmand_survey_introy AS dmandSurveyIntroy
+				, dmand_survey_firstsyst AS dmandSurveyFirstsyst
+				, dmand_survey_firstreal AS dmandSurveyFirstreal
+				, dmand_survey_firstecon AS dmandSurveyFirstecon
+				, dmand_survey_exem AS dmandSurveyExem
+				, dmand_survey_secoundserv AS dmandSurveySecoundserv
+				, dmand_survey_secounddata AS dmandSurveySecounddata
+				, dmand_survey_secoundconn AS dmandSurveySecoundconn
+				, dmand_survey_secoundsubs AS dmandSurveySecoundsubs
+				, dmand_survey_secoundsubscost AS dmandSurveySecoundsubscost
+				, dmand_survey_secoundsubslevel AS dmandSurveySecoundsubslevel
+				, dmand_survey_secoundripp AS dmandSurveySecoundripp
+				, dmand_survey_totalscore AS dmandSurveyTotalscore
+				, dmand_survey_average AS dmandSurveyAverage
+				, dmand_survey_selflevel AS dmandSurveySelflevel
+				, dmand_survey_changep AS dmandSurveyChangep
+				, dmand_survey_separation2 AS dmandSurveySeparation2
+				, dmand_survey_fiquater AS dmandSurveyFiquater
+				, dmand_survey_sequater AS dmandSurveySequater
+				, dmand_survey_thquater AS dmandSurveyThquater
+				, dmand_survey_foquater AS dmandSurveyFoquater
+				, dmand_survey_afquater AS dmandSurveyAfquater
+				, dmand_survey_changeth AS dmandSurveyChangeth
+				, dmand_survey_changene AS dmandSurveyChangene
+			FROM 
+				op_dmand_examin_detail DED
+			WHERE 1 = 1
+				AND DED.user_id = #{userId}
+		]]>
+	</select>
+	
+	<update id="upsertDmandExaminInfo" parameterType="dmandExaminVO">
+		/* _dmandExaminQuery.upsertDmandExaminInfo */
+		<![CDATA[
+			MERGE INTO op_dmand_examin_info
+			USING DB_ROOT ON
+				(user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE,'yyyy'))
+			WHEN MATCHED THEN
+				UPDATE SET
+					file_seq = #{fileSeq}
+					, dmand_examin_dt = SYSDATETIME
+			WHEN NOT MATCHED THEN
+				INSERT
+					(user_id, file_seq, dmand_examin_dt, dmand_examin_oprtn_year)
+				VALUES 
+					(#{userId}, #{fileSeq}, SYSDATETIME, TO_CHAR(SYSDATE,'yyyy'))
+		]]>
+	</update>
+	
+	<insert id="insertDmandExaminDetail" parameterType="dmandExaminVO">
+		/* _dmandExaminQuery.insertDmandExaminDetail */
+		<![CDATA[
+			INSERT INTO op_dmand_examin_detail 
+			(
+				user_id, dmand_survey_no, dmand_survey_highorgname, dmand_survey_orgname
+				, dmand_survey_sysname, dmand_survey_sysobj, dmand_survey_division, dmand_survey_manager, dmand_survey_mail
+				, dmand_survey_phone, dmand_survey_buildy, dmand_survey_upy, dmand_survey_buildcost, dmand_survey_maint
+				, dmand_survey_expenses, dmand_survey_clouduse, dmand_survey_separation, dmand_survey_introy, dmand_survey_firstsyst
+				, dmand_survey_firstreal, dmand_survey_firstecon, dmand_survey_exem, dmand_survey_secoundserv, dmand_survey_secounddata
+				, dmand_survey_secoundconn, dmand_survey_secoundsubs, dmand_survey_secoundsubscost, dmand_survey_secoundsubslevel, dmand_survey_secoundripp
+				, dmand_survey_totalscore, dmand_survey_average, dmand_survey_selflevel, dmand_survey_changep, dmand_survey_separation2
+				, dmand_survey_fiquater, dmand_survey_sequater, dmand_survey_thquater, dmand_survey_foquater, dmand_survey_afquater
+				, dmand_survey_changeth, dmand_survey_changene 
+			)
+			VALUES 
+			(
+				#{userId}, #{dmandSurveyNo}, #{dmandSurveyHighorgname}, #{dmandSurveyOrgname}
+				, #{dmandSurveySysname}, #{dmandSurveySysobj}, #{dmandSurveyDivision}, #{dmandSurveyManager}, #{dmandSurveyMail}
+				, #{dmandSurveyPhone}, #{dmandSurveyBuildy}, #{dmandSurveyUpy}, #{dmandSurveyBuildcost}, #{dmandSurveyMaint}
+				, #{dmandSurveyExpenses}, #{dmandSurveyClouduse}, #{dmandSurveySeparation}, #{dmandSurveyIntroy}, #{dmandSurveyFirstsyst}
+				, #{dmandSurveyFirstreal}, #{dmandSurveyFirstecon}, #{dmandSurveyExem}, #{dmandSurveySecoundserv}, #{dmandSurveySecounddata}
+				, #{dmandSurveySecoundconn}, #{dmandSurveySecoundsubs}, #{dmandSurveySecoundsubscost}, #{dmandSurveySecoundsubslevel}, #{dmandSurveySecoundripp}
+				, #{dmandSurveyTotalscore}, #{dmandSurveyAverage}, #{dmandSurveySelflevel}, #{dmandSurveyChangep}, #{dmandSurveySeparation2}
+				, #{dmandSurveyFiquater}, #{dmandSurveySequater}, #{dmandSurveyThquater}, #{dmandSurveyFoquater}, #{dmandSurveyAfquater}
+				, #{dmandSurveyChangeth}, #{dmandSurveyChangene}
+			)
+		]]>
+	</insert>
+	
+	<delete id="deleteDmandExaminDetail" parameterType="String">
+		/* _dmandExaminQuery.op_dmand_examin_detail_2018 */
+		<![CDATA[
+			DELETE FROM op_dmand_examin_detail_2018 WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE,'yyyy')
+		]]>
+	</delete>
+	
+	
+	
+	<select id="selectDmandExaminEAList" parameterType="String" resultType="dmandExaminVO">
+		/* _dmandExaminQuery.selectDmandExaminEAList */
+		<![CDATA[
+			SELECT  A.ea_buseo_code				AS buseoCode
+			      , A.ea_instt_ty					AS pblinsttType
+			      , A.ea_highorgname			AS dmandSurveyHighorgname
+			      , A.ea_orgname					AS dmandSurveyOrgname
+			      , A.ea_sysname					AS dmandSurveySysname
+			      , A.ea_sysobj						AS dmandSurveySysobj
+			      , A.ea_manager					AS dmandSurveyManager
+			      , A.ea_buildy						AS dmandSurveyBuildy
+			      , A.ea_upy							AS dmandSurveyUpy
+			      , A.ea_buildcost				AS dmandSurveyBuildcost
+			      , A.ea_maint						AS dmandSurveyMaint
+			      , A.ea_expenses					AS dmandSurveyExpenses
+			      , A.ea_survey_division	AS dmandSurveyDivision
+			      , A.ea_survey_mail			AS dmandSurveyMail 
+			      , A.ea_survey_phone			AS dmandSurveyPhone
+				FROM  TCN_INST_SYS_INFO_EA_EX_DATA A 
+			 INNER  JOIN OP_USER_PBLINSTT_OPTION B 
+					ON  B.user_id = #{userId} 
+			 WHERE  A.ea_buseo_code = B.orgn_code
+		]]>
+	</select>
+	
+	<select id="selectDmandExaminInfoCnt" parameterType="dmandExaminVO" resultType="int">
+	/* _dmandExaminQuery.selectDmandExaminInfoCnt */
+		<![CDATA[
+			SELECT COUNT(*)
+				FROM 
+				   op_dmand_examin_info 
+				WHERE 
+				   user_id = #{userId}
+				   AND dmand_examin_oprtn_year = to_char(sysdate, 'YYYY')
+		]]>
+	</select>
+	
+	<insert id="insertDmandExaminInfo" parameterType="dmandExaminVO">
+	/* _dmandExaminQuery.insertDmandExaminInfo */
+		<![CDATA[
+			INSERT INTO op_dmand_examin_info(
+				 user_id,
+				 dmand_examin_oprtn_year
+				 ) 
+				VALUES
+				 (
+				  #{userId},
+				  TO_CHAR(SYSDATE,'yyyy')
+				  )
+		]]>
+	</insert>
+	
+	<insert id="insertIntoDmandExaminDetail" parameterType="dmandExaminVO">
+	/* _dmandExaminQuery.insertIntoDmandExaminDetail */
+		<![CDATA[
+			INSERT INTO op_dmand_examin_detail_2018
+				(	
+					user_id,
+					dmand_survey_no,
+					dmand_examin_oprtn_year,			
+					dmand_survey_highorgname,
+					dmand_survey_orgname,
+					dmand_survey_sysname,
+					dmand_survey_sysobj,
+					dmand_survey_manager,
+					dmand_survey_buildy,
+					dmand_survey_upy,
+					dmand_survey_buildcost,
+					dmand_survey_maint,
+					dmand_survey_expenses,
+					dmand_survey_division,
+					dmand_survey_mail,
+					dmand_survey_phone
+				 ) 
+				VALUES
+				 (
+				 	#{userId},
+				 	#{dmandSurveyNo},
+				 	TO_CHAR(SYSDATE,'yyyy'),
+				 	#{dmandSurveyHighorgname},
+				 	#{dmandSurveyOrgname},
+				 	#{dmandSurveySysname},
+				 	#{dmandSurveySysobj},
+				 	#{dmandSurveyManager},
+				 	#{dmandSurveyBuildy},
+				 	#{dmandSurveyUpy},
+				 	#{dmandSurveyBuildcost},
+				 	#{dmandSurveyMaint},
+				 	#{dmandSurveyExpenses},
+				 	#{dmandSurveyDivision},
+					#{dmandSurveyMail},
+					#{dmandSurveyPhone}
+				 )
+		]]>
+	</insert>
+	
+	<select id="selectDmandExaminDetail" parameterType="String" resultType="dmandExaminVO">
+	/* _dmandExaminQuery.selectDmandExaminDetail */
+		<![CDATA[
+			SELECT
+				dmand_examin_sn AS dmandExaminSn
+				, user_id AS userId
+				, dmand_survey_no AS dmandSurveyNo
+				, dmand_survey_orgname AS dmandSurveyOrgname
+				, dmand_survey_sysname AS dmandSurveySysname
+				, dmand_survey_sysobj AS dmandSurveySysobj
+				, dmand_survey_division AS dmandSurveyDivision
+				, dmand_survey_manager AS dmandSurveyManager
+				, decrypt(dmand_survey_mail, 'P008') AS dmandSurveyMail
+				, dmand_survey_phone AS dmandSurveyPhone
+				, dmand_survey_buildy AS dmandSurveyBuildy
+				, dmand_survey_upy AS dmandSurveyUpy
+				, dmand_survey_clouduse AS dmandSurveyClouduse
+				, dmand_survey_separation AS dmandSurveySeparation
+				, dmand_survey_cnvrs_plan  AS dmandSurveyCnvrsPlan
+				, dmand_survey_plan_cloud_separa AS dmandSurveyPlanCloudSeparation
+				, dmand_survey_plan_serv_separat AS dmandSurveyPlanServSeparation
+				, dmand_survey_budget AS dmandSurveyBudget
+				, dmand_survey_vldty_secret_at AS dmandSurveyVldtySecretAt
+			FROM 
+				op_dmand_examin_detail_2018
+		   WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE,'yyyy')
+		   ORDER BY dmand_survey_no ASC
+		]]>
+	</select>
+	<select id="selectDmandExaminDetail1" parameterType="String" resultType="dmandExaminVO">
+	/* _dmandExaminQuery.selectDmandExaminDetail1 */
+		<![CDATA[
+			SELECT
+				dmand_examin_sn AS dmandExaminSn
+				, user_id AS userId
+				, dmand_survey_no AS dmandSurveyNo
+				, dmand_survey_orgname AS dmandSurveyOrgname
+				, dmand_survey_sysname AS dmandSurveySysname
+				, dmand_survey_sysobj AS dmandSurveySysobj
+				, dmand_survey_division AS dmandSurveyDivision
+				, dmand_survey_manager AS dmandSurveyManager
+				, decrypt(dmand_survey_mail, 'P008') AS dmandSurveyMail
+				, dmand_survey_phone AS dmandSurveyPhone
+				, dmand_survey_buildy AS dmandSurveyBuildy
+				, dmand_survey_upy AS dmandSurveyUpy
+				, dmand_survey_clouduse AS dmandSurveyClouduse
+				, dmand_survey_separation AS dmandSurveySeparation
+				, dmand_survey_cnvrs_plan  AS dmandSurveyCnvrsPlan
+				, dmand_survey_plan_cloud_separa AS dmandSurveyPlanCloudSeparation
+				, dmand_survey_plan_serv_separat AS dmandSurveyPlanServSeparation
+				, dmand_survey_budget AS dmandSurveyBudget
+				, '' AS dmandSurveyVldtySecretAt
+			FROM 
+				op_dmand_examin_detail_2018
+		   WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE-365,'yyyy')
+		   ORDER BY dmand_survey_no ASC
+		]]>
+	</select>
+	<select id="selectDmandExaminDetail2" parameterType="String" resultType="dmandExaminVO">
+	/* _dmandExaminQuery.selectDmandExaminDetail2 */
+		<![CDATA[
+			SELECT
+				dmand_examin_sn AS dmandExaminSn
+				, user_id AS userId
+				, dmand_survey_no AS dmandSurveyNo
+				, dmand_survey_orgname AS dmandSurveyOrgname
+				, dmand_survey_sysname AS dmandSurveySysname
+				, dmand_survey_sysobj AS dmandSurveySysobj
+				, dmand_survey_division AS dmandSurveyDivision
+				, dmand_survey_manager AS dmandSurveyManager
+				, decrypt(dmand_survey_mail, 'P008') AS dmandSurveyMail
+				, dmand_survey_phone AS dmandSurveyPhone
+				, dmand_survey_buildy AS dmandSurveyBuildy
+				, dmand_survey_upy AS dmandSurveyUpy
+				, dmand_survey_clouduse AS dmandSurveyClouduse
+				, dmand_survey_separation AS dmandSurveySeparation
+				, dmand_survey_cnvrs_plan  AS dmandSurveyCnvrsPlan
+				, dmand_survey_plan_cloud_separa AS dmandSurveyPlanCloudSeparation
+				, dmand_survey_plan_serv_separat AS dmandSurveyPlanServSeparation
+				, dmand_survey_budget AS dmandSurveyBudget
+			FROM 
+				op_dmand_examin_detail_2018
+		   WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE,'yyyy')
+		   ORDER BY dmand_survey_no ASC
+		]]>
+	</select>
+	
+	<select id="selectDmandExaminDetail3" parameterType="String" resultType="dmandExaminVO">
+	/* _dmandExaminQuery.selectDmandExaminDetail3 */
+		<![CDATA[
+			SELECT
+				dmand_examin_sn AS dmandExaminSn
+				, user_id AS userId
+				, dmand_survey_no AS dmandSurveyNo
+				, dmand_survey_orgname AS dmandSurveyOrgname
+				, dmand_survey_sysname AS dmandSurveySysname
+				, dmand_survey_sysobj AS dmandSurveySysobj
+				, dmand_survey_division AS dmandSurveyDivision
+				, dmand_survey_manager AS dmandSurveyManager
+				, decrypt(dmand_survey_mail, 'P008') AS dmandSurveyMail
+				, dmand_survey_phone AS dmandSurveyPhone
+				, dmand_survey_buildy AS dmandSurveyBuildy
+				, dmand_survey_upy AS dmandSurveyUpy
+				, dmand_survey_clouduse AS dmandSurveyClouduse
+				, dmand_survey_separation AS dmandSurveySeparation
+				, dmand_survey_cnvrs_plan  AS dmandSurveyCnvrsPlan
+				, dmand_survey_plan_cloud_separa AS dmandSurveyPlanCloudSeparation
+				, dmand_survey_plan_serv_separat AS dmandSurveyPlanServSeparation
+				, dmand_survey_budget AS dmandSurveyBudget
+			FROM 
+				op_dmand_examin_detail_2018
+		   WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE-365,'yyyy')
+		   ORDER BY dmand_survey_no ASC
+		]]>
+	</select>
+	
+	
+	<insert id="insertGridDmandExaminDetail" parameterType="dmandExaminVO">
+		/* _dmandExaminQuery.insertExcelDmandExaminDetail */
+		<![CDATA[
+			INSERT INTO  op_dmand_examin_detail_2018
+				(
+					 user_id, 
+					 dmand_examin_oprtn_year, 
+					 dmand_survey_no, 
+					 dmand_survey_orgname, 
+					 dmand_survey_sysname, 
+					 dmand_survey_sysobj, 
+					 dmand_survey_division, 
+					 dmand_survey_manager, 
+					 dmand_survey_mail, 
+					 dmand_survey_phone, 
+					 dmand_survey_buildy, 
+					 dmand_survey_upy, 
+					 dmand_survey_clouduse, 
+					 dmand_survey_separation, 
+					 dmand_survey_cnvrs_plan, 
+					 dmand_survey_plan_cloud_separa, 
+					 dmand_survey_plan_serv_separat, 
+					 dmand_survey_budget, 
+					 dmand_survey_vldty_secret_at 
+				 )  
+				 VALUES
+				 (
+					 #{userId},
+					 TO_CHAR(SYSDATE,'yyyy'),
+					 #{dmandSurveyNo},
+					 #{dmandSurveyOrgname},
+					 #{dmandSurveySysname},
+					 #{dmandSurveySysobj},
+					 #{dmandSurveyDivision},
+					 #{dmandSurveyManager},
+					 encrypt(#{dmandSurveyMail}, 'P008'),
+					 #{dmandSurveyPhone},
+					 #{dmandSurveyBuildy},
+					 #{dmandSurveyUpy},
+					 UPPER(#{dmandSurveyClouduse}),
+					 #{dmandSurveySeparation},
+					 #{dmandSurveyCnvrsPlan},
+			 		 #{dmandSurveyPlanCloudSeparation},
+					 #{dmandSurveyPlanServSeparation},
+	         		 #{dmandSurveyBudget},
+	  		 	 	 #{dmandSurveyVldtySecretAt}
+			 	)
+		]]>
+	</insert>
+	
+	<select id="selectDmandExaminUserInfo" parameterType="String" resultType="dmandExaminVO">
+		/* _dmandExaminQuery.selectDmandExaminUserInfo */	
+		<![CDATA[
+			SELECT 
+				user_id AS userId, 
+				file_seq,
+				dmand_examin_dt,
+				dmand_examin_oprtn_year, 
+				tmpr_save_date AS tmprSaveDate, 
+				presentn_date AS presentnDate
+			FROM 
+				op_dmand_examin_info 
+			WHERE user_id = #{userId} 
+			AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE, 'yyyy')
+		]]>
+	</select>
+	
+	<update id="updateDmandExaminUserInfo" parameterType="String" >
+	/* _dmandExaminQuery.updateDmandExaminUserInfo */	
+		<![CDATA[
+			UPDATE op_dmand_examin_info 
+				SET 
+				tmpr_save_date = SYSDATETIME 
+				WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE, 'yyyy');
+		]]>
+	</update>
+	
+	<update id="updateDmandExaminUserInfoSubmit" parameterType="String" >
+	/* _dmandExaminQuery.updateDmandExaminUserInfoSubmit */	
+		<![CDATA[
+			UPDATE op_dmand_examin_info 
+				SET 
+				tmpr_save_date = SYSDATETIME,
+				presentn_date = SYSDATETIME 
+				WHERE user_id = #{userId} AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE, 'yyyy');
+		]]>
+	</update>
+	
+	<select id="selectTargetInstChkCnt" parameterType="dmandExaminVO" resultType="int">
+		/* _dmandExaminQuery.selectTargetInstChkCnt */	
+		<![CDATA[
+			SELECT COUNT(1) AS chkCnt
+			  FROM op_user_pblinstt_option A INNER JOIN op_dmand_examin_trget_inst B ON A.buseo_code = B.buseo_code
+			 WHERE A.user_id = #{userId}
+			   AND B.dmand_examin_oprtn_year = #{dmandExaminOprtnYear}
+		]]>
+	</select>
+	<select id="selectTargetSubmitChkCnt" parameterType="dmandExaminVO" resultType="int">
+		/* _dmandExaminQuery.selectTargetSubmitChkCnt */	
+		<![CDATA[
+				SELECT COUNT(*)  AS cnt FROM op_dmand_examin_info
+				WHERE user_id = #{userId}
+				AND dmand_examin_oprtn_year =  TO_CHAR(sysdate,'YYYY')
+				AND dmand_examin_oprtn_year = TO_CHAR(tmpr_save_date,'YYYY')
+				AND dmand_examin_oprtn_year = TO_CHAR(presentn_date,'YYYY')
+		]]>
+	</select>
+	
+	<select id="selectUserTargetCnt" parameterType="dmandExaminVO" resultType="int">
+		/* _dmandExaminQuery.selectTargetInstChkCnt */	
+		<![CDATA[
+			SELECT COUNT(1)
+				  FROM op_user_pblinstt_option A 
+				  LEFT JOIN op_user_pblinstt_option B ON A.buseo_code = B.buseo_code AND A.user_id != B.user_id
+				  LEFT JOIN op_dmand_examin_info C ON B.user_id = C.user_id
+			 WHERE C.dmand_examin_oprtn_year = TO_CHAR(SYS_DATETIME,'YYYY')
+			   AND C.tmpr_save_date IS NOT NULL
+			   AND A.user_id = #{userId}
+		]]>
+	</select>
+	
+	<select id="selectTmprChk" parameterType="dmandExaminVO" resultType="int">
+	/* _dmandExaminQuery.selectTmprChk */	
+		<![CDATA[
+			SELECT 
+				COUNT(tmpr_save_date)
+			FROM 
+				op_dmand_examin_info 
+			WHERE user_id = #{userId}
+			AND dmand_examin_oprtn_year = TO_CHAR(SYSDATE, 'yyyy');
+		]]>
+	</select>
+    <select id="selectLDapCodeNm" parameterType="dmandExaminVO" resultType="string">
+    
+    /*_webGoods.selectLDapCodeNm*/
+		SELECT 
+			B.PBLINSTT_NM
+		FROM 
+			OP_USER A
+			, OP_USER_PBLINSTT_OPTION B
+		WHERE 1=1
+		AND A.USER_ID = B.USER_ID	
+		AND A.USER_ID =#{userId}
+
+        
+    </select>	
+    <select id="selectDmandSurveyVldtySecretAtGubun" parameterType="dmandExaminVO" resultType="string">
+    /*_webGoods.selectDmandSurveyVldtySecretAtGubun*/
+		SELECT 
+			stats_ty_code AS statsTyCode
+		FROM 
+			op_user_pblinstt_option a,
+			op_dmand_examin_trget_inst b
+		WHERE user_id = #{userId}
+		AND a.buseo_code = b.buseo_code
+		AND dmand_examin_oprtn_year = to_char(SYSDATE,'YYYY')
+        
+    </select>	
+    <select id="selectHiddenStateNm" parameterType="dmandExaminVO" resultType="int">
+    
+    /*_webGoods.selectHiddenStateNm*/
+		SELECT 
+			COUNT(dmand_examin_sn)
+		FROM 
+			op_dmand_examin_detail_2018
+		WHERE 1=1
+		AND USER_ID =#{userId}
+		AND dmand_examin_oprtn_year = #{dmandExaminOprtnYear}
+        
+    </select>	
+</mapper>

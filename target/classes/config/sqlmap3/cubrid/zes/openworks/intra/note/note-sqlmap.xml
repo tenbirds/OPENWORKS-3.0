@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_note">
+
+      <sql id="dynamicWhere">
+        <trim>
+            <if test="flag == 1">
+                AND A.MGR_ID = #{mgrId}
+                AND A.SENDER_ID = B.MGR_ID
+                AND A.MGR_DEL_YN = 'N'
+            </if>
+            <if test="flag == 2">
+                AND A.SENDER_ID = #{mgrId}
+                AND A.MGR_ID = B.MGR_ID
+                AND A.SENDER_DEL_YN = 'N'
+            </if>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+               <if test="q_searchKey == 1001">
+                   AND A.CONTENTS LIKE '%${q_searchVal}%'
+               </if>
+               <if test="q_searchKey == 1002">
+                   AND B.MGR_NM LIKE '%${q_searchVal}%'
+               </if>
+               <if test="q_searchKey == 1003">
+                   AND B.MGR_NM LIKE '%${q_searchVal}%'
+               </if>
+            </if>
+            <if test="startDt != null  and startDt != ''">
+                AND A.REG_DT &gt;= #{startDt}
+            </if>
+            <if test="endDt != null  and endDt != ''">
+                AND A.REG_DT &lt;= #{endDt}
+            </if>
+        </trim>
+      </sql>
+
+    <select id="list" parameterType="map" resultType="noteVO">
+        SELECT A.SEQ       AS seq,
+               A.MGR_ID    AS mgrId,
+               A.SENDER_ID AS senderId,
+               A.CONTENTS  AS contents,
+               CASE WHEN LENGTH(A.CONTENTS) &gt; 30 THEN
+                    SUBSTR(A.SUMMARY, 1, 30) || '..'
+                    ELSE A.SUMMARY END AS summary,
+               (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.MGR_ID) AS mgrNm,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CD =
+                   (SELECT DEPT_CD FROM OP_MGR WHERE MGR_ID = A.MGR_ID)) AS deptNm,
+               (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.SENDER_ID) AS senderNm,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CD =
+                   (SELECT DEPT_CD FROM OP_MGR WHERE MGR_ID = A.SENDER_ID)) AS senderDeptNm,
+               TO_CHAR(TO_DATE(A.READ_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MI:SS') AS readDt,
+               TO_CHAR(TO_DATE(A.REG_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MI:SS') AS regDt
+               , A.FILE_SEQ AS fileSeq
+               , (SELECT COUNT(F.ORDER_NO)
+                      FROM OP_FILE F
+                    WHERE F.FILE_SEQ = A.FILE_SEQ) AS fileCnt
+          FROM OP_NOTE A, OP_MGR B
+         WHERE 1 = 1
+         <include refid="dynamicWhere"/>
+         ORDER BY A.REG_DT DESC
+         FOR ORDERBY_NUM()
+         BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+
+    <select id="listCount" parameterType="map" resultType="int">
+        SELECT COUNT(A.SEQ) AS totalCount
+          FROM OP_NOTE A, OP_MGR B
+         WHERE 1 = 1
+         <include refid="dynamicWhere"/>
+    </select>
+
+    <select id="noteView" parameterType="noteVO" resultType="noteVO">
+        SELECT A.SEQ       AS seq,
+               A.MGR_ID    AS mgrId,
+               A.SENDER_ID AS senderId,
+               A.CONTENTS  AS contents,
+               (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.MGR_ID) AS mgrNm,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CD =
+                   (SELECT DEPT_CD FROM OP_MGR WHERE MGR_ID = A.MGR_ID)) AS deptNm,
+               (SELECT MGR_NM FROM OP_MGR WHERE MGR_ID = A.SENDER_ID) AS senderNm,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CD =
+                   (SELECT DEPT_CD FROM OP_MGR WHERE MGR_ID = A.SENDER_ID)) AS senderDeptNm,
+               TO_CHAR(TO_DATE(A.READ_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MI:SS') AS readDt,
+               TO_CHAR(TO_DATE(A.REG_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MI:SS') AS regDt
+          FROM OP_NOTE A
+         WHERE A.SEQ     = #{seq}
+         <trim>
+             <if test="flag == 1">
+                 AND A.MGR_ID  = #{mgrId}
+             </if>
+             <if test="flag == 2">
+                 AND A.SENDER_ID = #{mgrId}
+             </if>
+         </trim>
+    </select>
+
+    <update id="noteReadUpdate" parameterType="noteVO">
+        UPDATE OP_NOTE
+           SET
+               READ_DT = #{readDt}
+         WHERE SEQ     = #{seq}
+           AND MGR_ID  = #{mgrId}
+    </update>
+
+    <select id="mgrView" parameterType="mgrVO" resultType="mgrVO">
+        SELECT A.DEPT_CD   AS deptCd,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CD = A.DEPT_CD) AS deptNm,
+               A.MGR_ID           AS mgrId,
+               A.MGR_NM           AS mgrNm
+          FROM OP_MGR A
+           <where>
+               <if test="mgrId != null  and mgrId != ''">AND
+               A.MGR_ID  = #{mgrId}
+               </if>
+               <if test="useYn != null  and useYn != ''">AND
+               A.USE_YN = 'Y'
+               </if>
+               <if test="deptCd != null  and deptCd != ''">AND
+               A.DEPT_CD = #{deptCd}
+               </if>
+           </where>
+         ORDER BY A.MGR_NM ASC
+    </select>
+
+     <!--
+    * 1. noteDelete 에서 seq, mgrId는 고유키이지만 seq, senderId는 고유키가 안됨
+    * 별수없이 seq를 unique하게 생성하도록 변경 (2008-09-24)
+    -->
+    <insert id="noteInsert" parameterType="noteVO">
+        INSERT INTO OP_NOTE (
+            SEQ,
+            MGR_ID,
+            CONTENTS,
+            SUMMARY,
+            SENDER_ID,
+            SENDER_DEL_YN,
+            REG_DT
+            , FILE_SEQ
+        )
+        VALUES (
+            (SELECT NVL(MAX(SEQ), 0) + 1
+               FROM OP_NOTE),
+            #{mgrId},
+            #{contents},
+            #{contents},
+            #{senderId},
+            #{senderDelYn},
+            TO_CHAR(SYS_DATETIME, 'YYYYMMDDHH24MISS')
+            , #{fileSeq}
+        )
+    </insert>
+
+    <update id="noteDelete" parameterType="noteVO">
+        UPDATE OP_NOTE
+           SET
+           <trim>
+             <if test="flag == 1">
+                 MGR_DEL_YN = 'Y'
+             </if>
+             <if test="flag == 2">
+                 SENDER_DEL_YN = 'Y'
+             </if>
+         </trim>
+         WHERE SEQ = #{seq}
+         <trim>
+             <if test="flag == 1">
+                 AND MGR_ID = #{mgrId}
+             </if>
+             <if test="flag == 2">
+                 AND SENDER_ID = #{mgrId}
+             </if>
+         </trim>
+    </update>
+
+    <update id="noteDeleteAll" parameterType="noteVO">
+        UPDATE OP_NOTE
+           SET
+           <trim>
+             <if test="flag == 1">
+                 MGR_DEL_YN = 'Y'
+             </if>
+             <if test="flag == 2">
+                 SENDER_DEL_YN = 'Y'
+             </if>
+         </trim>
+       <where>
+           <if test="seqs != null  and seqs != ''">
+           SEQ IN
+                <foreach collection="seqs" item="item" separator=", " close=")" open="(">
+                #{item}
+               </foreach>
+           </if>
+       </where>
+    </update>
+    
+    <!-- For notify -->
+    <select id="myNoteCount" parameterType="string" resultType="int">
+        SELECT COUNT(SEQ)
+          FROM OP_NOTE
+         WHERE MGR_ID = #{mgrId}
+           AND MGR_DEL_YN = 'N'
+           AND READ_DT IS NULL
+           AND ALERT_YN = 'N'
+    </select>
+    
+    <update id="myNoteAlimComplete" parameterType="string">
+        UPDATE OP_NOTE SET
+               ALERT_YN = 'Y'
+         WHERE MGR_ID = #{mgrId}
+           AND MGR_DEL_YN = 'N'
+           AND READ_DT IS NULL
+           AND ALERT_YN = 'N'
+    </update>
+
+     <select id="TreeList" parameterType="noteVO" resultType="treeVO">
+        SELECT
+               A.DEPT_CD  AS id,
+               A.DEPT_NM  AS text,
+               DECODE(
+                   (SELECT COUNT(1)
+                      FROM OP_DEPT
+                     WHERE HIGH_DEPT_CD = A.DEPT_CD
+                       AND ROWNUM = 1), 0, DECODE(
+                                               (SELECT COUNT(1)
+                                                  FROM OP_MGR
+                                                 WHERE DEPT_CD = A.DEPT_CD
+                                                   AND ROWNUM = 1),0, '1', '0'),'0') AS leaf,
+               '' AS iconCls
+          FROM OP_DEPT A
+         WHERE A.DEPT_CD     != '0'
+           AND A.HIGH_DEPT_CD = #{highDeptCd}
+               AND A.USE_YN   = 'Y'
+     UNION ALL
+        SELECT
+               A.MGR_ID  AS id,
+               A.MGR_NM  AS text,
+               '1' AS leaf,
+               'ico-pkg' AS iconCls
+          FROM OP_MGR A
+         WHERE DEPT_CD = #{highDeptCd}
+           AND A.MGR_ID != #{mgrId}
+               AND A.USE_YN   = 'Y'
+      ORDER BY iconCls, id ASC
+    </select>
+
+    <select id="deptKey" resultType="noteVO">
+        SELECT NVL(MAX(TO_NUMBER(DEPT_CD)), 0) + 1 AS deptKey
+         FROM OP_DEPT
+         WHERE TRANSLATE (DEPT_CD, 'X01234567890', 'X') = ''
+    </select>
+
+    <select id="view" parameterType="noteVO" resultType="noteVO">
+        SELECT A.HIGH_DEPT_CD   AS highDeptCd,
+               A.DEPT_CD        AS deptCd,
+               A.DEPT_NM        AS deptNm,
+               A.ORDER_NO       AS orderNo,
+               A.USE_YN         AS useYn,
+               A.TEL_NUM         AS telNum,
+               A.FAX_NUM         AS faxNum,
+               A.MAIN_TASK   AS mainTask,
+               TO_CHAR(A.REG_DT, 'YYYY-MM-DD HH24:MI') AS regDt,
+               TO_CHAR(A.MODI_DT, 'YYYY-MM-DD HH24:MI') AS modiDt
+          FROM OP_DEPT A
+         WHERE A.DEPT_CD = #{deptCd}
+    </select>
+
+
+</mapper>

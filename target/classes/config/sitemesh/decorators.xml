@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<decorators defaultdir="/WEB-INF/pages/common/decorator">
+
+    <!-- ================================= 범례 ==================================== -->
+    <!-- BD : Base Decorator 디자인 포함 지원(사용자단에 더 의미가 있음) ........... -->
+    <!-- PD : Popup Decorator 팝업 페이지 디자인 ................................... -->
+    <!-- SD : Simple Decorator 디자인은 없으나 공통 Javascript & CSS 파일 지원 ..... -->
+    <!-- ND : No Decorator 데코레이터를 사용하지 않고 별개로 구현 .................. -->
+    <!-- INC : JSP Include File 명칭 또는 Ajax 를 이용한 화면 로딩 ................. -->
+    <!-- =========================================================================== -->
+
+    <excludes>
+        <pattern>/**/ND_*.do</pattern>
+        <pattern>/**/INC_*.do</pattern>
+    </excludes>
+
+    <!-- 관리자메뉴 데코레이터 -->
+    <decorator name="BD_manage" page="admin/BD_Manage.jsp">
+        <pattern>/intra/**/BD_*.do</pattern>
+        <pattern>/component/**/BD_*.do</pattern>
+        <pattern>/samples/**/BD_*.do</pattern>
+    </decorator>
+    <decorator name="PD_manage" page="admin/PD_Manage.jsp">
+        <pattern>/intra/**/PD_*.do</pattern>
+        <pattern>/component/**/PD_*.do</pattern>
+        <pattern>/samples/**/PD_*.do</pattern>
+    </decorator>
+    <decorator name="SD_manage" page="admin/SD_Manage.jsp">
+        <pattern>/intra/**/SD_*.do</pattern>
+        <pattern>/component/**/SD_*.do</pattern>
+        <pattern>/samples/**/SD_*.do</pattern>
+    </decorator>
+
+    <!-- ================================= 범례 ==================================== -->
+    <!-- /zes/openworks/intra/cms/support/CmsDecoratorMapper.java 파일에서 사용 .... -->
+    <!-- =========================================================================== -->
+
+    <!-- 사용자메뉴 데코레이터  -->
+    <decorator name="web-decorator" page="web/decorator.jsp"></decorator>
+
+</decorators>

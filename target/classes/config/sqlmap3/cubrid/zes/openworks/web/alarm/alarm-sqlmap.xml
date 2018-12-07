@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_alarm">
+
+	<select id="alarmList" parameterType="map" resultType="alarmVO">
+	/* _alarm.alarmList */
+		SELECT  ALARM_SEQ 			AS alarmSeq
+		      , ALARM_BIZ_GBN 	AS alarmBizGbn
+		      , USER_ID 				AS userId
+		      , ALARM_TITLE 		AS alarmTitle
+		      , BUSEO_CODE			AS buseoCode 
+ 	    FROM  TCN_NOTICE_ALARM_I
+		 WHERE  1 = 1
+        <choose>
+        	<when test="userTyCd == 3001">
+          	AND BUSEO_CODE = #{buseoCode}
+        	</when>
+        	<when test="userTyCd == 3002">
+          	AND BUSEO_CODE = #{buseoCode}
+        	</when>
+        	<otherwise>
+        		AND CONFRM_ID = #{confrmId}
+        	</otherwise>
+        </choose>
+		   AND  CONFRM_GBN = 'N'
+		 ORDER  BY ENTR_DT DESC
+	</select>
+	
+	  <insert id="alarmInsert" parameterType="AlarmVO">
+	  /**_alarm.alarmInsert*/
+	    <selectKey order="BEFORE" keyProperty="alarmSeq" resultType="int">
+      	SELECT NVL(MAX(ALARM_SEQ), 0) + 1 FROM TCN_NOTICE_ALARM_I 
+      </selectKey>
+	  	INSERT INTO TCN_NOTICE_ALARM_I
+	  	(
+	  	 	 ALARM_SEQ
+	  	 , ALARM_BIZ_GBN
+	  	 , USER_ID
+	  	 , ALARM_TITLE
+	  	 , CONFRM_ID
+	  	 , CONFRM_GBN
+	  	 , ENTR_DT
+	  	 , BUSEO_CODE 
+			) 
+			VALUES 
+			(
+			   #{alarmSeq}
+			 , #{alarmBizGbn}
+			 , #{userId}
+			 , #{alarmTitle}
+			 , #{confrmId}
+			 , #{confrmGbn}
+			 , SYSDATETIME
+			 , #{buseoCode}
+			)
+	  </insert>
+	  
+	  <update id="alarmUpdate" parameterType="AlarmVO">
+	  /** _alarm.alarmUpdate */
+	  	  UPDATE TCN_NOTICE_ALARM_I
+			 SET CONFRM_GBN = 'Y'
+		   WHERE ALARM_SEQ = #{alarmSeq}
+			 AND CONFRM_ID = #{confrmId}
+	  </update>
+	  
+	 <select id="alarmNoticeList" parameterType="map" resultType="alarmVO">
+		/** _alarm.alarmList */
+		SELECT USER_ID 			As userId
+ 	      FROM OP_USER
+		WHERE 1=1
+       <choose>
+       	<when test="userTyCd == 3001">
+         	AND BUSEO_CODE = #{buseoCode}
+       	</when>
+       	<when test="userTyCd == 3002">
+         	AND BUSEO_CODE = #{buseoCode}
+       	</when>
+       	<otherwise>
+       		AND CONFRM_ID = #{confrmId}
+       	</otherwise>
+       </choose>
+		  AND CONFRM_GBN = 'Y'
+		ORDER BY ENTR_DT DESC
+	</select>
+</mapper>

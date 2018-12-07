@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userInfo">
+
+     <!--  회원가입설정정보 기본(추가)항목 설정 개인 & 사업자 SELECT    -->
+     <select id="userInfoList" parameterType="string" resultType="userInfoVO">
+     /* _userInfo.userInfoList */
+        SELECT  A.USER_TY                      AS userTy,
+                A.IEM_CD                       AS iemCd,
+                (SELECT
+                        INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE LANG_CODE = '00'
+                    AND GROUP_CD = 64
+                    AND INDVDLZ_CD = A.IEM_CD
+                )  AS itemNm,
+                A.USE_YN_CD                    AS useYnCode,
+                (SELECT
+                        INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE LANG_CODE = '00'
+                    AND GROUP_CD = 65
+                    AND INDVDLZ_CD = A.IEM_CD
+                ) AS useYnNm,
+                A.USE_IEM_CD                   AS useItemCd
+          FROM  OP_USER_INFO_SET A
+         WHERE  A.IEM_TY = #{iemTy}
+         ORDER  BY A.IEM_CD
+    </select>
+    
+    <!-- 회원 선택 -->
+    <select id="userSelect" resultType="userInfoVO">
+     /* _userInfo.userSelect */
+        SELECT  USER_TY          AS userTy, 
+                IEM_TY          AS iemTy
+          FROM  OP_USER_INFO_SET
+         WHERE  IEM_CD IN (1000, 2000, 3000, 4000)
+    </select>
+    
+    <!--  회원가입설정정보 기본(추가)항목 개인 & 사업자 COUNT && 공공기관추가    -->
+    <select id="userInfoCount" parameterType="string" resultType="userInfoVO">
+    /* _userInfo.userInfoCount */
+        SELECT (SELECT  COUNT (*)
+                  FROM  OP_USER_INFO_SET
+                 WHERE  USER_TY = 'P' AND IEM_TY = #{iemTy}) userCount,
+               (SELECT  COUNT (*)
+                  FROM  OP_USER_INFO_SET
+                 WHERE  USER_TY = 'C' AND IEM_TY = #{iemTy}) companyCount,
+               (SELECT  COUNT (*)
+                  FROM  OP_USER_INFO_SET
+                 WHERE  USER_TY = 'S' AND IEM_TY = #{iemTy}) storeCount,
+               (SELECT  COUNT (*)
+                  FROM  OP_USER_INFO_SET
+                 WHERE  USER_TY = 'L' AND IEM_TY = #{iemTy}) publicCount
+    </select>
+    
+    <select id="useYnCodeList" resultType="userInfoVO">
+    /* _userInfo.useYnCodeList */
+        SELECT  INDVDLZ_CD        AS   useYnCode,
+                INDVDLZ_CD_NM     AS   useYnNm,
+                LANG_CODE         AS   langCode
+          FROM  OP_CODE_INDVDLZ          
+         WHERE  LANG_CODE = <if test="langCode != null and langCode != ''">#{langCode}</if><if test="langCode == null or langCode == ''">'00'</if> 
+           AND  GROUP_CD = 65
+           
+    </select>
+    
+    <!--  회원가입설정정보 기본(추가)항목 수정   -->
+    <update id="updateInfo" parameterType="map">
+        UPDATE  OP_USER_INFO_SET 
+           SET  USE_YN_CD    = #{uCode}
+         WHERE  IEM_CD      = #{iCode}
+    </update>
+    
+    <!--  회원가입설정정보 개인회원 선택 여부 수정   -->
+    <update id="updateUserSelect" parameterType="userInfoVO">
+        UPDATE  OP_USER_INFO_SET 
+           SET  IEM_TY    = #{iemTy}
+         WHERE  IEM_CD      = #{iemCd}
+    </update>
+    
+    <!--  회원가입설정정보 관심항목 SELECT   -->
+    <select id="selectInterestItem" resultType="userInfoVO">
+    /* _userInfo.selectInterestItem */
+        SELECT  USER_TYPE                               AS userGubun,
+                SEQ_NO                                  AS seq,
+                ITEM_NM                                 AS itemNm,
+                USE_YN                                  AS useYn
+          FROM  OP_USER_INFO_INTST_SET
+         ORDER  BY USER_TYPE DESC, SEQ_NO
+    </select>
+    
+    <!--  회원가입설정정보 관심항목 개인 & 사업자 COUNT    -->
+    <select id="interestItemCount" resultType="userInfoVO">
+    /* _userInfo.interestItemCount */
+        SELECT (SELECT  COUNT (*)
+                  FROM  OP_USER_INFO_SET
+                 WHERE  USER_TY = 'S') storeCount
+    </select>
+    
+    <!--  회원가입설정정보 관심항목 추가   -->
+    <insert id="insertInterestItem" parameterType="userInfoVO">
+        INSERT INTO OP_USER_INFO_INTST_SET(
+               USER_TYPE,
+               SEQ_NO,
+               ITEM_NM,
+               USE_YN
+           )
+           VALUES(
+            #{userGubun},
+            seq_auto_plus.nextval,
+            #{itemNm},
+            'Y'
+        )
+    </insert>
+    
+    <!--  회원가입설정정보 관심항목 수정   -->
+    <update id="updateInterestItem" parameterType="userInfoVO">
+        UPDATE  OP_USER_INFO_INTST_SET 
+           SET  ITEM_NM     = #{itemNm},
+                USE_YN      = #{useYn}
+         WHERE  SEQ_NO      = #{seq}
+    </update>
+    
+    <!--  회원가입설정정보 관심항목 삭제   -->
+    <delete id="deleteInterestItem" parameterType="userInfoVO">
+        DELETE 
+          FROM  OP_USER_INFO_INTST_SET
+         WHERE  SEQ_NO = #{seq}
+    </delete>
+    
+    <!--  회원가입설정변경 사항 리스트   -->
+    <select id="logList" resultType="userInfoVO">
+    /* _userInfo.logList */
+        SELECT  TO_CHAR(A.UPDT_DT , 'YYYY-MM-DD HH24:MI:SS')                  AS updtDt,
+                A.UPDT_CN                                                     AS updtCn,
+                A.UPDT_ID                                                     AS updtId,
+               (SELECT B.MNGR_NM FROM OP_MNGR B WHERE A.UPDT_ID = B.MNGR_ID)  AS updtNm
+         FROM  OP_USER_INFO_SET_LOG A
+        ORDER  BY A.UPDT_DT DESC 
+    </select>
+    
+    <!--  회원가입정보변경 사항 로그 저장   -->
+    <insert id="insertLog" parameterType="userInfoVO">
+        INSERT INTO OP_USER_INFO_SET_LOG(
+               LANG_CODE,
+               UPDT_DT,
+               UPDT_CN,
+               UPDT_ID
+           )
+           VALUES(
+            #{langCode},
+            SYS_DATETIME,
+            #{updtCn},
+            #{updtId}
+        )
+    </insert>
+</mapper>

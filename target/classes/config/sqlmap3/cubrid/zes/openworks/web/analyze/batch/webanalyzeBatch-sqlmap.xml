@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webAnalyzeBatch">
+
+	<!-- 접속로그 플래그 UPDATE -->
+    <update id="updateAnlzStatisticFlag">
+    	/* _webAnalyzeBatch.updateAnlzStatisticFlag */
+        UPDATE OP_PGE_ANALS_L
+           SET LOG_STATS_FLAG = DECODE(LOG_STATS_FLAG, 'A', 'B', 'B', 'C', 'C', 'D') 
+         WHERE LOG_STATS_FLAG IN ('A', 'B', 'C')
+    </update>
+
+    <!-- 많이찾는 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeFavoritePage">
+    	/* _webAnalyzeBatch.mergeAnalyzeFavoritePage */
+        MERGE INTO OP_FAVORITE_PGE_ANALS_S A
+             USING (SELECT LOG_DOMAIN_NM 								AS [DOMAIN]
+                         , TO_CHAR(LOG_TIME, 'yyyymmdd') 				AS CONN_YMD
+                         , LOG_PGE_TITLE 								AS CONN_PAGE_TITLE
+                         , COUNT(1) 									AS PAGE_VIEW_CNT
+                         , SUM(DECODE(LOG_PGE_TITLE, 1, 1, 0)) 			AS START_PAGE_CNT
+                      FROM OP_PGE_ANALS_L
+                     WHERE LOG_STATS_FLAG = 'B'
+                       AND LOG_PGE_TITLE != ''
+                     GROUP BY LOG_DOMAIN_NM, TO_CHAR(LOG_TIME, 'yyyymmdd'), LOG_PGE_TITLE
+                     ORDER BY 1, 2) B
+                ON (A.ANALS_DOMAIN = B.[DOMAIN]
+               	 	AND A.CONECT_DE = B.CONN_YMD
+	               	AND A.CONECT_PGE_TITLE = B.CONN_PAGE_TITLE
+	               )
+        WHEN MATCHED
+        THEN UPDATE
+                SET A.PGE_VIEW_CNT = A.PGE_VIEW_CNT + B.PAGE_VIEW_CNT
+              	  , A.BEGIN_PGE_CNT = A.BEGIN_PGE_CNT + B.START_PAGE_CNT
+              	  , A.LAST_SE_TIME = SYS_DATETIME
+        WHEN NOT MATCHED
+        THEN INSERT (A.ANALS_DOMAIN
+                    , A.CONECT_DE
+                    , A.CONECT_PGE_TITLE
+                    , A.PGE_VIEW_CNT
+                    , A.BEGIN_PGE_CNT
+                    , A.LAST_SE_TIME)
+             VALUES (B.[DOMAIN]
+                    , B.CONN_YMD
+                    , B.CONN_PAGE_TITLE
+                    , B.PAGE_VIEW_CNT
+                    , B.START_PAGE_CNT
+                    , SYS_DATETIME)
+    </update>
+    
+    <!-- 시작 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeStartPage">
+        /* _webAnalyzeBatch.mergeAnalyzeStartPage */
+        MERGE INTO OP_BEGIN_PGE_ANALS_S A
+             USING (SELECT LOG_DOMAIN_NM 					AS [DOMAIN]
+                         , TO_CHAR(LOG_TIME, 'YYYYMMDD') 	AS CONN_YMD
+                         , LOG_PGE_TITLE 					AS CONN_PAGE_TITLE
+                         , COUNT(1) 						AS PAGE_VIEW_CNT
+                         , SYS_DATETIME 					AS STATISTIC_TIME
+                      FROM OP_PGE_ANALS_L
+                     WHERE LOG_STATS_FLAG = 'B' 
+                       AND LOG_PGE_VIEW_CNT = 1
+                       AND LOG_PGE_TITLE != ''
+                     GROUP BY LOG_DOMAIN_NM, TO_CHAR(LOG_TIME, 'YYYYMMDD'), LOG_PGE_TITLE
+                     ORDER BY 1, 2) B
+                ON (A.ANALS_DOMAIN = B.[DOMAIN]
+                    AND A.CONECT_DE = B.CONN_YMD
+                    AND A.CONECT_PGE_TITLE = B.CONN_PAGE_TITLE
+                   )
+        WHEN MATCHED
+        THEN UPDATE
+                SET A.PGE_VIEW_CNT = A.PGE_VIEW_CNT + B.PAGE_VIEW_CNT
+                  , A.LAST_SE_TIME = SYS_DATETIME
+        WHEN NOT MATCHED
+        THEN INSERT (A.ANALS_DOMAIN
+                    , A.CONECT_DE
+                    , A.CONECT_PGE_TITLE
+                    , A.PGE_VIEW_CNT
+                    , A.LAST_SE_TIME)
+             VALUES (B.[DOMAIN]
+                    , B.CONN_YMD
+                    , B.CONN_PAGE_TITLE
+                    , B.PAGE_VIEW_CNT
+                    , SYS_DATETIME)
+    </update>    
+
+    <!-- 종료 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeEndPage">
+        /* _webAnalyzeBatch.mergeAnalyzeEndPage */
+        MERGE INTO OP_END_PGE_ANALS_S A
+             USING (SELECT ANLZ_DOMAIN 					AS [DOMAIN]
+                         , CONN_YMD						AS CONN_YMD
+                         , CONN_PAGE_TITLE				AS CONN_PAGE_TITLE
+                         , COUNT(1) 					AS PAGE_VIEW_CNT
+                         , SYS_DATETIME 				AS LAST_SE_TIME
+                      FROM (SELECT LOG_DOMAIN_NM					AS ANLZ_DOMAIN
+                                 , TO_CHAR(LOG_TIME, 'YYYYMMDD') 	AS CONN_YMD
+                                 , LOG_PGE_TITLE					AS CONN_PAGE_TITLE
+                                 , ROW_NUMBER ()
+                                       OVER (PARTITION BY LOG_DOMAIN_NM
+                                             , LOG_SESION_ID
+                                             ORDER BY LOG_PGE_VIEW_CNT DESC
+                                            ) 						AS RK
+                              FROM OP_PGE_ANALS_L
+                             WHERE LOG_STATS_FLAG = 'B'
+                               AND LOG_PGE_TITLE != '')
+                     WHERE RK = 1
+                     GROUP BY ANLZ_DOMAIN, CONN_YMD, CONN_PAGE_TITLE
+                     ORDER BY 1, 2) B
+                  ON (A.ANALS_DOMAIN = B.[DOMAIN]
+                      AND A.CONECT_DE = B.CONN_YMD
+                      AND A.CONECT_PGE_TITLE = B.CONN_PAGE_TITLE
+                     )
+        WHEN MATCHED
+        THEN UPDATE 
+                SET A.PGE_VIEW_CNT = A.PGE_VIEW_CNT + B.PAGE_VIEW_CNT
+                  , A.LAST_SE_TIME = SYS_DATETIME
+        WHEN NOT MATCHED
+        THEN INSERT (A.ANALS_DOMAIN
+                    , A.CONECT_DE
+                    , A.CONECT_PGE_TITLE
+                    , A.PGE_VIEW_CNT
+                    , A.LAST_SE_TIME)
+             VALUES (B.[DOMAIN]
+                    , B.CONN_YMD
+                    , B.CONN_PAGE_TITLE
+                    , B.PAGE_VIEW_CNT
+                    , SYS_DATETIME)
+    </update>
+</mapper>

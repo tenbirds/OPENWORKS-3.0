@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_event">
+
+    <sql id="dynamicWhere">
+        <where>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND A.EVENT_TITLE LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_domainCd != null  and q_domainCd != ''">
+                AND A.EVENT_SN IN (SELECT EVENT_SN FROM TRM_EVET_DOMN_I WHERE DOMAIN_CD = #{q_domainCd})
+            </if>
+            <if test="q_eventTyCd != null  and q_eventTyCd != ''">
+                AND A.EVENT_TY_CD = #{q_eventTyCd} 
+            </if>
+            <if test="q_enfrcClosAt != null  and q_enfrcClosAt != ''">
+                <if test='!q_enfrcClosAt.equals("A")'>
+                    AND (<include refid="dynamicEnfrcClosAt"/>) = #{q_enfrcClosAt}
+                </if>
+            </if>
+                AND EVENT_DELETE_AT = 'N'
+        </where>
+    </sql>
+
+    <sql id="dynamicEventStatus">
+         , CASE WHEN EVENT_TY_CD = '1001' THEN 
+                            CASE WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD') THEN '마감'
+                                     WHEN ENFRC_CLOS_AT = 'Y' THEN '마감'
+                                     WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '진행중'
+                                     END                                 
+                            WHEN EVENT_TY_CD IN ('1002','1003') THEN
+                            CASE WHEN PRESNATN_DATE &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '결과발표'
+                                    WHEN ENFRC_CLOS_AT = 'Y' THEN '응모종료'
+                                    WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '응모종료'
+                                    WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '진행중'
+                                    END
+                       END AS eventStatus
+    </sql>
+    
+    <sql id="dynamicEnfrcClosAt">
+            CASE WHEN ENFRC_CLOS_AT = 'Y' THEN ENFRC_CLOS_AT
+                 WHEN ENFRC_CLOS_AT = 'N' THEN
+                 CASE WHEN END_DATE &gt;= TO_CHAR (SYSDATETIME, 'YYYYMMDD') THEN ENFRC_CLOS_AT ELSE 'Y'
+                  END END
+    </sql>
+
+	<select id="eventList" parameterType="map" resultType="eventVO">
+       SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (
+               SELECT  
+                      A.EVENT_SN AS eventSn
+                    , A.EVENT_TITLE AS eventTitle
+                    , A.IMAGE_ALT AS imageAlt
+                    , A.BEGIN_DATE AS beginDate
+                    , A.END_DATE AS endDate
+                    , A.PRESNATN_DATE AS presnatnDate
+                    , A.PRESNATN_HM AS presnatnHm
+                    <if test="langCode != null and langCode != ''">, #{langCode} AS langCode</if>
+                    <if test="langCode == null or langCode == ''">, '00' AS langCode</if>
+                    , (SELECT B.INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ B 
+                         WHERE B.LANG_CODE = <if test="langCode != null and langCode != ''">#{langCode}</if><if test="langCode == null or langCode == ''">'00'</if>
+                           AND B.GROUP_CD = 1006 AND B.INDVDLZ_CD = A.EVENT_TY_CD) AS eventTyNm
+                    , (SELECT FILE_URL FROM OP_FILE C WHERE C.FILE_SEQ = A.EVENT_THUMB_FILE_SEQ) AS eventFilePath
+                    , A.EVENT_THUMB_FILE_SEQ AS eventThumbFileSeq
+                    , DECODE (SIGN (A.BEGIN_DATE - TO_CHAR (SYSDATETIME, 'YYYYMMDD'))
+                               + SIGN (A.END_DATE - TO_CHAR (SYSDATETIME, 'YYYYMMDD')) , -2, 0, 2, 2, 1) AS gubun
+                     , TO_CHAR (A.REGIST_DT, 'YYYY-MM-DD') AS registDt
+                     , A.REGIST_ID AS registId
+                     , <include refid="dynamicEnfrcClosAt"/> AS enfrcClosAt 
+                     , TO_CHAR(A.ENFRC_CLOS_DT,'YYYY-MM-DD HH24:MI') AS enfrcClosDt
+                     <include refid="dynamicEventStatus"/>
+                     , NVL(A.EVENT_RDCNT,0) AS eventRdcnt
+                     , (SELECT COUNT(1) FROM TRM_EVET_PTCP_I WHERE EVENT_SN = A.EVENT_SN) AS partcptnCnt /*참여자수*/
+              FROM TRM_EVET_MGMT_M A
+                   <include refid="dynamicWhere"/>
+             ORDER BY A.REGIST_DT DESC
+         
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+   
+   	<select id="eventCount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(A.EVENT_SN) AS totalCount
+        FROM
+            TRM_EVET_MGMT_M A
+        <include refid="dynamicWhere"/>
+    </select>
+   
+   	<select id="answerList" parameterType="map" resultType="eventVO">
+    	SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (           
+                 SELECT
+                         EVENT_CMT_SEQ AS eventCmtSeq           
+                       , TO_CHAR(WRITNG_DT,'YYYY-MM-DD HH24:MI') as writngDt
+                       , WRTER_ID AS wrterId
+                       , NVL(B.USER_NM,'무기명') AS wrterNm
+                       , EVENT_CMT_CN AS eventCmtCn
+                       , WRTER_IP AS wrterIp
+                    FROM TRM_EVET_PTCP_I A, OP_USER B
+                   WHERE A.WRTER_ID = B.USER_ID(+)
+                     AND A.EVENT_SN = #{eventSn}
+                   ORDER BY WRITNG_DT DESC
+            ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+     	) Y
+     	WHERE NUM &gt;= #{pagingStartNum}
+   </select>
+   
+   <select id="answerCount" parameterType="map"  resultType="int">
+        SELECT 
+               COUNT(1) totalCount 
+          FROM TRM_EVET_PTCP_I 
+         WHERE EVENT_SN = #{eventSn}
+   	</select>
+   
+    <select id="eventTypeList" parameterType="eventVO" resultType="eventVO">
+        SELECT INDVDLZ_CD_NM AS eventTyNm,
+               INDVDLZ_CD AS eventTyCd
+            FROM OP_CODE_INDVDLZ
+        WHERE LANG_CODE = <if test="langCode != null and langCode != ''">#{langCode}</if><if test="langCode == null or langCode == ''">'00'</if>
+          AND GROUP_CD = 1006
+        ORDER BY INDVDLZ_CD
+    </select>
+   
+    <select id="domainList" parameterType="eventVO" resultType="eventVO">
+        SELECT  DOMAIN_CD AS domainCd,
+                DOMAIN_NM AS domainNm,
+                DOMAIN_DC  AS domainDc,
+                (SELECT DOMAIN_CD FROM TRM_EVET_DOMN_I WHERE A.DOMAIN_CD =  DOMAIN_CD AND EVENT_SN = #{eventSn}) AS checkYn
+            FROM OP_DOMAIN A
+            WHERE USE_YN = 'Y'
+              AND DOMAIN_CD  != 1
+            ORDER BY  DOMAIN_CD
+    </select>
+    
+	<select id="orderList" parameterType="eventVO" resultType="eventVO">
+        SELECT A.EVENT_TITLE AS eventTitle
+             , B.DOMAIN_CD AS domainCd
+             , B.EVENT_SORT_NO AS eventSortNo
+             , B.EVENT_SN AS eventSn
+             , DECODE (SIGN (A.BEGIN_DATE- TO_CHAR (SYSDATETIME, 'YYYYMMDD'))
+                       + SIGN (A.END_DATE- TO_CHAR (SYSDATETIME, 'YYYYMMDD')), -2, 0, 2, 2, 1) AS gubun
+             , A.EVENT_DELETE_AT AS eventDeleteAt
+          FROM TRM_EVET_MGMT_M A
+             , TRM_EVET_DOMN_I B
+         WHERE A.EVENT_TY_CD = #{eventTyCd}
+           AND B.DOMAIN_CD = #{domainCd}
+           AND A.EVENT_SN = B.EVENT_SN
+           AND A.EVENT_DELETE_AT = 'N'
+           AND (<include refid="dynamicEnfrcClosAt"/>) = 'N'
+           AND ( A.BEGIN_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD') 
+                  OR A.END_DATE &gt;= TO_CHAR(SYSDATETIME, 'YYYYMMDD') ) 
+         ORDER BY B.EVENT_SORT_NO
+    </select>
+    
+    <select id="eventLcSeList" parameterType="eventVO" resultType="eventVO">
+        SELECT 
+               INDVDLZ_CD AS EVENTLCSECD
+             , INDVDLZ_CD_NM AS EVENTLCSENM
+          FROM TRM_EVET_LC_M A
+             , OP_CODE_INDVDLZ B
+             , TRM_EVET_MGMT_M C
+         WHERE A.EVENT_LC_SE_CD = B.INDVDLZ_CD
+           AND A.EVENT_SN = #{eventSn}
+           AND B.LANG_CODE = #{langCode}
+           AND B.GROUP_CD = 1005 
+           AND B.USE_YN = 'Y'
+           AND C.EVENT_SN = A.EVENT_SN
+           AND C.EVENT_DELETE_AT = 'N'
+         ORDER BY B.CD_SORT_NO
+    </select>
+    
+    <select id="lcSeList" parameterType="eventVO" resultType="eventVO">
+        SELECT 
+               INDVDLZ_CD AS eventLcSeCd
+             , INDVDLZ_CD_NM AS eventLcSeNm
+             , (SELECT TEL.EVENT_LC_SE_CD 
+                  FROM TRM_EVET_LC_M TEL
+                     , TRM_EVET_MGMT_M TEM
+                 WHERE TEL.EVENT_SN = TEM.EVENT_SN
+                   AND A.INDVDLZ_CD = TEL.EVENT_LC_SE_CD
+                   AND TEM.EVENT_DELETE_AT = 'N' 
+                   AND TEM.EVENT_SN = #{eventSn}) AS checkYn
+          FROM OP_CODE_INDVDLZ A
+         WHERE LANG_CODE = '00'
+           AND GROUP_CD = 1005
+           AND USE_YN = 'Y'
+         ORDER BY A.LANG_CODE, A.CD_SORT_NO
+    </select>
+    
+    <insert id="eventInsertDomainCd" parameterType="eventVO">
+    /*eventInsertDomainCd*/
+        <selectKey order="BEFORE" keyProperty="domainSn" resultType="int">
+            SELECT NVL(MAX(DOMAIN_SN) + 1,1) FROM TRM_EVET_DOMN_I 
+        </selectKey>
+        INSERT INTO TRM_EVET_DOMN_I(
+              DOMAIN_SN 
+            , EVENT_SN
+            , DOMAIN_CD
+        ) VALUES (
+            #{domainSn}
+        <if test="eventSn == null or eventSn == ''">
+            , (SELECT NVL(MAX(EVENT_SN), 1) FROM TRM_EVET_MGMT_M)
+        </if>
+        <if test="eventSn != null  and eventSn != ''">
+            , #{eventSn}
+        </if>
+            , #{domainCd}
+        )
+    </insert>
+    
+    <insert id="eventInsertLsSeCd" parameterType="eventVO">
+        <selectKey order="BEFORE" keyProperty="lcSeSn" resultType="int">
+            SELECT NVL(MAX(LC_SE_SN) + 1,1) FROM TRM_EVET_LC_M 
+        </selectKey>
+        INSERT INTO TRM_EVET_LC_M(
+             LC_SE_SN 
+            ,EVENT_SN
+            ,EVENT_LC_SE_CD
+        ) VALUES (
+              #{lcSeSn}
+        <if test="eventSn == null or eventSn == ''">
+            , (SELECT NVL(MAX(EVENT_SN), 1) FROM TRM_EVET_MGMT_M)
+        </if>
+        <if test="eventSn != null  and eventSn != ''">
+              , #{eventSn}
+        </if>
+             , #{eventLcSeCd}
+        )
+    </insert>
+
+    <insert id="eventInsert" parameterType="eventVO">
+        <selectKey order="BEFORE" keyProperty="eventSn" resultType="int">
+            SELECT NVL(MAX(EVENT_SN) + 1,1) FROM TRM_EVET_MGMT_M 
+        </selectKey>
+        INSERT INTO TRM_EVET_MGMT_M (
+               EVENT_SN
+             , EVENT_TY_CD             
+             , EVENT_TITLE
+             , EVENT_CN
+             , BEGIN_DATE
+             , END_DATE
+             , EVENT_THUMB_FILE_SEQ
+             , IMAGE_ALT
+             <if test="eventTyCd == '1002' or eventTyCd == '1003'">
+                , PRESNATN_DATE
+                , PRESNATN_HM
+             </if>
+             , LINK_URL
+             , PRZWNER_CNFIRM_URL
+             , ENFRC_CLOS_AT
+             , EVENT_RDCNT  
+             , REGIST_ID
+             , REGIST_DT
+        )VALUES (
+               #{eventSn}
+             , #{eventTyCd}
+             , #{eventTitle}
+             , #{eventCn}
+             , #{beginDate}
+             , #{endDate}
+             , #{eventThumbFileSeq}
+             , #{imageAlt}
+             <if test="eventTyCd == '1002' or eventTyCd == '1003'">
+                , #{presnatnDate}
+                , #{presnatnHm}
+             </if>
+             , #{linkUrl}
+             , #{przwnerCnfirmUrl}
+             , #{enfrcClosAt}
+             , #{eventRdcnt}
+             , #{registId}
+             , SYSDATETIME
+         )
+    </insert>
+    
+     <select id="eventUpdateForm" parameterType="eventVO" resultType="eventVO">
+        SELECT 
+               A.EVENT_SN AS eventSn
+             , A.EVENT_TITLE AS eventTitle
+             , A.BEGIN_DATE AS beginDate
+             , A.END_DATE AS endDate
+             , <include refid="dynamicEnfrcClosAt"/> AS enfrcClosAt
+             , A.ENFRC_CLOS_DT AS  enfrcClosDt
+             , A.EVENT_TY_CD AS eventTyCd
+             , (SELECT INDVDLZ_CD_NM 
+             	  FROM OP_CODE_INDVDLZ 
+             	 WHERE INDVDLZ_CD = A.EVENT_TY_CD 
+             	   AND GROUP_CD = 1006
+             	   AND LANG_CODE = '00') eventTyNm
+             , A.LINK_URL AS linkUrl
+             , A.PRZWNER_CNFIRM_URL AS przwnerCnfirmUrl             
+             , A.IMAGE_ALT AS imageAlt
+             , A.EVENT_CN AS eventCn
+             , A.PRESNATN_DATE AS presnatnDate
+             , A.PRESNATN_HM AS presnatnHm
+             , B.FILE_URL AS eventFilePath
+             , A.EVENT_THUMB_FILE_SEQ eventThumbFileSeq
+             , A.REGIST_ID AS registId
+             , NVL(A.EVENT_RDCNT,0) AS eventRdcnt
+             , (SELECT COUNT(1) FROM TRM_EVET_PTCP_I WHERE EVENT_SN = A.EVENT_SN) AS partcptnCnt
+             <include refid="dynamicEventStatus"/>
+          FROM TRM_EVET_MGMT_M A
+             , OP_FILE B
+         WHERE A.EVENT_SN = #{eventSn}
+           AND A.EVENT_THUMB_FILE_SEQ = B.FILE_SEQ(+)
+    </select>
+    
+    <update id="eventAtDel" parameterType="eventVO">
+        UPDATE TRM_EVET_MGMT_M SET
+                EVENT_DELETE_AT = 'Y'
+              , UPDT_ID              = #{updtId}
+              , UPDT_DT              = SYSDATETIME
+        WHERE EVENT_SN = #{eventSn}
+    </update>
+    
+    <delete id="eventDel" parameterType="eventVO">
+        DELETE TRM_EVET_MGMT_M
+        WHERE EVENT_SN = #{eventSn}
+    </delete>
+
+    <delete id="eventDomainDel" parameterType="eventVO">
+        DELETE TRM_EVET_DOMN_I
+        WHERE EVENT_SN = #{eventSn}
+    </delete>
+    
+    <delete id="eventLcInfoDel" parameterType="eventVO">
+        DELETE TRM_EVET_LC_M
+        WHERE EVENT_SN = #{eventSn}
+	</delete>
+    
+    <insert id="orderUpdate" parameterType="eventVO">
+        <selectKey order="BEFORE" keyProperty="domainSn" resultType="int">
+            SELECT NVL(MAX(DOMAIN_SN) + 1,1) FROM TRM_EVET_DOMN_I 
+        </selectKey>
+        INSERT INTO TRM_EVET_DOMN_I(
+             DOMAIN_SN
+            ,EVENT_SN
+            ,DOMAIN_CD
+            ,EVENT_SORT_NO
+        )VALUES(
+             #{domainSn}
+            ,#{eventSn}
+            ,#{domainCd}
+            ,(SELECT NVL(MAX(EVENT_SORT_NO), 0) + 1 FROM TRM_EVET_DOMN_I WHERE DOMAIN_CD = #{domainCd})
+        )
+    </insert>
+    
+	<delete id="orderDelete" parameterType="eventVO">
+        DELETE TRM_EVET_DOMN_I
+         WHERE EVENT_SN = #{eventSn}
+           AND DOMAIN_CD = #{domainCd}
+    </delete>
+    
+    <select id="eventDomainList" parameterType="eventVO" resultType="eventVO">
+        SELECT  DOMAIN_CD AS domainCd,
+                (SELECT DOMAIN_DC FROM OP_DOMAIN  WHERE A.DOMAIN_CD =  DOMAIN_CD) AS domainDc
+            FROM TRM_EVET_DOMN_I A
+            WHERE EVENT_SN = #{eventSn}
+            ORDER BY DOMAIN_CD
+    </select>
+    
+    <update id="enfrcClosAtUpdate">
+        UPDATE TRM_EVET_MGMT_M
+        SET            
+            <if test="enfrcClosAt != null  and enfrcClosAt != ''">
+                <choose>
+                    <when test="enfrcClosAt.equalsIgnoreCase('y')">
+                        ENFRC_CLOS_DT = SYSDATETIME,
+                    </when>
+                    <otherwise>
+                        ENFRC_CLOS_DT = null,
+                    </otherwise>
+                </choose>
+                ENFRC_CLOS_AT = #{enfrcClosAt},
+            </if>
+            
+            UPDT_DT = SYSDATETIME,
+            UPDT_ID = #{updtId}
+        WHERE EVENT_SN = #{eventSn}
+    </update>
+    
+    
+    <update id="eventUpdate" parameterType="eventVO">
+        UPDATE TRM_EVET_MGMT_M
+            SET
+               <if test="eventTyCd != null  and eventTyCd != ''">
+                     EVENT_TY_CD          = #{eventTyCd}
+               </if>
+               <if test="eventTitle != null  and eventTitle != ''">
+                     ,EVENT_TITLE          = #{eventTitle}
+               </if>
+               <if test="eventCn != null  and eventCn != ''">
+                    ,EVENT_CN             = #{eventCn}
+               </if>
+               <if test="beginDate != null  and beginDate != ''">
+                    ,BEGIN_DATE           = #{beginDate}
+               </if>
+               <if test="endDate != null  and endDate != ''"> 
+                    ,END_DATE             = #{endDate}
+               </if>
+               <if test="eventThumbFileSeq != null  and eventThumbFileSeq != ''">
+                    ,EVENT_THUMB_FILE_SEQ = #{eventThumbFileSeq}
+               </if>
+               <if test="presnatnDate != null  and presnatnDate != ''">
+                    ,PRESNATN_DATE        = #{presnatnDate}
+               </if>
+               <if test="presnatnHm != null  and presnatnHm != ''">
+                    ,PRESNATN_HM        = #{presnatnHm}
+               </if>
+               <if test="enfrcClosAt != null  and enfrcClosAt != ''">
+                    ,ENFRC_CLOS_AT        = #{enfrcClosAt}
+               </if>
+                  ,IMAGE_ALT            = #{imageAlt, jdbcType=VARCHAR}
+                  ,LINK_URL             = #{linkUrl, jdbcType=VARCHAR}
+                  ,PRZWNER_CNFIRM_URL   = #{przwnerCnfirmUrl, jdbcType=VARCHAR}
+                  ,UPDT_ID              = #{updtId}
+                  ,UPDT_DT              = SYSDATETIME
+        WHERE  EVENT_SN                 = #{eventSn}
+    </update>
+    
+    <select id="answerListExcel" parameterType="map" resultType="eventVO">
+           SELECT
+                  EVENT_CMT_SEQ AS eventCmtSeq           
+                , TO_CHAR(WRITNG_DT,'YYYY-MM-DD HH24:MI') as writngDt
+                , WRTER_ID AS wrterId
+                , NVL(B.USER_NM,'무기명') AS wrterNm
+                , EVENT_CMT_CN AS eventCmtCn
+                , WRTER_IP AS wrterIp
+             FROM TRM_EVET_PTCP_I A, OP_USER B
+            WHERE A.WRTER_ID = B.USER_ID(+)
+              AND A.EVENT_SN = #{eventSn}
+            ORDER BY A.WRITNG_DT DESC
+    </select>
+</mapper>

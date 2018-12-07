@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userLogin">
+
+    <select id="view" parameterType="userLoginVO" resultType="userLoginVO">
+        /*_userLogin.view */
+        SELECT 
+               A.USER_KEY       			AS userKey
+             , A.USER_ID        			AS userId
+             , A.USER_NM        			AS userNm
+             , A.USER_PASSWORD  			AS userPassword
+             , A.BEFORE_PASSWORD  			AS beforePassword
+             , A.TELNO          			AS telno
+             , decrypt(A.MBTLNUM, 'P007')   AS mbtlnum
+             , decrypt(A.EMAIL, 'P008')     AS email
+             , A.USER_TY_CD     			AS userTyCd
+             , A.USER_GRAD_CODE 			AS userGradCode
+             , A.USER_STTUS_CD  			AS userSttusCd
+             , A.NATION_CODE                AS nationCode
+             , CASE WHEN USER_TY_CD IN(1001,1002)
+                    THEN (SELECT BIZRNO 
+                  			FROM OP_USER_OPTION 
+                 		   WHERE USER_ID = A.USER_ID)
+                    WHEN USER_TY_CD IN(2001,2002)
+                    THEN (SELECT BIZRNO 
+                  			FROM OP_USER_ENTRPRS_OPTION 
+                 		   WHERE USER_ID = A.USER_ID)
+                 	ELSE ''	
+                END 				AS bizrno
+             , CASE WHEN (SELECT COUNT(USER_ID)
+                            FROM TCM_CMNT_INFO_I
+                           WHERE USER_ID = A.USER_ID
+                             AND USER_TY_CD IN(1002,2002)
+                             AND CMMNTY_STTUS_CD = 1002
+						 ) &gt; 0
+                    THEN 'Y'
+                    ELSE 'N'
+                END          		AS cmAdmYn
+			 , A.STPLAT_AGRE_AT 			AS stplatAgreAt
+			 , A.DMAND_EXAMIN_CHARGER_AT 	AS dmandExaminChargerAt
+			 , CASE WHEN A.MASTER_ID IS NULL OR TRIM(A.MASTER_ID) ='' THEN user_id ELSE A.MASTER_ID END AS masterId
+			 , CASE WHEN SUBSTR(A.USER_TY_CD,0,2) = '30' 
+			        THEN (SELECT IFNULL(C.orgn_nm,'Y') 
+			                FROM op_user_pblinstt_option B LEFT OUTER JOIN tcn_orgn_info_d C ON C.orgn_code = B.orgn_code AND C.buseo_code = B.buseo_code 
+			               WHERE B.user_id = A.user_id)
+			        ELSE 'N'
+			   END AS pblinsttUpdtAt
+			 , (SELECT 	cmpny_nm FROM op_user_entrprs_option where USER_ID = #{userId} ) cmpnyNm 
+			 , CASE WHEN SUBSTR(A.USER_TY_CD,0,2) = '30' 
+			        THEN (SELECT B.buseo_code
+			                FROM op_user_pblinstt_option B LEFT OUTER JOIN tcn_orgn_info_d C ON C.orgn_code = B.orgn_code AND C.buseo_code = B.buseo_code 
+			               WHERE B.user_id = A.user_id)
+			        ELSE 'N'
+			   END AS buseoCode
+          FROM OP_USER A
+         WHERE A.USER_ID = #{userId}
+    </select>
+
+    <select id="viewDrmncy" parameterType="userLoginVO" resultType="userLoginVO">
+        /*_userLogin.viewDrmncy */
+        SELECT 
+               A.USER_KEY                   AS userKey
+             , A.USER_ID                    AS userId
+             , A.USER_NM                    AS userNm
+             , A.USER_PASSWORD              AS userPassword
+             , A.BEFORE_PASSWORD            AS beforePassword
+             , A.TELNO                      AS telno
+             , decrypt(A.MBTLNUM, 'P007')   AS mbtlnum
+             , decrypt(A.EMAIL, 'P008')     AS email
+             , A.USER_TY_CD                 AS userTyCd
+             , A.USER_GRAD_CODE             AS userGradCode
+             , A.USER_STTUS_CD              AS userSttusCd
+             , A.NATION_CODE                AS nationCode
+             , CASE WHEN USER_TY_CD IN(1001,1002)
+                    THEN (SELECT BIZRNO 
+                            FROM OP_USER_OPTION 
+                           WHERE USER_ID = A.USER_ID)
+                    WHEN USER_TY_CD IN(2001,2002)
+                    THEN (SELECT BIZRNO 
+                            FROM OP_USER_ENTRPRS_OPTION 
+                           WHERE USER_ID = A.USER_ID)
+                    ELSE '' 
+                END                 AS bizrno
+             , CASE WHEN (SELECT COUNT(USER_ID)
+                            FROM TCM_CMNT_INFO_I
+                           WHERE USER_ID = A.USER_ID
+                             AND USER_TY_CD IN(1002,2002)
+                             AND CMMNTY_STTUS_CD = 1002
+                         ) &gt; 0
+                    THEN 'Y'
+                    ELSE 'N'
+                END                 AS cmAdmYn
+          FROM OP_USER_DRMNCY A
+         WHERE A.USER_ID = #{userId}
+    </select>
+
+	<!-- 중복가입방지키 구하기 -->
+    <select id="getDupCheck" parameterType="userLoginVO" resultType="String">
+    	SELECT DPLCT_SBSCRB_PRVN_KEY AS dplctSbscrbPrvnKey
+    	  FROM OP_USER
+    	 WHERE USER_ID = #{userId}
+    	   AND USER_NM = #{userNm}
+    	   AND USER_STTUS_CD != 1002
+    </select>
+    <!-- 아이디 검색 방식 변경 전체 변경방식으로 -->
+    <select id="findId" parameterType="userLoginVO" resultType="userLoginVO">
+        /* _userLogin.findId */
+        SELECT 
+               A.USER_ID        							AS userId
+             , A.USER_NM        							AS userNm
+             , A.USER_PASSWORD      						AS userPassword
+             , A.TELNO        								AS telno
+			 , decrypt(A.MBTLNUM, 'P007')					AS mbtlnum
+			 , decrypt(A.EMAIL, 'P008')           			AS email
+             , A.USER_TY_CD        							AS userTyCd
+             , A.USER_GRAD_CODE    							AS userGradCode
+             , A.USER_STTUS_CD      						AS userSttusCd
+             , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD.')			AS registDt
+          FROM OP_USER A
+         WHERE A.USER_STTUS_CD = 1001
+           AND A.USER_NM = #{userNm}
+           AND A.NATION_CODE = '410'
+    <if test="idUserTy != '' and idUserTy != null">
+    	<choose>
+    	<when test="idUserTy == &quot;A&quot;">
+    		AND A.USER_TY_CD IN (1001,2001,3001)
+    	</when>
+    	<otherwise>
+    		AND A.USER_TY_CD IN (1002,2002,3002)
+    	</otherwise>
+    	</choose>
+    </if>
+		<if test="idFindTy != '' and idFindTy != null">
+			<choose>
+        		<when test="idFindTy == 'email'">
+           AND decrypt(A.EMAIL, 'P008') = #{email}
+        		</when>
+        		<when test="idFindTy == 'mobile'">
+           AND decrypt(A.MBTLNUM, 'P007') = #{mbtlnum}
+        		</when>
+           	</choose>
+        </if>
+    </select>
+
+    <select id="findPwd" parameterType="userLoginVO" resultType="userLoginVO">
+        /* userLogin.findPwd */
+        SELECT
+               A.USER_ID        						AS userId
+             , A.USER_NM        						AS userNm
+             , A.USER_PASSWORD     					AS userPassword
+             , A.TELNO        							AS telno
+             , decrypt(A.MBTLNUM, 'P007')		AS mbtlnum
+             , decrypt(A.EMAIL, 'P008')     AS email
+             , A.USER_TY_CD        					AS userTyCd
+             , A.USER_GRAD_CODE    					AS userGradCode
+             , A.USER_STTUS_CD      				AS userSttusCd
+             , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD.')	AS registDt
+          FROM OP_USER A
+         WHERE A.USER_STTUS_CD = 1001
+           AND A.USER_ID = #{userId}
+           AND A.USER_NM = #{userNm}
+           AND A.NATION_CODE = '410'
+    <if test="idUserTy != '' and idUserTy != null">
+    	<choose>
+    	<when test="idUserTy == &quot;A&quot;">
+    		AND A.USER_TY_CD IN (1001,2001,3001)
+    	</when>
+    	<otherwise>
+    		AND A.USER_TY_CD IN (1002,2002,3002)
+    	</otherwise>
+    	</choose>
+    </if>
+		<if test="idFindTy != '' and idFindTy != null">
+			<choose>
+        		<when test="idFindTy == 'mobile'">
+           AND decrypt(A.MBTLNUM, 'P007') = #{mbtlnum}
+        		</when>
+        		<when test="idFindTy == 'email'">
+           AND decrypt(A.EMAIL, 'P008') = #{email}
+           		</when>
+           	</choose>
+        </if>
+    </select>
+    
+    <!-- 현재 비밀번호 체크 -->
+	<select id="currentPwd" parameterType="userLoginVO" resultType="string">
+		/* _userLogin.currentPwd */
+		SELECT USER_PASSWORD
+          FROM OP_USER
+         WHERE USER_ID = #{userId}
+	</select>
+	<!-- 이전 비밀번호 체크 -->
+	<select id="beforePwd" parameterType="userLoginVO" resultType="string">
+		/* _userLogin.beforePwd */
+		SELECT BEFORE_PASSWORD
+          FROM OP_USER
+         WHERE USER_ID = #{userId}
+	</select>
+    
+	<!-- 신규비밀번호 업데이트 -->
+	<update id="updateNewPwd" parameterType="userLoginVO">
+		/* _userLogin.updateNewPwd */
+		UPDATE OP_USER
+		   SET BEFORE_PASSWORD = USER_PASSWORD
+		     , USER_PASSWORD = #{userPassword}
+		     , UPDT_ID = #{updtId}
+		     , UPDT_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+	<!-- 로그인 시 로그인 이력을 남김 -->
+    <insert id="webLogging" parameterType="webUserLoginVO">
+        /* _userLogin.webLogging */
+        INSERT INTO OP_USER_LOGIN_HIST (
+             USER_ID
+			,LOGIN_PNTTM
+			,USER_LOGIN_MENU
+			,LOGIN_RESULT
+			,LOGIN_IP
+			,LOGIN_FAILR_REASON
+        ) VALUES (
+             #{UserLoginVO.userId}
+            ,SYS_DATETIME
+            ,#{loginMenu}
+            ,#{loginResult}
+            ,#{loginIp}
+            ,#{loginFailReason}
+        )
+    </insert>
+    <!-- 로그인한 사용자의 커뮤니티 목록 -->
+    <select id="cmInfoList" parameterType="userLoginVO" resultType="map">
+        /* _userLogin.cmInfoList */
+        SELECT A.LANG_CODE        	AS LANG_CODE,
+               A.CMMNTY_ID        	AS CMMNTY_ID
+          FROM TCM_CMNT_INFO_I A
+         WHERE A.USER_ID = #{userId}
+           AND A.CMMNTY_STTUS_CD = 1002
+    </select>
+    <!-- 비밀번호 변경 90일 확인 -->
+    <select id="passwordChangeDeCheck" parameterType="userLoginVO" resultType="string">
+        /* _userLogin.passwordChangeDeCheck */
+        <![CDATA[
+        SELECT
+               CASE WHEN TO_CHAR(SYSDATE-90, 'YYYYMMDD' ) > NVL(PASSWORD_CHANGE_DE, (NVL(TO_CHAR(updt_dt,'YYYYMMDD'),TO_CHAR(regist_dt,'YYYYMMDD'))))
+                    THEN 'Y'
+                    ELSE 'N'
+                END 			AS CHKYN
+          FROM OP_USER
+         WHERE USER_ID = #{userId}
+        ]]>
+    </select>
+    <!-- 사업자번호인증 확인 -->
+    <select id="cetifybizNo" parameterType="userLoginVO" resultType="string">
+    	/* _userLogin.cetifybizNo */
+    	SELECT OU.USER_NM
+    	  FROM OP_USER OU
+    	     , OP_USER_ENTRPRS_OPTION UEO
+    	<!-- 20150805 사업자번호 1개 이상 조회되는 문제로 user_id 조건 추가 시작-->
+    	<if test="bizrno == null or bizrno == '' or cmpnyNm == null or cmpnyNm == '' or userId == null or userId == ''">
+    	 WHERE 1 &gt; 1
+    	</if>
+   		<if test="bizrno != null and bizrno != '' and cmpnyNm != null and cmpnyNm != '' or userId != null or userId != ''">
+   		 WHERE OU.USER_ID = UEO.USER_ID
+   		   AND BIZRNO = #{bizrno}
+   		   AND CMPNY_NM = #{cmpnyNm}
+   		   AND OU.USER_ID = #{userId}
+   		</if>
+   		<!-- 20150805 사업자번호 1개 이상 조회되는 문제로 user_id 조건 추가 끝-->
+    </select>
+    
+    <!-- 약관동의 업데이트 -->
+	<update id="updateStplatAgre" parameterType="userLoginVO">
+		/* _userLogin.updateStplatAgre */
+		UPDATE OP_USER
+		   SET STPLAT_AGRE_AT = 'Y'
+			 , STPLAT_AGRE_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+</mapper>

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_myWish">
+    <!-- 이용희망목록 - 도입사업 영역 조회 -->
+    <select id="myWishList" parameterType="MyWishVO" resultType="MyWishVO">
+    	
+    /*_myWish.myWishList*/
+	    	
+			SELECT A.USER_ID 	    AS userId
+				  ,A.GRP_SEQ	    AS grpSeq
+				  ,A.AUDITLOG_NM    AS auditlogNm
+				  ,A.GOODS_TYCD     AS goodsTycd
+				  ,A.KEY_WORD	    AS keyWord
+				  ,B.LANG_CTGRY_NM  AS ctgryCode
+				  ,A.FILTER_CON     AS filterCon
+				  ,A.GOODS_CODE     AS goodsCode
+				  ,TO_CHAR(A.SRC_DT,'YYYY-MM-DD HH24:MI') AS srcDt
+				  ,NVL(A.CONFRM_CHK, 'N')  AS confrmChk			  
+			  FROM TCM_WISHORDER_INFO_I A
+   LEFT OUTER JOIN TST_CATE_MGMT_M B
+	            ON B.CTGRY_CODE  = A.CTGRY_CODE  
+	           AND B.CTGRY_CL_CD = A.GOODS_TYCD 
+	           AND LANG_CODE = '00'
+		     WHERE A.USER_ID = #{userId}
+		    
+		     <if test="goodsTyCd != null  and  goodsTyCd != ''">
+		     <!--이용희망목록을 SaaS,Pass, IaaS별 담지 안아 주석처리함 
+		         AND A.GOODS_TYCD = #{goodsTyCd} 			-->
+		     </if> 
+	      ORDER BY SRC_DT DESC
+	      
+    </select>
+
+    <!-- _myWish.myWishStoreList (구매희망 보관 목록) -->
+    <select id="myWishStoreList" parameterType="MyWishVO" resultType="MyWishVO">
+    /* _myWish.myWishStoreList */
+    /* 이용희망목록 > (탭1)이용희망목록 */
+    SELECT  logSeq
+	      , userId
+	      , grpSeq
+	      , goodsTyNm
+	      , goodsTycd
+	      , goodsCd
+	      , selChk
+	      , regDt
+	      , goodsNm
+	      , langStoreNm
+	      , langStoreUserId
+	      , filterCon
+	      , keyWord
+	      , goodsConfrmYn
+	      , contrctChk
+	      , confrmChk
+	      , confrmChkN
+	      , notifyNum --
+	      , MAX(notifySeq) AS notifySeq --
+	      , MIN(SPLYAMT) AS SPLYAMT
+	      , MAX(splyLen) AS splyLen
+      FROM  ( SELECT  A.LOG_SEQ               AS logSeq
+                    , A.USER_ID               AS userId
+                    , A.GRP_SEQ               AS grpSeq
+                    , CA.GOODSTYNM            AS goodsTyNm   /*서비스구분*/
+                    , CA.CTGRY_CL_CD          AS goodsTycd
+                    , A.GOODS_CODE            AS goodsCd
+                    , A.SEL_CHK               AS selChk
+                    , A.REG_DT                AS regDt
+                    , B.GOODS_NM              AS goodsNm
+                    , C.LANG_STORE_NM         AS langStoreNm
+                    , C.USER_ID               AS langStoreUserId
+                    , D.FILTER_CON            AS filterCon
+                    , D.KEY_WORD              AS keyWord
+                    , NVL(A.CONFRM_CHK, 'N')  AS goodsConfrmYn /* 서비스 확정여부 */
+                    , NVL(A.CONTRCT_CHK, 'N') AS contrctChk    /* 계약 확정여부 */ 
+                    , E.CONFM_GBN             AS confrmChk     /* null:'요청', Y:'보기', N:'미수신'  */
+                    , ( SELECT COUNT(*)
+                          FROM ( SELECT  A1.GOODS_CODE
+                                       , A1.CONFM_GBN
+                                       , A2.GRP_SEQ 
+                                       , A2.USER_ID
+                                   FROM  TCN_BEFORE_ESTE_SPLY A1
+                                       , TCN_BEFORE_ESTE_NOFY A2
+                                  WHERE  A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                                    AND  A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                               ) G
+                         WHERE G.GRP_SEQ    = A.GRP_SEQ 
+                           AND G.USER_ID    = A.USER_ID   
+                           AND G.GOODS_CODE = A.GOODS_CODE
+                           AND G.CONFM_GBN  = 'N' 
+                      ) AS confrmChkN    /* 공급자로부터 답변이없는건이 있는지 여부*/   
+                    , E.SPLY_AMT   AS splyAmt
+                    , E.NOTIFY_NUM AS notifyNum --
+                    , E.NOTIFY_SEQ AS notifySeq --
+                    , E.SPLY_LEN AS splyLen
+                FROM  TCM_WISHORDER_DETAIL_L A
+     LEFT OUTER JOIN  TST_GOOD_INFO_I B
+                  ON  B.GOODS_CODE = A.GOODS_CODE  
+     LEFT OUTER JOIN  ( SELECT  A.GOODS_CODE
+                              , (SELECT INDVDLZ_CD_NM
+                                   FROM OP_CODE_INDVDLZ
+                                  WHERE LANG_CODE  = '00'
+                                    AND GROUP_CD   = 1005
+                                    AND INDVDLZ_CD = B.CTGRY_CL_CD
+                                ) AS GOODSTYNM 
+                              , CTGRY_CL_CD
+                          FROM  TST_GOOD_CATE_I A
+                              , TST_CATE_MGMT_M B
+                         WHERE  B.CTGRY_CODE = A.CTGRY_CODE 
+                           AND  B.LANG_CODE  = '00'
+                      GROUP BY  A.GOODS_CODE
+                              , B.CTGRY_CL_CD
+                      ) CA 
+                   ON CA.GOODS_CODE = B.GOODS_CODE 
+      LEFT OUTER JOIN TUM_SVC_STOR_I C
+                   ON C.USER_ID = B.USER_ID  
+                  AND C.LANG_CODE = '00'
+      LEFT OUTER JOIN TCM_WISHORDER_INFO_I D
+                   ON D.USER_ID = A.USER_ID 
+                  AND D.GRP_SEQ = A.GRP_SEQ 
+      LEFT OUTER JOIN ( SELECT  A1.GOODS_CODE
+                              , A1.CONFM_GBN
+                              , A1.NOTIFY_NUM --
+                              , A1.NOTIFY_SEQ --
+                              , A2.GRP_SEQ 
+                              , A2.USER_ID
+                              , A1.SPLY_AMT
+                              , (NVL(LENGTH(A1.SPLY_AMT), 0) + NVL(LENGTH(A1.VAT_GBN), 0) + NVL(LENGTH(A1.ADD_ANSWER), 0) + NVL(LENGTH(A1.SPLY_NOTE), 0)) AS SPLY_LEN
+                          FROM  TCN_BEFORE_ESTE_SPLY A1
+                              , TCN_BEFORE_ESTE_NOFY A2
+                         WHERE  A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                           AND  A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                      ) E
+                   ON E.GRP_SEQ    = A.GRP_SEQ 
+                  AND E.USER_ID    = A.USER_ID   
+                  AND E.GOODS_CODE = A.GOODS_CODE 
+                WHERE A.GRP_SEQ = #{grpSeq}
+                  AND A.USER_ID = #{userId}
+                  AND NVL(A.CONFRM_CHK, 'N') ='N'
+                 
+                 <if test="goodsCodeList != null  and goodsCodeList != ''">
+                  AND A.GOODS_CODE IN ( <foreach collection="goodsCodeList" item="item" separator=", ">#{item}</foreach>)
+                 </if>
+	      )
+	GROUP BY logSeq
+	        ,userId
+	        ,grpSeq
+	        ,goodsTyNm
+	        ,goodsTycd
+	        ,goodsCd
+	        ,selChk
+	        ,regDt
+	        ,goodsNm
+	        ,langStoreNm
+	        ,langStoreUserId
+	        ,filterCon
+	        ,keyWord
+	        ,goodsConfrmYn
+	        ,contrctChk
+	        ,confrmChk
+	        ,confrmChkN
+	        ,notifyNum --
+	  HAVING (confrmChk IS NULL AND confrmChkN = 0)
+	      OR (confrmChk  =  'Y' AND confrmChkN = 0)
+	      OR (confrmChk  =  'N' )
+              
+    </select>
+
+    <!-- _myWish.myWishConfirmList (구매희망 확정 목록) -->
+    <select id="myWishConfirmList" parameterType="map" resultType="MyWishVO">
+           /* _myWish.myWishConfirmList */
+           /* 이용희망목록 > (탭2)이용대상 확정 */
+           
+           SELECT A.LOG_SEQ        AS logSeq
+                 ,A.USER_ID        AS userId
+                 ,A.GRP_SEQ        AS grpSeq
+                 ,CA.GOODSTYNM     AS goodsTyNm   /*서비스구분*/
+                 ,CA.CTGRY_CL_CD   AS goodsTycd   /*서비스Type(SaaS, PaaS, IaaS)*/
+                 ,A.GOODS_CODE     AS goodsCd
+                 ,A.SEL_CHK        AS selChk
+                 ,A.REG_DT         AS regDt
+                 ,B.GOODS_NM       AS goodsNm
+                 ,C.LANG_STORE_NM  AS langStoreNm
+                 ,C.USER_ID        AS langStoreUserId
+                 ,D.FILTER_CON     AS filterCon
+                 ,D.KEY_WORD       AS keyWord
+                 ,D.AUDITLOG_NM    AS auditlogNm
+                 ,F.SPLY_AMT       AS splyAmt
+                 ,G.SPLY_AMT       AS splyAmt_detail   /* 상세견적가 : 20180222 추가 */
+                 ,G.CONFM_GBN      AS confrmChk        /* 공급자 상세견적 확인 null:'요청'  */
+             FROM TCM_WISHORDER_DETAIL_L A
+  LEFT OUTER JOIN TST_GOOD_INFO_I B
+               ON B.GOODS_CODE = A.GOODS_CODE 
+  LEFT OUTER JOIN (  SELECT A.GOODS_CODE
+                           ,(SELECT INDVDLZ_CD_NM
+                               FROM OP_CODE_INDVDLZ
+                              WHERE LANG_CODE  = '00'
+                                AND GROUP_CD   = 1005
+                                AND INDVDLZ_CD = B.CTGRY_CL_CD
+                            ) AS GOODSTYNM 
+                           ,CTGRY_CL_CD
+                       FROM TST_GOOD_CATE_I A
+                           ,TST_CATE_MGMT_M B
+                      WHERE B.CTGRY_CODE = A.CTGRY_CODE 
+                        AND B.LANG_CODE  =  '00'
+                   GROUP BY A.GOODS_CODE
+                           ,B.CTGRY_CL_CD
+                  ) CA 
+               ON CA.GOODS_CODE = B.GOODS_CODE
+  LEFT OUTER JOIN TUM_SVC_STOR_I C
+               ON C.USER_ID = B.USER_ID 
+              AND C.LANG_CODE = '00'
+  LEFT OUTER JOIN TCM_WISHORDER_INFO_I D
+               ON D.USER_ID = A.USER_ID 
+              AND D.GRP_SEQ = A.GRP_SEQ   
+  LEFT OUTER JOIN OP_USER E
+               ON E.USER_ID = A.USER_ID 
+  LEFT OUTER JOIN ( SELECT A1.GOODS_CODE
+                          ,A1.CONFM_GBN
+                          ,A2.GRP_SEQ 
+                          ,A2.USER_ID
+                          ,A1.SPLY_AMT
+                      FROM TCN_BEFORE_ESTE_SPLY A1
+                          ,TCN_BEFORE_ESTE_NOFY A2
+                     WHERE A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                       AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                  ) F  
+               ON F.GRP_SEQ    = A.GRP_SEQ  
+              AND F.USER_ID    = A.USER_ID  
+              AND F.GOODS_CODE = A.GOODS_CODE 
+              /* 상세견적가를 구하기 위해 : 20180222 추가 */
+  LEFT OUTER JOIN ( SELECT A1.GOODS_CODE
+                          ,A1.CONFM_GBN
+                          ,A2.GRP_SEQ
+                          ,A1.USER_ID
+                          ,A1.SPLY_AMT
+                      FROM TCN_NOTIFY_SPLY_I A1
+                          ,TCN_BID_NOTIFY_I  A2
+                     WHERE A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                       AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                  ) G  
+               ON G.GRP_SEQ    = A.GRP_SEQ 
+              AND G.USER_ID    = A.USER_ID 
+              AND G.GOODS_CODE = A.GOODS_CODE 
+               /* 상세견적가를 구하기 위해 : 20180222 추가 */
+            WHERE A.GRP_SEQ = #{grpSeq}
+              AND A.USER_ID = #{userId}
+              AND NVL(A.CONFRM_CHK, 'N') = 'Y'
+              
+              <if test="goodsCd != null  and goodsCd != ''">
+              AND A.GOODS_CODE = #{goodsCd}
+              </if>
+              
+    </select>
+
+    <!-- _myWish.myWishConfrmDt (구매희망 확정 최종 생성일) -->
+    <select id="myWishConfrmDt" parameterType="map" resultType="String">
+    	/*_myWish.myWishConfrmDt*/
+		SELECT TO_CHAR(MAX(A.CONFRM_DT),'YYYY-MM-DD') AS confrmDt
+		  FROM TCM_WISHORDER_DETAIL_L A 
+		 WHERE A.GRP_SEQ = #{grpSeq}
+		   AND A.USER_ID = #{userId}
+		   AND NVL(A.CONFRM_CHK, 'N') = 'Y'
+    </select>
+
+    <select id="myWishInfo" parameterType="map" resultType="MyWishVO">
+    	/*_myWish.myWishInfo*/
+    	SELECT userId
+			 , grpSeq
+			 , auditlogNm
+			 , goodsTycd
+			 , keyWord
+			 , CASE WHEN ctgryNm IS NULL THEN goodsTyNm
+					ELSE goodsTyNm || ' > ' || ctgryNm
+				END as ctgryCode
+			 , filterCon
+			 , goodsCode
+			 , srcDt
+		  FROM (
+				SELECT A.USER_ID 	  as userId
+					 , A.GRP_SEQ	  as grpSeq
+					 , A.AUDITLOG_NM as auditlogNm
+					 , A.GOODS_TYCD  as goodsTycd
+					 , C.INDVDLZ_CD_NM as goodsTyNm
+					 , A.KEY_WORD	  as keyWord
+					 , (SELECT SUBSTRB(SYS_CONNECT_BY_PATH(LANG_CTGRY_NM, ' > '),4)
+                		  FROM TST_CATE_MGMT_M 
+              			 WHERE CTGRY_CODE = B.CTGRY_CODE
+               			 START WITH PARNTS_CTGRY_CODE = '0'
+          			   CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE) as ctgryNm
+					 , A.FILTER_CON  as filterCon
+					 , A.GOODS_CODE  as goodsCode
+					 , TO_CHAR(A.SRC_DT,'YYYY-MM-DD HH24:MI') AS srcDt
+				  FROM TCM_WISHORDER_INFO_I A
+				  LEFT OUTER JOIN TST_CATE_MGMT_M B
+					ON A.CTGRY_CODE = B.CTGRY_CODE
+				   AND A.GOODS_TYCD = B.CTGRY_CL_CD
+				   AND B.LANG_CODE = '00'
+				  LEFT OUTER JOIN OP_CODE_INDVDLZ C 
+				    ON A.GOODS_TYCD = C.INDVDLZ_CD 
+				   AND GROUP_CD = 1005 
+				   AND C.LANG_CODE = '00' 
+			     WHERE A.USER_ID = #{userId}
+			       AND A.GRP_SEQ = #{grpSeq}
+			   )
+         ORDER BY srcDt DESC
+    </select>
+
+    <!--  -->
+    <select id="myWishDetailList" parameterType="map" resultType="MyWishVO">
+    	/*_myWish.wishDetailList*/
+      	SELECT Y.* FROM (
+      		SELECT ROWNUM NUM, X.* FROM (
+				SELECT A.LOG_SEQ 	 as logSeq
+					 , A.USER_ID 	 as userId
+					 , A.GRP_SEQ 	 as grpSeq
+					 , A.GOODS_CODE   as goodsCode
+					 , A.SEL_CHK	 	 as selChk
+					 , A.REG_DT 	 	 as regDt
+					 , B.GOODS_NM 	 as goodsNm
+					 , C.LANG_STORE_NM as langStoreNm
+					 , D.FILTER_CON    as filterCon
+					 , D.KEY_WORD      as keyWord
+				  FROM TCM_WISHORDER_DETAIL_L A
+				       LEFT OUTER JOIN TST_GOOD_INFO_I B
+				                    ON A.GOODS_CODE = B.GOODS_CODE
+				       LEFT OUTER JOIN TUM_SVC_STOR_I C
+					                ON B.USER_ID = C.USER_ID
+					               AND C.LANG_CODE = '00'
+				       LEFT OUTER JOIN TCM_WISHORDER_INFO_I D
+					                ON A.USER_ID = D.USER_ID
+					               AND A.GRP_SEQ = D.GRP_SEQ 
+				 WHERE A.GRP_SEQ = #{grpSeq}
+				   AND A.USER_ID = #{userId}
+				   AND NVL(A.CONFRM_CHK, 'N') = 'N'
+        	) X  WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y  WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    
+    <select id="myWishDetailCount" parameterType="MyWishVO" resultType="int">
+     	/*_myWish.wishDetailCount*/      
+        SELECT COUNT(1) AS totalCount
+          FROM TCM_WISHORDER_DETAIL_L A
+		  LEFT OUTER JOIN TST_GOOD_INFO_I B
+			ON A.GOODS_CODE = B.GOODS_CODE
+		  LEFT OUTER JOIN TUM_SVC_STOR_I C
+			ON A.USER_ID = C.USER_ID
+		   AND C.LANG_CODE = '00'
+		 WHERE A.GRP_SEQ = #{grpSeq}
+		   AND A.USER_ID = #{userId}
+    </select>
+    
+    
+    <select id="myWishExcelList" parameterType="MyWishVO" resultType="MyWishVO">
+		/*_myWish.wishExcelList*/
+	   	SELECT A.LOG_SEQ 	 as logSeq
+			 , A.USER_ID 	 as userId
+			 , A.GRP_SEQ 	 as grpSeq
+			 , A.GOODS_CODE   as goodsCode
+			 , A.SEL_CHK	 	 as selChk
+			 , A.REG_DT 	 	 as regDt
+			 , B.GOODS_NM 	 as goodsNm
+			 , C.LANG_STORE_NM as langStoreNm
+		  FROM TCM_WISHORDER_DETAIL_L A
+		  LEFT OUTER JOIN TST_GOOD_INFO_I B
+			ON A.GOODS_CODE = B.GOODS_CODE
+		  LEFT OUTER JOIN TUM_SVC_STOR_I C
+			ON B.USER_ID = C.USER_ID
+		   AND C.LANG_CODE = '00'
+		 WHERE A.GRP_SEQ = #{grpSeq}
+		   AND A.USER_ID = #{userId}					 
+    </select>
+
+    <!-- _myWish.myWishMasterDelete (이용희망목록 - 마스터 삭제) -->
+    <delete id="myWishMasterDelete" parameterType="MyWishVO">
+    	/*_myWish.myWishMasterDelete*/
+    	DELETE FROM TCM_WISHORDER_INFO_I
+    	 WHERE USER_ID    = #{userId}
+		   AND GRP_SEQ    = #{grpSeq}
+    </delete>
+
+    <!-- _myWish.myWishDetailDelete (이용희망목록 - 상세 삭제) -->
+    <delete id="myWishDetailDelete" parameterType="MyWishVO">
+    	/*_myWish.myWishDetailDelete*/
+    	DELETE FROM TCM_WISHORDER_DETAIL_L
+    	 WHERE USER_ID    = #{userId}
+		   AND GRP_SEQ    = #{grpSeq}
+    </delete>
+
+	<!--
+     * SQL 명      : _myWish.myWishStoreGoodsDelete
+     * 기능(설명)  : 이용희망목록 - 보관목록 서비스 삭제
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-13
+    -->
+    <delete id="myWishStoreGoodsDelete" parameterType="MyWishVO">
+    	/*_myWish.myWishStoreGoodsDelete*/
+        DELETE FROM TCM_WISHORDER_DETAIL_L
+    	 WHERE GRP_SEQ    = #{grpSeq}
+		   AND USER_ID    = #{userId}
+		   AND GOODS_CODE = #{goodsCd}
+    </delete>
+
+    <!-- _myWish.myWishDetailConfirm (이용희망목록 - 보관목록 서비스 '이용대상확정'으로 이동) -->
+    <update id="myWishDetailConfirm" parameterType="MyWishVO">
+    	/*_myWish.myWishConfirm*/
+    	UPDATE TCM_WISHORDER_DETAIL_L 
+    	   SET CONFRM_CHK = 'Y'
+    	      ,CONFRM_DT  = SYSDATE
+    	 WHERE GRP_SEQ    = #{grpSeq}
+		   AND USER_ID    = #{userId}
+		   AND GOODS_CODE = #{goodsCd}
+    </update>
+    
+    <delete id="myWishInfoDelete" parameterType="MyWishVO">
+    	/*_myWish.myWishInfoDelete*/
+    	DELETE FROM TCM_WISHORDER_INFO_I
+    	 WHERE GRP_SEQ = #{grpSeq}
+		   AND USER_ID = #{userId}	
+    </delete>
+
+    <!-- _myWish.updateWishStatus (구매희망 사업에 완료 FLAG 처리) -->
+    <update id="updateWishStatus" parameterType="MyWishVO">
+    	/*_myWish.updateWishStatus*/
+    	UPDATE TCM_WISHORDER_INFO_I 
+    	   SET CONFRM_CHK = #{confrmChk}
+    	 WHERE USER_ID    = #{userId}
+		   AND GRP_SEQ    = #{grpSeq}
+    </update>
+    
+    <!-- _myWish.myWishOptional (확정목록 수의계약) -->
+    <insert id="myWishOptional" parameterType="MyWishVO">
+    	
+    	/*_myWish.myWishOptional*/
+    	
+        INSERT INTO TCM_CNTRCT_MANAGE_I 
+           SET USER_ID          =  #{langStoreUserId}
+              ,SVC_NM           =  #{auditlogNm}
+              ,CNTRCT_BEGIN_DE  =  TO_CHAR(SYS_DATETIME,'YYYYMMDD')
+              ,CNTRCT_END_DE    =  TO_CHAR(SYS_DATETIME,'YYYYMMDD')
+              ,CNTRCTAMOUNT     =  0
+              ,PURCHS_INSTT_NM  =  #{langStoreNm}
+              ,SLE_INSTT_NM     =  #{goodsNm}
+              ,CTRTC_SN         =  0
+              ,REGIST_ID        =  #{userId}
+              ,REGIST_DT        =  SYS_DATETIME
+              ,UPDT_ID          =  #{userId}
+              ,UPDT_DT          =  SYS_DATETIME
+              ,DELETE_AT        =  'N'
+              ,COMM_USER_ID     =  #{userId}
+              ,GOODS_CODE       =  #{goodsCd}
+              ,REGIST_MTHD_CODE =  1002
+              
+    </insert>
+    
+    <!-- _myWish.myWishConfirmGoodsDelete (구매확정목록 - 확정목록 서비스 삭제 '이용희망목록'으로이동) -->
+    <update id="myWishConfirmGoodsDelete" parameterType="MyWishVO">
+    	/*_myWish.myWishConfirmGoodsDelete*/
+    	UPDATE TCM_WISHORDER_DETAIL_L 
+    	   SET CONFRM_CHK = NULL
+    	 WHERE USER_ID    = #{userId}
+		   AND GRP_SEQ    = #{grpSeq}
+    </update>
+    
+    <!-- _myWish.myWishSetCntrctChk 계약확정 처리 -->
+    <update id="myWishSetCntrctChk" parameterType="MyWishVO">
+    	
+    	/*_myWish.myWishSetCntrctChk*/
+    	
+    	UPDATE TCM_WISHORDER_DETAIL_L 
+    	   SET CONTRCT_CHK = 'Y'          /* '계약확정' */
+    	      ,CONTRCT_DT  = SYSDATETIME
+    	 WHERE USER_ID    = #{userId}
+		   AND GRP_SEQ    = #{grpSeq}
+		   AND GOODS_CODE = #{goodsCd}
+		   
+    </update>
+
+    <select id="beforeEstimate" parameterType="WishViewVO" resultType="MyCeartBeforeNofyVO">
+		
+		/*_myWish.beforeEstimate*/
+		
+       SELECT WD.USER_ID       AS userId
+             ,WD.GRP_SEQ       AS grpSeq
+             ,WD.GOODS_CODE    AS goodsCode
+             ,BE.NOTIFY_NUM    AS notifyNum
+             ,BE.NOTIFY_SEQ    AS notifySeq
+             ,BE.SPLY_USER_ID  AS langStoreId
+         FROM TCM_WISHORDER_DETAIL_L WD 
+   INNER JOIN (        
+                  SELECT SPLY.USER_ID    AS SPLY_USER_ID
+                        ,SPLY.GOODS_CODE 
+                        ,SPLY.CONFM_GBN
+                        ,SPLY.SPLY_AMT
+                        ,NFY.USER_ID     AS NFY_USER_ID
+                        ,NFY.GRP_SEQ 
+                        ,NFY.NOTIFY_NUM
+                        ,NFY.NOTIFY_SEQ
+                    FROM TCN_BEFORE_ESTE_SPLY SPLY
+                        ,TCN_BEFORE_ESTE_NOFY NFY
+                   WHERE SPLY.NOTIFY_NUM = NFY.NOTIFY_NUM 
+                     AND SPLY.NOTIFY_SEQ = NFY.NOTIFY_SEQ
+              ) BE
+           ON BE.NFY_USER_ID = WD.USER_ID
+          AND BE.GOODS_CODE  = WD.GOODS_CODE     
+        WHERE 1=1          
+          AND WD.LOG_SEQ =  #{logSeq}  
+  
+    </select>
+
+    <select id="historyGoodsSearch" parameterType="WishViewVO" resultType="HistoryGoodsSearchVO">
+
+		/*_myWish.historyGoodsSearch*/
+
+     SELECT BE.KEYWORD    AS keyword
+           ,BE.FILTERCON  AS filtercon
+       FROM TCM_WISHORDER_DETAIL_L WD 
+ INNER JOIN (
+              SELECT *
+                FROM TST_GOOD_SEACH_HISTORY          
+               WHERE HISTOTY_SN = (
+                                    SELECT MAX(HISTOTY_SN) HISTOTY_SN
+                                      FROM TST_GOOD_SEACH_HISTORY          
+                                     WHERE USER_ID    = WD.USER_ID
+                                       AND GOODS_CODE = WD.GOODS_CODE     
+                                  )
+            ) BE
+         ON BE.USER_ID    = WD.USER_ID
+        AND BE.GOODS_CODE = WD.GOODS_CODE     
+      WHERE 1=1                    
+        AND WD.LOG_SEQ =  #{logSeq}
+
+    </select>
+    
+    <select id="myWishStore" parameterType="MyWishVO" resultType="MyWishVO">
+    
+    /* _myWish.myWishStore */
+    
+		     SELECT B.GOODS_NM      AS goodsNm
+		           ,C.LANG_STORE_NM AS langStoreNm
+		       FROM TCM_WISHORDER_DETAIL_L WD 
+    LEFT OUTER JOIN TST_GOOD_INFO_I B
+                 ON B.GOODS_CODE = WD.GOODS_CODE  
+    LEFT OUTER JOIN TUM_SVC_STOR_I C
+                 ON C.USER_ID = B.USER_ID  
+                AND C.LANG_CODE = '00'
+		      WHERE 1=1                    
+		        AND WD.LOG_SEQ = #{logSeq}
+              
+    </select>
+    
+</mapper>

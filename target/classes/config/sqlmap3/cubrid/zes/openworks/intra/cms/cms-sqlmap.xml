@@ -1,0 +1,878 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =========================================================
+    * Description : 사용자메뉴관리 sqlmap 정의 파일
+    * Create      : xanadu
+    * $Id: cms-sqlmap.xml 2029 2010-08-25 16:32:48Z xanadu $
+    =========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="intra.cms">
+
+    <select id="getMenu" parameterType="cmsVO" resultType="cmsVO">
+    	/* intra.cms.getMenu */
+        SELECT
+            A.DOMAIN_CD AS domainCd,
+            B.DOMAIN_NM AS domainNm,
+            B.PORT_NO AS portNo,
+            A.USER_MENU_CODE AS menuCode,
+            A.USER_MENU_NM AS menuNm,
+            A.MENU_TITLE AS title,
+            A.BASS_PATH AS basePath,
+            A.MENU_PATH AS menuPath,
+            A.TOP_MENU_CODE AS topMenuCode,
+            A.PARNTS_MENU_CODE AS parentMenuCode,
+            A.MENU_DP AS menuDepth,
+            A.SORT_ORDR AS sortOrder,
+            A.MNGR_MENU_URL AS adminMenuUrl,
+            A.USER_MENU_URL AS userMenuUrl,
+            A.INDICT_YN AS showYn,
+            A.USE_YN AS useYn,
+            A.STATS_USE_YN AS statisticsUseYn,
+            A.SNS_USE_YN AS snsUseYn,
+            A.MENU_TY AS menuType,
+            A.CNTNTS_TY AS contentType,
+            A.CONTROLLER_NM AS controlNm,
+            A.CONFM_YN AS approvalYn,
+            A.LINK_TY AS linkType,
+            A.CHARGE_DEPT_CODE AS chargeDeptCode,
+            (SELECT OP_DEPT.DEPT_NM FROM OP_DEPT WHERE OP_DEPT.DEPT_CODE = A.CHARGE_DEPT_CODE) AS chargeDeptNm,
+            A.CHARGER_ID AS chargerId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.CHARGER_ID) AS chargerNm,
+            A.AUTH_TY AS authType,
+            A.AUTH_DEPT_CODE AS authDeptCd,
+            (SELECT OP_DEPT.DEPT_NM FROM OP_DEPT WHERE OP_DEPT.DEPT_CODE = A.AUTH_DEPT_CODE) AS authDeptNm,
+            A.CHARGER_INDICT_YN AS chargerShowYn,
+            A.LAYOUT_CODE AS layoutCode,
+            A.PARNTS_LAYOUT_USE_YN AS parentLayoutUseYn,
+            A.CNTNTS_SN AS contentSeqNo,
+            A.MENU_HEAD_CNTNTS AS headContents,
+            A.MENU_FOOT_CNTNTS AS footContents,
+            A.SJ_IMAGE AS titleImg,
+            A.MENU_SJ_IMAGE AS menuTitleImg,
+            A.MENU_ON_IMAGE AS menuOnImg,
+            A.MENU_OFF_IMAGE AS menuOffImg,
+            A.FILE_SEQ AS fileSeqNo,
+            DECODE(
+                (SELECT COUNT (USER_MENU_CODE) FROM OP_USER_MENU MENU
+                    WHERE MENU.DOMAIN_CD = A.DOMAIN_CD
+                        AND MENU.PARNTS_MENU_CODE = A.USER_MENU_CODE), 0, '1', '0') AS leaf,
+            A.REGIST_ID AS regId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.REGIST_ID) AS regNm,
+            A.REGIST_DT AS regDt,
+            A.UPDT_ID AS modId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.UPDT_ID) AS modNm,
+            A.UPDT_DT AS modDt,
+            (SELECT APPLC_YN FROM OP_USER_MENU_CONTENTS 
+                WHERE DOMAIN_CD = A.DOMAIN_CD AND USER_MENU_CODE = A.USER_MENU_CODE 
+                    AND CNTNTS_SN = A.CNTNTS_SN) AS applyYn
+        FROM
+            OP_USER_MENU A, OP_DOMAIN B
+        WHERE
+                A.DOMAIN_CD = #{domainCd}
+            AND A.DOMAIN_CD = B.DOMAIN_CD
+            AND A.USER_MENU_CODE = #{menuCode}
+    </select>
+
+    <resultMap id="menuList" type="cmsVO">
+        <result property="domainCd" column="domainCd"/>
+        <result property="domainNm" column="domainNm"/>
+        <result property="menuCode" column="menuCode"/>
+        <result property="menuNm" column="menuNm"/>
+        <result property="topMenuNm" column="topMenuNm"/>
+        <result property="topMenuImg" column="topMenuImg"/>
+        <result property="title" column="title"/>
+        <result property="basePath" column="basePath"/>
+        <result property="menuPath" column="menuPath"/>
+        <result property="topMenuCode" column="topMenuCode"/>
+        <result property="parentMenuCode" column="parentMenuCode"/>
+        <result property="menuDepth" column="menuDepth"/>
+        <result property="sortOrder" column="sortOrder"/>
+        <result property="adminMenuUrl" column="adminMenuUrl"/>
+        <result property="userMenuUrl" column="userMenuUrl"/>
+        <result property="menuType" column="menuType"/>
+        <result property="contentType" column="contentType"/>
+        <result property="linkType" column="linkType"/>
+        <result property="chargeDeptCode" column="chargeDeptCode"/> 
+        <result property="chargeDeptNm" column="chargeDeptNm"/>
+        <result property="chargerId" column="chargerId"/>
+        <result property="chargerNm" column="chargerNm"/>
+        <result property="chargerShowYn" column="chargerShowYn"/>
+        <result property="statisticsUseYn" column="statisticsUseYn"/>
+        <result property="snsUseYn" column="snsUseYn"/>
+        <!-- <result property="satisfyShowYn" column="satisfyShowYn"/> -->
+        <result property="layoutCode" column="layoutCode"/>
+        <result property="contentSeqNo" column="contentSeqNo"/>
+        <result property="headContents" column="headContents"/>
+        <result property="footContents" column="footContents"/>
+        <result property="titleImg" column="titleImg"/>
+        <result property="menuTitleImg" column="menuTitleImg"/>
+        <result property="menuOnImg" column="menuOnImg"/>
+        <result property="menuOffImg" column="menuOffImg"/>
+        <result property="showYn" column="showYn"/>
+        <result property="leaf" column="leaf"/>
+        <association property="userGradeCd" select="intra.cms.getUserGradeList" column="{domainCd=domainCd,menuCode=menuCode}"/>
+        <association property="childList" select="intra.cms.getMenuList" column="{domainCd=domainCd,parentMenuCode=menuCode,useYn=useYn}"/>
+        <association property="parentVo" select="intra.cms.getMenu" column="{domainCd=domainCd,menuCode=parentMenuCode}"/>
+    </resultMap>
+
+    <!-- 메뉴 관리 목록 -->
+    <select id="getMenuList" parameterType="cmsVO" resultMap="menuList">
+    	/* intra.cms.getMenuList */
+         SELECT
+             DOMAIN_CD AS domainCd,
+             (SELECT DOMAIN_NM FROM OP_DOMAIN 
+               WHERE DOMAIN_CD = OP_USER_MENU.DOMAIN_CD) AS domainNm,
+             (SELECT A.USER_MENU_NM FROM OP_USER_MENU A 
+               WHERE A.DOMAIN_CD = #{domainCd} 
+                 AND A.USER_MENU_CODE = OP_USER_MENU.TOP_MENU_CODE) AS topMenuNm,
+             (SELECT A.MENU_SJ_IMAGE FROM OP_USER_MENU A 
+               WHERE A.DOMAIN_CD = #{domainCd} 
+                 AND A.USER_MENU_CODE = OP_USER_MENU.TOP_MENU_CODE) AS topMenuImg,
+             USER_MENU_CODE AS menuCode,
+             USER_MENU_NM AS menuNm,
+             MENU_TITLE AS title,
+             BASS_PATH AS basePath,
+             MENU_PATH AS menuPath,
+             TOP_MENU_CODE AS topMenuCode,
+             PARNTS_MENU_CODE AS parentMenuCode,
+             MENU_DP AS menuDepth,
+             SORT_ORDR AS sortOrder,
+             MNGR_MENU_URL AS adminMenuUrl,
+             USER_MENU_URL AS userMenuUrl,
+             MENU_TY AS menuType,
+             CNTNTS_TY AS contentType,
+             LINK_TY AS linkType,
+             CHARGE_DEPT_CODE AS chargeDeptCode,
+             (SELECT OD.DEPT_NM FROM OP_DEPT OD
+               WHERE OD.DEPT_CODE = OP_USER_MENU.CHARGE_DEPT_CODE) AS chargeDeptNm,
+             CHARGER_ID AS chargerId,
+             (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU.CHARGER_ID) AS chargerNm,
+             CHARGER_INDICT_YN AS chargerShowYn,
+             STATS_USE_YN AS statisticsUseYn,
+             SNS_USE_YN AS snsUseYn,
+             <!-- SATISFY_SHOW_YN AS satisfyShowYn, -->
+             LAYOUT_CODE AS layoutCode,
+             CNTNTS_SN AS contentSeqNo,
+             MENU_HEAD_CNTNTS AS headContents,
+             MENU_FOOT_CNTNTS AS footContents,
+             SJ_IMAGE AS titleImg,
+             MENU_SJ_IMAGE AS menuTitleImg,
+             MENU_ON_IMAGE AS menuOnImg,
+             MENU_OFF_IMAGE AS menuOffImg,
+             INDICT_YN AS showYn,
+             USE_YN AS useYn,
+             DECODE((SELECT COUNT (USER_MENU_CODE) 
+                       FROM OP_USER_MENU UM
+                      WHERE UM.DOMAIN_CD = OP_USER_MENU.DOMAIN_CD
+                        AND UM.PARNTS_MENU_CODE = OP_USER_MENU.USER_MENU_CODE), 0, '1', '0') AS leaf
+        FROM OP_USER_MENU
+       WHERE DOMAIN_CD = #{domainCd}
+         AND PARNTS_MENU_CODE != 'DOMAIN'
+        <if test="parentMenuCode != null  and parentMenuCode != ''">
+         AND PARNTS_MENU_CODE = #{parentMenuCode}
+        </if>
+        <if test="minMenuDepth != null  and minMenuDepth != ''">
+         AND MENU_DP &gt;= #{minMenuDepth}
+        </if>
+        <if test="maxMenuDepth != null  and maxMenuDepth != ''">
+         AND MENU_DP &lt;= #{maxMenuDepth}
+        </if>
+        <if test="menuDepth != null  and menuDepth != ''">
+         AND MENU_DP = #{menuDepth}
+        </if>
+        <if test="useYn != null  and useYn != ''">
+         AND USE_YN = #{useYn}
+        </if>
+        <if test="showYn != null  and showYn != ''">
+         AND INDICT_YN = #{showYn}
+        </if>
+       ORDER BY MENU_DP ASC, SORT_ORDR ASC
+    </select>
+
+    <select id="getMenuTreeList" parameterType="cmsVO" resultType="treeVO">
+    	/* intra.cms.getMenuTreeList */
+        SELECT USER_MENU_CODE AS id,
+               USER_MENU_NM  AS text,
+               MENU_DP AS [depth],
+               USER_MENU_URL AS href,
+               DECODE(USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE((SELECT COUNT(UM.USER_MENU_CODE) 
+                         FROM OP_USER_MENU UM
+                        WHERE UM.DOMAIN_CD = A.DOMAIN_CD
+                          AND UM.PARNTS_MENU_CODE = A.USER_MENU_CODE), 0, '1', '0') AS leaf
+          FROM OP_USER_MENU A
+         WHERE DOMAIN_CD = #{domainCd}
+           AND PARNTS_MENU_CODE != 'DOMAIN'
+        <if test="parentMenuCode != null  and parentMenuCode != ''">
+           AND PARNTS_MENU_CODE = #{parentMenuCode}
+        </if>
+        <if test="useYn != null  and useYn != ''">
+           AND USE_YN = #{useYn}
+        </if>
+        <if test="showYn != null  and showYn != ''">
+           AND INDICT_YN = #{showYn}
+        </if>
+         ORDER BY SORT_ORDR ASC
+    </select>
+
+    <!-- 특정 메뉴 하위 모든 메뉴 리스트 -->
+    <select id="getBaseMenuList" parameterType="cmsVO" resultType="cmsVO">
+    	/* intra.cms.getBaseMenuList */
+		SELECT DOMAIN_CD AS domainCd,
+               USER_MENU_CODE AS menuCode,
+               USER_MENU_NM AS menuNm,
+               MENU_TITLE AS title,
+               BASS_PATH AS basePath,
+               MENU_PATH AS menuPath,
+               TOP_MENU_CODE AS topMenuCode,
+               PARNTS_MENU_CODE AS parentMenuCode,
+               (SELECT USER_MENU_URL 
+                  FROM OP_USER_MENU 
+                 WHERE USER_MENU_CODE = OP_USER_MENU.PARNTS_MENU_CODE) AS parentUserMenuUrl,
+               MENU_DP AS menuDepth,
+               USER_MENU_URL AS userMenuUrl,
+               MENU_TY AS menuType,
+               CNTNTS_TY AS contentType,
+               LINK_TY AS linkType,
+               INDICT_YN AS showYn,
+               DECODE((SELECT COUNT (USER_MENU_CODE) FROM OP_USER_MENU MENU
+                        WHERE MENU.DOMAIN_CD = OP_USER_MENU.DOMAIN_CD
+                          AND MENU.PARNTS_MENU_CODE = OP_USER_MENU.USER_MENU_CODE), 0, '1', '0') AS leaf
+          FROM OP_USER_MENU
+         WHERE DOMAIN_CD = #{domainCd}
+         START WITH USER_MENU_CODE = #{menuCode} AND DOMAIN_CD = #{domainCd}
+       CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE AND DOMAIN_CD = #{domainCd}
+         ORDER SIBLINGS BY SORT_ORDR
+    </select>
+
+    <select id="getSortOrderList" parameterType="cmsVO" resultType="cmsVO">
+    	/* intra.cms.getSortOrderList */
+        SELECT DOMAIN_CD AS domainCd,
+               (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = OP_USER_MENU.DOMAIN_CD) AS domainNm,
+               TOP_MENU_CODE AS topMenuCode,
+               PARNTS_MENU_CODE AS parentMenuCode,
+               USER_MENU_CODE AS menuCode,
+               MENU_DP AS menuDepth,
+               SORT_ORDR AS sortOrder
+          FROM OP_USER_MENU
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE != #{menuCode}
+           AND PARNTS_MENU_CODE != 'DOMAIN'
+           AND PARNTS_MENU_CODE = #{parentMenuCode}
+         ORDER BY SORT_ORDR ASC
+    </select>
+
+    <insert id="insertMenu" parameterType="cmsVO">
+    	/* intra.cms.insertMenu */
+        INSERT INTO OP_USER_MENU (
+            DOMAIN_CD,
+            USER_MENU_CODE,
+            USER_MENU_NM,
+            MENU_TITLE,
+            BASS_PATH,
+            MENU_PATH,
+            TOP_MENU_CODE,
+            PARNTS_MENU_CODE,
+            MENU_DP,
+            SORT_ORDR,
+            MNGR_MENU_URL,
+            USER_MENU_URL,
+            <if test="showYn != null  and showYn != ''">
+            INDICT_YN,
+            </if>
+            <if test="useYn != null  and useYn != ''">
+            USE_YN,
+            </if>
+            <if test="statisticsUseYn != null  and statisticsUseYn != ''">
+            STATS_USE_YN,
+            </if>
+            <if test="snsUseYn != null  and snsUseYn != ''">
+            SNS_USE_YN,
+            </if>
+            MENU_TY,
+            CNTNTS_TY,
+            CONTROLLER_NM,
+            <if test="approvalYn != null  and approvalYn != ''">
+            CONFM_YN,
+            </if>
+            LINK_TY,
+            <if test="chargerShowYn != null  and chargerShowYn != ''">
+            CHARGER_INDICT_YN,
+            </if>
+            CHARGE_DEPT_CODE,
+            CHARGER_ID,
+            AUTH_TY,
+            AUTH_DEPT_CODE,
+            LAYOUT_CODE,
+            CNTNTS_SN,
+            MENU_HEAD_CNTNTS,
+            MENU_FOOT_CNTNTS,
+            SJ_IMAGE,
+            MENU_SJ_IMAGE,
+            MENU_ON_IMAGE,
+            MENU_OFF_IMAGE,
+            FILE_SEQ,
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{domainCd},
+            #{menuCode},
+            #{menuNm},
+            #{title},
+            #{basePath},
+            #{menuPath},
+            #{topMenuCode},
+            #{parentMenuCode},
+            #{menuDepth},
+            <!-- #{sortOrder} -->
+            (SELECT NVL(MAX(SORT_ORDR), 0) + 1 FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = #{domainCd} AND PARNTS_MENU_CODE = #{parentMenuCode}),
+            #{adminMenuUrl},
+            #{userMenuUrl},
+            <if test="showYn != null  and showYn != ''">
+            #{showYn},
+            </if>
+            <if test="useYn != null  and useYn != ''">
+            #{useYn},
+            </if>
+            <if test="statisticsUseYn != null  and statisticsUseYn != ''">
+            #{statisticsUseYn},
+            </if>
+            <if test="snsUseYn != null  and snsUseYn != ''">
+            #{snsUseYn},
+            </if>
+            #{menuType},
+            #{contentType},
+            #{controlNm},
+            <if test="approvalYn != null  and approvalYn != ''">
+            #{approvalYn},
+            </if>
+            #{linkType},
+            <if test="chargerShowYn != null  and chargerShowYn != ''">
+            #{chargerShowYn},
+            </if>
+            #{chargeDeptCode},
+            #{chargerId},
+            #{authType},
+            #{authDeptCd},
+            #{layoutCode},
+            #{contentSeqNo},
+            #{headContents},
+            #{footContents},
+            #{titleImg},
+            #{menuTitleImg},
+            #{menuOnImg},
+            #{menuOffImg},
+            #{fileSeqNo},
+            #{regId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <update id="updateMenu" parameterType="cmsVO">
+    	/* intra.cms.updateMenu */
+        UPDATE OP_USER_MENU SET
+	           USER_MENU_NM = #{menuNm},
+	           MENU_TITLE = #{title},
+	           <if test="basePath != null  and basePath != ''">
+	           BASS_PATH = #{basePath},
+	           </if>
+	           <if test="menuPath != null  and menuPath != ''">
+	           MENU_PATH = #{menuPath},
+	           </if>
+	           <if test="menuDepth != null  and menuDepth != ''">
+	           MENU_DP = #{menuDepth},
+	           </if>
+	           MNGR_MENU_URL = #{adminMenuUrl},
+	           USER_MENU_URL = #{userMenuUrl},
+	           INDICT_YN = #{showYn},
+	           USE_YN = #{useYn},
+	           <!-- SATISFY_SHOW_YN = #{satisfyShowYn}, -->
+	           STATS_USE_YN = #{statisticsUseYn},
+	           SNS_USE_YN = #{snsUseYn},
+	           MENU_TY = #{menuType},
+	           CNTNTS_TY = #{contentType},
+	           CONTROLLER_NM = #{controlNm},
+	           CONFM_YN = #{approvalYn},
+	           LINK_TY = #{linkType},
+	           CHARGER_INDICT_YN = #{chargerShowYn},
+	           CHARGE_DEPT_CODE = #{chargeDeptCode},
+	           CHARGER_ID = #{chargerId},
+	           AUTH_TY = #{authType},
+	           AUTH_DEPT_CODE = #{authDeptCd},
+	           LAYOUT_CODE = #{layoutCode},
+	           PARNTS_LAYOUT_USE_YN = #{parentLayoutUseYn},
+	           <if test="contentSeqNo != null  and contentSeqNo != ''">
+	           CNTNTS_SN = #{contentSeqNo},
+	           </if>
+	           MENU_HEAD_CNTNTS = #{headContents},
+	           MENU_FOOT_CNTNTS = #{footContents},
+	           SJ_IMAGE = #{titleImg},
+	           MENU_SJ_IMAGE = #{menuTitleImg},
+	           MENU_ON_IMAGE = #{menuOnImg},
+	           MENU_OFF_IMAGE = #{menuOffImg},
+	           FILE_SEQ = #{fileSeqNo},
+	           UPDT_ID = #{modId},
+	           UPDT_DT = SYS_DATETIME
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </update>
+
+    <update id="chargerUpdateMenu" parameterType="cmsVO">
+    	/* intra.cms.chargerUpdateMenu */
+        UPDATE OP_USER_MENU SET
+               MENU_TITLE = #{title},
+               MENU_HEAD_CNTNTS = #{headContents},
+               MENU_FOOT_CNTNTS = #{footContents},
+               UPDT_ID = #{modId},
+               UPDT_DT = SYS_DATETIME
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </update>
+
+    <update id="updateChildLayoutCode" parameterType="cmsVO">
+    	/* intra.cms.updateChildLayoutCode */
+        UPDATE OP_USER_MENU SET
+               LAYOUT_CODE = #{layoutCode}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND TOP_MENU_CODE = #{topMenuCode}
+           AND PARNTS_LAYOUT_USE_YN = 'Y'
+           AND MENU_DP  &gt;  #{menuDepth}
+           AND USER_MENU_CODE IN (SELECT USER_MENU_CODE
+                				 	FROM OP_USER_MENU
+                				   WHERE DOMAIN_CD = #{domainCd}
+             					   START WITH DOMAIN_CD = #{domainCd} 
+             					     AND PARNTS_MENU_CODE = #{menuCode}
+                				 CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+            					 )
+    </update>
+
+    <update id="updateMoveMenu" parameterType="cmsVO">
+    	/* intra.cms.updateMoveMenu */
+        UPDATE OP_USER_MENU
+           SET MENU_PATH = #{menuPath},
+               BASS_PATH = #{basePath},
+               MENU_DP = #{menuDepth},
+    		<if test="sortOrder != null and sortOrder != ''">
+               SORT_ORDR = #{sortOrder},
+        	</if>
+               TOP_MENU_CODE = #{topMenuCode},
+               PARNTS_MENU_CODE = #{parentMenuCode}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </update>
+
+    <update id="updateContentInfo" parameterType="cmsVO">
+    	/* intra.cms.updateContentInfo */
+        UPDATE OP_USER_MENU
+           SET CNTNTS_SN = #{contentSeqNo}
+       	<if test="userMenuUrl != null  and userMenuUrl != ''">
+             , USER_MENU_URL = #{userMenuUrl}
+        </if>
+        <if test="adminMenuUrl != null  and adminMenuUrl != ''">
+             , MNGR_MENU_URL = #{adminMenuUrl}
+        </if>
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </update>
+
+    <select id="getDeleteMenu" parameterType="cmsVO" resultType="cmsVO">
+    	/* intra.cms.getDeleteMenu */
+        SELECT MENU_TY AS menuType,
+               SJ_IMAGE AS titleImg,
+               MENU_SJ_IMAGE AS menuTitleImg,
+               MENU_ON_IMAGE AS menuOnImg,
+               MENU_OFF_IMAGE AS menuOffImg,
+               FILE_SEQ AS fileSeqNo
+          FROM OP_USER_MENU
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </select>
+
+    <select id="getDeleteMenuList" parameterType="cmsVO" resultType="cmsVO">
+    	/* intra.cms.getDeleteMenuList */
+	   	SELECT 
+	   	       USER_MENU_CODE as menuCode,
+	           MENU_TY AS menuType,
+	           SJ_IMAGE AS titleImg,
+	           MENU_SJ_IMAGE AS menuTitleImg,
+	           MENU_ON_IMAGE AS menuOnImg,
+	           MENU_OFF_IMAGE AS menuOffImg,
+	           FILE_SEQ AS fileSeqNo
+	      FROM OP_USER_MENU
+	     WHERE DOMAIN_CD = #{domainCd}
+	     START WITH DOMAIN_CD = #{domainCd} 
+	       AND USER_MENU_CODE = #{menuCode}
+	   CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE AND DOMAIN_CD = #{domainCd}
+    </select>
+
+    <delete id="deleteCascadeContent" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeContent */
+        DELETE 
+          FROM OP_USER_MENU_CONTENTS 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+              									 FROM OP_USER_MENU
+             									WHERE DOMAIN_CD = #{domainCd}
+            									START WITH DOMAIN_CD = #{domainCd} 
+            									  AND USER_MENU_CODE = #{menuCode}
+            								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+        									  )
+    </delete>
+
+    <delete id="deleteCascadeSatisfyDetl" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeSatisfyDetl */
+        DELETE 
+          FROM OP_USER_MENU_SATISFY_DETL 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+              									 FROM OP_USER_MENU
+             									WHERE DOMAIN_CD = #{domainCd}
+            									START WITH DOMAIN_CD = #{domainCd} 
+            									  AND USER_MENU_CODE = #{menuCode}
+            								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+        									  )
+    </delete>
+
+    <delete id="deleteCascadeSatisfy" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeSatisfy */
+        DELETE 
+          FROM OP_USER_MENU_SATISFY 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+											              FROM OP_USER_MENU
+											             WHERE DOMAIN_CD = #{domainCd}
+											            START WITH DOMAIN_CD = #{domainCd} AND USER_MENU_CODE = #{menuCode}
+											            CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+											        )
+    </delete>
+
+    <delete id="deleteCascadeSubUrls" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeSubUrls */
+        DELETE 
+          FROM OP_USER_MENU_SUB_URLS
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+              									 FROM OP_USER_MENU
+             									WHERE DOMAIN_CD = #{domainCd}
+            									START WITH DOMAIN_CD = #{domainCd} 
+            									  AND USER_MENU_CODE = #{menuCode}
+            								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+        									  )
+    </delete>
+
+    <delete id="deleteCascadeStatistics" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeStatistics */
+        DELETE 
+          FROM OP_STATISTICS_MENU 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+											              FROM OP_USER_MENU
+											             WHERE DOMAIN_CD = #{domainCd}
+											            START WITH DOMAIN_CD = #{domainCd} AND USER_MENU_CODE = #{menuCode}
+											            CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+											        )
+    </delete>
+
+    <delete id="deleteCascadeAuthMgr" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeAuthMgr */
+        DELETE 
+          FROM OP_USER_MENU_AUTH 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+              									 FROM OP_USER_MENU
+             								    WHERE DOMAIN_CD = #{domainCd}
+            							        START WITH DOMAIN_CD = #{domainCd} 
+            							          AND USER_MENU_CODE = #{menuCode}
+            								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+        									  )
+    </delete>
+
+    <delete id="deleteCascadeUserGrade" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeUserGrade */
+        DELETE 
+          FROM OP_USER_MENU_GRADE 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+                                                 FROM OP_USER_MENU
+                                                WHERE DOMAIN_CD = #{domainCd}
+				            				    START WITH DOMAIN_CD = #{domainCd} 
+				            				      AND USER_MENU_CODE = #{menuCode}
+             								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE
+        									  )
+    </delete>
+
+    <delete id="deleteCascadeMenu" parameterType="cmsVO">
+    	/* intra.cms.deleteCascadeMenu */
+        DELETE 
+          FROM OP_USER_MENU 
+         WHERE (DOMAIN_CD || '_' || USER_MENU_CODE) IN (SELECT DOMAIN_CD || '_' || USER_MENU_CODE
+              									 FROM OP_USER_MENU
+             								    WHERE DOMAIN_CD = #{domainCd}
+			            						START WITH DOMAIN_CD = #{domainCd} 
+			            						  AND USER_MENU_CODE = #{menuCode}
+            								  CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE 
+            								      AND DOMAIN_CD = #{domainCd}
+        )
+    </delete>
+
+    <select id="getSubMenuUrl" parameterType="cmsVO" resultType="string">
+    	/* intra.cms.getSubMenuUrl */
+        SELECT SUB_MENU_URL
+          FROM OP_USER_MENU_SUB_URLS
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </select>
+
+    <insert id="insertSubMenuUrl" parameterType="map">
+    	/* intra.cms.insertSubMenuUrl */
+        INSERT INTO OP_USER_MENU_SUB_URLS (
+            DOMAIN_CD,
+            USER_MENU_CODE,
+            SUB_MENU_URL
+        ) VALUES (
+            #{domainCd},
+            #{menuCode},
+            #{subMenuUrl}
+        )
+    </insert>
+
+    <delete id="deleteSubMenuUrl" parameterType="cmsVO">
+    	/* intra.cms.deleteSubMenuUrl */
+        DELETE 
+          FROM OP_USER_MENU_SUB_URLS
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </delete>
+
+    <delete id="deleteMenuImg" parameterType="cmsVO">
+    	/* intra.cms.deleteMenuImg */
+        DELETE 
+          FROM OP_FILE
+         WHERE FILE_SEQ = #{fileSeqNo}
+	    <trim prefix="(" suffix=")">
+	        <if test="titleImg != null  and titleImg != ''">OR
+	            FILE_URL = #{titleImg}
+	        </if>
+	        <if test="menuTitleImg != null  and menuTitleImg != ''">OR
+	            FILE_URL = #{menuTitleImg}
+	        </if>
+	        <if test="menuOnImg != null  and menuOnImg != ''">OR
+	            FILE_URL = #{menuOnImg}
+	        </if>
+	        <if test="menuOffImg != null  and menuOffImg != ''">OR
+	            FILE_URL = #{menuOffImg}
+	        </if>
+	    </trim>
+    </delete>
+
+    <select id="getChargeMenuList" parameterType="cmsVO" resultType="treeVO">
+    	/* intra.cms.getChargeMenuList */
+        WITH MY_MENU AS (
+        	SELECT DOMAIN_CD,
+                   USER_MENU_CODE,
+                   PARNTS_MENU_CODE,
+                   USER_MENU_NM,
+                   MENU_DP,
+                   MNGR_MENU_URL,
+                   USER_MENU_URL,
+                   USE_YN
+              FROM OP_USER_MENU MENU
+             WHERE MENU.DOMAIN_CD = #{domainCd}
+               AND MENU.AUTH_TY = 'INC_DEPT'
+               AND AUTH_DEPT_CODE IN (SELECT DEPT_CODE
+                    					FROM OP_DEPT 
+                    				   WHERE USE_YN = 'Y'
+                    				   START WITH UPPER_DEPT_CODE = #{deptCd}
+                    				 CONNECT BY PRIOR DEPT_CODE = UPPER_DEPT_CODE
+                					 )
+        UNION ALL
+            SELECT DOMAIN_CD,
+                   USER_MENU_CODE,
+                   PARNTS_MENU_CODE,
+                   USER_MENU_NM,
+                   MENU_DP,
+                   MNGR_MENU_URL,
+                   USER_MENU_URL,
+                   USE_YN
+              FROM OP_USER_MENU MENU
+             WHERE MENU.DOMAIN_CD = #{domainCd}
+               AND MENU.AUTH_TY = 'EQ_DEPT'
+               AND MENU.AUTH_DEPT_CODE = (SELECT DEPT_CODE 
+                                            FROM OP_MNGR
+							               WHERE MNGR_ID = #{mgrId}
+							             )
+        UNION ALL
+            SELECT DOMAIN_CD,
+                   USER_MENU_CODE,
+                   PARNTS_MENU_CODE,
+                   USER_MENU_NM,
+                   MENU_DP,
+                   MNGR_MENU_URL,
+                   USER_MENU_URL,
+                   USE_YN
+              FROM OP_USER_MENU MENU
+             WHERE MENU.DOMAIN_CD = #{domainCd}
+               AND MENU.AUTH_TY = 'MGR'
+               AND MENU.USER_MENU_CODE IN (SELECT USER_MENU_CODE 
+                                       		 FROM OP_USER_MENU_AUTH 
+                                       		WHERE DOMAIN_CD = #{domainCd}
+                    						  AND AUTH_MNGR_ID = #{mgrId}
+            							  )
+        )
+        SELECT DISTINCT
+               ALL_MENU.USER_MENU_CODE AS id,
+               ALL_MENU.USER_MENU_NM  AS text,
+               ALL_MENU.MENU_DP AS [depth],
+               MY_MENU.USER_MENU_URL AS href,
+               DECODE(ALL_MENU.USE_YN, 'Y', '', 'no-use') AS cls,
+               ALL_MENU.SORT_ORDR AS sortOrder,
+               DECODE((SELECT COUNT(USER_MENU_CODE) 
+                         FROM OP_USER_MENU
+                        WHERE DOMAIN_CD = ALL_MENU.DOMAIN_CD
+                          AND PARNTS_MENU_CODE = ALL_MENU.USER_MENU_CODE), 0, '1', '0') AS leaf
+          FROM MY_MENU,
+               (SELECT MENU.DOMAIN_CD,
+                       MENU.USER_MENU_CODE,
+                       MENU.PARNTS_MENU_CODE,
+                       MENU.USER_MENU_NM,
+                       MENU.MENU_DP,
+                       MENU.MNGR_MENU_URL,
+                       MENU.USER_MENU_URL,
+                       MENU.USE_YN,
+                       MENU.SORT_ORDR
+                  FROM OP_USER_MENU MENU
+                 WHERE DOMAIN_CD = #{domainCd}
+                   AND PARNTS_MENU_CODE != 'DOMAIN'
+                   AND PARNTS_MENU_CODE = #{parentMenuCode}
+                   AND EXISTS (SELECT USER_MENU_CODE
+                                 FROM MY_MENU 
+                                WHERE DOMAIN_CD = #{domainCd}
+                                  AND USER_MENU_CODE IN (SELECT USER_MENU_CODE
+							                               FROM OP_USER_MENU
+							                              WHERE DOMAIN_CD = #{domainCd}
+							                              START WITH  DOMAIN_CD = #{domainCd} 
+							                                AND USER_MENU_CODE = MENU.USER_MENU_CODE
+							                            CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE 
+							                                AND DOMAIN_CD = #{domainCd}
+							                            )
+                    		   )
+            ) ALL_MENU
+        WHERE ALL_MENU.USER_MENU_CODE = MY_MENU.USER_MENU_CODE(+)
+        ORDER BY ALL_MENU.SORT_ORDR ASC
+    </select>
+
+    <select id="deptList" parameterType="map" resultType="java.util.HashMap">
+    	/* intra.cms.deptList */
+        SELECT SYS_CONNECT_BY_PATH(DEPT_NM, ' ') AS deptPath, 
+               DEPT_CODE AS deptCd, 
+               DEPT_NM AS deptNm
+          FROM OP_DEPT 
+         WHERE USE_YN = 'Y'
+         START WITH UPPER_DEPT_CODE = 'D0'
+       CONNECT BY PRIOR DEPT_CODE = UPPER_DEPT_CODE
+         ORDER SIBLINGS BY DEPT_ORDR_NO ASC
+    </select>
+
+    <!-- 담당자 조회 -->
+    <select id="mgrView" parameterType="mgrVO" resultType="mgrVO">
+    	/* intra.cms.mgrView */
+        SELECT A.DEPT_CODE AS deptCd,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm,
+               A.MNGR_ID AS mngrId,
+               A.MNGR_NM AS mngrNm,
+               A.MBTLNUM AS mbtlnum,
+               A.TELNO AS telno,
+               A.FXNUM AS fxNum,
+               A.EMAIL AS email,
+               A.USE_YN AS useYn
+          FROM OP_MNGR A
+     	<where>
+    		<if test="mngrId != null and mngrId != ''">AND
+                A.MNGR_ID = #{mngrId}
+            </if>
+            <if test="mngrNm != null and mngrNm != ''">AND
+                A.MNGR_NM LIKE '%' || #{mngrNm} || '%'
+            </if>
+        </where>
+    </select>
+
+    <select id="getAuthMgrList" parameterType="cmsVO" resultType="cmsAuthVO">
+    	/* intra.cms.getAuthMgrList */
+        SELECT AUTH.DOMAIN_CD AS domainCd,
+               AUTH.USER_MENU_CODE AS menuCode,
+               AUTH.AUTH_MNGR_ID AS authMgrId,
+               MGR.MNGR_NM AS authMgrNm,
+               DEPT.DEPT_CODE AS deptCd,
+               DEPT.DEPT_NM AS deptNm,
+               (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = (SELECT UPPER_DEPT_CODE FROM OP_DEPT WHERE DEPT_CODE = DEPT.DEPT_CODE)) AS highDeptNm,
+               AUTH.REGIST_ID AS regId,
+               TO_CHAR(AUTH.REGIST_DT, 'YYYY-MM-DD') AS regDt
+          FROM OP_USER_MENU_AUTH AUTH
+             , OP_DEPT DEPT
+             , OP_MNGR MGR
+         WHERE MGR.MNGR_ID = AUTH.AUTH_MNGR_ID
+           AND DEPT.DEPT_CODE = MGR.DEPT_CODE
+           AND AUTH.DOMAIN_CD = #{domainCd}
+    	<if test="menuCode != null and menuCode != ''">
+           AND AUTH.USER_MENU_CODE = #{menuCode}
+        </if>
+    </select>
+
+    <insert id="insertAuthMgr" parameterType="cmsAuthVO">
+    	/* intra.cms.insertAuthMgr */
+        INSERT INTO OP_USER_MENU_AUTH (
+            DOMAIN_CD,
+            USER_MENU_CODE,
+            AUTH_MNGR_ID,
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{domainCd},
+            #{menuCode},
+            #{authMgrId},
+            #{regId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <delete id="deleteAuthMgr" parameterType="cmsVO">
+    	/* intra.cms.deleteAuthMgr */
+        DELETE 
+          FROM OP_USER_MENU_AUTH 
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </delete>
+
+    <select id="getUserGradeList" parameterType="cmsVO" resultType="cmsUserGrade">
+    	/* intra.cms.getUserGradeList */
+        SELECT A.USER_GRAD_CODE AS userGradeCd,
+               A.USER_GRAD_NM AS userGradeNm,
+               A.USER_GRAD_DC AS userGradeDesc
+          FROM OP_USER_GRADE A
+             , OP_USER_MENU_GRADE B
+         WHERE A.USER_GRAD_CODE = B.USER_GRAD_CODE
+           AND B.DOMAIN_CD = #{domainCd}
+           AND B.USER_MENU_CODE = #{menuCode}
+    </select>
+
+    <insert id="insertUserGrade" parameterType="cmsUserGrade">
+    	/* intra.cms.insertUserGrade */
+        INSERT INTO OP_USER_MENU_GRADE (
+            DOMAIN_CD,
+            USER_MENU_CODE,
+            USER_GRAD_CODE,
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{domainCd},
+            #{menuCode},
+            #{userGradeCd},
+            #{regId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <delete id="deleteUserGrade" parameterType="cmsVO">
+    	/* intra.cms.deleteUserGrade */
+        DELETE FROM OP_USER_MENU_GRADE
+         WHERE DOMAIN_CD = #{domainCd}
+           AND USER_MENU_CODE = #{menuCode}
+    </delete>
+
+</mapper>

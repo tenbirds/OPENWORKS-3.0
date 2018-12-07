@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =========================================================
+    * Description : 사용자메뉴 컨텐츠관리 sqlmap 정의 파일
+    * Create      : xanadu
+    * $Id: content-sqlmap.xml 398 2012-02-17 05:03:33Z xanadu $
+    =========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="intra.cms.content">
+
+    <select id="getContent" parameterType="map" resultType="contentVO">
+    	/* intra.cms.content.getContent */
+        SELECT
+            DOMAIN_CD AS domainCd,
+            (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD) AS domainNm,
+            USER_MENU_CODE AS menuCode,
+            (SELECT USER_MENU_NM FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND USER_MENU_CODE = OP_USER_MENU_CONTENTS.USER_MENU_CODE) AS menuNm,
+            (SELECT MENU_PATH FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND USER_MENU_CODE = OP_USER_MENU_CONTENTS.USER_MENU_CODE) AS menuPath,
+            (SELECT LAYOUT_CODE FROM OP_USER_MENU 
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND USER_MENU_CODE = OP_USER_MENU_CONTENTS.USER_MENU_CODE) AS layoutCode,
+            CNTNTS_SN AS contentSeqNo,
+            HEAD_CNTNTS AS headContent,
+            BODY_CNTNTS AS bodyContent,
+            APPLC_YN AS applyYn,
+            CONFM_STTUS AS approvalSt,
+            PBLICTE_REASON AS publishReason,
+            CONFM_REASON AS approvalReason,
+            CONFM_ID AS approvalId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU_CONTENTS.CONFM_ID) AS approvalNm,
+            CONFM_DT AS approvalDt,
+            REGIST_ID AS regId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU_CONTENTS.REGIST_ID) AS regNm,
+            TO_CHAR(REGIST_DT, 'YYYY-MM-DD') AS regDt,
+            UPDT_ID AS modId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU_CONTENTS.UPDT_ID) AS modNm,
+            TO_CHAR(UPDT_DT, 'YYYY-MM-DD') AS modDt,
+            (SELECT USER_MENU_URL FROM OP_USER_MENU
+                WHERE DOMAIN_CD = OP_USER_MENU_CONTENTS.DOMAIN_CD 
+                    AND USER_MENU_CODE = OP_USER_MENU_CONTENTS.USER_MENU_CODE) AS userMenuUrl
+        FROM
+            OP_USER_MENU_CONTENTS
+        WHERE
+                DOMAIN_CD = #{q_domainCd}
+            AND USER_MENU_CODE = #{q_menuCode}
+        <if test="q_contentSeqNo != null  and q_contentSeqNo != ''">AND
+            CNTNTS_SN = #{q_contentSeqNo}
+        </if>
+        <if test="q_applyYn != null  and q_applyYn != ''">AND
+            APPLC_YN = #{q_applyYn}
+        </if>
+    </select>
+
+    <select id="getContentList" parameterType="map" resultType="contentVO">
+    	/* intra.cms.content.getContentList */
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT
+                    A.DOMAIN_CD AS domainCd,
+                    (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = A.DOMAIN_CD) AS domainNm,
+                    A.USER_MENU_CODE AS menuCode,
+                    B.USER_MENU_NM AS menuNm,
+                    B.MENU_PATH AS menuPath,
+                    A.CNTNTS_SN AS contentSeqNo,
+                    A.LAYOUT_CODE AS layoutCode,
+                    B.USER_MENU_URL as userMenuUrl,
+                    A.APPLC_YN AS applyYn,
+                    A.CONFM_STTUS AS approvalSt,
+                    A.PBLICTE_REASON AS publishReason,
+                    A.CONFM_REASON AS approvalReason,
+                    A.CONFM_ID AS approvalId,
+                    (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.CONFM_ID) AS approvalNm,
+                    CONFM_DT AS approvalDt,
+                    A.REGIST_ID AS regId,
+                    (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.REGIST_ID) AS regNm,
+                    TO_CHAR(A.REGIST_ID, 'YYYY-MM-DD') AS regDt,
+                    A.UPDT_ID AS modId,
+                    (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.UPDT_ID) AS modNm,
+                    TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD') AS modDt
+                FROM
+                    OP_USER_MENU_CONTENTS A, OP_USER_MENU B
+                WHERE
+                        A.DOMAIN_CD = B.DOMAIN_CD
+                    AND A.USER_MENU_CODE = B.USER_MENU_CODE
+                    <if test="q_menuPath != null  and q_menuPath != ''">AND
+                        B.MENU_PATH LIKE '%' ||  #{q_menuPath} || '%'
+                    </if>
+                    <if test="q_domainCd != null  and q_domainCd != ''">AND
+                        A.DOMAIN_CD = #{q_domainCd}
+                    </if>
+                    <if test="q_menuCode != null  and q_menuCode != ''">AND
+                        A.USER_MENU_CODE = #{q_menuCode}
+                    </if>
+                    <if test="q_modId != null  and q_modId != ''">AND
+                        A.UPDT_ID = #{q_modId}
+                    </if>
+                    <if test="q_approvalSt != null  and q_approvalSt != '' and q_approvalSt != '1000'">AND
+                        A.CONFM_STTUS = #{q_approvalSt}
+                    </if>
+                    <if test="q_contentSeqNo != null  and q_contentSeqNo != ''">AND
+                        A.CNTNTS_SN = #{q_contentSeqNo}
+                    </if>
+                    <if test="q_applyYn != null  and q_applyYn != ''">AND
+                        A.APPLC_YN = #{q_applyYn}
+                    </if>
+                ORDER BY A.CNTNTS_SN DESC
+                ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+         ) Y
+         WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="getContentListCount" parameterType="map" resultType="int">
+    	/* intra.cms.content.getContentListCount */
+        SELECT
+            COUNT(A.USER_MENU_CODE) AS cnt
+        FROM
+            OP_USER_MENU_CONTENTS A, OP_USER_MENU B
+        WHERE
+                A.DOMAIN_CD = B.DOMAIN_CD
+            AND A.USER_MENU_CODE = B.USER_MENU_CODE
+            <if test="q_menuPath != null  and q_menuPath != ''">AND
+                B.MENU_PATH LIKE '%' ||  #{q_menuPath} || '%'
+            </if>
+            <if test="q_domainCd != null  and q_domainCd != ''">AND
+                A.DOMAIN_CD = #{q_domainCd}
+            </if>
+            <if test="q_menuCode != null  and q_menuCode != ''">AND
+                A.USER_MENU_CODE = #{q_menuCode}
+            </if>
+            <if test="q_modId != null  and q_modId != ''">AND
+                A.UPDT_ID = #{q_modId}
+            </if>
+            <if test="q_approvalSt != null  and q_approvalSt != '' and q_approvalSt != '1000'">AND
+                A.CONFM_STTUS = #{q_approvalSt}
+            </if>
+            <if test="q_contentSeqNo != null  and q_contentSeqNo != ''">AND
+                A.CNTNTS_SN = #{q_contentSeqNo}
+            </if>
+            <if test="q_applyYn != null  and q_applyYn != ''">AND
+                A.APPLC_YN = #{q_applyYn}
+            </if>
+    </select>
+
+    <insert id="insertContent" parameterType="contentVO">
+    	/* intra.cms.content.insertContent */
+        <selectKey order="BEFORE" keyProperty="contentSeqNo" resultType="int">
+            SELECT NVL(MAX(CNTNTS_SN), 0) + 1
+                FROM OP_USER_MENU_CONTENTS
+            WHERE 
+                    DOMAIN_CD = #{domainCd}
+                AND USER_MENU_CODE = #{menuCode}
+        </selectKey>
+        INSERT INTO OP_USER_MENU_CONTENTS (
+            DOMAIN_CD,
+            USER_MENU_CODE,
+            CNTNTS_SN,
+            LAYOUT_CODE,
+            HEAD_CNTNTS,
+            BODY_CNTNTS,
+            <if test="applyYn != null  and applyYn != ''">
+            APPLC_YN,
+            </if>
+            CONFM_STTUS,
+            <if test="approvalSt == 1040">
+            CONFM_DT,
+            </if>
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{domainCd},
+            #{menuCode},
+            #{contentSeqNo},
+            #{layoutCode},
+            #{headContent},
+            #{bodyContent},
+            <if test="applyYn != null  and applyYn != ''">
+            #{applyYn},
+            </if>
+            #{approvalSt},
+            <if test="approvalSt == 1040">
+            SYS_DATETIME,
+            </if>
+            #{regId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <update id="updateContent" parameterType="contentVO">
+    	/* intra.cms.content.updateContent */
+        UPDATE OP_USER_MENU_CONTENTS SET
+            LAYOUT_CODE = #{layoutCode},
+            HEAD_CNTNTS = #{headContent},
+            BODY_CNTNTS = #{bodyContent},
+            <if test="approvalSt != null  and approvalSt != ''">
+            CONFM_STTUS = #{approvalSt},
+            PBLICTE_REASON = #{publishReason},
+                <if test="approvalSt == 1040">
+                CONFM_DT = SYS_DATETIME,
+                APPLC_YN = 'Y',
+                </if>
+            </if>
+            UPDT_ID = #{modId},
+            UPDT_DT = SYS_DATETIME
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND USER_MENU_CODE = #{menuCode}
+            AND CNTNTS_SN = #{contentSeqNo}
+    </update>
+
+    <delete id="deleteContent" parameterType="contentVO">
+    	/* intra.cms.content.deleteContent */
+        DELETE FROM
+            OP_USER_MENU_CONTENTS
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND USER_MENU_CODE = #{menuCode}
+            AND CNTNTS_SN = #{contentSeqNo}
+    </delete>
+
+    <update id="updateApplyN" parameterType="contentVO">
+    	/* intra.cms.content.updateApplyN */
+        UPDATE OP_USER_MENU_CONTENTS SET
+            APPLC_YN = 'N'
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND USER_MENU_CODE = #{menuCode}
+            AND APPLC_YN = 'Y'
+    </update>
+
+
+    <update id="updateApprovalSt" parameterType="contentVO">
+    	/* intra.cms.content.updateApprovalSt */
+        UPDATE OP_USER_MENU_CONTENTS SET
+            CONFM_STTUS = #{approvalSt},
+            CONFM_REASON = #{approvalReason}
+            <if test="approvalSt == 1040">
+                , CONFM_ID = #{approvalId}
+                , CONFM_DT = SYS_DATETIME
+                , APPLC_YN = 'Y'
+            </if>
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND USER_MENU_CODE = #{menuCode}
+            AND CNTNTS_SN = #{contentSeqNo}
+    </update>
+
+
+    <select id="getContentSeqNos" parameterType="map" resultType="int">
+    	/* intra.cms.content.getContentSeqNos */
+        SELECT
+            CNTNTS_SN AS contentSeqNo
+        FROM
+            OP_USER_MENU_CONTENTS
+        WHERE
+                DOMAIN_CD = #{q_domainCd}
+            AND USER_MENU_CODE = #{q_menuCode}
+    </select>
+
+</mapper>

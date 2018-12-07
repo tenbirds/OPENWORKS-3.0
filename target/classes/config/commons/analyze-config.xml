@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <!-- 게시판 관리 기본 설정-->
+
+    <analyze>
+        <search-engines>
+            <!-- ID값은 중복이 안되도록 설정해야 함 -->
+            <domain>daum.net</domain>     <name>daum</name>   <id>daum</id>   <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[&q=]]></search-key>
+            <domain>nate.com</domain>     <name>nate</name>   <id>nate</id>   <domain-encoding>EUC-KR</domain-encoding> <search-key><![CDATA[&q=]]></search-key>
+            <domain>naver.com</domain>    <name>naver</name>  <id>naver</id>  <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[&query=]]></search-key>
+            <domain>bing.com</domain>     <name>bing</name>   <id>bing</id>   <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[&q=]]></search-key>
+            <domain>yahoo.com</domain>    <name>yahoo</name>  <id>yahoo</id>  <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[?p=]]></search-key>
+            <domain>yahoo.co.kr</domain>  <name>yahoo</name>                  <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[?p=]]></search-key>
+            <domain>google.com</domain>   <name>google</name> <id>google</id> <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[&q=]]></search-key>
+            <domain>google.co.kr</domain> <name>google</name>                 <domain-encoding>UTF-8</domain-encoding>  <search-key><![CDATA[&q=]]></search-key>
+        </search-engines>
+        
+        <platforms>
+	        <mobile>iPad</mobile>
+	        <mobile>iPhone</mobile>
+	        <mobile>Android</mobile>
+        </platforms>
+    </analyze>
+
+</configuration>

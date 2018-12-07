@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	========================================================= 
+	* Description : 회원등급 관리 sqlmap 정의 파일 
+	* Create : 방기배 
+	* $Id: domain-sqlmap.xml 382 2012-06-17 11:10:05Z xanadu $ 
+	======================================================== 
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="intra.user.grade">
+
+    <select id="getUserGradeList" parameterType="userGradeVo" resultType="userGradeVo">
+        /* intra.user.grade.getUserGradeList */
+        SELECT
+            USER_GRAD_CODE                                                        AS userGradCode,
+            USER_GRAD_NM                                                          AS userGradNm,
+            USER_GRAD_DC                                                          AS userGradDc,
+            USE_YN                                                                AS useYn,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_GRADE.REGIST_ID) AS registNm,
+            REGIST_ID                                                             AS registId,
+            REGIST_DT                                                             AS registDt,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_GRADE.UPDT_ID)   AS updtNm,
+            UPDT_ID                                                               AS updtId,
+            UPDT_DT                                                               AS updtDt
+        FROM
+            OP_USER_GRADE
+        <where>
+            <if test="userGradCode != null  and userGradCode != ''">AND
+                USER_GRAD_CODE = #{userGradCode}
+            </if>
+            <if test="userGradNm != null  and userGradNm != ''">AND
+                USER_GRAD_NM LIKE '%' ||#{userGradNm} || '%'
+            </if>
+            <if test="useYn != null  and useYn != ''">AND
+                USE_YN = #{useYn}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserGrade" parameterType="userGradeVo" resultType="userGradeVo">
+        /* intra.user.grade.getUserGrade */
+        SELECT
+            USER_GRAD_CODE                                                        AS userGradCode,
+            USER_GRAD_NM                                                          AS userGradNm,
+            USER_GRAD_DC                                                          AS userGradDc,
+            USE_YN                                                                AS useYn,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_GRADE.REGIST_ID) AS registNm,
+            REGIST_ID                                                             AS registId,
+            REGIST_DT                                                             AS registDt,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_GRADE.UPDT_ID)   AS updtNm,
+            UPDT_ID                                                               AS updtId,
+            UPDT_DT                                                               AS updtDt
+        FROM
+            OP_USER_GRADE
+        WHERE
+            USER_GRAD_CODE = #{userGradCode}
+    </select>
+
+    <insert id="insertUserGrade" parameterType="userGradeVo">
+        /* intra.user.grade.insertUserGrade */
+        INSERT INTO OP_USER_GRADE (
+            USER_GRAD_CODE,
+            USER_GRAD_NM,
+            USER_GRAD_DC,
+            USE_YN,
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{userGradCode},
+            #{userGradNm},
+            #{userGradDc},
+            #{useYn},
+            #{registId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <update id="updateUserGrade" parameterType="userGradeVo">
+        /* intra.user.grade.updateUserGrade */
+        UPDATE OP_USER_GRADE SET
+            USER_GRAD_CODE  = #{userGradCode},
+            USER_GRAD_NM  = #{userGradNm},
+            USER_GRAD_DC = #{userGradDc},
+            USE_YN = #{useYn},
+            UPDT_ID = #{updtId},
+            UPDT_DT = SYS_DATETIME
+        WHERE
+            USER_GRAD_CODE = #{prevUserGradCd}
+    </update>
+
+    <delete id="deleteUserGrade" parameterType="userGradeVo">
+        /* intra.user.grade.deleteUserGrade */
+        DELETE FROM OP_USER_GRADE
+        WHERE USER_GRAD_CODE = #{userGradCode}
+    </delete>
+
+</mapper>

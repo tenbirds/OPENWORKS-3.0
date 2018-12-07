@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =========================================================
+    * Description : _commonduty sqlmap 정의 파일
+    * Create      : 김영상
+    * $Id: commonduty-sqlmap.xml 1596 2014-10-16 04:54:59Z $
+    =========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_commonduty">
+	<!-- 언어별 국가명 목록 가져오기 -->
+	<select id="getNationList" parameterType="hmap" resultType="hmap">
+		/* _commonduty.getNationList */
+		SELECT NATION_CODE        	AS NATIONCODE
+             , LANG_NATION_NM      	AS LANGNATIONNM
+             , ENG_ABRV1_NM         AS ENGABRV1NM
+             , ENG_ABRV2_NM         AS ENGABRV2NM
+             , CNTT_SE_NM    		AS CNTTSENM
+             , INTRL_TELNO          AS INTRLTELNL
+          FROM TCO_NATI_CODE_C
+         WHERE 1 = 1
+		<if test="langCode != null and langCode != &quot;&quot;">
+           AND LANG_CODE = #{langCode}
+		</if>
+		<if test="langCode == null or langCode == &quot;&quot;">
+		   AND LANG_CODE = '00'
+		</if>
+		   AND INTRL_TELNO IS NOT NULL
+         ORDER BY LANG_NATION_NM
+	</select>
+	
+	<!-- 서비스 언어 가져오기 -->
+	<select id="getServiceLangList" parameterType="hmap" resultType="hmap">
+    	/* _commonduty.getServiceLangList */
+		SELECT LANG_CODE			AS LANGCD
+			 , LANG_NM 				AS LANGNM
+			 , LANG_ENG_ABRV 		AS LANGENGABRV
+			 , LANG_ENG_NM 			AS LANGENGNM
+          FROM TCO_SVC_LANG_C
+         WHERE DOMAIN_CD IS NOT NULL
+         <!-- {{ BH, 2015.12.08 서비스언어변경으로 인한 소스 추가 -->
+         AND   LANG_CODE = '00'
+         <!-- }} -->
+    </select>
+    <!-- 서비스 언어의 특정정보 가져오기 -->
+	<select id="getLangToUrl" parameterType="hmap" resultType="String">
+    	/* _commonduty.getLangToUrl */
+		SELECT B.DOMAIN_NM || '/' || (SELECT SUBSTR(B.DOMAIN_NM,0,INSTR(B.DOMAIN_NM,'.')-1)) || '/' AS URL
+		  FROM (SELECT (SELECT DOMAIN_NM FROM OP_DOMAIN WHERE DOMAIN_CD = A.DOMAIN_CD) AS DOMAIN_NM
+          		  FROM TCO_SVC_LANG_C A
+                 WHERE DOMAIN_CD IS NOT NULL
+     	<if test="langCode != null and langCode != &quot;&quot;">
+           		   AND LANG_CODE = #{langCode}
+		</if>
+		<if test="langCode == null or langCode == &quot;&quot;">
+		   		   AND LANG_CODE = '00'
+		</if>
+				   AND ROWNUM = 1
+				) B
+    </select>
+    
+    <!-- 카테고리 가져오기 -->
+    <select id="treeList" parameterType="categoryVO" resultType="treeVO">
+        /* _commonduty.treeList */
+        SELECT id, text, href, cls, leaf,
+            <if test="ctgryCodes != null">
+                (CASE WHEN     
+                   id IN
+                <foreach item="item" index="index" collection="ctgryCodes" open="(" separator="," close=")">#{item}</foreach>
+                 THEN
+                   '1' ELSE (CASE WHEN leaf='1' THEN '0' ELSE NULL END) END)
+            </if>
+                
+            <if test="ctgryCodes == null">
+                (CASE WHEN leaf='1' THEN '0' ELSE NULL END) 
+            </if>                
+            as checked
+        FROM      
+        ( 
+          SELECT
+               A.CTGRY_CODE  AS id,
+               A.LANG_CTGRY_NM  AS text,
+               '' AS href,
+               DECODE(A.CTGRY_USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE(
+                  (SELECT COUNT(CTGRY_CODE)
+                     FROM TST_CATE_MGMT_M
+                    WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE
+                      AND CTGRY_DELETE_AT = 'N'), 0, '1', '0') AS leaf                                           
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_CODE &gt; '0'
+           AND A.PARNTS_CTGRY_CODE = #{upperMenuCd}
+           AND A.CTGRY_CL_CD = #{ctgryClCd}
+           AND A.LANG_CODE = #{langCd}
+           AND A.CTGRY_USE_YN = 'Y'
+           AND A.CTGRY_DELETE_AT = 'N'
+         ORDER BY A.SORT_ORDR ASC
+       ) B
+    </select>
+    
+    <!-- 도메인코드로 서비스언어코드 가져오기 -->
+	<select id="getLangCd" parameterType="java.lang.Integer" resultType="String">
+    	/* _commonduty.getLangCd */
+		SELECT LANG_CODE
+          FROM TCO_SVC_LANG_C
+         WHERE DOMAIN_CD = #{value}
+           AND ROWNUM = 1	<!-- 데이터가 중복될 경우(잘못된 데이터 대비) -->
+    </select>
+    <!-- 방문한 커뮤니티의 개설자아이디 가져오기 -->
+	<select id="getVisitCMUserId" parameterType="String" resultType="String">
+    	/* _commonduty.getVisitCmUserId */
+		SELECT USER_ID
+          FROM T_CMMNTY_INFO
+         WHERE CMMNTY_ID = #{value}
+           AND ROWNUM = 1	<!-- 데이터가 중복될 경우(잘못된 데이터) -->
+    </select>
+    
+  	<!-- EMAIL 보내기 등록 -->
+    <insert id="insertAutoMail" parameterType="autoMailVO">   
+    	<selectKey order="BEFORE" keyProperty="sndngSeq" resultType="int">
+            SELECT TCN_EMAL_TRNS_H_SEQ.NEXT_VALUE FROM DB_ROOT
+        </selectKey>
+    	/* _commonduty.insertAutoMail */     
+	    INSERT INTO TCN_EMAL_TRNS_H  ( 
+			  SNDNG_SEQ                                   <!-- 발송일련         -->
+			, ATMC_EMAIL_ID                               <!-- 자동메일ID     -->
+			, SNDNG_ID                                    <!-- 발송아이디       -->
+			, EMAIL_TITLE                                 <!-- 이메일타이틀     -->
+			, EMAIL_CN                                    <!-- 이메일내용       -->
+			, TRNSMITER_NM                                <!-- 송신자명         -->
+			, TRNSMITER_EMAIL                             <!-- 송신자이메일     -->
+			, RCVER_NM                                    <!-- 수신자명         -->
+			, RCVER_EMAIL                                 <!-- 수신자이메일     -->
+			, RETRN_EMAIL                                 <!-- 반송이메일       -->
+			, ONETOONE_INFO                               <!-- 1대1치환정보     -->
+			, ATCH_FILE_ID                                <!-- 첨부파일아이디   -->
+			, REGIST_ID                                   <!-- 등록아이디       -->
+			, REGIST_DT                                   <!-- 등록일시         -->
+			, RESULT_CODE
+			, RESULT_MSG
+		) VALUES (
+			  #{sndngSeq}                                <!-- 발송일련         -->     
+			, #{atmcEmailId}                             <!-- 자동메일ID     -->            
+			, #{sndngId}                                 <!-- 발송아이디       -->    
+			, #{emailTitle}                              <!-- 이메일타이틀     -->        
+			, #{emailCn}                                 <!-- 이메일내용       -->    
+			, #{trnsmiterNm}                             <!-- 송신자명         -->     
+			, #{trnsmiterEmail}                          <!-- 송신자이메일     -->                 
+			, #{rcverNm}                                 <!-- 수신자명         -->   
+			, (encrypt(#{rcverEmail},'P008'))			 <!-- 수신자이메일     -->     
+			, #{retrnEmail}			                  	 <!-- 반송이메일       -->       
+			, #{onetooneInfo}                            <!-- 1대1치환정보     -->    
+			, #{atchFileId}                              <!-- 첨부파일아이디   -->      
+			, #{registId}                                <!-- 등록아이디       -->    
+			, SYSDATETIME                                <!-- 등록일시         -->
+			, #{resultCode}
+			, #{resultMsg}
+		)
+ 	</insert>
+
+ 	<!-- SMS전송이력 등록 -->
+    <insert id="insertSmsTransHist" parameterType="smsTransHistVO">   
+    	<selectKey order="BEFORE" keyProperty="sndngSeq" resultType="int">
+            SELECT TCN_SMS_TRNS_H_SEQ.NEXT_VALUE FROM DB_ROOT
+        </selectKey>
+    	/* _commonduty.insertSmsTransHistDev */     
+	    INSERT INTO TCN_SMS_TRNS_H  ( 
+			  SNDNG_SEQ                              	<!-- 발송일련         	-->
+			, RCVER_MBTLNUM                             <!-- 수신 휴대전화번호  -->
+			, SENDER_TELNO                              <!-- 송신 전화번호      -->
+			, SNDNG_MSSAGE                              <!-- 송신 메시지     	-->
+			, SNDNG_DUTY_SE_CODE                        <!-- 송신업무구분       -->			
+			, REGIST_DT                                 <!-- 등록일시           -->
+		) VALUES (
+			  #{sndngSeq}                               <!-- 발송일련      		-->     
+			, (encrypt(#{rcverMbtlnum},'P007'))         <!-- 수신 휴대전화번호  -->            
+			, #{senderTelno}                            <!-- 송신 전화번호      -->    
+			, #{sndngMssage}                            <!-- 송신 메시지     	-->        
+			, #{sndngDutySeCode}                        <!-- 송신업무구분       -->
+			, SYSDATETIME                               <!-- 등록일시         	-->
+		)
+ 	</insert>
+ 	
+ 	<select id="eventRecentList" parameterType="map" resultType="WebEventVO">
+		/* _commonduty.eventRecentList */
+     	SELECT * 
+     	  FROM (SELECT TEM.EVENT_SN            									AS eventSn
+		  			 , TEM.REGIST_DT   											AS registDt  
+		  			 , TEM.EVENT_RDCNT             								AS eventRdcnt
+		  			 , (SELECT FILE_URL FROM OP_FILE C WHERE C.FILE_SEQ = TEM.EVENT_THUMB_FILE_SEQ) AS eventFilePath
+		  			 , TEM.BEGIN_DATE     										AS beginDate
+		  			 , TEM.END_DATE      										AS endDate
+		           	 , SUBSTRB(TEM.EVENT_TITLE, 0, (#{cutTitleEventNum} * 2)) 	AS eventTitle
+		           	 , TEL.EVENT_LC_SE_CD										AS eventLcSeCd
+		 		  FROM TRM_EVET_MGMT_M TEM
+		 		     , TRM_EVET_DOMN_I TED
+		 		     , TRM_EVET_LC_M TEL
+			  	 WHERE 1 = 1
+		  		   AND TEM.EVENT_SN = TED.EVENT_SN
+		  		   AND TEM.EVENT_SN = TEL.EVENT_SN
+	  	           AND TED.DOMAIN_CD = #{domainCd}
+	  	           AND TEM.EVENT_DELETE_AT = 'N'
+                   AND CASE WHEN (TO_CHAR(SYS_DATE, 'YYYYMMDD') BETWEEN TEM.BEGIN_DATE AND TEM.END_DATE) AND ( TEM.ENFRC_CLOS_AT = 'N' ) 
+                            THEN 'Y'
+           			        ELSE 'N'
+                        END = 'Y'
+         		<if test="ctgryClCd != null  and ctgryClCd != ''">
+				   AND TEL.EVENT_LC_SE_CD = #{ctgryClCd}
+                </if>
+				 ORDER BY TEM.REGIST_DT DESC
+		       )
+		 WHERE ROWNUM &lt;= #{rowNum} 
+    </select>
+    <select id="getCtgryList" parameterType="map" resultType="treeVO">
+    	/* _commonduty.getCtgryList */
+    	SELECT A.CTGRY_CODE  AS id,
+               A.LANG_CTGRY_NM  AS text,
+               '' AS href,
+               DECODE(A.CTGRY_USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE(
+                  (SELECT COUNT(CTGRY_CODE)
+                     FROM TST_CATE_MGMT_M
+                    WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE
+                      AND CTGRY_DELETE_AT = 'N'), 0, '1', '0') AS leaf                                           
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_CODE &gt; '0'
+    	<if test="upperMenuCd != null and upperMenuCd != ''">
+           AND A.PARNTS_CTGRY_CODE = #{upperMenuCd}
+        </if>
+        <if test="upperMenuCd == null or upperMenuCd == ''">
+           AND A.PARNTS_CTGRY_CODE = 0
+        </if>
+        <if test="ctgryClCd != null and ctgryClCd != ''">
+           AND A.CTGRY_CL_CD = #{ctgryClCd}
+        </if>
+        <if test="ctgryClCd == null or ctgryClCd == ''">
+           AND A.CTGRY_CL_CD = 1001
+        </if>
+        <if test="langCd != null and langCd != ''">
+           AND A.LANG_CODE = #{langCd}
+        </if>
+        <if test="langCd == null or langCd == ''">
+           AND A.LANG_CODE = '00'
+        </if>
+           AND A.CTGRY_DELETE_AT = 'N'
+           AND A.CTGRY_USE_YN = 'Y'
+         ORDER BY A.SORT_ORDR ASC
+	</select>
+	<select id="getCtgry2DpList" parameterType="map" resultType="String">
+    	/* _commonduty.getCtgry2DpList */
+    	SELECT CTGRY_CODE
+		  FROM TST_CATE_MGMT_M
+		 WHERE CTGRY_USE_YN = 'Y'
+		   AND CTGRY_CODE &gt; '0'
+		   AND CTGRY_DELETE_AT = 'N'
+		<if test="ctgryClCd != null and ctgryClCd != ''">
+           AND CTGRY_CL_CD = #{ctgryClCd}
+        </if>
+        <if test="ctgryClCd == null or ctgryClCd == ''">
+           AND CTGRY_CL_CD = 1001
+        </if>
+		   AND CTGRY_DP = 1
+		<if test="langCd != null and langCd != ''">
+           AND LANG_CODE = #{langCd}
+   		</if>
+        <if test="langCd == null or langCd == ''">
+           AND LANG_CODE = '00'
+        </if>
+		   AND SORT_ORDR = (SELECT MIN(A.SORT_ORDR)
+							  FROM TST_CATE_MGMT_M A
+							 WHERE A.CTGRY_USE_YN = 'Y'
+							   AND A.CTGRY_CODE &gt; '0'
+							   AND A.CTGRY_DELETE_AT = 'N'
+						   	<if test="ctgryClCd != null and ctgryClCd != ''">
+					           AND A.CTGRY_CL_CD = #{ctgryClCd}
+					        </if>
+					        <if test="ctgryClCd == null or ctgryClCd == ''">
+					           AND A.CTGRY_CL_CD = 1001
+					        </if>
+							   AND A.CTGRY_DP = 1
+						   	<if test="langCd != null and langCd != ''">
+					           AND A.LANG_CODE = #{langCd}
+					   		</if>
+					        <if test="langCd == null or langCd == ''">
+					           AND A.LANG_CODE = '00'
+					        </if>
+							)
+	</select>
+
+    <update id="expsrCoUp" parameterType="PopupVO">
+        /* _commonduty.expsrCoUp */
+        UPDATE OP_POPUP
+           SET EXPSR_CO = EXPSR_CO + 1
+         WHERE POPUP_SN = #{popupSn}
+    </update>
+
+    <update id="bannerClickCoUp" parameterType="bannerVO">
+        /* _commonduty.bannerClickCoUp */
+        UPDATE OP_BANNER
+           SET BANNER_CLICK_CO = BANNER_CLICK_CO + 1
+         WHERE BANNER_SN = #{bannerSn}
+    </update>
+</mapper>

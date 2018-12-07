@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_goodsqna">
+
+    <sql id="dynamicWhere">
+        
+          AND MNGR_DELETE_AT = 'N'
+        
+          <!-- 판매자 -->
+          <if test="q_userId != null  and q_userId != ''">
+              AND B.USER_ID = #{q_userId}
+          </if>
+          
+           <if test="q_registId != null  and q_registId != ''">
+              AND A.INQR_ID = #{q_registId}
+          </if>
+        
+         <!-- 검색어 -->
+         <if test="q_searchVal != null  and q_searchVal != ''">
+            <!-- 서비스명 -->
+            <if test='q_searchKey == "1001"'>
+               AND B.GOODS_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <!-- 문의제목 -->
+            <if test='q_searchKey == "1002"'>
+                AND A.INQRY_SJ LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <!-- 문의자 -->
+            <if test='q_searchKey == "1003"'>
+                AND C.USER_NM  LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <!-- 상점명 -->
+            <if test='q_searchKey == "1004"'>
+                AND E.LANG_STORE_NM  LIKE '%' || #{q_searchVal} || '%'
+            </if>
+         </if>
+        
+         <!-- 날짜 -->
+         <if test="q_beginDate != null  and q_beginDate != ''">
+            AND TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') BETWEEN #{q_beginDate} AND #{q_endDate}
+         </if>
+         
+         <!-- 신고 날짜 -->
+         <if test="q_beginDateAcc != null  and q_beginDateAcc != ''">
+            AND (TO_CHAR(A.INQRY_ACCUSE_DT,'YYYY-MM-DD') BETWEEN #{q_beginDateAcc} AND #{q_endDateAcc}
+            OR TO_CHAR(A.ANSWER_ACCUSE_DT,'YYYY-MM-DD') BETWEEN #{q_beginDateAcc} AND  #{q_endDateAcc})
+         </if>
+         
+         <!-- 상태 -->
+         <if test="q_answerSttusCd != null  and q_answerSttusCd != ''">
+            AND A.ANSWER_STTUS_CD = #{q_answerSttusCd} 
+         </if>
+         
+         <if test="q_accuseResnCd != null  and q_accuseResnCd != ''">
+            AND (A.INQRY_ACCUSE_RESN_CD = #{q_accuseResnCd} OR A.ANSWER_ACCUSE_RESN_CD = #{q_accuseResnCd})
+         </if>
+         
+         <if test="goodsInqryNo != null  and goodsInqryNo != ''">
+            AND A.GOODS_INQRY_NO = #{goodsInqryNo}
+         </if>
+         
+         <!-- 언어 -->
+         <if test="q_langCodes != null  and q_langCodes != ''">
+             AND B.LANG_CODE
+             <foreach collection="q_langCodes" item="item" index="index" separator="," open="IN (" close=") ">
+                TRIM(#{item})
+             </foreach>
+         </if>
+         
+         <if test="q_goodsTyCd != null  and q_goodsTyCd != ''">
+                 AND B.GOODS_CODE IN (
+                    SELECT GOODS_CODE  FROM TST_GOOD_CATE_I WHERE CTGRY_CODE IN (
+                    SELECT CTGRY_CODE FROM TST_CATE_MGMT_M WHERE CTGRY_CL_CD = #{q_goodsTyCd})
+                )
+         </if>
+         <choose>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != '' and q_ctgryCd2 != null  and q_ctgryCd2 != '' and q_ctgryCd3 != null  and q_ctgryCd3 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd3}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != '' and q_ctgryCd2 != null  and q_ctgryCd2 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd2}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd1}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+            </choose>
+        
+    </sql>
+    
+    <sql id="dynaminLangCode">
+        <if test="langCode != null and langCode != ''">#{lang_Code}</if><if test="langCode == null or langCode == ''">'00'</if>
+    </sql>
+   
+    <select id="qnaList" parameterType="map" resultType="goodsQnAVO">
+         SELECT 
+               A.GOODS_NM AS goodsNm
+             , A.LANG_CODE AS langCode
+             , B.LANG_NM    AS langNm
+             , A.GOODS_CODE AS goodsCode
+             , A.GOODS_INQRY_NO AS goodsInqryNo
+             , A.INQRY_SJ   AS inqrySj
+             , A.USER_ID    AS userId
+             , A.USER_NM    AS userNm
+             , A.INQR_ID    AS inqrId
+             , A.INQR_NM    AS inqrNm
+             , A.ANSWER_STTUS_CD AS answerSttusCd
+             , A.OTHBC_AT AS othbcAt
+             , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD HH24:MI') AS inqryDt
+             , TO_CHAR(A.ANSWER_DT,'YYYY-MM-DD HH24:MI') AS answerDt
+             , A.LANG_STORE_NM AS langStoreNm
+             , A.INQRY_CN AS inqryCn
+             , DECRYPT(A.ANSWER_RECPTN_EMAIL,'P008') AS answerRecptnEmail
+             , A.INQRY_ANSWER_CN AS inqryAnswerCn
+             , (
+                <![CDATA[
+                    SELECT 
+                         GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD_NM ORDER BY BB.INDVDLZ_CD_NM DESC  SEPARATOR ' <br/> '  ) 
+                    FROM TST_CATE_MGMT_M AA, OP_CODE_INDVDLZ BB
+                    WHERE CTGRY_CL_CD = BB.INDVDLZ_CD
+                    AND BB.GROUP_CD = '1005'
+                    AND BB.LANG_CODE = '00'
+                    AND CTGRY_CODE IN ( SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = A.GOODS_CODE)
+                ]]>
+               ) AS ctgryClNm
+         FROM 
+                (
+                
+                   SELECT Y.* FROM (
+                      SELECT ROWNUM NUM, X.* FROM (
+                  
+                      SELECT 
+                             B.GOODS_NM
+                           , B.LANG_CODE
+                           , A.GOODS_CODE
+                           , A.GOODS_INQRY_NO
+                           , A.INQRY_SJ
+                           , B.USER_ID
+                           , D.USER_NM
+                           , A.INQR_ID
+                           , C.USER_NM AS INQR_NM
+                           , A.ANSWER_STTUS_CD
+                           , A.OTHBC_AT
+                           , A.REGIST_DT
+                           , A.ANSWER_DT
+                           , E.LANG_STORE_NM
+                           , A.INQRY_CN
+                           , A.ANSWER_RECPTN_EMAIL
+                           , A.INQRY_ANSWER_CN
+                        FROM TST_GOOD_INQR_I A , TST_GOOD_INFO_I B, OP_USER C , OP_USER D, TUM_SVC_STOR_I E
+                       WHERE B.GOODS_CODE = A.GOODS_CODE
+                         AND C.USER_ID = A.INQR_ID
+                         AND D.USER_ID = B.USER_ID
+                         AND B.USER_ID = E.USER_ID
+                         AND B.LANG_CODE = E.LANG_CODE
+                       <include refid="dynamicWhere"/>
+                       
+                        ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                   ) Y WHERE NUM &gt;= #{pagingStartNum}
+     
+                ) A ,(
+                    /* 언어 */
+                     SELECT
+                            LANG_CODE
+                          , LANG_NM 
+                       FROM TCO_SVC_LANG_C
+                      WHERE DOMAIN_CD IS NOT NULL
+                ) B
+        WHERE B.LANG_CODE = A.LANG_CODE
+    </select>
+    
+    <select id="qnaCount" parameterType="map" resultType="int">
+    /*_goodsqna.qnaCount */
+         SELECT 
+               COUNT(1)
+          FROM TST_GOOD_INQR_I A , TST_GOOD_INFO_I B , OP_USER C , OP_USER D, TUM_SVC_STOR_I E
+         WHERE B.GOODS_CODE = A.GOODS_CODE
+           AND C.USER_ID = A.INQR_ID
+           AND D.USER_ID = B.USER_ID
+           AND B.USER_ID = E.USER_ID
+           AND B.LANG_CODE = E.LANG_CODE
+         <include refid="dynamicWhere"/>
+    </select>
+    
+   <select id="sttemntList" parameterType="map" resultType="goodsQnAVO">
+        SELECT A.GOODS_NM AS goodsNm
+             , A.LANG_CODE AS langCode
+             , B.LANG_NM    AS langNm
+             , A.GOODS_CODE AS goodsCode
+             , A.GOODS_INQRY_NO AS goodsInqryNo
+             , A.INQRY_SJ   AS inqrySj
+             , A.INQR_ID    AS inqrId
+             , A.INQR_NM    AS inqrNm
+             , A.INQRY_CN AS inqryCN 
+             , A.INQRY_ANSWER_CN AS inqryAnswerCn
+             , A.ANSWER_STTUS_CD AS answerSttusCd
+             , A.OTHBC_AT AS othbcAt
+             , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD HH24:MI') AS inqryDt
+             , TO_CHAR(A.ANSWER_DT,'YYYY-MM-DD HH24:MI') AS answerDt
+             
+             , C.INDVDLZ_CD AS inqryAccuseResnCd
+             , C.INDVDLZ_CD_NM AS inqryAccuseResnNm
+             , D.INDVDLZ_CD AS answerAccuseResnCd
+             , D.INDVDLZ_CD_NM AS answerAccuseResnNm
+             
+             , A.INQRY_ACCUSE_RESN_CD AS inqryAccuseResnCd
+             , A.ANSWER_ACCUSE_RESN_CD AS answerAccuseResnCd
+             , A.INQRY_ACCUSE_ETC_CN AS  inqryAccuseEtcCn
+             , A.ANSWER_ACCUSE_ETC_CN AS answerAccuseEtcCn
+             
+             , A.INQRY_APLCNT_ID AS inqryAplcntId
+             , A.INQRY_APLCNT_NM AS inqryAplcntNm
+             , A.ANSWER_APLCNT_ID AS answerAplcntId
+             , A.ANSWER_APLCNT_NM AS answerAplcntNm
+             
+             , TO_CHAR(A.INQRY_ACCUSE_DT,'YYYY-MM-DD HH24:MI') AS inqryUpdateDt
+             , TO_CHAR(A.ANSWER_ACCUSE_DT,'YYYY-MM-DD HH24:MI') AS answerUpdateDt
+             
+             , (
+                <![CDATA[
+                    SELECT 
+                         GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD_NM ORDER BY BB.INDVDLZ_CD_NM DESC  SEPARATOR ' <br/> '  ) 
+                    FROM TST_CATE_MGMT_M AA, OP_CODE_INDVDLZ BB
+                    WHERE CTGRY_CL_CD = BB.INDVDLZ_CD
+                    AND BB.GROUP_CD = '1005'
+                    AND BB.LANG_CODE = '00'
+                    AND CTGRY_CODE IN ( SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = A.GOODS_CODE)
+                ]]>
+               ) AS ctgryClNm
+         FROM 
+                (
+                
+                   SELECT Y.* FROM (
+                      SELECT ROWNUM NUM, X.* FROM (
+                  
+                      SELECT 
+                             B.GOODS_NM
+                           , B.LANG_CODE
+                           , A.GOODS_CODE
+                           , A.GOODS_INQRY_NO
+                           , A.INQRY_SJ
+                           , A.INQR_ID
+                           , C.USER_NM AS INQR_NM
+                           , A.ANSWER_STTUS_CD
+                           , A.INQRY_CN 
+                           , A.INQRY_ANSWER_CN 
+                           , A.OTHBC_AT
+                           , A.REGIST_DT
+                           , A.ANSWER_DT
+                           , A.INQRY_ACCUSE_RESN_CD
+                           , A.ANSWER_ACCUSE_RESN_CD
+                           , A.INQRY_ACCUSE_ETC_CN
+                           , A.ANSWER_ACCUSE_ETC_CN
+                           , A.INQRY_APLCNT_ID
+                           , A.ANSWER_APLCNT_ID
+                           , D.USER_NM INQRY_APLCNT_NM
+                           , E.USER_NM ANSWER_APLCNT_NM
+                           , A.INQRY_ACCUSE_DT
+                           , A.ANSWER_ACCUSE_DT
+                        FROM TST_GOOD_INQR_I A , TST_GOOD_INFO_I B, OP_USER C , OP_USER D , OP_USER E
+                       WHERE B.GOODS_CODE = A.GOODS_CODE
+                         AND C.USER_ID = A.INQR_ID
+                         AND A.INQRY_APLCNT_ID =D.USER_ID(+) 
+                         AND A.ANSWER_APLCNT_ID =E.USER_ID(+)
+                         AND (A.INQRY_ACCUSE_DT IS NOT NULL OR A.ANSWER_ACCUSE_DT IS NOT NULL)
+                       <include refid="dynamicWhere"/>
+                       
+                        ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                   ) Y WHERE NUM &gt;= #{pagingStartNum}
+     
+                ) A ,(
+                    /* 언어 */
+                     SELECT
+                            LANG_CODE
+                          , LANG_NM 
+                       FROM TCO_SVC_LANG_C
+                      WHERE DOMAIN_CD IS NOT NULL
+                ) B, (
+                     /* 신고사유 문의자 */
+                     SELECT 
+                            INDVDLZ_CD
+                          , INDVDLZ_CD_NM
+                          , LANG_CODE
+                       FROM OP_CODE_INDVDLZ
+                      WHERE GROUP_CD = '1014'
+                ) C, (
+                     /* 신고사유 답변자*/
+                     SELECT 
+                            INDVDLZ_CD
+                          , INDVDLZ_CD_NM
+                          , LANG_CODE
+                       FROM OP_CODE_INDVDLZ
+                      WHERE GROUP_CD = '1014'
+                ) D
+        WHERE B.LANG_CODE = A.LANG_CODE
+          AND A.INQRY_ACCUSE_RESN_CD = C.INDVDLZ_CD (+)
+          AND A.LANG_CODE = C.LANG_CODE (+)
+          AND A.ANSWER_ACCUSE_RESN_CD= D.INDVDLZ_CD (+)
+          AND A.LANG_CODE = D.LANG_CODE (+)
+    </select>
+    
+    <select id="sttemntCount" parameterType="map" resultType="int">
+        SELECT 
+               COUNT(1)
+          FROM TST_GOOD_INQR_I A , TST_GOOD_INFO_I B, OP_USER C , OP_USER D , OP_USER E
+         WHERE B.GOODS_CODE = A.GOODS_CODE
+           AND C.USER_ID = A.INQR_ID
+           AND A.INQRY_APLCNT_ID =D.USER_ID(+) 
+           AND A.ANSWER_APLCNT_ID =E.USER_ID(+)
+           AND (A.INQRY_ACCUSE_DT IS NOT NULL OR A.ANSWER_ACCUSE_DT IS NOT NULL)
+         <include refid="dynamicWhere"/>
+    </select>
+    
+    <!-- 
+    <delete id="deleteAction" parameterType="goodsQnAVO" >
+        DELETE 
+          FROM TST_GOOD_INQR_I
+         WHERE GOODS_INQRY_NO = #{goodsInqryNo}
+    </delete>
+     -->
+     <update id="deleteAction" parameterType="goodsQnAVO">
+        UPDATE TST_GOOD_INQR_I SET
+               INQRY_ACCUSE_RESN_CD = NULL
+             , ANSWER_ACCUSE_RESN_CD = NULL
+             , INQRY_ACCUSE_ETC_CN = NULL
+             , ANSWER_ACCUSE_ETC_CN = NULL
+             , INQRY_APLCNT_ID = NULL
+             , ANSWER_APLCNT_ID = NULL
+             , INQRY_ACCUSE_DT = NULL
+             , ANSWER_ACCUSE_DT = NULL
+         WHERE GOODS_INQRY_NO = #{goodsInqryNo}
+     </update>
+
+    <update id="qnACommentDeleteAction" parameterType="goodsQnAVO">
+        UPDATE TST_GOOD_INQR_I SET
+               ANSWER_STTUS_CD = 1001
+             , INQRY_ANSWER_CN = NULL
+             , ANSWER_DT = NULL
+             , ANSWER_UPDT_DT = SYSDATETIME
+         WHERE GOODS_INQRY_NO = #{goodsInqryNo}
+    </update>
+
+    <select id="ctgryList"  parameterType="goodsQnAVO" resultType="goodsQnAVO">
+        SELECT 
+               PARNTS_CTGRY_CODE AS parntsCtgryCd
+             , CTGRY_CODE AS ctgryCd
+             , LANG_CTGRY_NM AS ctgryNm
+          FROM TST_CATE_MGMT_M
+         WHERE CTGRY_CL_CD = #{goodsTyCd}
+           AND CTGRY_DP = #{ctgryDp}
+           <if test="ctgryCd != null and ctgryCd != '' and ctgryCd != 'null'">
+                AND PARNTS_CTGRY_CODE = #{ctgryCd}
+           </if>
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_DELETE_AT = 'N'
+           AND LANG_CODE = <include refid="dynaminLangCode"/>
+         ORDER BY SORT_ORDR
+    </select>
+
+</mapper>
