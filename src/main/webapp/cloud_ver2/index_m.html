@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>클라우드 스토어 씨앗 Html list</title>
+  <link rel='stylesheet' href='/cloud_ver2/guide/gud.css' />	
+ </head>
+ <body>
+	<h1><img src="/cloud_ver2/guide/logo.png" alt="클라우드 스토어 씨앗" /></h1>
+
+	<p>최종 작성일 : 2016-1-6</p>
+	<p><a href="/cloud_ver2/guide/gud_img_m.html" target="_blank">이미지</a>
+
+	<table class="tbl_gid idx">
+		<caption>Html File List</caption>
+		<thead>
+			<tr>
+				<th>페이지명</th>
+				<th>URL</th>
+				<th>진행상태</th>
+				<th>수정일</th>
+				<th>완료일</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>로그인</td>
+				<td><a href="/cloud_ver2/html_m/login.html" target="_blank"></a></td>
+				<td>완료</td>
+				<td></td>
+				<td>1/4</td>
+			</tr>
+			<tr>
+				<td>나의 커뮤니티</td>
+				<td><a href="/cloud_ver2/html_m/my_communiti.html" target="_blank"></a></td>
+				<td>완료</td>
+				<td></td>
+				<td>1/6</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script>
+		$(document).ready(function() {
+		    //$('tr:odd').css('background','beige');
+	    
+			var tda = $('td a');
+
+			for(var i=0; i< tda.length; i++){
+
+			    var tda_n = tda[i];
+				var tda_href = $(tda_n).attr('href');
+				var split = tda_href.split('/');				
+				
+				$(tda_n).text(split[3]);
+			}
+		});
+	</script>
+
+ </body>
+</html>

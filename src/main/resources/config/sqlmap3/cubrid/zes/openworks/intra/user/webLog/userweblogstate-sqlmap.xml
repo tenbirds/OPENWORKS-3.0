@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webLogState">
+
+    <select id="login" parameterType="userWebLogVO" resultType="userWebLogVO">
+    SELECT    ENTIRE_USER_COUNT                                AS entireUserCount,
+              (ENTIRE_USER_COUNT - LOGIN_USER_COUNT)           AS notLoginUserCount,
+              LOGIN_USER_COUNT                                 AS loginUserCount,
+              GPIN_USER_COUNT         AS gpinUserCount,
+              CERTIFICATE_USER_COUNT  AS certificateUserCount,
+              GENERAL_USER_COUNT      AS generalUserCount,
+              ETC_USER_COUNT          AS etcUserCount,
+              (GPIN_USER_COUNT + CERTIFICATE_USER_COUNT + GENERAL_USER_COUNT + ETC_USER_COUNT) AS memberTypeCount,
+              TEENS_COUNT             AS teenCount,
+              TWENTY_COUNT            AS twentyCount,
+              THIRTY_COUNT            AS thirtyCount,
+              FORTY_COUNT             AS fortyCount,
+              FIFTY_COUNT             AS fiftyCount,
+              SIXTY_COUNT             AS sixtyCount,
+              SEVENTY_ETC_COUNT       AS seventyEtcCount,
+              (TEENS_COUNT + TWENTY_COUNT + THIRTY_COUNT + FORTY_COUNT + FIFTY_COUNT + SIXTY_COUNT + SEVENTY_ETC_COUNT) AS ageTypeCount,
+              MAN_COUNT               AS manCount,
+              WOMAN_COUNT             AS womanCount,
+              ETC_SEX_COUNT           AS etcSexCount,
+              (MAN_COUNT + WOMAN_COUNT + ETC_SEX_COUNT ) AS sexTypeCount
+    FROM OP_USER_ACCESS_STATS A
+    WHERE A.YEAR = TO_CHAR(SYSDATE, 'YYYY')
+        AND A.MONTH = TO_CHAR(SYSDATE, 'MM')
+        AND A.DAY = TO_CHAR(SYSDATE,'DD')
+    </select>
+    <select id="userloginIp" parameterType="userWebLogVO" resultType="userWebLogVO">
+        /* _webLogState.userloginIp */
+        SELECT
+               A.IP AS loginIp, A.IPCOUNT AS ipCount
+          FROM (SELECT
+                       CONECT_IP AS ip
+                      ,COUNT (CONECT_IP) AS ipcount
+                  FROM OP_USER_CONECT_HIST
+                 WHERE user_id = #{userId}
+                 GROUP BY CONECT_IP
+                 ORDER BY ipcount DESC
+                      ,CONECT_IP DESC
+                   FOR ORDERBY_NUM()
+               BETWEEN 1 AND 3
+               ) A
+         UNION ALL
+        SELECT
+               '기타' AS ip, COUNT (CONECT_IP) AS ipcount
+          FROM OP_USER_CONECT_HIST
+         WHERE USER_ID = #{userId}
+           AND CONECT_IP NOT IN (SELECT
+                                        CONECT_IP
+                                   FROM (SELECT
+                                                   CONECT_IP
+                                                  ,COUNT (CONECT_IP) AS ipcount
+                                           FROM OP_USER_CONECT_HIST
+                                          WHERE user_id = #{userId}
+                                          GROUP BY CONECT_IP
+                                          ORDER BY ipcount DESC, CONECT_IP DESC
+                                              FOR ORDERBY_NUM()
+                                          BETWEEN 1 AND 3
+                                          )A
+                                   )
+    </select>
+    <select id="loginIptotal" parameterType="userWebLogVO" resultType="userWebLogVO">
+    SELECT COUNT(CONECT_IP) AS loginIpTotal
+      FROM OP_USER_CONECT_HIST
+    WHERE
+        USER_ID = #{userId}
+    </select>
+</mapper>

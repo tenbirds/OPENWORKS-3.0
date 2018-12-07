@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmOptAdminMenu">
+
+		<!-- 커뮤니티 운영자 왼쪽 메뉴 -->
+	<select id="cmOptAdminMenuList" parameterType="cmOptAdminMenuVO" resultType="cmOptAdminMenuVO">
+	
+	 /* cmOptAdminMenu-sqlmap.xml  _cmOptAdminMenu.cmOptAdminMenuList */
+	  SELECT
+             DOMAIN_CD                                	AS domainCd, 
+             USER_MENU_CODE                        AS menuCode,
+             USER_MENU_NM                           AS userMenuNm,
+             MENU_DP                            			AS menuDp,
+             USER_MENU_URL                         	AS userMenuUrl,
+             PARNTS_MENU_CODE                    AS parntsMenuCode,
+             USE_YN                                        AS useYN,
+             INDICT_YN                                    AS showYN,
+             SORT_ORDR									AS sortOrdr,
+             DECODE(
+                 (SELECT COUNT (USER_MENU_CODE) FROM OP_USER_MENU MENU
+                     WHERE MENU.DOMAIN_CD = OP_USER_MENU.DOMAIN_CD
+                         AND MENU.PARNTS_MENU_CODE = OP_USER_MENU.USER_MENU_CODE), 0, '1', '0') AS [depth]
+          FROM OP_USER_MENU
+         WHERE 
+                DOMAIN_CD = #{domainCd}
+            AND PARNTS_MENU_CODE != 'DOMAIN'
+            AND PARNTS_MENU_CODE =  #{parntsMenuCode} <!--  'www_cm_a' -->
+            ORDER BY SORT_ORDR ASC
+     </select>
+</mapper>
+
+
+
+
+      

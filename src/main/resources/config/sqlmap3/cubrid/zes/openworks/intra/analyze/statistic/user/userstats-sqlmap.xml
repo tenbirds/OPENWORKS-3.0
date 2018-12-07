@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userstats">
+
+    <select id="userList" parameterType="map" resultType="map">
+        /* _userstatic.userList */
+        <![CDATA[
+        SELECT NATION, USERTYNM, CNT,
+               DECODE(PARTRATE_DENO, 0, 0, CAST( (CNT / PARTRATE_DENO) * 100 AS NUMERIC(10,2))) AS PARTRATE,
+               DECODE(RATE_DENO, 0, 0, CAST( (CNT / RATE_DENO) * 100 AS NUMERIC(10,2))) AS RATE
+          FROM (
+        SELECT
+               (CASE WHEN code.nc = '1'
+                THEN '국내' WHEN code.nc = '2' then '해외'
+                 END
+                ) AS NATION
+               ,(SELECT
+                        INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE LANG_CODE = '00'
+                    AND GROUP_CD = 5
+                    AND INDVDLZ_CD = code.utycd
+                ) AS USERTYNM
+               ,COUNT(USER_TY_CD) AS CNT
+               ,( CASE WHEN NATION_CODE='410'
+                       THEN (SELECT
+                                    CAST (COUNT(USER_ID) AS NUMERIC(10,2))
+                               FROM OP_USER
+                              WHERE USER_STTUS_CD = 1001
+                                AND NATION_CODE = 410
+                                AND TO_CHAR(REGIST_DT, 'YYYY-MM-DD') BETWEEN #{q_startDate} AND #{q_endDate}
+                            )
+                       WHEN NATION_CODE <> '410'
+                        AND NATION_CODE IS NOT NULL
+                       THEN (SELECT
+                                    COUNT(A.USER_ID)
+                               FROM OP_USER A
+                              WHERE A.USER_STTUS_CD = 1001
+                                AND A.NATION_CODE <> 410
+                                AND TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') BETWEEN #{q_startDate} AND #{q_endDate}
+                            )
+                        ELSE 1
+                END ) AS PARTRATE_DENO
+               ,(SELECT
+                         CAST (COUNT(USER_ID) AS NUMERIC(10,2))
+                    FROM OP_USER
+                   WHERE USER_STTUS_CD = 1001
+                     AND TO_CHAR(REGIST_DT, 'YYYY-MM-DD') BETWEEN #{q_startDate} AND #{q_endDate}
+                 ) AS RATE_DENO
+           FROM OP_USER RIGHT OUTER JOIN
+            ( SELECT '1' AS nc, 1001 AS utycd
+                  UNION ALL
+                 SELECT '1', 1002
+                  UNION ALL
+                 SELECT '1', 2001
+                  UNION ALL
+                 SELECT '1', 2002
+                  UNION ALL
+                 SELECT '1', 3001
+                  UNION ALL
+                 SELECT '1', 3002
+                 
+                 /* 해외유저 제외
+                  UNION ALL
+                 SELECT '2', 1001
+                  UNION ALL
+                 SELECT '2', 1002
+                  UNION ALL
+                 SELECT '2', 2001
+                  UNION ALL
+                 SELECT '2', 2002
+                 */
+             ) code
+             ON DECODE(NATION_CODE,'410','1') = code.nc
+             /* 해외유저 제외
+             ON DECODE(NATION_CODE,'410','1','2') = code.nc
+             */
+                AND USER_TY_CD = utycd AND USER_STTUS_CD = 1001
+	            AND TO_CHAR(REGIST_DT, 'YYYY-MM-DD') BETWEEN #{q_startDate} AND #{q_endDate}
+          /* 해외유저 제외
+          GROUP BY code.nc, code.utycd WITH ROLLUP
+          */
+          GROUP BY code.utycd WITH ROLLUP
+        )
+        ]]>
+    </select>
+
+</mapper>

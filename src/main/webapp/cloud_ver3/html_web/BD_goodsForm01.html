@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8" />
+	<title>서비스등록페이지</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+	<script type="text/javascript">
+ 		var jsClose = function() {
+	        parent.$.colorbox.close();
+	    }
+	</script>
+	<link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_pop.css' />
+	<link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_cmm.css' />
+	<link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+	<style>
+		.form_radio{
+			display:inline-block;
+		}
+		.form_radio input{
+			margin-right:10px;
+		}
+		.req{
+			width:50px;
+			position:absolute;
+			top:110px;
+			right:50px;
+			opacity:0;
+			overflow:hidden;
+		}
+	</style>
+ </head>
+<body>
+	<div class="supAdm view register">  
+		<div id="serviceRegist01">
+			<h3>1-1. 서비스 일반정보</h3>
+			<table class="tbl_st4 basicInput">    
+				<tr>
+					<th class="requ">서비스명</th>
+					<td><input name="goodsNm" id="goodsNm" type="text" value="" style="width:70%;" />&nbsp;(<span id="goodsNm_bytes">0</span>/70 Byte)</td>
+				</tr>
+				<tr>
+					<th class="requ">서비스 구분</th>
+					<td>
+						<form class="form_radio">
+							<input type="radio" name="goodsKndCd" id="goodsKndCd01" value="SaaS"/><label for="goodsKndCd01">SaaS</label>
+							<input type="radio" name="goodsKndCd" id="goodsKndCd02" value="PaaS"/><label for="goodsKndCd02">PaaS</label>
+							<input type="radio" name="goodsKndCd" id="goodsKndCd03" value="IaaS"/><label for="goodsKndCd03">IaaS</label>
+							<input type="radio" name="goodsKndCd" id="goodsKndCd04" value="SCS"/><label for="goodsKndCd04">SCS</label>
+						</form>   
+						<span>※ 서비스 구분별 규격항목이 다르므로 정확히 선택하시기 바랍니다.</span>
+					</td>
+				</tr>        
+				<tr>
+					<th class="requ">카테고리</th>
+					<td>
+						<a href="#" id="jsCtgrySelPop" class="btns st3">카테고리 선택</a>    
+					</td>
+				</tr>
+				<tr>
+					<th class="requ">과금기준</th>
+					<td>
+						<form class="form_radio">
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm01" value="월간"/><label for="dueStdrMumm01">월간</label>
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm02" value="연간"/><label for="dueStdrMumm02">연간</label>
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm03" value="라이선스"/><label for="dueStdrMumm03">라이선스</label>
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm04" value="사용자수"/><label for="dueStdrMumm04">사용자수</label>
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm05" value="용량"/><label for="dueStdrMumm05">용량</label>
+							<input type="radio" name="dueStdrMumm" id="dueStdrMumm06" value="무료"/><label for="dueStdrMumm06">무료</label>
+						</form>
+					</td>
+				</tr>
+				<tr>
+					<th class="requ">서비스 가격</th>
+					<td class="vat">
+						<div class="unit" style="width:100%">
+							<span id="spanSvcPcUntCd" class="sel_box">
+								<select id="svcPcUntCd" name="svcPcUntCd">
+									<option value="원">원</option>
+									<option value="달러">달러</option>
+								</select>
+							</span>
+							<input type="text" id="svcPc" name="svcPc" value="" style="width:150px" maxlength="13"/>
+							<input type="checkbox" id="svcPcVat" name="svcPcVat" value="1"><label for="svcPcVat">VAT 포함</label>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th class="requ">최소 계약기간</th>
+					<td><input type="text" id="mummCntrctpd" style="width:250px" name="mummCntrctpd" value=""></td>
+				</tr>
+				<tr>
+					<th class="requ">서비스 대표 이미지</th>
+					<td>
+						<div class="thumb" >
+							<span id="imgPrev1">
+								<a href="#" class="del">삭제</a>
+								<p class="thumbimg"></p>
+								<a href="#">등록</a>
+								<p class="req" id="fileSet1">
+									<input type="file" name="imageFile1" id="imageFile1"/>
+									<input type="hidden" name="fileDesc" id="imageFile1Desc" value=""/>
+								</p>
+							</span> 
+						</div>
+						<i>※ 이미지는 10MB미만, 318px x 278px의 JPG, GIF파일만 등록가능합니다. 사이즈가 다를 경우 승인되지 않습니다.</i>
+					</td>
+				</tr>
+				<tr>
+					<th>사용화면 이미지 등록</th>
+					<td>
+						<div class="thumb" >
+							<span id="imgPrev1">
+								<a href="#" class="del">삭제</a>
+								<p class="thumbimg"></p>
+								<a href="#">등록</a>
+								<p class="req" id="fileSet1">
+									<input type="file" name="imageFile1" id="imageFile1"/>
+									<input type="hidden" name="fileDesc" id="imageFile1Desc" value=""/>
+								</p>
+							</span> 
+						</div>
+						<i>※ 이미지는 10MB미만, 318px x 278px의 JPG, GIF파일만 등록가능합니다. 사이즈가 다를 경우 승인되지 않습니다.</i>
+					</td>
+				</tr>
+				<tr>
+					<th>체험판 URL</th>
+					<td>
+						<input type="text" name="itemVodUrl" id="itemVodUrl" value="" />
+						※ 이용자가 다운로드 또는 온라인 체험을 받을 수 있는 서비스인 경우 관련 URL 주소를 입력해 주세요.
+					</td>
+				</tr>
+				<tr>
+					<th>서비스 안내 URL</th>
+					<td>
+						<input type="text" name="goodsDwldUrl" id="goodsDwldUrl" value="" />
+						※ 이용자가 다운로드 또는 온라인에서 확인 할 수 있는 서비스 안내 URL 주소를 입력해 주세요.
+					</td>
+				</tr>
+				<tr>
+					<th>모니터링 URL</th>
+					<td>
+						<input type="text" id="goodsMonitorUrl" name="goodsMonitorUrl" id="goodsMonitorUrl" value="" />
+						※ 모티터링URL 시비스 상태를 확인할 수 있는 모니터링 URL을 입력해 주세요
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>

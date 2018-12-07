@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+
+    <system>
+        <appNm>OpenMarketplace</appNm>
+        <appVersion>1.0</appVersion>
+        <appBuild>$Id: core-config.xml $
+        </appBuild>
+        <systemNm>오픈마켓플레이스</systemNm>
+        <clientNm>한국정보화진흥원</clientNm>
+        <adminDeptNm>정부협업공유부</adminDeptNm>
+        <adminMgrNm>한영미</adminMgrNm>
+        <adminTelNo>02-720-7033</adminTelNo>
+        <adminInnerNo></adminInnerNo>
+    </system>
+
+    <sender>
+        <mailServer>smtp.ceart.kr</mailServer>
+        <mailPort>465</mailPort>
+        <isSsl>true</isSsl>
+        <isDebug>false</isDebug>
+        <senderNm>관리자</senderNm>
+        <senderEmail>webmaster@ceart.kr</senderEmail>
+        <senderTel>070-4870-4015</senderTel>
+        <mailId>webmaster@ceart.kr</mailId>
+        <mailPassword>nia2014</mailPassword>
+    </sender>
+
+		<autoMail>
+        <senderName>씨앗마켓</senderName>
+        <senderEmail>webmaster@ceart.kr</senderEmail>
+    </autoMail>
+
+    <locations>
+        <!-- web.xml 파일내의 webAppRootKey 키의 값을 설정(WAS 서버의 루트 경로 정보를 획득시 사용됨) -->
+        <webAppRootKey>openworks3.root</webAppRootKey>
+
+        <!-- was 서버 root 경로 설정 : 운영시 값을 삭제하여 빈값으로 만듬 -->
+        <webapproot></webapproot>
+
+        <!-- 첨부파일 저장 위치 : 값이 없는 경우 was 서버 root 경로를 자동으로 사용 -->
+        <uploadRoot></uploadRoot>
+
+        <!-- 정적컨텐츠 저장 위치 : 값이 없는 경우 was 서버 root 경로를 자동으로 사용 -->
+        <resourceRoot></resourceRoot>
+
+        <!-- 일반 첨부 저장 최상위 폴더명 -->
+        <uploadFolderPath>upload</uploadFolderPath>
+
+        <!-- 정적컨텐츠 저장 최상위 경로(웹서버에서 직접 접근) -->
+        <resourceFolderPath>webcontent</resourceFolderPath>
+
+        <!-- 프로그램별 별도 폴더 미 지정시 사용되는 폴더명 -->
+        <defaultUploadFolderPath>default</defaultUploadFolderPath>
+
+        <!-- taglib에서 사용되는 view 화면 jsp 위치 -->
+        <includeTaglibRoot>/WEB-INF/pages/common/taglib/</includeTaglibRoot>
+        
+        <!-- 표준연계 xml 저장경로 -->
+        <!-- <g2bXmlUrl>D:/TEST_XML/NEW_XML/</g2bXmlUrl> -->
+        <!-- 개발서버 : <g2bXmlUrl>/root/workspace/GePSHome/g2bAPI/fileRep/receive/append/</g2bXmlUrl> -->
+        
+        <g2bXmlAfter>/home/ompwausrjb/GePSClientAPI/g2bAPI/fileRep/receive/append/</g2bXmlAfter>
+        <g2bXmlUrl>/home/ompwausrjb/GePSClientAPI/g2bAPI/fileRep/receive/append/</g2bXmlUrl>
+        <g2bXmlRealApply>/home/ompwausrjb/GePSClientAPI/g2bAPI/fileRep/receive/real-apply/</g2bXmlRealApply>
+		
+        <!-- 표준연계 xml BackUp저장경로 -->
+        <!-- <g2bXmlBak>D:/TEST_XML/BAK_XML/</g2bXmlBak> -->
+        <!-- 개발서버 : <g2bXmlBak>/root/workspace/GePSHome/g2bAPI/fileRep/receive/backup/</g2bXmlBak> -->
+        <g2bXmlBak>/home/ompwausrjb/GePSClientAPI/g2bAPI/fileRep/receive/backup/</g2bXmlBak>
+        <g2bXmlLocal>D:/ceart/</g2bXmlLocal>        
+        <g2bXmlLocal2>D:/ceart1/</g2bXmlLocal2>        
+                
+    </locations>
+
+	<overseasProducts>
+		<!-- 해외동양 서비스 가져오기 모니터링 Url -->
+		<digitalMarketplace>
+			<protocol>https</protocol>
+			<domain>www.digitalmarketplace.service.gov.uk</domain>
+			<url>/g-cloud/search</url>
+			<queryString>q=</queryString>
+			<charset>utf-8</charset>
+		</digitalMarketplace>
+	</overseasProducts>
+
+	<autoMail>
+        <senderName>OpenMarketplace</senderName>
+        <senderEmail>webmaster@ceart.kr</senderEmail>
+    </autoMail>
+
+    <global>
+        <!-- 서비스 모드 (dev: 개발 모드, real: 운영모드) -->
+        <serviceMode>dev</serviceMode>
+        <!-- SSL사용여부 (Y: 사용, N: 미사용) -->
+        <sslUse>N</sslUse>
+        <!-- 기본 인코딩 -->
+        <encoding>utf-8</encoding>
+        <!-- 기본 날짜 포멧 패턴 -->
+        <datePattern>YYYY-MM-DD</datePattern>
+        <!-- 기본 날짜시간 포멧 패턴 -->
+        <dateTimePattern>YYYY-MM-DD HH24:MI:SS</dateTimePattern>
+        <!-- 기본암호화 -->
+        <crypto>SEED</crypto>
+        <!-- 기본 검색 파라미터 Prefix -->
+        <prefixSearchParam>q_</prefixSearchParam>
+        <!-- 기본 form 네임(html form 태그의 id 값) -->
+        <defaultForm>dataForm</defaultForm>
+        <!-- 관리자 테마 -->
+        <adminTheme>/resources/openworks/theme/default</adminTheme>
+        <!-- 사용자 테마 -->
+        <webTheme>/resources/web/theme/default</webTheme>
+    </global>
+
+    <default>
+        <!-- 트리 최상위 기본 코드 -->
+        <highTreeCd>0</highTreeCd>
+        <!-- 메뉴 최상위 기본 코드 -->
+        <highMenuCd>0</highMenuCd>
+        <!-- 부서 최상위 기본 코드 -->
+        <hightDeptCd>0</hightDeptCd>
+    </default>
+
+    <url>
+        <!-- 서버 동기화 URL -->
+        <syncUrl>/component/synchronize/ND_Synchronize.do</syncUrl>
+        <!-- 관리자 URL Prefix -->
+        <mgrUrlPrefix>/intra/</mgrUrlPrefix>
+        <!-- 사용자 URL Prefix -->
+        <userUrlPrefix>/web/</userUrlPrefix>
+		<!-- 모바일 URL Prefix -->
+		<mobileUrlPrefix>/m/</mobileUrlPrefix>
+		<!-- board 모바일 URL Prefix -->
+		<boardMobileUrlPrefix>/mobile/</boardMobileUrlPrefix>
+        <!-- 외국어사용자 URL Prefix -->
+		<portalUrlPrefix>/pt/</portalUrlPrefix>
+		<!-- 커뮤니티 URL Prefix -->
+		<cmUrlPrefix>/cm/</cmUrlPrefix>
+		
+        <!-- 관리자 로그인 -->
+        <mgrLogin>/login/mgr/ND_index.do</mgrLogin>
+        <mgrLoginAction>/login/mgr/ND_loginAction.do</mgrLoginAction>
+        <mgrLogout>/login/mgr/ND_logoutAction.do</mgrLogout>
+        <mgrLostSession>/login/mgr/ND_LostSession.do</mgrLostSession>
+        <!-- 포털 로그인 -->
+        <userLogin>/korean/pt/login/user/BD_index.do</userLogin>
+        <userLoginAction>/korean/pt/login/user/ND_loginAction.do</userLoginAction>
+        <userLogout>/korean/pt/login/user/ND_logoutAction.do</userLogout>
+        <userLostSession>/korean/pt/login/user/ND_LostSession.do</userLostSession>
+		<!-- 외국언어별 포털 로그인페이지 -->
+        <userEngLogin>/english/pt/login/user/BD_index.do</userEngLogin>
+		<userEspLogin>/spanish/pt/login/user/BD_index.do</userEspLogin>
+		<!-- 모바일언어별 모바일 로그인페이지 -->
+		<userEngLoginM>/english/m/login/user/BD_index.do</userEngLoginM>
+		<userEspLoginM>/spanish/m/login/user/BD_index.do</userEspLoginM>
+
+        <!-- 관리자 메인페이지 -->
+        <mgrMain>/intra/explorer/ND_index.do</mgrMain>
+        <!-- 포털 메인페이지 -->
+        <userMain>/korean/pt/index.do</userMain>
+        <!-- 영어포털 사용자 메인페이지 -->
+        <userEngMain>/english/pt/index.do</userEngMain>
+        <!-- 스페인어포털 사용자 메인페이지 -->
+        <userEspMain>/spanish/pt/index.do</userEspMain>
+        <!-- 모바일 사용자 메인페이지 -->
+        <mobileMain>/korean/m/index.do</mobileMain>
+        <!-- 영어모바일 사용자 메인페이지 -->
+        <mobileEngMain>/english/m/index.do</mobileEngMain>
+        <!-- 스페인어모바일 사용자 메인페이지 -->
+        <mobileEspMain>/spanish/m/index.do</mobileEspMain>
+    </url>
+
+    <session>
+        <!-- 관리자 세션 키 -->
+        <mgrSessionKey>__msk</mgrSessionKey>
+        <!-- 사용자 세션 키 -->
+        <userSessionKey>__usk</userSessionKey>
+    </session>
+
+    <jspView>
+        <alertAndBack>common/actions/ND_AlertAndBack</alertAndBack>
+        <alertAndClose>common/actions/ND_AlertAndClose</alertAndClose>
+        <alertAndRedirect>common/actions/ND_AlertAndRedirect</alertAndRedirect>
+        <confirmAndRedirect>common/actions/ND_ConfirmAndRedirect</confirmAndRedirect>
+        <confirmAndRedirectPopup>common/actions/ND_ConfirmAndRedirectPopup</confirmAndRedirectPopup>
+        <sendScript>common/actions/ND_Script</sendScript>
+    </jspView>
+
+    <html>
+        <!-- select tag의 첫번째 기본 문자 -->
+        <selectText>-- 선택 --</selectText>
+    </html>
+    
+    <openAPI>
+        <!-- 나라장터 openAPi -->
+        <serviceKey>UeQagMpn4%2BALIeACJ5%2BV1%2F9iItxKzrPw06TqVcBGN5BTe0qvPzpEGlIX%2F9yFq%2BRDHR2taQlfh7JPzZjVQoghLA%3D%3D</serviceKey>
+    </openAPI>
+
+    <mail>
+		<mailSsoAddr>http://mail.ceart.kr:8090/tm6/app/api/sso?userID=</mailSsoAddr>
+	</mail>
+
+	<weblog>
+		<MonitorAddr>http://202.30.77.188:8000/wiselog/sso.do?profileid=00001&amp;userID=</MonitorAddr>
+		<!-- $ceart$ 20150812 웹로그 링크 추가 시작 -->
+		<MonitorAddr_Test>http://202.30.77.188:8000/wiselog/sso.do?profileid=00005&amp;userID=</MonitorAddr_Test>
+		<!-- $ceart$ 20150812 웹로그 링크 추가 끝 -->
+	</weblog>
+ 	
+<!-- 
+	<domain>
+		<mainUrl>ceart.kr</mainUrl>
+	    <subUrl>new.ceart.kr</subUrl>					
+	    <admUrl>intra.ceartdev.kr</admUrl>
+	</domain>
+ -->
+ 	<domain>
+		<mainUrl>ceart.kr</mainUrl>
+	    <subUrl>www.ceart.kr</subUrl>
+	    <admUrl>intra.ceartdev.kr</admUrl>
+	</domain>
+ 
+</configuration>

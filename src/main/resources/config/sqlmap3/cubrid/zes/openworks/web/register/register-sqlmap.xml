@@ -1,0 +1,2105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_register">
+
+    <select id="userGubun" parameterType="registerVO" resultType="registerVO">
+        /* _register.userGubun */
+        SELECT
+               INDVDLZ_CD AS userTyCd
+          FROM OP_CODE_INDVDLZ A 
+         WHERE A.GROUP_CD = 5
+    </select>
+
+    <select id="cUserForm" parameterType="registerVO" resultType="registerVO">
+        /* _register.cUserForm */
+        SELECT
+               (SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2001) AS faxRecptnAgreCd
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2002) AS emailRecptnAgreCd
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2003) AS cmpnyNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2004) AS cmpnyZip
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2005) AS cmpnyBassAdres
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2006) AS cmpnyDetailAdres
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2007) AS cmpnyTelno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2008) AS cmpnyRprsntvNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2009) AS bizrno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2010) AS cmpnyReprsntTelno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2011) AS cmpnyFaxnum
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2012) AS cmpnyEmail
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 2013) AS cmpnyUrl
+    </select>
+
+    <select id="pUserForm" parameterType="registerVO" resultType="registerVO">
+        /* _register.pUserForm */
+        SELECT
+               (SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1001) AS smsRecptnAgreCd
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1002) AS emailRecptnAgreCd
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1003) AS cmpnyNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1004) AS cmpnyZip
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1005) AS cmpnyBassAdres
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1006) AS cmpnyDetailAdres
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1007) AS cmpnyTelno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1008) AS cmpnyRprsntvNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1009) AS bizrno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1010) AS cmpnyReprsntTelno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1011) AS cmpnyFaxnum
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1012) AS cmpnyEmail
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 1013) AS cmpnyUrl
+              ,(SELECT IEM_TY FROM OP_USER_INFO_SET WHERE IEM_CD = 1000) AS userGubunP
+              ,(SELECT IEM_TY FROM OP_USER_INFO_SET WHERE IEM_CD = 2000) AS userGubunC
+              ,(SELECT IEM_TY FROM OP_USER_INFO_SET WHERE IEM_CD = 3000) AS userGubunS
+    </select>
+
+    <select id="stUserForm" parameterType="registerVO" resultType="registerVO">
+        /* _register.stUserForm */
+        SELECT
+               (SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3001) AS langStoreNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3002) AS langStoreIntrcn
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3003) AS storeChargerNm
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3004) AS reprsntTelno
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3005) AS reprsntEmail
+              ,(SELECT USE_YN_CD FROM OP_USER_INFO_SET WHERE IEM_CD = 3006) AS storeUrl
+    </select>
+
+    <select id="interestItemList" parameterType="registerVO" resultType="registerVO">
+        /* _register.interestItemList */
+        SELECT
+               USER_TYPE                           AS userGubun
+              ,SEQ_NO                              AS seqNo
+              ,ITEM_NM                             AS itemNm
+              ,USE_YN                              AS useYn
+          FROM OP_USER_INFO_INTST_SET
+         WHERE USER_TYPE = #{userGubun}
+         ORDER BY USER_TYPE DESC, SEQ_NO
+    </select>
+    <!-- 회원 아이디 중복 체크 -->
+    <select id="checkDupleId" parameterType="registerUserVO" resultType="int">
+        /* _register.checkDupleId */
+        SELECT COUNT(*) AS cnt
+        FROM OP_USER A
+        WHERE A.USER_ID = #{userId}
+    </select>
+    <!-- 비밀번호 확인 -->
+    <select id="checkPassword" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.checkPassword */
+        SELECT
+               BEFORE_PASSWORD AS beforePassword
+              ,USER_PASSWORD AS userPassword
+          FROM OP_USER A
+         WHERE A.USER_ID = #{userId}
+    </select>
+    <insert id="insertAction" parameterType="registerUserVO">
+        /* _register.insertAction */
+        INSERT INTO OP_USER
+        (
+             USER_ID
+            ,LANG_CODE
+            ,NATION_CODE
+            ,USER_PASSWORD
+            ,USER_NM
+            ,EMAIL
+            ,SBSCRB_TY_CD
+            ,INTRL_TELNO
+            ,TELNO
+            ,ZIP
+            ,BASS_ADRES
+            ,DETAIL_ADRES
+            ,REGIST_ID
+            ,REGIST_DT
+            ,USER_TY_CD
+            ,USER_GRAD_CODE
+            ,USER_STTUS_CD
+            ,USER_KEY
+            ,DPLCT_SBSCRB_PRVN_KEY
+            ,SBSCRB_SITE_SE_CD
+            ,MBTLNUM
+            ,BRTHDY
+            ,SEXDSTN_CD
+            ,SLRCLD_LRR_LPNH_CD
+            ,LXTN_TELNO
+            ,EMAIL_RECPTN_AGRE_CD
+            ,NSLET_RECPTN_AGRE_CD
+            ,BID_RECPTN_AGRE_CD
+            <if test="dmandExaminChargerAt != null and dmandExaminChargerAt != ''">
+           	,DMAND_EXAMIN_CHARGER_AT
+           	</if>
+        )
+        VALUES
+        (
+             #{userId}
+            ,#{langCode}
+            ,#{nationCode}
+            ,#{userPassword}
+            ,#{userNm}
+            ,encrypt(#{email}, 'P008')
+            ,#{sbscrbTyCd}
+            ,#{intrlTelno}
+            ,#{telno}
+            ,#{zip}
+            ,#{bassAdres}
+            ,#{detailAdres}
+            ,#{registId}
+            ,SYS_DATETIME
+            ,#{userTyCd}
+            ,'generalMber'
+            ,#{userSttusCd}
+            ,#{userKey}
+            ,#{dplctSbscrbIndvdlznKey}
+            ,#{sbscrbSiteSeCd}
+            ,encrypt(#{mbtlnum}, 'P007')
+            ,#{brthdy}
+            ,#{sexdstnCd}
+            ,#{slrcldLrrLpnhCd}
+            ,#{lxtnTelno}
+            ,#{emailRecptnAgreCd}
+            ,#{nsletRecptnAgreCd}
+            ,#{bidRecptnAgreCd}
+            <if test="dmandExaminChargerAt != null and dmandExaminChargerAt != ''">
+           	,#{dmandExaminChargerAt}
+           	</if>
+        )
+    </insert>
+    <insert id="insertOptionAction" parameterType="registerUserVO">
+        /* _register.insertOptionAction */
+        INSERT INTO OP_USER_OPTION
+        (
+            USER_ID
+            ,SMS_RECPTN_AGRE_CD
+            ,EMAIL_RECPTN_AGRE_CD
+            ,CMPNY_NM
+            ,CMPNY_ZIP
+            ,CMPNY_BASS_ADRES
+            ,CMPNY_DETAIL_ADRES
+            ,CMPNY_TELNO
+            ,LXTN_TELNO
+            ,CMPNY_RPRSNTV_NM
+            ,BIZRNO
+            ,CMPNY_REPRSNT_TELNO
+            ,CMPNY_FXNUM
+            ,CMPNY_EMAIL
+            ,CMPNY_URL
+        )
+        VALUES
+        (
+              #{userId}
+             ,#{smsRecptnAgreCd}
+             ,#{cmpnyEmailRecptnAgreCd}
+             ,#{cmpnyNm}
+             ,#{cmpnyZip}
+             ,#{cmpnyBassAdres}
+             ,#{cmpnyDetailAdres}
+             ,#{cmpnyTelno}
+             ,#{cmpnyLxtnTelno}
+             ,#{cmpnyRprsntvNm}
+             ,#{bizrno}
+             ,#{cmpnyReprsntTelno}
+             ,#{cmpnyFaxnum}
+             ,#{cmpnyEmail}
+             ,#{cmpnyUrl}
+        )
+    </insert>
+    <insert id="insertEntrprsAction" parameterType="registerUserVO">
+        /* _register.insertEntrprsAction */
+        INSERT INTO OP_USER_ENTRPRS_OPTION
+        (
+            USER_ID
+            ,FAX_RECPTN_AGRE_CD
+            ,EMAIL_RECPTN_AGRE_CD
+            ,CMPNY_NM
+            ,CMPNY_ZIP
+            ,CMPNY_BASS_ADRES
+            ,CMPNY_DETAIL_ADRES
+            ,CMPNY_TELNO
+            ,LXTN_TELNO
+            ,CMPNY_RPRSNTV_NM
+            ,BIZRNO
+            ,CMPNY_REPRSNT_TELNO
+            ,CMPNY_FXNUM
+            ,CMPNY_EMAIL
+            ,CMPNY_URL
+        )
+        VALUES
+        (
+              #{userId}
+             ,#{faxRecptnAgreCd}
+             ,#{cmpnyEmailRecptnAgreCd}
+             ,#{cmpnyNm}
+             ,#{cmpnyZip}
+             ,#{cmpnyBassAdres}
+             ,#{cmpnyDetailAdres}
+             ,#{cmpnyTelno}
+             ,#{cmpnyLxtnTelno}
+             ,#{cmpnyRprsntvNm}
+             ,#{bizrno}
+             ,#{cmpnyReprsntTelno}
+             ,#{cmpnyFaxnum}
+             ,#{cmpnyEmail}
+             ,#{cmpnyUrl}
+        )
+    </insert>
+    <insert id="insertPblinsttAction" parameterType="registerUserVO">
+        /* _register.insertPblinsttAction */
+        INSERT INTO OP_USER_PBLINSTT_OPTION
+        (
+              USER_ID
+			, PBLINSTT_CD
+			, PBLINSTT_NM
+			, BIZRNO
+			, PBLINSTT_URL
+			, PBLINSTT_ZIP
+			, orgn_code
+			, buseo_code
+			, pblinstt_telno
+			, PBLINSTT_BASS_ADRES
+			, PBLINSTT_DETAIL_ADRES
+        )
+        VALUES
+        (
+              #{userId}
+			, #{pblinsttCd}
+			, #{cmpnyNm}
+			, #{bizrno}
+			, #{pblinsttUrl}
+			, #{pblinsttZip}
+			, #{orgnCode}
+			, #{buseoCode}
+			, #{pblinsttTelno}
+			, #{pblinsttBassAdres}
+			, #{pblinsttDetailAdres}
+        )
+    </insert>
+    <update id="mergeStoreAction" parameterType="registerUserVO">
+        /* _register.mergeStoreAction */
+        MERGE INTO TUM_SVC_STOR_I  A
+        USING (SELECT #{userId} AS USER_ID, #{storeLangCode} AS LANG_CODE) B
+           ON (
+              A.USER_ID = B.USER_ID
+              AND A.LANG_CODE  = B.LANG_CODE
+              )
+         WHEN MATCHED THEN
+       UPDATE SET
+              LANG_STORE_NM        = #{langStoreNm}
+             ,LANG_STORE_INTRCN    = #{langStoreIntrcn}
+             ,REPRSNT_TELNO        = #{reprsntTelno}
+             ,REPRSNT_EMAIL        = encrypt(#{reprsntEmail}, 'P008')
+             ,STORE_URL            = #{storeUrl}
+             ,STORE_CHARGER_NM     = #{storeChargerNm}
+             ,STORE_IMAGE_FILE_SEQ = #{storeImageFileSeq}
+             ,STORE_ACTVTY_AT        = 'Y'   
+        WHEN NOT MATCHED THEN
+      INSERT
+      (
+             USER_ID
+            ,LANG_CODE
+            ,LANG_STORE_NM
+            ,LANG_STORE_INTRCN
+            ,REPRSNT_TELNO
+            ,REPRSNT_EMAIL
+            ,STORE_URL
+            ,STORE_CHARGER_NM
+            ,STORE_IMAGE_FILE_SEQ
+      )
+      VALUES
+      (
+             #{userId}
+            ,#{storeLangCode}
+            ,#{langStoreNm}
+            ,#{langStoreIntrcn}
+            ,#{reprsntTelno}
+            ,encrypt(#{reprsntEmail}, 'P008')
+            ,#{storeUrl}
+            ,#{storeChargerNm}
+            ,#{storeImageFileSeq}
+      )
+    </update>
+
+    <insert id="insertCategoryAction" parameterType="registerUserVO">
+        /* _register.insertCategoryAction */
+        <selectKey order="BEFORE" keyProperty="seq" resultType="int">
+            SELECT NVL(MAX(INTRST_CTGRY_SEQ), 0) + 1 FROM TUM_ITST_CATE_I
+        </selectKey>
+        INSERT INTO TUM_ITST_CATE_I
+        (
+             USER_ID
+             ,INTRST_CTGRY_SEQ
+             ,LANG_CODE
+             ,CTGRY_CODE
+        )
+        VALUES
+        (
+             #{userId}
+             ,#{seq}
+             ,#{langCode}
+             ,#{ctgryCode}
+        )
+    </insert>
+		
+	
+	<insert id="bassAgremInsertAction" parameterType="bassAgremVO">
+		 /* _register.bassAgremInsertAction */
+		INSERT INTO TCM_BASS_AGREM_MANAGE_I(
+		       BASS_AGREM_MANAGE_SEQ
+             , USER_ID
+			 , CMPNY_NM
+			 , CHARGER_NM
+			 , TELNO
+			 , MBTLNUM
+			 , EMAIL
+			 , PRESENTN_PREARNGE_DE
+			 , PRESENTN_DE
+			 , CNCLS_COMPT_DE
+			 , SNDNG_DE
+			 , AGREM_ORDER
+			 , AGREM_END_DE
+			 , BASS_AGRMNT_FILE_SEQ
+			 , RGSBUK_TRNSCR_FILE_SEQ
+			 , VNENTR_CRTF_FILE_SEQ
+			 , DIRECT_PRDCTN_CRTF_FILE_SEQ
+			 , CDLT_DOC_FILE_SEQ
+			 , FNLTT_FILE_SEQ
+			 , AGREM_NO
+			 , REGIST_ID
+			 , REGIST_DT
+			 , UPDT_ID
+			 , UPDT_DT
+			 , DELETE_AT
+			 , AGREM_STAT
+			 , CMPNY_LOCA
+		) 
+		VALUES 
+		( 
+		       (SELECT MAX(BASS_AGREM_MANAGE_SEQ) + 1 FROM TCM_BASS_AGREM_MANAGE_I) 
+		     , #{userId}
+			 , #{cmpnyNm}
+			 , #{chargerNm}
+			 , #{telno}
+			 , (SELECT MBTLNUM FROM OP_USER WHERE USER_ID = #{userId})
+			 , (SELECT EMAIL FROM OP_USER WHERE USER_ID = #{userId})
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , ''
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , (SELECT BASS_DEGREE FROM TCM_BASS_DEGREE_I WHERE TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN BASS_DEGREE_STDT AND BASS_DEGREE_ENDDT ORDER BY BASS_DEGREE DESC LIMIT 1)			
+			 <!-- , #{agremOrder} 20170111 변경-->
+			 <!-- , #{agremEndDe} 20170417 KS변경 : 무조건 현재일자가 포함된 최종차수의 종료일자를 등록함. -->
+			 , (SELECT TO_CHAR(TO_DATE(BASS_DEGREE_ENDDT,'yyyymmdd'),'YYYY-MM-DD') AS BASS_DEGREE_ENDDT FROM TCM_BASS_DEGREE_I WHERE TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN BASS_DEGREE_STDT AND BASS_DEGREE_ENDDT ORDER BY BASS_DEGREE DESC LIMIT 1)
+			 , #{bassAgrmntFileSeq}
+			 , #{rgsbukTrnscrFileSeq}
+			 , #{vnentrCrtfFileSeq}
+			 , #{directPrdctnCrtfFileSeq}
+			 , #{cdltDocFileSeq}
+			 , #{fnlttFileSeq}
+			 ,  ''
+			 , #{userId}  <!-- , #{registId} 20170111 입력값 변경-->
+			 , SYS_DATETIME
+			 ,  ''
+			 , SYS_DATETIME
+			 , 'N'
+			 , #{agremStatCd}
+			 , #{cmpnyLoca}
+		)
+		
+	 </insert>
+		
+	
+	<insert id="bassAgremInsertNewAction" parameterType="bassAgremVO">
+		 /* _register.bassAgremInsertNewAction */
+		INSERT INTO TCM_BASS_AGREM_MANAGE_I(
+		       BASS_AGREM_MANAGE_SEQ
+             , USER_ID
+			 , CMPNY_NM
+			 , CHARGER_NM
+			 , TELNO
+			 , MBTLNUM
+			 , EMAIL
+			 , PRESENTN_PREARNGE_DE
+			 , PRESENTN_DE
+			 , CNCLS_COMPT_DE
+			 , SNDNG_DE
+			 , AGREM_ORDER
+			 , AGREM_END_DE
+			 , BASS_AGRMNT_FILE_SEQ
+			 , RGSBUK_TRNSCR_FILE_SEQ
+			 , VNENTR_CRTF_FILE_SEQ
+			 , DIRECT_PRDCTN_CRTF_FILE_SEQ
+			 , CDLT_DOC_FILE_SEQ
+			 , FNLTT_FILE_SEQ
+			 , AGREM_NO
+			 , REGIST_ID
+			 , REGIST_DT
+			 , UPDT_ID
+			 , UPDT_DT
+			 , DELETE_AT
+			 , AGREM_STAT
+			 , CMPNY_LOCA
+		) 
+		VALUES 
+		( 
+		       (SELECT MAX(BASS_AGREM_MANAGE_SEQ) + 1 FROM TCM_BASS_AGREM_MANAGE_I) 
+		     , #{userId}
+			 , #{cmpnyNm}
+			 , #{chargerNm}
+			 , #{telno}
+			 , (SELECT MBTLNUM FROM OP_USER WHERE USER_ID = #{userId})
+			 , (SELECT EMAIL FROM OP_USER WHERE USER_ID = #{userId})
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , ''
+			 , TO_CHAR(SYSDATE,'YYYY-MM-DD')
+			 , 1 <!-- 무조건 1차 -->			
+			 <!-- , #{agremOrder} 20170111 변경-->
+			 <!-- , #{agremEndDe} 20170417 KS변경 : 무조건 현재일자가 포함된 최종차수의 종료일자를 등록함. -->
+			 , (SELECT TO_CHAR(TO_DATE(BASS_DEGREE_ENDDT,'yyyymmdd'),'YYYY-MM-DD') AS BASS_DEGREE_ENDDT FROM TCM_BASS_DEGREE_I WHERE TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN BASS_DEGREE_STDT AND BASS_DEGREE_ENDDT ORDER BY BASS_DEGREE DESC LIMIT 1)
+			 , #{bassAgrmntFileSeq}
+			 , #{rgsbukTrnscrFileSeq}
+			 , #{vnentrCrtfFileSeq}
+			 , #{directPrdctnCrtfFileSeq}
+			 , #{cdltDocFileSeq}
+			 , #{fnlttFileSeq}
+			 ,  ''
+			 , #{userId}  <!-- , #{registId} 20170111 입력값 변경-->
+			 , SYS_DATETIME
+			 ,  ''
+			 , SYS_DATETIME
+			 , 'N'
+			 , #{agremStatCd}
+			 , #{cmpnyLoca}
+		)
+		
+	 </insert>
+
+		<!-- INSERT INTO OP_USER
+		    (TELNO)
+		VALUES (SELECT TELNO FROM TCM_BASS_AGREM_MANAGE_I WHERE USER_ID = #{userId}) -->
+		
+	<update id="ubassAgremInsertAction" parameterType="bassAgremVO" >
+		UPDATE OP_USER_ENTRPRS_OPTION
+		   SET BIZRNO = #{bizrno}
+		 WHERE USER_ID = #{userId}
+	       AND USER_TY_CD = #{userTyCd}
+	</update>
+		
+    <select id="checkDupleStoreNm" parameterType="registerUserVO" resultType="int">
+        /* _register.checkDupleStoreNm */
+        SELECT
+               COUNT(*)
+          FROM TUM_SVC_STOR_I
+         WHERE LANG_CODE = #{langCode}
+           AND LANG_STORE_NM = #{langStoreNm}
+           <if test="userId != null and userId != ''">
+           AND USER_ID != #{userId}
+           </if>
+    </select>
+
+    <select id="selectStoreImageFileSeq" parameterType="registerUserVO" resultType="int">
+        SELECT
+               STORE_IMAGE_FILE_SEQ AS storeImageFileSeq
+          FROM TUM_SVC_STOR_I
+         WHERE USER_ID = #{userId}
+           AND STORE_ACTVTY_AT = 'Y'
+         GROUP BY STORE_IMAGE_FILE_SEQ
+    </select>
+
+    <select id="updateForm" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.updateForm */
+        SELECT
+               A.USER_ID AS userId
+              ,A.LANG_CODE AS langCode
+              ,A.NATION_CODE AS nationCode
+              ,(SELECT lANG_NATION_NM FROM  TCO_NATI_CODE_C WHERE LANG_CODE = #{langCode} AND NATION_CODE = A.NATION_CODE) AS nationNm
+              ,A.USER_NM AS userNm
+              ,decrypt(A.EMAIL, 'P008') AS email
+              ,A.SBSCRB_TY_CD AS sbscrbTyCd
+              ,A.INTRL_TELNO AS intrlTelno
+              ,A.TELNO AS telno
+              ,A.ZIP AS zip
+              ,A.BASS_ADRES AS bassAdres
+              ,A.DETAIL_ADRES AS detailAdres
+              ,A.USER_TY_CD AS userTyCd
+              ,A.USER_GRAD_CODE AS userGradCode
+              ,A.USER_STTUS_CD AS userSttusCd
+              ,decrypt(A.MBTLNUM, 'P007') AS mbtlnum
+              ,SUBSTR(A.BRTHDY,0,4) || '-' || SUBSTR(A.BRTHDY,5,2) || '-' || SUBSTR(A.BRTHDY,7,2) AS brthdy
+              ,A.SEXDSTN_CD AS sexdstnCd
+              ,A.SLRCLD_LRR_LPNH_CD AS slrcldLrrLpnhCd
+              ,A.LXTN_TELNO AS lxtnTelno
+              ,A.EMAIL_RECPTN_AGRE_CD AS emailRecptnAgreCd
+              ,A.NSLET_RECPTN_AGRE_CD AS nsletRecptnAgreCd
+              ,A.BID_RECPTN_AGRE_CD AS bidRecptnAgreCd
+              ,A.DMAND_EXAMIN_CHARGER_AT AS dmandExaminChargerAt
+              <if test="userTyCd != 3001 and userTyCd != 3002">
+           	  <!-- ,${column} -->
+              ,B.EMAIL_RECPTN_AGRE_CD AS cmpnyEmailRecptnAgreCd
+              ,B.CMPNY_NM AS cmpnyNm
+              ,B.CMPNY_ZIP AS cmpnyZip
+              ,B.CMPNY_BASS_ADRES AS cmpnyBassAdres
+              ,B.CMPNY_DETAIL_ADRES AS cmpnyDetailAdres
+              ,B.CMPNY_TELNO AS cmpnyTelno
+              ,B.CMPNY_RPRSNTV_NM AS cmpnyRprsntvNm
+              ,B.BIZRNO AS bizrno
+              ,B.CMPNY_REPRSNT_TELNO cmpnyReprsntTelno
+              ,B.CMPNY_FXNUM AS cmpnyFaxnum
+              ,B.CMPNY_EMAIL AS cmpnyEmail
+              ,B.CMPNY_URL AS cmpnyUrl
+              ,B.LXTN_TELNO AS cmpnyLxtnTelno
+           	  </if>
+              <if test="userTyCd == 3001 or userTyCd == 3002">
+              ,B.ORGN_CODE AS orgnCode
+              ,B.BUSEO_CODE AS buseoCode
+           	  ,NVL((
+				  	SELECT  ORGN_NM
+				  	FROM tcn_orgn_info_d D
+				  	WHERE B.ORGN_CODE  = D.ORGN_CODE
+				  	  AND B.BUSEO_CODE = D.BUSEO_CODE
+				  	LIMIT 1
+			  	   ), B.ORGN_CODE) AS orgnNm
+			  ,NVL((
+			  		SELECT  ORGN_NM_ST
+			  		FROM tcn_orgn_info_d D
+			  		WHERE B.ORGN_CODE  = D.ORGN_CODE
+				  	  AND B.BUSEO_CODE = D.BUSEO_CODE
+			  		LIMIT 1
+			  	   ),B.BUSEO_CODE) AS cmpnyBuseo
+			  ,B.PBLINSTT_TELNO AS pblinsttTelno
+			  ,(SELECT COUNT(1) FROM OP_DMAND_EXAMIN_INFO WHERE TMPR_SAVE_DATE IS NOT NULL AND DMAND_EXAMIN_OPRTN_YEAR = TO_CHAR(SYS_DATETIME,'YYYY') AND USER_ID = A.USER_ID) AS dmandExaminSaveCnt
+           	  </if>
+          FROM OP_USER A
+          LEFT JOIN
+               ${tableId} B
+            ON B.USER_ID = A.USER_ID
+         WHERE A.USER_ID = #{userId}
+    </select>
+
+    <select id="updateStoreForm" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.updateStoreForm */
+        SELECT
+               A.LANG_CODE                 AS langCode
+             , A.LANG_STORE_NM             AS langStoreNm
+             , A.LANG_STORE_INTRCN         AS langStoreIntrcn
+             , A.STORE_URL                 AS storeUrl
+             , A.REPRSNT_TELNO             AS reprsntTelno
+             , decrypt(A.REPRSNT_EMAIL, 'P008') AS reprsntEmail
+             , A.STORE_CHARGER_NM          AS storeChargerNm
+             , A.STORE_IMAGE_FILE_SEQ      AS storeImageFileSeq
+          FROM TUM_SVC_STOR_I A
+         WHERE A.USER_ID = #{userId}
+           AND STORE_ACTVTY_AT = 'Y'
+    </select>
+
+    <select id="updateCompanyForm" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.updateCompanyForm */
+    SELECT (SELECT USER_ID FROM OP_USER WHERE USER_ID                   		 = #{userId})      AS userId,
+           (SELECT USER_NM FROM OP_USER WHERE USER_ID                   		 = #{userId})      AS userNm,
+           (SELECT EMAIL FROM OP_USER WHERE USER_ID                     		 = #{userId})      AS email,
+           (SELECT TELNO FROM OP_USER WHERE USER_ID                  				 = #{userId})      AS telno,
+           (SELECT ZIP FROM OP_USER WHERE USER_ID                 					 = #{userId})      AS zip,
+           (SELECT BASS_ADRES FROM OP_USER WHERE USER_ID                		 = #{userId})      AS bassAdres,
+           (SELECT DETAIL_ADRES FROM OP_USER WHERE USER_ID               		 = #{userId})      AS detailAdres,
+           (SELECT INTEREST_ITEM FROM OP_USER WHERE USER_ID             		 = #{userId})      AS interestItem,
+           (SELECT CORP_NUM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID        = #{userId})      AS corpNum,
+           (SELECT CP_NUM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID          = #{userId})      AS cpNum,
+           (SELECT CP_MGR_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID       = #{userId})      AS cpMgrNm,
+           (SELECT CP_DEPT_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID      = #{userId})      AS cpDeptNm,
+           (SELECT CP_GRADE_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID     = #{userId})      AS cpGradeNm,
+           (SELECT CP_DEPT_TEL_NUM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID = #{userId})      AS cpDeptTelNum,
+           (SELECT CP_FAX_NUM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID      = #{userId})      AS cpFaxNum,
+           (SELECT CP_LEADER_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID    = #{userId})      AS cpLeaderNm
+    FROM DB_ROOT
+    </select>
+
+    <select id="userCategory" parameterType="map" resultType="map">
+        /* _register.userCategory */
+        SELECT
+               B.CTGRY_CODE AS CTGRYCODE
+              ,(SELECT
+                       INDVDLZ_CD_NM
+                  FROM OP_CODE_INDVDLZ
+                 WHERE LANG_CODE = B.LANG_CODE
+                   AND GROUP_CD = 1005
+                   AND INDVDLZ_CD = B.CTGRY_CL_CD
+               ) AS CTGRYCLNM
+              ,(SELECT
+                       INDVDLZ_CD
+                  FROM OP_CODE_INDVDLZ
+                 WHERE LANG_CODE = B.LANG_CODE
+                   AND GROUP_CD = 1005
+                   AND INDVDLZ_CD = B.CTGRY_CL_CD
+               ) AS CTGRYCLCD
+              ,(SELECT
+                       SYS_CONNECT_BY_PATH(C.LANG_CTGRY_NM, ' > ')
+                  FROM TST_CATE_MGMT_M C
+                 WHERE C.CTGRY_CODE = B.CTGRY_CODE
+            START WITH C.PARNTS_CTGRY_CODE = '0'
+            CONNECT BY PRIOR C.CTGRY_CODE = C.PARNTS_CTGRY_CODE
+               ) AS CTGRYPATH
+              ,B.LANG_CODE AS CATEGORY_LANGCD
+          FROM TUM_ITST_CATE_I A, TST_CATE_MGMT_M B
+         WHERE B.CTGRY_DELETE_AT = 'N'
+           AND A.CTGRY_CODE = B.CTGRY_CODE
+           AND A.USER_ID = #{userId}
+    </select>
+
+    <update id="updateAction" parameterType="registerUserVO">
+        /* _register.updateAction */
+        UPDATE OP_USER
+           SET
+              <if test="userTyCd2 == null or userId == '' or userTyCd2 == 0">
+              <if test="userTyCd == '2002'">
+               EMAIL                 = encrypt(#{email}, 'P008'),
+              </if>  
+               <!-- INTRL_TELNO           = #{intrlTelno}
+             , TELNO                 = #{telno}
+             , ZIP                   = #{zip}
+             , BASS_ADRES            = #{bassAdres}
+             , DETAIL_ADRES          = #{detailAdres}
+             , UPDT_ID               = #{updtId}
+             , UPDT_DT               = SYS_DATETIME
+             , USER_TY_CD            = #{userTyCd}
+             , USER_GRAD_CODE        = #{userGradCode}
+             , USER_STTUS_CD         = #{userSttusCd}
+             , MBTLNUM               = encrypt(#{mbtlnum}, 'P007')
+             , LXTN_TELNO            = #{lxtnTelno}
+             , EMAIL_RECPTN_AGRE_CD  = #{emailRecptnAgreCd}
+             , NSLET_RECPTN_AGRE_CD  = #{nsletRecptnAgreCd}
+             , BID_RECPTN_AGRE_CD    = #{bidRecptnAgreCd}
+             , NATION_CODE           = #{nationCode} -->
+               MBTLNUM               = encrypt(#{mbtlnum}, 'P007')
+             <if test="telno != null and telno != ''">
+             , TELNO                 = #{telno}
+             </if>
+             , EMAIL_RECPTN_AGRE_CD  = #{emailRecptnAgreCd}
+             , NSLET_RECPTN_AGRE_CD  = #{nsletRecptnAgreCd}
+             , BID_RECPTN_AGRE_CD    = #{bidRecptnAgreCd}
+              </if>
+              <if test="userTyCd2 != null and userTyCd2 != '' and userTyCd2 != 0">
+               USER_TY_CD            = #{userTyCd2}
+             , DPLCT_SBSCRB_PRVN_KEY = #{dplctSbscrbIndvdlznKey}
+              </if>
+             <if test="dmandExaminChargerAt != null and dmandExaminChargerAt != ''">
+           	 , DMAND_EXAMIN_CHARGER_AT = #{dmandExaminChargerAt}
+           	 </if>
+           	 <if test="dmandExaminChargerAt == null or dmandExaminChargerAt == ''">
+           	 , DMAND_EXAMIN_CHARGER_AT = 'N'
+           	 </if>
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <update id="updateOptionAction" parameterType="registerUserVO">
+        /* _register.updateOptionAction */
+        UPDATE OP_USER_OPTION
+           SET SMS_RECPTN_AGRE_CD   = #{smsRecptnAgreCd}
+              ,EMAIL_RECPTN_AGRE_CD = #{cmpnyEmailRecptnAgreCd}
+              ,CMPNY_NM             = #{cmpnyNm}
+              ,BIZRNO               = #{bizrno}
+              ,CMPNY_ZIP            = #{cmpnyZip}
+              ,CMPNY_BASS_ADRES     = #{cmpnyBassAdres}
+              ,CMPNY_DETAIL_ADRES   = #{cmpnyDetailAdres}
+              ,CMPNY_TELNO          = #{cmpnyTelno}
+              ,CMPNY_RPRSNTV_NM     = #{cmpnyRprsntvNm}
+              ,CMPNY_REPRSNT_TELNO  = #{cmpnyReprsntTelno}
+              ,CMPNY_FXNUM          = #{cmpnyFaxnum}
+              ,CMPNY_EMAIL          = #{cmpnyEmail}
+              ,CMPNY_URL            = #{cmpnyUrl}
+              ,LXTN_TELNO           = #{cmpnyLxtnTelno}
+         WHERE USER_ID = #{userId}
+    </update>
+    <update id="updateEntrprsAction" parameterType="registerUserVO">
+        /* _register.updateEntrprsAction */
+        UPDATE OP_USER_ENTRPRS_OPTION
+           SET FAX_RECPTN_AGRE_CD   = #{faxRecptnAgreCd}
+              ,EMAIL_RECPTN_AGRE_CD = #{cmpnyEmailRecptnAgreCd}
+              <if test="userTyCd != '2002'">
+              ,CMPNY_NM             = #{cmpnyNm}
+              ,BIZRNO               = #{bizrno}
+              </if>
+              <!-- ,CMPNY_ZIP            = #{cmpnyZip}
+              ,CMPNY_BASS_ADRES     = #{cmpnyBassAdres}
+              ,CMPNY_DETAIL_ADRES   = #{cmpnyDetailAdres} 
+              ,CMPNY_TELNO          = #{cmpnyTelno}
+              ,CMPNY_RPRSNTV_NM     = #{cmpnyRprsntvNm}
+              ,CMPNY_REPRSNT_TELNO  = #{cmpnyReprsntTelno}
+              ,CMPNY_FXNUM          = #{cmpnyFaxnum}
+              ,CMPNY_EMAIL          = #{cmpnyEmail}
+              ,CMPNY_URL            = #{cmpnyUrl}
+              ,LXTN_TELNO           = #{cmpnyLxtnTelno}-->
+         WHERE USER_ID = #{userId}
+    </update>
+    <update id="updatePblinsttAction" parameterType="registerUserVO">
+    /* _register.updatePblinsttAction */
+	        UPDATE  OP_USER_PBLINSTT_OPTION
+	           SET  pblinstt_telno		= #{pblinsttTelno}
+	             	, orgn_code 			 	= #{orgnCode}
+				 				, buseo_code			 	= #{buseoCode}
+				 				<!-- 
+				 				, PBLINSTT_CD 			 = #{pblinsttCd}
+				 				, PBLINSTT_NM           = #{cmpnyNm}
+				 				, BIZRNO           	 = #{bizrno}
+				 				, PBLINSTT_URL     	 = #{pblinsttUrl}
+				 				, PBLINSTT_ZIP 		 = #{pblinsttZip}
+				 				, pblinstt_telno		 = #{pblinsttTelno}
+				 				, PBLINSTT_BASS_ADRES   = #{pblinsttBassAdres}
+				 				, PBLINSTT_DETAIL_ADRES = #{pblinsttDetailAdres} 
+				 				-->
+	         WHERE  USER_ID = #{userId}
+    </update>
+    
+    
+    <update id="updatePblinsttActionMERGE" parameterType="registerUserVO">
+    /* _register.updatePblinsttActionMERGE */
+    	MERGE INTO OP_USER_PBLINSTT_OPTION  A
+      USING (SELECT #{userId} AS USER_ID, #{storeLangCode} AS LANG_CODE FROM db_root ) B
+           ON (
+              	A.USER_ID = B.USER_ID
+              	AND A.LANG_CODE  = B.LANG_CODE
+              )
+         WHEN MATCHED THEN
+	        UPDATE  OP_USER_PBLINSTT_OPTION
+	           SET  pblinstt_telno		= #{pblinsttTelno}
+	             	, orgn_code 			 	= #{orgnCode}
+				 				, buseo_code			 	= #{buseoCode}
+				 				<!-- 
+				 				, PBLINSTT_CD 			 = #{pblinsttCd}
+				 				, PBLINSTT_NM           = #{cmpnyNm}
+				 				, BIZRNO           	 = #{bizrno}
+				 				, PBLINSTT_URL     	 = #{pblinsttUrl}
+				 				, PBLINSTT_ZIP 		 = #{pblinsttZip}
+				 				, pblinstt_telno		 = #{pblinsttTelno}
+				 				, PBLINSTT_BASS_ADRES   = #{pblinsttBassAdres}
+				 				, PBLINSTT_DETAIL_ADRES = #{pblinsttDetailAdres} 
+				 				-->
+	         WHERE  USER_ID = #{userId}
+	       WHEN NOT MATCHED THEN
+	       	INSERT
+	       	(  USER_ID
+	       	 , PBLINSTT_CD
+	       	 , PBLINSTT_NM
+	       	 , BIZRNO
+	       	 , PBLINSTT_URL
+	       	 , PBLINSTT_ZIP
+	       	 , ORGN_CODE
+	       	 , BUSEO_CODE
+	       	 , PBLINSTT_TELNO
+	       	 , PBLINSTT_BASS_ADRES
+	       	 , PBLINSTT_DETAIL_ADRES
+        	)
+        	VALUES
+        	(  #{userId}
+        	 , #{pblinsttCd}
+        	 , #{cmpnyNm}
+        	 , #{bizrno}
+        	 , #{pblinsttUrl}
+        	 , #{pblinsttZip}
+        	 , #{orgnCode}
+        	 , #{buseoCode}
+        	 , #{pblinsttTelno}
+        	 , #{pblinsttBassAdres}
+        	 , #{pblinsttDetailAdres}
+        	)
+	       
+    </update>
+
+    <delete id="deleteCategory" parameterType="registerUserVO">
+        /* _user.deleteCategory */
+        DELETE FROM TUM_ITST_CATE_I
+         WHERE USER_ID = #{userId}
+           AND LANG_CODE = #{langCode}
+    </delete>
+
+    <update id="cpUserOptionUpdateAction" parameterType="registerUserVO">
+        /* _register.cpUserOptionUpdateAction */
+        UPDATE OP_USER_ENTRPRS_OPTION
+        SET
+             FAX_RECPTN_AGRE_CD   =  #{faxRecptnAgreCd}
+            ,EMAIL_RECPTN_AGRE_CD =  #{emailRecptnAgreCd}
+            ,CMPNY_NM             =  #{cmpnyNm}
+            ,CMPNY_ZIP            =  #{cmpnyZip}
+            ,CMPNY_BASS_ADRES     =  #{cmpnyBassAdres}
+            ,CMPNY_DETAIL_ADRES   =  #{cmpnyDetailAdres}
+            ,CMPNY_TELNO          =  #{cmpnyTelno}
+            ,CMPNY_RPRSNTV_NM     =  #{cmpnyRprsntvNm}
+        WHERE USER_ID = #{userId}
+    </update>
+    <select id="deleteRequirement" parameterType="registerUserVO"  resultType="map">
+        /* _register.deleteRequirement */
+        SELECT
+              (SELECT
+                      COUNT (*)
+                 FROM TST_GOOD_INFO_I A
+                 LEFT JOIN
+                      TST_GOOD_ORDR_I B
+                   ON A.GOODS_CODE = B.GOODS_CODE
+                WHERE B.ORDER_CNFIRM_AT = 'N'
+                  AND A.USER_ID = C.USER_ID
+              ) AS GOODSCNT
+              ,(SELECT
+                       COUNT (*)
+                  FROM TCM_CMNT_INFO_I
+                 WHERE CMMNTY_STTUS_CD NOT IN (1004)
+                   AND CMMNTY_ID = C.USER_ID
+              ) AS CMMNTYCNT
+              ,(SELECT
+                       COUNT (*)
+                  FROM TST_GOOD_ORDR_I
+                 WHERE ORDER_CNFIRM_AT = 'N'
+                   AND ORDRR_ID = C.USER_ID
+              ) AS ORDRCNT
+          FROM OP_USER C
+         WHERE C.USER_ID = #{userId}
+    </select>
+    <update id="userOutConfirm" parameterType="registerUserVO">
+        /* _register.userOutConfirm */
+        UPDATE OP_USER
+           SET USER_PASSWORD   = ''
+              ,USER_NM         = ''
+              ,EMAIL           = ''
+              ,INTRL_TELNO     = ''
+              ,TELNO           = ''
+              ,LXTN_TELNO      = ''
+              ,ZIP             = ''
+              ,BASS_ADRES      = ''
+              ,DETAIL_ADRES    = ''
+              ,UPDT_ID         = #{updtId}
+              ,USER_STTUS_CD   = #{userSttusCd}
+              ,MBTLNUM         = ''
+              ,BRTHDY          = ''
+              ,BEFORE_PASSWORD = ''
+              ,SECSN_DT        = SYS_DATETIME
+         WHERE USER_ID = #{userId}
+    </update>
+    <delete id="userOutConfirm2" parameterType="registerUserVO">
+        /* _register.userOutConfirm2 */
+        DELETE FROM OP_USER_OPTION
+        WHERE USER_ID = #{userId}
+    </delete>
+    <delete id="userOutConfirm3" parameterType="registerUserVO">
+        /* _register.userOutConfirm3 */
+        DELETE FROM OP_USER_ENTRPRS_OPTION
+        WHERE USER_ID = #{userId}
+    </delete>
+    <delete id="userOutConfirm4" parameterType="registerUserVO">
+        /* _register.userOutConfirm4 */
+        DELETE FROM OP_USER_PBLINSTT_OPTION
+        WHERE USER_ID = #{userId}
+    </delete>
+    <update id="userOutConfirm1" parameterType="registerUserVO">
+        /* _register.userOutConfirm1 */
+        UPDATE TUM_SVC_STOR_I
+           SET LANG_STORE_NM        = ''
+              ,LANG_STORE_INTRCN    = ''
+              ,STORE_URL            = ''
+              ,REPRSNT_TELNO        = ''
+              ,REPRSNT_EMAIL        = ''
+              ,STORE_CHARGER_NM     = ''
+              ,STORE_IMAGE_FILE_SEQ = -1
+        WHERE USER_ID = #{userId}
+    </update>
+    <select id="userNation" parameterType="registerVO" resultType="map">
+        /* _register.userNation */
+        SELECT
+               LANG_NATION_NM AS LANGNATIONNM
+              ,NATION_CODE    AS NATIONCODE
+              ,INTRL_TELNO    AS INTRLTELNL
+          FROM TCO_NATI_CODE_C
+         WHERE LANG_CODE   = #{langCode}
+           AND NATION_CODE != 410
+         ORDER BY LANGNATIONNM ASC
+    </select>
+
+    <insert id="mailCrtfcInsert" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="mailCrtfcSeq" resultType="int">
+            SELECT NVL(MAX(EMAIL_CRTFC_SEQ), 0) + 1 FROM TCD_EMAL_CTFC_L
+        </selectKey>
+        /* _register.mailCrtfcInsert */
+        INSERT INTO TCD_EMAL_CTFC_L
+            (
+               EMAIL_CRTFC_SEQ
+              ,USER_NM
+              ,USER_TY_CD
+              ,EMAIL
+              ,CRTFC_REQST_DT
+              ,CRTFC_KEY_VALUE
+            ) VALUES (
+              #{mailCrtfcSeq}
+             ,#{userNm}
+             ,#{userTyCd}
+             ,encrypt(#{email}, 'P008')
+             ,SYS_DATETIME
+             ,#{cyrEnKey}
+            )
+    </insert>
+
+    <select id="mailCrtfcCheck" parameterType="map" resultType="map">
+        /* _register.mailCrtfcCheck */
+        SELECT
+               USER_NM
+              ,decrypt(EMAIL, 'P008') AS EMAIL
+              ,USER_TY_CD
+          FROM TCD_EMAL_CTFC_L
+         WHERE CRTFC_KEY_VALUE = #{cryEnKey}
+           AND EMAIL_CRTFC_SEQ = #{seq}
+           AND <![CDATA[CRTFC_REQST_DT >= (SYS_DATETIME - 60 * 20 * 1000)]]>
+    </select>
+
+    <delete id="mailCrtftDelete" parameterType="int">
+        /* _register.mailCrtftDelete */
+        DELETE FROM TCD_EMAL_CTFC_L WHERE EMAIL_CRTFC_SEQ = #{value}
+              
+    </delete>
+
+    <select id="emailDupleCheck" parameterType="registerUserVO" resultType="int">
+        /* _register.emailDupleCheck */
+        SELECT
+               COUNT(*) AS CNT
+          FROM OP_USER
+         WHERE USER_STTUS_CD = 1001
+           AND EMAIL = encrypt(#{email}, 'P008')
+           <if test="userId != null and userId != ''">
+           AND USER_ID != #{userId}
+           </if>
+    </select>
+
+    <select id="emailDupleCheck2" parameterType="map" resultType="Integer">
+        /* _register.emailDupleCheck2 */
+        SELECT
+               COUNT(*) AS CNT
+          FROM TCD_EMAL_CTFC_L
+         WHERE EMAIL = encrypt(#{email}, 'P008')
+           AND USER_NM = #{userNm}
+           AND USER_TY_CD = #{userTyCd}
+           AND <![CDATA[CRTFC_REQST_DT >= (SYS_DATETIME - 60 * 20 * 1000)]]>
+    </select>
+
+    <select id="prvCodeList" parameterType="map" resultType="map">
+        /* _register.prvCodeList */
+        SELECT 
+               LANG_CODE        AS LANGCODE
+             , INDVDLZ_CD       AS PRVCD
+             , INDVDLZ_CD_NM    AS PRVNM
+             , USE_YN           AS USEYN
+          FROM OP_CODE_INDVDLZ
+         WHERE GROUP_CD = #{grpCd} 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+        </if>
+        <if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+        </if>
+        <trim>
+            <if test="useYn != null and useYn != ''">
+           AND USE_YN = 'Y'
+            </if>
+        </trim>
+         ORDER BY CD_SORT_NO ASC
+    </select>
+
+    <update id="passwordUpdateAction" parameterType="registerUserVO">
+        /* _register.passwordUpdateAction */
+        UPDATE OP_USER
+           SET USER_PASSWORD      = #{userPassword2}
+              ,UPDT_ID            = #{updtId}
+              ,UPDT_DT            = SYS_DATETIME
+              ,PASSWORD_CHANGE_DE = TO_CHAR(SYSDATE, 'YYYYMMDD')
+              ,BEFORE_PASSWORD    = #{beforePassword}
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="checkDupleBizrno" parameterType="registerUserVO" resultType="int">
+        /* _register.checkDupleBizrno */
+        SELECT
+               SUM(CNT) AS CNT
+          FROM ( SELECT
+                        COUNT(A.BIZRNO) AS CNT
+                   FROM OP_USER C, OP_USER_OPTION A 
+				  WHERE C.USER_ID = A.USER_ID
+				    AND C.USER_STTUS_CD NOT IN(1002,1003)
+                    AND A.BIZRNO &lt;&gt; '' 
+                    AND A.BIZRNO IS NOT NULL
+                    AND A.BIZRNO = #{bizrno}
+                    <if test="userId != null and userId != ''">
+                    AND A.USER_ID &lt;&gt; #{userId}
+                    </if>
+                  UNION ALL
+                 SELECT
+                        COUNT(B.BIZRNO)
+                   FROM OP_USER C, OP_USER_ENTRPRS_OPTION B 
+				  WHERE C.USER_ID = B.USER_ID
+				    AND C.USER_STTUS_CD NOT IN(1002,1003)
+				    AND B.BIZRNO &lt;&gt; ''
+                    AND B.BIZRNO IS NOT NULL
+                    AND B.BIZRNO = #{bizrno}
+                    <if test="userId != null and userId != ''">
+                    AND B.USER_ID &lt;&gt; #{userId}
+                    </if>
+               )
+    </select>
+
+    <select id="dupleDplctSbscrbPrvnKey" parameterType="string" resultType="int">
+        /* _register.dupleSbscrbTyCd */
+        SELECT COUNT(*) AS CNT FROM OP_USER WHERE DPLCT_SBSCRB_PRVN_KEY = #{value} AND USER_STTUS_CD = 1001
+    </select>
+
+    <select id="cetifybizNo" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.cetifybizNo */
+        SELECT
+               BIZRNO AS bizrno
+          FROM OP_USER_ENTRPRS_OPTION
+         WHERE BIZRNO = #{bizrno}
+           AND CMPNY_NM = #{cmpnyNm}
+           AND USER_ID = #{userId}
+    </select>
+
+    <select id="getDbLangCd" parameterType="registerUserVO" resultType="string">
+        /* _register.getDbLangCd */
+        SELECT LANG_CODE
+          FROM TUM_SVC_STOR_I
+         WHERE USER_ID = #{userId}
+           AND STORE_ACTVTY_AT = 'Y'
+    </select>
+
+    <update id="updateStoreActvty" parameterType="registerUserVO">
+        /* _register.updateStoreActvty */
+        UPDATE TUM_SVC_STOR_I
+           SET STORE_ACTVTY_AT = 'N'
+         WHERE USER_ID = #{userId}
+           AND LANG_CODE = #{langCode}
+    </update>
+
+    <select id="checkStoreSales" parameterType="userVO" resultType="int">
+        /* _register.checkStoreSales */
+        SELECT
+               COUNT(*)
+          FROM TST_GOOD_INFO_I
+         WHERE MNGR_DELETE_AT = 'N'
+           AND GOODS_ACTVTY_AT = 'Y'
+           AND USER_ID = #{userId}
+           AND LANG_CODE = #{langCode}
+    </select>
+
+    <select id="cmntyList1" parameterType="userVO" resultType="map">
+        /* _register.cmntyList1 */
+        SELECT
+               CMMNTY_NM  AS CMMNTYNM
+              ,CMMNTY_ID AS CMMNTYID
+          FROM (SELECT
+                       CMMNTY_NM
+                      ,CMMNTY_ID
+                  FROM TCM_CMNT_INFO_I
+                 WHERE ESTBL_REQST_ID 
+                    IN (SELECT
+                               MNGR_ID
+                          FROM OP_MNGR
+                         WHERE USE_YN = 'Y'
+                       )
+                    AND LANG_CODE = #{langCode}
+                    AND CMMNTY_STTUS_CD = 1002
+                  ORDER BY CONFM_DT DESC
+               )
+          WHERE ROWNUM = 1
+    </select>
+
+    <select id="cmntyList2" parameterType="userVO" resultType="map">
+        /* _register.cmntyList2 */
+        SELECT
+              (SELECT
+                      CMMNTY_NM
+                 FROM TCM_CMNT_INFO_I
+                WHERE CMMNTY_ID = V.CMMNTY_ID
+                  AND LANG_CODE = '00'
+              ) AS CMMNTYNM
+              ,CMMNTY_ID AS CMMNTYID
+          FROM (SELECT
+                       IV.CMMNTY_ID
+                  FROM (SELECT 
+                               CMMNTY_ID
+                              ,COUNT(CMMNTY_MBER_ID) CNT
+                          FROM TCM_CMNT_MBER_I
+                         WHERE MBER_STATE_CD = 1003
+                           AND LANG_CODE = #{langCode}
+                         GROUP BY CMMNTY_ID
+                       ) IV
+                       ,TCM_CMNT_INFO_I TCI
+                  WHERE IV.CMMNTY_ID = TCI.CMMNTY_ID
+                    AND TCI.CMMNTY_STTUS_CD = 1002
+                  ORDER BY CNT DESC
+               ) V
+          LIMIT 2
+    </select>
+
+    <select id="cmntyList3" parameterType="userVO" resultType="map">
+        /* _register.cmntyList3 */
+        SELECT
+              (SELECT
+                      CMMNTY_NM
+                 FROM TCM_CMNT_INFO_I
+                WHERE CMMNTY_ID = V.CMMNTY_ID
+                  AND LANG_CODE = #{langCode}
+              ) AS CMMNTYNM
+              ,V.CMMNTY_ID AS CMMNTYID
+          FROM (SELECT
+                       IV.CMMNTY_ID
+                  FROM (SELECT 
+                               CMMNTY_ID, COUNT(CMMNTY_BBS_SEQ) CNT
+                          FROM TCM_CMNT_NTT_I 
+                         WHERE WRTER_DELETE_AT != 'Y'
+                           AND MNGR_DELETE_AT != 'Y'
+                           AND LANG_CODE = #{langCode}
+                         GROUP BY CMMNTY_ID
+                       ) IV
+                       ,TCM_CMNT_INFO_I TCI
+                  WHERE IV.CMMNTY_ID = TCI.CMMNTY_ID
+                    AND TCI.CMMNTY_STTUS_CD = 1002
+                  ORDER BY CNT DESC
+               ) V
+          WHERE ROWNUM = 1
+    </select>
+
+    <select id="dormancyConversionSendMailList" resultType="registerUserVO">
+        SELECT USER_ID
+             , USER_NM AS USERNM
+             , DECRYPT(EMAIL, 'P008') AS EMAIL
+             , CASE WHEN RECENT_LOGIN_DT IS NOT NULL THEN
+                         TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR) - 1, 'YYYY"년" MM"월" DD"일"')
+                    ELSE
+                         TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR) - 1, 'YYYY"년" MM"월" DD"일"')
+               END AS VALIDLOGINDT
+             , CASE WHEN RECENT_LOGIN_DT IS NOT NULL THEN
+                         TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR), 'YYYY"년" MM"월" DD"일"') ||
+                         CASE WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 0 THEN
+                                   ' (월요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 1 THEN
+                                   ' (화요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 2 THEN
+                                   ' (수요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 3 THEN
+                                   ' (목요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 4 THEN
+                                   ' (금요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 5 THEN
+                                   ' (토요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 6 THEN
+                                   ' (일요일)'
+                              ELSE
+                                   ''
+                              END 
+                    ELSE
+                         TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR), 'YYYY"년" MM"월" DD"일"') ||
+                         CASE WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 0 THEN
+                                   ' (월요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 1 THEN
+                                   ' (화요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 2 THEN
+                                   ' (수요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 3 THEN
+                                   ' (목요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 4 THEN
+                                   ' (금요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 5 THEN
+                                   ' (토요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 6 THEN
+                                   ' (일요일)'
+                              ELSE
+                                   ''
+                              END 
+               END AS DORMANCYCONVERSIONDT
+          FROM OP_USER
+         WHERE USER_STTUS_CD = 1001
+           AND ((RECENT_LOGIN_DT IS NOT NULL AND 
+                (TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 11 MONTH) - 1, 'YYYYMMDD') OR
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR) - 14, 'YYYYMMDD') OR
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR) - 7, 'YYYYMMDD') OR
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR) - 1, 'YYYYMMDD'))
+               )
+            OR (RECENT_LOGIN_DT IS NULL AND
+                (TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 11 MONTH) - 1, 'YYYYMMDD') OR
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR) - 14, 'YYYYMMDD') OR 
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR) - 7, 'YYYYMMDD') OR 
+                 TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR) - 1, 'YYYYMMDD'))
+               )
+            OR USER_ID = 'mmmbob')
+           AND USER_TY_CD NOT IN (3001, 3002)
+    </select>
+
+    <select id="dormancyConversionTrgetList" resultType="registerUserVO">
+        SELECT USER_ID AS USERID
+             , USER_NM AS USERNM
+             , DECRYPT(EMAIL, 'P008') AS EMAIL
+             , CASE WHEN RECENT_LOGIN_DT IS NOT NULL THEN
+                         TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR), 'YYYY"년" MM"월" DD"일"') ||
+                         CASE WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 0 THEN
+                                   ' (월요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 1 THEN
+                                   ' (화요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 2 THEN
+                                   ' (수요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 3 THEN
+                                   ' (목요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 4 THEN
+                                   ' (금요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 5 THEN
+                                   ' (토요일)'
+                              WHEN WEEKDAY(TRUNC(RECENT_LOGIN_DT,'dd')) = 6 THEN
+                                   ' (일요일)'
+                              ELSE
+                                   ''
+                              END 
+                    ELSE
+                         TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR), 'YYYY"년" MM"월" DD"일"') ||
+                         CASE WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 0 THEN
+                                   ' (월요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 1 THEN
+                                   ' (화요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 2 THEN
+                                   ' (수요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 3 THEN
+                                   ' (목요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 4 THEN
+                                   ' (금요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 5 THEN
+                                   ' (토요일)'
+                              WHEN WEEKDAY(TRUNC(REGIST_DT,'dd')) = 6 THEN
+                                   ' (일요일)'
+                              ELSE
+                                   ''
+                              END 
+               END AS DORMANCYCONVERSIONDT
+          FROM OP_USER
+         WHERE USER_STTUS_CD = 1001
+           AND ((RECENT_LOGIN_DT IS NOT NULL AND TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(RECENT_LOGIN_DT,'dd'),INTERVAL 1 YEAR), 'YYYYMMDD'))
+            OR (RECENT_LOGIN_DT IS NULL AND TO_CHAR(SYS_DATE, 'YYYYMMDD') = TO_CHAR(ADDDATE(TRUNC(REGIST_DT,'dd'),INTERVAL 1 YEAR), 'YYYYMMDD'))
+            OR USER_ID = 'mmmbob')
+           AND USER_TY_CD NOT IN (3001, 3002)  
+    </select>
+
+    <!-- 휴면사용자 휴면 처리 -->
+    <insert id="userDrmncyInsert" parameterType="registerUserVO">
+        /* _register.userDrmncyInsert */
+        INSERT INTO OP_USER_DRMNCY (
+               USER_ID
+             , LANG_CODE
+             , NATION_CODE
+             , USER_PASSWORD
+             , BEFORE_PASSWORD
+             , USER_NM
+             , EMAIL
+             , SBSCRB_TY_CD
+             , MBTLNUM
+             , SMS_RECPTN_AGRE_CD
+             , EMAIL_RECPTN_AGRE_CD
+             , NSLET_RECPTN_AGRE_CD
+             , BID_RECPTN_AGRE_CD
+             , BRTHDY
+             , SEXDSTN_CD
+             , SLRCLD_LRR_LPNH_CD
+             , INTRL_TELNO
+             , TELNO
+             , LXTN_TELNO
+             , ZIP
+             , BASS_ADRES
+             , DETAIL_ADRES
+             , REGIST_ID
+             , REGIST_DT
+             , UPDT_ID
+             , UPDT_DT
+             , RECENT_LOGIN_DT
+             , LOGIN_CNT
+             , USER_TY_CD
+             , USER_GRAD_CODE
+             , ACT_LEVEL_CD
+             , USER_STTUS_CD
+             , PASSWORD_CHANGE_DE
+             , USER_KEY
+             , DPLCT_SBSCRB_PRVN_KEY
+             , SBSCRB_SITE_SE_CD
+             , SECSN_DT
+             , DRMNCY_DT
+        )
+        SELECT USER_ID
+             , LANG_CODE
+             , NATION_CODE
+             , USER_PASSWORD
+             , BEFORE_PASSWORD
+             , USER_NM
+             , EMAIL
+             , SBSCRB_TY_CD
+             , MBTLNUM
+             , SMS_RECPTN_AGRE_CD
+             , EMAIL_RECPTN_AGRE_CD
+             , NSLET_RECPTN_AGRE_CD
+             , BID_RECPTN_AGRE_CD
+             , BRTHDY
+             , SEXDSTN_CD
+             , SLRCLD_LRR_LPNH_CD
+             , INTRL_TELNO
+             , TELNO
+             , LXTN_TELNO
+             , ZIP
+             , BASS_ADRES
+             , DETAIL_ADRES
+             , REGIST_ID
+             , REGIST_DT
+             , UPDT_ID
+             , UPDT_DT
+             , RECENT_LOGIN_DT
+             , LOGIN_CNT
+             , USER_TY_CD
+             , USER_GRAD_CODE
+             , ACT_LEVEL_CD
+             , USER_STTUS_CD
+             , PASSWORD_CHANGE_DE
+             , USER_KEY
+             , DPLCT_SBSCRB_PRVN_KEY
+             , SBSCRB_SITE_SE_CD
+             , SECSN_DT
+             , SYS_DATETIME AS DRMNCY_DT
+          FROM OP_USER
+         WHERE USER_ID = #{userId}
+    </insert>
+
+    <!-- 휴면사용자 휴면 처리 -->
+    <update id="userDrmncyConfirm" parameterType="registerUserVO">
+        /* _register.userDrmncyConfirm */
+        UPDATE OP_USER
+           SET USER_PASSWORD         = ''
+             , BEFORE_PASSWORD       = ''
+             , USER_NM               = ''
+             , EMAIL                 = ''
+             , SBSCRB_TY_CD          = ''
+             , MBTLNUM               = ''
+             , SMS_RECPTN_AGRE_CD    = ''
+             , EMAIL_RECPTN_AGRE_CD  = ''
+             , NSLET_RECPTN_AGRE_CD  = ''
+             , BID_RECPTN_AGRE_CD    = ''
+             , BRTHDY                = ''
+             , SEXDSTN_CD            = ''
+             , SLRCLD_LRR_LPNH_CD    = ''
+             , INTRL_TELNO           = ''
+             , TELNO                 = ''
+             , LXTN_TELNO            = ''
+             , ZIP                   = ''
+             , BASS_ADRES            = ''
+             , DETAIL_ADRES          = ''
+             , REGIST_ID             = ''
+             , UPDT_ID               = ''
+             , UPDT_DT               = NULL
+             , RECENT_LOGIN_DT       = NULL
+             , LOGIN_CNT             = 0
+             , USER_GRAD_CODE        = ''
+             , ACT_LEVEL_CD          = ''
+             , USER_STTUS_CD         = #{userSttusCd}
+             , PASSWORD_CHANGE_DE    = ''
+             , USER_KEY              = ''
+             , DPLCT_SBSCRB_PRVN_KEY = ''
+             , SBSCRB_SITE_SE_CD     = ''
+             , SECSN_DT              = NULL
+             , DRMNCY_DT             = SYS_DATETIME
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <update id="recovryDrmncyAction" parameterType="registerUserVO">
+        /* _register.recovryDrmncyAction */
+        UPDATE OP_USER
+           SET 
+             ( LANG_CODE
+             , NATION_CODE
+             , USER_PASSWORD
+             , BEFORE_PASSWORD
+             , USER_NM
+             , EMAIL
+             , SBSCRB_TY_CD
+             , MBTLNUM
+             , SMS_RECPTN_AGRE_CD
+             , EMAIL_RECPTN_AGRE_CD
+             , NSLET_RECPTN_AGRE_CD
+             , BID_RECPTN_AGRE_CD
+             , BRTHDY
+             , SEXDSTN_CD
+             , SLRCLD_LRR_LPNH_CD
+             , INTRL_TELNO
+             , TELNO
+             , LXTN_TELNO
+             , ZIP
+             , BASS_ADRES
+             , DETAIL_ADRES
+             , REGIST_ID
+             , REGIST_DT
+             , UPDT_ID
+             , UPDT_DT
+             , RECENT_LOGIN_DT
+             , LOGIN_CNT
+             , USER_TY_CD
+             , USER_GRAD_CODE
+             , ACT_LEVEL_CD
+             , USER_STTUS_CD
+             , PASSWORD_CHANGE_DE
+             , USER_KEY
+             , DPLCT_SBSCRB_PRVN_KEY
+             , SBSCRB_SITE_SE_CD
+             , RECOVRY_DT
+             )
+             = ( SELECT LANG_CODE
+                      , NATION_CODE
+                      , USER_PASSWORD
+                      , BEFORE_PASSWORD
+                      , USER_NM
+                      , EMAIL
+                      , SBSCRB_TY_CD
+                      , MBTLNUM
+                      , SMS_RECPTN_AGRE_CD
+                      , EMAIL_RECPTN_AGRE_CD
+                      , NSLET_RECPTN_AGRE_CD
+                      , BID_RECPTN_AGRE_CD
+                      , BRTHDY
+                      , SEXDSTN_CD
+                      , SLRCLD_LRR_LPNH_CD
+                      , INTRL_TELNO
+                      , TELNO
+                      , LXTN_TELNO
+                      , ZIP
+                      , BASS_ADRES
+                      , DETAIL_ADRES
+                      , REGIST_ID
+                      , REGIST_DT
+                      , UPDT_ID
+                      , UPDT_DT
+                      , SYS_DATETIME AS RECENT_LOGIN_DT
+                      , LOGIN_CNT
+                      , USER_TY_CD
+                      , USER_GRAD_CODE
+                      , ACT_LEVEL_CD
+                      , 1001 AS USER_STTUS_CD
+                      , PASSWORD_CHANGE_DE
+                      , USER_KEY
+                      , DPLCT_SBSCRB_PRVN_KEY
+                      , SBSCRB_SITE_SE_CD
+                      , SYS_DATETIME AS RECOVRY_DT
+                   FROM OP_USER_DRMNCY
+                  WHERE USER_ID = #{userId}
+               ) 
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <delete id="deleteUserDrmncy" parameterType="registerUserVO">
+        /* _register.deleteUserDrmncy */
+        DELETE FROM OP_USER_DRMNCY
+         WHERE USER_ID = #{userId}
+    </delete>
+    
+    
+    <select id="pblinsttTypeList" resultType="pblinsttVO">
+	    SELECT PBLINSTT_TYPE AS pblinsttType
+		  FROM OP_DMAND_EXAMIN_PBLINSTT
+		 GROUP BY PBLINSTT_TYPE
+    </select>
+    
+    <select id="upperPblinsttList" resultType="pblinsttVO" parameterType="pblinsttVO">
+	    SELECT UPPER_PBLINSTT_NM AS upperPblinsttNm
+		  FROM OP_DMAND_EXAMIN_PBLINSTT
+		 <if test="pblinsttType != null and pblinsttType != ''">
+         WHERE PBLINSTT_TYPE = #{pblinsttType}
+         </if>
+		 GROUP BY UPPER_PBLINSTT_NM
+    </select>
+    
+    <select id="pblinsttList" resultType="pblinsttVO" parameterType="pblinsttVO">
+	    SELECT PBLINSTT_CD AS pblinsttCd
+			 , PBLINSTT_TYPE AS pblinsttType
+			 , UPPER_PBLINSTT_NM AS upperPblinsttNm
+			 , PBLINSTT_NM AS pblinsttNm
+		  FROM OP_DMAND_EXAMIN_PBLINSTT
+		 WHERE 1 = 1
+		 <if test="pblinsttType != null and pblinsttType != ''">
+           AND PBLINSTT_TYPE = #{pblinsttType}
+         </if>
+		 <if test="upperPblinsttNm != null and upperPblinsttNm != ''">
+           AND UPPER_PBLINSTT_NM = #{upperPblinsttNm}
+         </if>
+         <if test="pblinsttNm != null and pblinsttNm != ''">
+           AND PBLINSTT_NM LIKE '%' || #{pblinsttNm} || '%'
+         </if>  
+    </select>
+    
+    
+    <select id="partcptCount" parameterType="map" resultType="int">
+        /* _register.partcptCount */
+        SELECT COUNT(PARTCPT_SN) AS partcptCnt
+		  FROM OP_DC_PARTCPT_REQST
+		 WHERE PARTCPT_SE = #{partcptSe}
+    </select>
+    
+    <select id="reqstChk" parameterType="dcPartcptReqstVO" resultType="int">
+        /* _register.reqstChk */
+        SELECT COUNT(PARTCPT_SN) AS partcptCnt
+		  FROM OP_DC_PARTCPT_REQST
+		 WHERE USER_ID = #{userId}
+    </select>
+    
+    <insert id="reqstInsertAction" parameterType="dcPartcptReqstVO">
+        /* _register.reqstInsertAction */
+        INSERT INTO OP_DC_PARTCPT_REQST 
+		(
+			USER_ID, 
+			PARTCPT_SE
+		)
+		VALUES 
+		(
+			#{userId}, 
+			#{partcptSe} 
+		)
+    </insert>
+    
+    <select id="dcPartcptAprslt" resultType="dcPartcptReqstVO" parameterType="dcPartcptReqstVO">
+    	/* _register.dcPartcptAprslt */
+	    SELECT A.PARTCPT_SN AS partcptSn
+		     , A.USER_ID AS userId
+		     , B.USER_NM AS userNm
+		     , CASE WHEN C.PBLINSTT_CD = 1000 THEN C.PBLINSTT_NM ELSE (SELECT PBLINSTT_NM FROM OP_DMAND_EXAMIN_PBLINSTT WHERE PBLINSTT_CD = C.PBLINSTT_CD) END AS pblinsttNm
+		     , decrypt(B.MBTLNUM, 'P007') AS mbtlnum
+		     , decrypt(B.EMAIL, 'P008') AS email
+		     , A.PARTCPT_SE AS partcptSe
+		     , TO_CHAR(A.PARTCPT_REQST_DT,'YYYY-MM-DD') AS partcptReqstDt
+		     , CASE WHEN A.PARTCPT_SE = 1001 THEN IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161009', 'N', 'Y') ELSE IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161010', 'N', 'Y') END AS partcptAt1
+		  FROM OP_DC_PARTCPT_REQST A
+		  LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+		  LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+		 WHERE A.USER_ID = #{userId}
+		 ORDER BY A.PARTCPT_REQST_DT DESC
+		 LIMIT 1
+    </select>
+    
+    <delete id="aprsltCanclAction" parameterType="dcPartcptReqstVO">
+        /* _register.aprsltCanclAction */
+        DELETE FROM OP_DC_PARTCPT_REQST
+ 		 WHERE USER_ID = #{userId}
+    </delete>
+    
+    <!-- 마스터/서브관리 - 회원조회 -->
+    <select id="searchUserList" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.searchUserList */
+        SELECT USER_TY_CD AS userTyCd
+           	, USER_ID AS userId
+           	, USER_NM AS userNm
+            , decrypt(EMAIL, 'P008') AS email	
+          FROM OP_USER
+         WHERE 1=1
+         AND USER_ID = #{userId}
+         AND EMAIL = encrypt(#{email}, 'P008')
+         AND (USER_ID != #{masterId} OR MASTER_ID IS NULL)
+         AND USER_TY_CD in (2001, 3001)	
+         AND USER_STTUS_CD =1001
+    </select>
+    
+    <!-- 마스터/서브관리 - 서브등록 -->
+    <update id="updateMasterId" parameterType="registerUserVO" >
+		UPDATE OP_USER
+		   SET MASTER_ID = #{masterId}
+		   , USER_TY_CD = #{userTyCd}	/* 2002 로 update */
+		   , UPDT_ID = #{masterId}
+		   , UPDT_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- 마스터/서브관리 서브록 유저확인 -->
+	<select id="entrprsSearchUser" parameterType="registerUserVO" resultType="int">
+        /* _register.entrprsSearchUser */
+        SELECT COUNT(1) FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID = #{userId}
+    </select>
+	
+	<!-- 마스터/서브관리 서브등록 -->
+    <insert id="insertSubIntoEntrprs" parameterType="registerUserVO">
+        /* _register.insertSubIntoEntrprs */
+        INSERT INTO OP_USER_ENTRPRS_OPTION (
+               USER_ID
+             , FAX_RECPTN_AGRE_CD
+             , EMAIL_RECPTN_AGRE_CD
+             , CMPNY_NM
+             , CMPNY_ZIP
+             , CMPNY_BASS_ADRES
+             , CMPNY_DETAIL_ADRES
+             , CMPNY_TELNO
+             , LXTN_TELNO
+             , CMPNY_RPRSNTV_NM
+             , BIZRNO
+             , CMPNY_REPRSNT_TELNO
+             , CMPNY_FXNUM
+             , CMPNY_EMAIL
+             , CMPNY_URL
+             , CMPNY_BUSEO
+        )
+        SELECT #{userId}
+             , FAX_RECPTN_AGRE_CD
+             , EMAIL_RECPTN_AGRE_CD
+             , CMPNY_NM
+             , CMPNY_ZIP
+             , CMPNY_BASS_ADRES
+             , CMPNY_DETAIL_ADRES
+             , CMPNY_TELNO
+             , LXTN_TELNO
+             , CMPNY_RPRSNTV_NM
+             , BIZRNO
+             , CMPNY_REPRSNT_TELNO
+             , CMPNY_FXNUM
+             , CMPNY_EMAIL
+             , CMPNY_URL
+             , #{cmpnyBuseo}
+          FROM OP_USER_ENTRPRS_OPTION
+         WHERE USER_ID = #{masterId}
+     </insert>
+     
+     <!-- 마스터/서브관리 서브부서수정 -->
+    <update id="updateSubIntoEntrprs" parameterType="registerUserVO">
+        /* _register.updateSubIntoEntrprs */
+        UPDATE OP_USER_ENTRPRS_OPTION 
+			SET CMPNY_BUSEO = #{cmpnyBuseo}
+			WHERE USER_ID = #{userId}
+     </update>
+     
+     <!-- 마스터/서브관리 리스트 -->
+    <select id="subList" parameterType="registerUserVO" resultType="registerUserVO">
+        /* _register.subList */
+        SELECT ROWNUM as seq
+        	, A.USER_ID AS userId
+        	, B.CMPNY_BUSEO	AS cmpnyBuseo
+        	, A.USER_NM	AS userNm
+        	, A.USER_TY_CD	AS userTyCd
+        	, TO_CHAR(A.UPDT_DT,'YYYY-MM-DD HH24:MI:SS')	AS updtDt
+        	, B.CMPNY_NM	AS cmpnyNm
+        	, A.MASTER_ID	AS masterId
+		FROM OP_USER A 
+	 		LEFT JOIN OP_USER_ENTRPRS_OPTION B  
+	 		ON A.USER_ID = B.USER_ID
+		WHERE A.MASTER_ID = #{userId}
+		  AND A.SECSN_DT IS NULL
+    </select>
+    
+     <!-- 마스터/서브관리 리스트 카운트 -->
+     <select id="subListCount" parameterType="registerUserVO" resultType="int">
+        SELECT COUNT(1)
+          FROM OP_USER A 
+	      LEFT JOIN OP_USER_ENTRPRS_OPTION B  
+	 		ON A.USER_ID = B.USER_ID
+	     WHERE A.MASTER_ID = #{userId}
+		   AND A.SECSN_DT IS NULL
+    </select>
+    
+    <!-- 마스터/서브관리 - 서브계정삭제 -->
+    <update id="updateSubList" parameterType="registerUserVO"  >
+		UPDATE OP_USER
+		   SET MASTER_ID = ''
+		   , USER_TY_CD = 2001
+		   , UPDT_ID = #{masterId}
+		   , UPDT_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- 마스터/서브관리 - 서브계정삭제 -->
+    <delete id="deleteSubList" parameterType="registerUserVO">
+        /* _register.deleteSubList */
+        DELETE FROM OP_USER_ENTRPRS_OPTION
+ 		 WHERE USER_ID = #{userId}
+    </delete>
+    
+    <!-- 유저유형 수정 -->
+    <update id="updateUserTyCd" parameterType="registerUserVO" >
+        /* _register.updateUserTyCd */
+		UPDATE OP_USER
+		   SET 
+		   <!-- USER_TY_CD = #{userTyCd} 20170111 UPDATE 제외처리-->
+		    AGREM_STAT = #{agremStatCd}
+		   , UPDT_ID = #{userId}
+		   , UPDT_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+
+    <select id="selectStoreCnt" parameterType="registerUserVO" resultType="int">
+        /* _register.selectStoreCnt */
+		SELECT COUNT(1)
+		FROM TUM_SVC_STOR_I
+		WHERE USER_ID = #{userId}
+    </select>	
+	
+    <insert id="insertStoreData" parameterType="registerUserVO">
+        /* _register.insertStoreData */
+		INSERT INTO TUM_SVC_STOR_I (
+			user_id, /*아이디*/
+			lang_code, /*언어코드 00 - 한국어(기본)*/
+			lang_store_intrcn, /*스토어소개*/
+			store_image_file_seq, /*스토어로그첨부ID*/
+			store_actvty_at, /*스토어활성여부*/
+			store_charger_nm, /*회원이름*/
+			
+			lang_store_nm, /*스토어명*/
+			reprsnt_telno, /*회사전화*/
+			reprsnt_email, /*회원메일*/
+			store_url /*웹주소*/
+		)
+		SELECT
+			u.user_id,
+			u.lang_code,
+			'',
+			#{storeImageFileSeq},
+			'N',
+			ifnull(u.user_nm,''),
+		<choose>
+		<when test="userTyCd == '3002'">
+		  	ifnull(ueo.pblinstt_nm,''),
+			ifnull(ueo.pblinstt_telno,''),
+			ifnull(ueo.pblinstt_email,''),
+        </when>
+        <otherwise>
+			ifnull(ueo.cmpny_nm,''),
+			ifnull(ueo.cmpny_telno,''),
+			ifnull(ueo.cmpny_email,''),
+        </otherwise>
+		</choose>
+			''
+		FROM
+			OP_USER u,
+		<choose>
+		<when test="userTyCd == '1002'">
+			OP_USER_OPTION
+        </when>
+		<when test="userTyCd == '2002'">
+			OP_USER_ENTRPRS_OPTION
+        </when>
+		<when test="userTyCd == '3002'">
+			OP_USER_PBLINSTT_OPTION
+        </when>
+        <otherwise></otherwise>
+		</choose>
+			ueo
+		WHERE 1=1
+			AND u.user_id = #{userId}
+			AND u.user_id = ueo.user_id
+    </insert>	
+
+    <update id="updateStoreData" parameterType="registerUserVO">
+        /* _register.updateStoreData */
+		UPDATE tum_svc_stor_i s
+			INNER JOIN OP_USER u ON u.user_id = s.user_id
+			INNER JOIN
+		<choose>
+		<when test="userTyCd == '1002'">
+				OP_USER_OPTION
+        </when>
+		<when test="userTyCd == '2002'">
+				OP_USER_ENTRPRS_OPTION
+        </when>
+		<when test="userTyCd == '3002'">
+				OP_USER_PBLINSTT_OPTION
+        </when>
+        <otherwise></otherwise>
+		</choose>
+		 	ueo ON u.user_id = ueo.user_id
+		SET 
+			s.lang_code = u.lang_code, /*언어코드 00 - 한국어(기본)*/
+			s.store_image_file_seq = #{storeImageFileSeq}, /*회사로그이미지첨부 ID*/
+			s.store_charger_nm = IFNULL(u.user_nm,''),  /*회원이름*/
+		<choose>
+		<when test="userTyCd == '3002'">
+			s.lang_store_nm = IFNULL(ueo.pblinstt_nm,''), /*회사명*/
+			s.reprsnt_telno = IFNULL(ueo.pblinstt_telno,''), /*회사전화*/
+			s.reprsnt_email = IFNULL(ueo.pblinstt_email,''), /*회원메일*/
+        </when>
+        <otherwise>
+			s.lang_store_nm = IFNULL(ueo.cmpny_nm,''), /*회사명*/
+			s.reprsnt_telno = IFNULL(ueo.cmpny_telno,''), /*회사전화*/
+			s.reprsnt_email = IFNULL(ueo.cmpny_email,''), /*회원메일*/
+        </otherwise>
+		</choose>
+			s.store_actvty_at = 'N' /*스토어활성여부*/
+		WHERE 1=1
+			AND s.user_id = #{userId}
+    </update>	
+ 
+    <update id="updateUserOpt" parameterType="registerUserVO">
+        /* _register.updateUserOpt */
+		<choose>
+		<when test="userTyCd == '1002'">
+        UPDATE OP_USER_OPTION
+		SET CMPNY_TELNO = #{cmpnyTelno}
+			<if test="cmpnyNm != '' and cmpnyNm != null">
+			  , CMPNY_NM = #{cmpnyNm}
+			 </if> 
+        </when>
+		<when test="userTyCd == '2002'">
+		UPDATE OP_USER_ENTRPRS_OPTION
+		SET CMPNY_TELNO = #{cmpnyTelno}
+        </when>
+		<when test="userTyCd == '3002'">
+		UPDATE OP_USER_PBLINSTT_OPTION
+		SET PBLINSTT_TELNO = #{pblinsttTelno},
+			PBLINSTT_NM = #{pblinsttNm},
+			BIZRNO = #{bizrno}
+        </when>
+        <otherwise></otherwise>
+		</choose>
+		WHERE USER_ID = #{userId}
+    </update>	
+    
+    <select id="searchOrganList" parameterType="organPagerVo" resultType="organPagerVo">
+		/* _register.searchOrganList */
+			SELECT COUNT(1) over() AS totalNum
+			     , ORDERBY_NUM() AS num
+			     , orgn_code AS orgnCode
+			     , buseo_code AS buseoCode
+			     , orgn_nm AS orgnNm
+			     , orgn_nm_st AS orgnNmSt
+			  FROM tcn_orgn_info_d
+			 WHERE mntnab_date = 0
+			   <if test="q_searchVal != null and q_searchVal != ''">
+			   AND ${q_searchKey} like '%${q_searchVal}%'
+			   </if>
+			 ORDER BY orgn_nm, orgn_nm_st
+			   FOR ORDERBY_NUM() BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <select id="searchOrganListTrgetInst" parameterType="organPagerVo" resultType="organPagerVo">
+    /* _register.searchOrganListTrgetInst */
+		   SELECT  COUNT(1) over() AS totalNum
+		         , ORDERBY_NUM() AS num
+		         , orgnCode
+		         , buseoCode
+		         , orgnNmSt
+		         , orgnNm
+		         , orgn_nm
+		         , orgn_nm_st
+		     FROM  (SELECT  buseo_code AS orgnCode
+		                  , buseo_code AS buseoCode
+		                  , buseo_code_nm AS orgnNmSt
+		                  , orgn_nm AS orgnNm
+		                  , orgn_nm
+		                  , buseo_code_nm AS orgn_nm_st
+		              FROM  OP_DMAND_EXAMIN_TRGET_INST
+		             WHERE  dmand_examin_oprtn_year = '2018')
+        WHERE 1=1
+			   <if test="q_searchVal != null and q_searchVal != ''">
+			   AND ${q_searchKey} like '%${q_searchVal}%'
+			   </if>
+			 ORDER BY ${q_searchKey}, orgn_nm_st
+		   FOR ORDERBY_NUM() BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <!-- 공급자 정보관리  {{  -->
+	<select id="supplierInfoListCount" parameterType="map" resultType="int">
+	 /* _register.supplierInfoListCount*/
+       SELECT COUNT(1)
+	     FROM TCM_BASS_AGREM_MANAGE_I A
+	    WHERE A.DELETE_AT != 'Y'
+          AND A.USER_ID =  #{q_userId}
+	   <!-- SELECT COUNT(1)
+	     FROM TCM_BASS_AGREM_MANAGE_I A, OP_USER B
+	    WHERE A.DELETE_AT != 'Y'
+          AND A.USER_ID =  #{Q_USERID}
+        <if test="Q_DEGREE != ''">AND A.AGREM_ORDER = #{Q_DEGREE}</if>  
+	      AND A.USER_ID = B.USER_ID -->
+	</select>    
+ 
+ 	<select id="getBassAgremMaxSeq" parameterType="map" resultType="int">
+	 /* _register.getBassAgremMaxSeq*/
+       SELECT IFNULL(MAX(BASS_AGREM_MANAGE_SEQ),0) 
+	     FROM TCM_BASS_AGREM_MANAGE_I A
+	    WHERE A.USER_ID =  #{Q_USERID} 
+	</select>  
+	
+	<select id="supplierInfoList" resultType="map">
+	 /* _register.supplierInfoList 협약차수관리 리스트*/
+		SELECT Y.* FROM (
+			SELECT ROWNUM NUM, X.* FROM (
+			   SELECT A.BASS_AGREM_MANAGE_SEQ AS bassAgremManageSeq
+			 		, A.USER_ID AS userId
+					, A.AGREM_ORDER AS agremOrder
+					, TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') AS presentnDe
+					, A.AGREM_STAT AS agremStat
+					, A.CNCLS_COMPT_DE AS cnclsComptDe
+					, A.AGREM_END_DE AS agremEndDe
+					<!-- , CASE WHEN A.AGREM_END_DE &lt; SYSDATETIME THEN '종료' ELSE  C.INDVDLZ_CD_NM END AS agremNm  -->
+					, IF(A.AGREM_END_DE IS NOT NULL and TRIM(A.AGREM_END_DE) != '', (CASE WHEN A.AGREM_END_DE &lt; SYSDATETIME THEN '종료' ELSE C.INDVDLZ_CD_NM END), C.INDVDLZ_CD_NM) AS agremNm 
+					, A.MANG_COMT AS mangComt
+		 	    FROM TCM_BASS_AGREM_MANAGE_I A
+					LEFT JOIN OP_USER B  
+				 	  ON A.USER_ID = B.USER_ID
+					LEFT JOIN OP_CODE_INDVDLZ C
+			          ON C.INDVDLZ_CD = A.AGREM_STAT	 
+			         AND C.GROUP_CD = '2035'	 	 
+		 	    WHERE A.DELETE_AT != 'Y'
+	       	      AND A.USER_ID = #{q_userId}
+	       	      ORDER BY A.AGREM_ORDER DESC, A.REGIST_DT DESC
+			   	) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+	   
+ 	<select id="bassAgremView"  parameterType="BassAgremVO" resultType="BassAgremVO">
+		/* _register.bassAgremView */
+		SELECT   A.BASS_AGREM_MANAGE_SEQ AS bassAgremManageSeq   
+				,A.USER_ID AS userId
+				,A.AGREM_ORDER AS agremOrder
+				,TO_CHAR(A.REGIST_DT,'YYYY-MM-DD')   AS presentnDe
+				,A.CNCLS_COMPT_DE AS cnclsComptDe
+				,A.AGREM_END_DE AS agremEndDe
+				,A.CMPNY_NM AS cmpnyNm  /* 회사명 */
+			    ,A.CMPNY_LOCA AS cmpnyLoca  /* 소제지 grpCode = 2036 */
+			   	,B.CMPNY_URL AS cmpnyUrl	 /* 회사로고 */
+				,A.CHARGER_NM AS	chargerNm	/* 담당자명 */
+				,A.BASS_AGRMNT_FILE_SEQ AS bassAgrmntFileSeq	/* 기본협약서파일seq */
+				,A.RGSBUK_TRNSCR_FILE_SEQ AS rgsbukTrnscrFileSeq	/* 등기부등본파일seq */
+				,A.CDLT_DOC_FILE_SEQ AS cdltDocFileSeq	/* 신용평가서파일seq */
+				,A.FNLTT_FILE_SEQ	AS fnlttFileSeq	/* 재무재표파일seq */
+				,A.LAST_AGRMNT_FILE_SEQ	AS lastAgrmntFileSeq	/* 확정협약서seq */
+				,A.VNENTR_CRTF_FILE_SEQ AS vnentrCrtfFileSeq	/* 벤처기업증명서파일seq */
+				,A.DIRECT_PRDCTN_CRTF_FILE_SEQ AS directPrdctnCrtfFileSeq	/* 직접생산증명서파일seq */
+				,A.AGREM_STAT AS agremStatCd	/* 공급자 신청 상태  */
+				,B.BIZRNO bizrno /* 사업자 등록번호 */
+				,(SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = '2035' AND INDVDLZ_CD = A.AGREM_STAT) AS agremStat
+				,A.MANG_COMT AS mangComt
+		  FROM  TCM_BASS_AGREM_MANAGE_I A
+		  		LEFT JOIN OP_USER_ENTRPRS_OPTION B ON A.USER_ID = B.USER_ID
+         WHERE  A.BASS_AGREM_MANAGE_SEQ = #{bassAgremManageSeq}
+           AND  A.USER_ID = #{userId}		
+	</select>
+
+ 	<select id="svcStrorView"  parameterType="registerUserVO" resultType="registerUserVO">	
+	/* _register.svcStrorView */
+		SELECT  A.STORE_IMAGE_FILE_SEQ AS storeImageFileSeq	/** 상점이미지파일일련 */
+			   ,A.LANG_STORE_NM  AS langStoreNm
+			   ,A.STORE_CHARGER_NM AS storeChargerNm	/** 상점담당자명 */
+			   ,A.REPRSNT_TELNO AS reprsntTelno	/** 대표전화번호 */
+			   ,REPLACE(SUBSTR(A.REPRSNT_TELNO,1,3),'-','') AS reprsntTelno1 
+			   ,REPLACE(SUBSTR(A.REPRSNT_TELNO,4,INSTR(A.REPRSNT_TELNO,'-',INSTR(A.REPRSNT_TELNO,'-'))+1), '-','') AS reprsntTelno2
+			   ,REPLACE(SUBSTR(A.REPRSNT_TELNO,-4,4),'-','') AS reprsntTelno3
+			   ,B.BIZRNO bizrno /* 사업자 등록번호 */
+		 FROM  TUM_SVC_STOR_I A 
+	LEFT JOIN  OP_USER_ENTRPRS_OPTION B ON A.USER_ID = B.USER_ID
+		WHERE  A.LANG_CODE = '00'
+	 	  AND  A.USER_ID =  #{userId}		
+	</select>
+  
+  	<update id="bassAgremStatAction" parameterType="bassAgremVO" >
+          /* _register.bassAgremStatAction */	
+		UPDATE  TCM_BASS_AGREM_MANAGE_I
+		   SET 	CMPNY_LOCA				= #{cmpnyLoca}
+				,TELNO					= #{telno}
+				,BASS_AGRMNT_FILE_SEQ	= #{bassAgrmntFileSeq}
+				,RGSBUK_TRNSCR_FILE_SEQ	= #{rgsbukTrnscrFileSeq}
+				,VNENTR_CRTF_FILE_SEQ	= #{vnentrCrtfFileSeq}
+				,DIRECT_PRDCTN_CRTF_FILE_SEQ = #{directPrdctnCrtfFileSeq}
+				,CDLT_DOC_FILE_SEQ		= #{cdltDocFileSeq}
+				,FNLTT_FILE_SEQ			= #{fnlttFileSeq}
+				,AGREM_STAT				= #{agremStat} /* 보완신청 코드 = 1007 */
+		  WHERE BASS_AGREM_MANAGE_SEQ 	= #{bassAgremManageSeq}
+	        AND USER_ID 				= #{userId}
+	</update>
+		
+    <update id="svcStorIAgremStatAction" parameterType="registerUserVO">
+        /* _register.svcStorIAgremStatAction */
+        UPDATE TUM_SVC_STOR_I
+           SET STORE_IMAGE_FILE_SEQ	``	= #{storeImageFileSeq}
+	          ,REPRSNT_TELNO			= #{reprsntTelno}
+        WHERE  USER_ID 					= #{userId}
+          AND  LANG_CODE 				= #{langCode}
+    </update>
+    		
+    <update id="uEnterprisAgremStatAction" parameterType="registerUserVO">
+        /* _register.uEnterprisAgremStatAction */
+        UPDATE OP_USER_ENTRPRS_OPTION
+           SET CMPNY_TELNO        		= #{cmpnyTelno}
+         WHERE USER_ID 					= #{userId}
+    </update>
+ 
+     <update id="userAgremStatAction" parameterType="registerUserVO">
+        /* _register.userAgremStatAction */
+        UPDATE OP_USER
+           SET AGREM_STAT				= #{agremStat} /* 보완신청 코드 = 1007 */
+               ,UPDT_DT	 				= SYS_DATETIME
+         WHERE USER_ID 					= #{userId}
+    </update>
+	
+	<select  id="degreeInfo" parameterType="map" resultType="BassDegreeManageVO">
+		SELECT 	DEGREE_SEQ 		 	AS 		degreeSeq
+				,BASS_DEGREE 		 AS 	bassDegree
+				,TO_DATE(BASS_DEGREE_STDT, 'yyyymmdd') 	AS 	bassDegreeStdt
+				,TO_DATE(BASS_DEGREE_ENDDT, 'yyyymmdd')	AS 	bassDegreeEnddt
+				,(SELECT MAX(BASS_DEGREE)+1 FROM TCM_BASS_DEGREE_I ) AS bassDegreeMax
+				,(SELECT MAX(TO_DATE(bass_degree_enddt, 'yyyymmdd')+1) FROM TCM_BASS_DEGREE_I) AS bassDegreeEnddtMax
+		  FROM TCM_BASS_DEGREE_I
+		  WHERE SYSDATETIME BETWEEN  BASS_DEGREE_STDT AND BASS_DEGREE_ENDDT
+		 ORDER BY bass_degree DESC
+		 LIMIT  1
+	</select>
+ 
+    <!-- 마스터/서브관리 서브등록 -->
+    <insert id="insertIntoEntrprs" parameterType="registerUserVO">
+        /* _register.insertIntoEntrprs */
+        INSERT INTO OP_USER_ENTRPRS_OPTION (
+               USER_ID
+             , CMPNY_NM
+             , CMPNY_TELNO
+             , BIZRNO
+        ) VALUES (
+        	#{userId},
+        	#{cmpnyNm},
+        	#{cmpnyTelno},
+        	#{bizrno}
+       )
+     </insert>
+     
+    <update id="updateIntoEntrprs" parameterType="registerUserVO">
+     	UPDATE OP_USER_ENTRPRS_OPTION
+     		SET CMPNY_NM = #{cmpnyNm}
+     		  , CMPNY_TELNO = #{cmpnyTelno}
+     		  , BIZRNO   = #{bizrno}
+     		WHERE USER_ID =  #{userId}
+    </update>
+     
+	<select id="dmandExaminRegistMngrInfo" parameterType="map" resultType="dmandExaminRegistMngrVO">
+		/* _register.dmandExaminRegistMngrInfo */
+		SELECT DMAND_EXAMIN_OPRTN_YEAR AS dmandExaminOprtnYear
+		     , REGIST_BEGIN_DATE AS registBeginDate
+		     , REGIST_END_DATE AS registEndDate
+		     , USE_YN AS useYn
+		  FROM OP_DMAND_EXAMIN_REGIST_MNGR
+		 WHERE USE_YN = 'Y'
+		   AND DMAND_EXAMIN_OPRTN_YEAR = TO_CHAR(SYS_DATETIME,'YYYY')
+		 LIMIT 1
+	</select>
+	
+	
+	<select id="pblinsttNmChkAction" parameterType="String" resultType="registerUserVO">
+		/* _register.pblinsttNmChkAction */
+		SELECT A.USER_ID AS userId
+		     , A.DMAND_EXAMIN_CHARGER_AT AS dmandExaminChargerAt
+		     , A.PBLINSTT_NM_CNFIRM_AT AS pblinsttNmCnfirmAt
+		     , CASE WHEN SUBSTR(A.USER_TY_CD,0,2) = '30' 
+				    THEN (SELECT IFNULL(C.ORGN_NM,'Y') 
+				            FROM OP_USER_PBLINSTT_OPTION B LEFT OUTER JOIN TCN_ORGN_INFO_D C ON C.ORGN_CODE = B.ORGN_CODE AND C.BUSEO_CODE = B.BUSEO_CODE 
+				           WHERE B.USER_ID = A.USER_ID)
+				    ELSE 'N'
+			   END AS pblinsttUpdtAt
+		  FROM OP_USER A
+		 WHERE A.USER_ID = #{userId}
+	</select>
+	
+	<select id="dmandExaminChagerCnt" parameterType="registerUserVO" resultType="int">
+		/* _register.dmandExaminChagerCnt */
+		SELECT COUNT(1)
+		  FROM OP_USER A LEFT JOIN OP_USER_PBLINSTT_OPTION B ON A.USER_ID = B.USER_ID
+		 WHERE A.USER_TY_CD IN(3001,3002)
+		   AND A.USER_STTUS_CD IN(1001,1004)
+		   AND A.DMAND_EXAMIN_CHARGER_AT = 'Y'
+		   AND B.BUSEO_CODE = #{buseoCode}
+		   AND B.USER_ID != #{userId}
+	</select>
+	
+	<update id="pblinsttNmCnfirmAction" parameterType="String">
+		UPDATE OP_USER
+     	   SET PBLINSTT_NM_CNFIRM_AT = 'Y'
+     	 WHERE USER_ID =  #{userId}
+    </update>
+    
+    <select id="chkRegistTerm" parameterType="map" resultType="int">
+		/* _register.chkRegistTerm 등록기간 체크, 0 일때만 등록가능 */
+		SELECT COUNT(*) cntBassDegree
+ 		  FROM TCM_BASS_DEGREE_I
+		 WHERE SYSDATE BETWEEN  BASS_DEGREE_STDT AND BASS_DEGREE_ENDDT
+ 		   AND bass_degree &lt; 2
+	</select>
+               		   
+ </mapper>

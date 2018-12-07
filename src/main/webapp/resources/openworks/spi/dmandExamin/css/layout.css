@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*전체*/ 
+*{margin:0; padding:0;}
+html {overflow-y:scroll; height:100%;}
+body {
+	font-family:"나눔고딕", "맑은 고딕", "돋움", Dotum, Verdana, Tahoma;
+	font-weight:1000;
+	font-size: 12pt;
+	line-height:170%;
+	color:#333;
+}
+ul li,ol li{list-style:none;}
+a{text-decoration:none;}
+img{border:0 none;}
+ul,ol,dl,li {list-style:none;}
+a { text-decoration:none; color:#000;}
+dt , .hidden {position:absolute; left:-9999px; width:0; height:0; font-size:0; line-height:0;}
+@import url(http://www.openhiun.com/hangul/nanumgothic.css);
+
+/*파이어폭스*/
+@-moz-document url-prefix(){
+    body,html {margin:0; padding:0; height:100%; }
+}
+
+/*크롬*/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    body,html {margin:0; padding:0;   height:100%; }
+}
+
+.btndown_Wrap {width:100%; position:relative;}
+.input_box tr td:nth-child(1) {font-size:15px; padding:10px 0; background-color:#e7e7e7; padding-left:15px; border-top-left-radius:3px; border-bottom-left-radius:3px; box-shadow:3px 3px 10px 0 #d7d7d7 inset;}
+.input_box tr td:nth-child(2) {background-color:#e7e7e7; text-align:right; padding-right:5px; border-top-right-radius:3px; border-bottom-right-radius:3px; box-shadow:-3px 3px 10px 0 #d7d7d7 inset;}
+.input_box tr td:nth-child(2) input {width:90%; margin-left:10px; height:29px; padding:0 10px;} 
+.input_box tr td:nth-child(3) a {display:block; text-align:center; margin:2px 5px 0 10px; height:30px; padding:10px 0 0 0; background-color:#03a2f6; font-size:15px; font-weight:600; color:#fff; border-radius:3px}
+.input_box tr td:nth-child(4) a {display:block; text-align:center; margin:2px 5px 0 10px; height:30px; padding:10px 0 0 0; background-color:#7d9cac; font-size:15px; font-weight:600; color:#fff; border-radius:3px} 
+.input_box tr td:nth-child(5) a {display:block; text-align:center; margin:2px 5px 0 10px; height:30px; padding:10px 0 0 0; background-color:#9D3F29; font-size:15px; font-weight:600; color:#fff; border-radius:3px}
+.mt15 {margin-top:15px;}
+.txt_left {text-align:left;}
+.txt_center {text-align:center;}
+.txt_right {text-align:right;}
+.btn_area tr td:nth-child(1) a {display:block; text-align:center; font-size:15px; margin:2px 5px 0 10px; width:72%; height:30px; padding:10px 0 0 0; background-color:#7d9cac; font-weight:600; color:#fff; border-radius:3px}
+.btn_area tr td:nth-child(1) a span {display:inline-block; margin:0 10px 0 0;}
+.btn_area tr td:nth-child(2) a span {display:inline-block; margin:0 10px 0 0;}
+.btn_area tr td:nth-child(1) a span img {vertical-align:middle;}
+.btn_area tr td:nth-child(2) a span img {vertical-align:middle;}
+.btn_area tr td:nth-child(2) {text-align:center;}
+.btn_area tr td:nth-child(2) a {display:inline-block; text-align:center; font-size:15px; margin:2px 5px 0 10px; width:33%; height:30px; padding:10px 0 0 0; background-color:#076fa6; font-weight:600; color:#fff; border-radius:3px}
+.btn_area tr td:nth-child(3) {text-align:right;}
+.btn_area tr td:nth-child(3) a {display:inline-block; text-align:center; font-size:15px; margin:2px 5px 0 10px; width:33%; height:30px; padding:10px 0 0 0; background-color:#7f07a6; font-weight:600; color:#fff; border-radius:3px}
+.btn_popclose {position:absolute; right:25px; top:12px;}

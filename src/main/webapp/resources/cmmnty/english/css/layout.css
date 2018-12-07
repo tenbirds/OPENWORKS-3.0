@@ -1,0 +1,42 @@
+@charset "utf-8";
+
+/*  ------------------------------------------------------------------
+ *  레이아웃
+ *  ------------------------------------------------------------------*/
+
+#wrap{width:100%;}
+
+/* header */
+header{/*overflow:hidden;*/ width:1000px; margin:0 auto;}
+header:after{clear:both; display:block; content:'';}
+header h1{float:left; margin:40px 0 0 7px;}
+header #gnb{float:left; margin:39px 0 0 70px;}
+header #gnb ul li{float:left; font-size:14px; font-family:'NanumGothicBold'; font-weight:normal;}
+header #gnb ul li a{display:block; padding:8px 20px 9px 20px; color:#24303e;}
+header #gnb ul li a.on,
+header #gnb ul li a:hover,
+header #gnb ul li a:focus{background:#24303e; color:#fff; text-decoration:none;}
+header .account{position:relative; float:right; margin-top:50px; background:url('/resources/cmmnty/english/images/common/ico/ico_account.gif') no-repeat left 2px; z-index:1;}
+header .account .name{display:block; padding:2px 17px 0 25px; background:url('/resources/cmmnty/english/images/common/ico/ico_arrow.gif') no-repeat right center; color:#000; font-family:'Dotum';}
+header .account #info{display:none;}
+header .account ul{overflow:hidden; position:absolute; top:20px; left:0; border:1px solid #757575;}
+header .account ul li {background:#fff; color:#333; font-family:'verdana'; font-size:11px; letter-spacing:-1px;}
+header .account ul li a{display:block; padding:8px 10px 9px 10px; border-top:1px solid #e4e4e4; color:#333; text-decoration:none;}
+header .account ul >*:first-child a{border-top:none;}
+/*header .visual{float:left; width:1000px; margin-top:30px;}*/
+
+/* container */
+#container{overflow:hidden; width:1000px; margin:30px auto 0; padding-bottom:100px;}
+.visual{margin-bottom:30px;}
+.snb{float:left; width:200px;}
+.snb ul{width:100%; margin-top:16px;}
+.snb ul li a{display:block; padding:13px 0 13px 14px; border-bottom:1px dotted #b9b9b9; color:#333; font-family:'NanumGothicBold'; font-size:13px; text-decoration:none; font-weight:normal;}
+.snb ul li a.on,
+.snb ul li a:hover,
+.snb ul li a:focus{color:#ff7a00;}
+#contents{position:relative; float:right; width:756px; margin-top:10px;}
+
+
+/* footer */
+footer{width:1000px; height:87px; margin:0 auto; border-top:1px solid #e4e4e4; color:#737373; font-size:14px; text-align:center; line-height:87px;}
+footer .company{color:#ff7a00; font-family:'NanumGothicBold'; font-weight:normal;}

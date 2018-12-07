@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_popup">
+
+    <sql id="dynamicWhere">
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND A.POPUP_TITLE LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_domainCd != null  and q_domainCd != ''">
+                AND POPUP_SN IN (SELECT POPUP_SN FROM OP_POPUP_DOMAIN WHERE DOMAIN_CD = #{q_domainCd})
+            </if>
+            
+            AND POPUP_DELETE_AT = 'N'
+            
+    </sql>
+
+    <select id="popupList" parameterType="map" resultType="PopupVO">
+        SELECT Y.*
+              FROM (SELECT ROWNUM NUM
+                         , X.*
+                      FROM (SELECT A.POPUP_SN AS popupSn
+                                 , A.POPUP_TITLE AS popupTitle
+                                 , A.BEGIN_DATE AS beginDate
+                                 , A.END_DATE AS endDate
+                                 , A.WIDTH_SIZE AS widthSize
+                                 , A.HEIGHT_SIZE AS heightSize
+                                 , A.TOP_LC AS topLc
+                                 , A.LEFT_LC AS leftLc
+                                 , A.SCRL_YN AS scrlYn
+                                 , A.POPUP_FILE_PATH AS popupFilePath
+                                 , A.CN_HTML AS cnHtml
+                                 , A.CN_URL AS cnUrl
+                                 , A.USE_YN AS useYn
+                                 , DECODE (SIGN (A.BEGIN_DATE
+                                                 - TO_CHAR (SYSDATETIME
+                                                          , 'YYYYMMDD'))
+                                           + SIGN (A.END_DATE
+                                                   - TO_CHAR (SYSDATETIME
+                                                            , 'YYYYMMDD'))
+                                         , -2, 0
+                                         , 2, 2
+                                         , 1)
+                                      AS gubun
+                                 , TO_CHAR (A.REGIST_DT
+                                          , 'YYYY-MM-DD')
+                                      AS regDtm
+                                 , A.REGIST_ID AS registId
+                                 , A.ADVRTS_CLIENT_CD   AS advrtsClientCd
+                                 , B.indvdlz_cd_nm  AS advrtsClientNm
+                              FROM OP_POPUP A, op_code_indvdlz B
+                             WHERE A.ADVRTS_CLIENT_CD = B.INDVDLZ_CD (+)
+                               AND 80 = B.GROUP_CD(+)
+                              <include refid="dynamicWhere"/>
+                            ORDER BY A.POPUP_SN DESC
+                        ) X
+                        WHERE ROWNUM &lt;= #{pagingEndNum}
+                    ) Y
+                    WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="popupCount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(A.POPUP_SN) AS totalCount
+        FROM
+            OP_POPUP A
+        WHERE 1=1
+        <include refid="dynamicWhere"/>
+    </select>
+
+    <!-- 
+    <select id="popupTyCdList" parameterType="PopupVO" resultType="PopupVO">
+        SELECT INDVDLZ_CD_NM AS popupTyCd
+             , INDVDLZ_CD AS prvCd
+          FROM OP_CODE_INDVDPLZ
+         WHERE GROUP_CD = 67
+         ORDER BY INDVDLZ_CD
+    </select>
+    -->
+
+    <insert id="popupInsert" parameterType="PopupVO">
+         <selectKey order="BEFORE" keyProperty="popupSn" resultType="int">
+            SELECT NVL(MAX(POPUP_SN) + 1,1) FROM OP_POPUP 
+        </selectKey>
+        
+        
+        INSERT INTO OP_POPUP(
+                POPUP_SN,
+                POPUP_TITLE,
+                BEGIN_DATE,
+                END_DATE,
+                WIDTH_SIZE,
+                HEIGHT_SIZE,
+                TOP_LC,
+                LEFT_LC,
+                SCRL_YN,
+                RESIZING_YN,
+                COOKIE_YN,
+                COOKIE_DE_CO,
+                POPUP_TY_CD,
+                USE_YN,
+                MAKE_TY_CD,
+                <if test="makeTyCd != null  and makeTyCd != ''">
+                    <if test="makeTyCd == 1001">
+                    CN_HTML,
+                    </if>
+                    <if test="makeTyCd == 1002">
+                    CN_URL,
+                    </if>
+                    <if test="makeTyCd == 1003">
+                    POPUP_FILE_PATH,FILE_NM,
+                    </if>
+                </if>
+                ADVRTS_CLIENT_CD,                
+                REGIST_ID,
+                REGIST_DT
+                
+            ) VALUES (
+                #{popupSn},
+                #{popupTitle},
+                #{beginDate},
+                #{endDate},
+                #{widthSize},
+                #{heightSize},
+                #{topLc},
+                #{leftLc},
+                #{scrlYn},
+                #{resizingYn},
+                #{cookieYn},
+                NVL(#{cookieDeCo},'0'),
+                #{popupTyCd},
+                #{useYn},
+                #{makeTyCd},
+                <if test="makeTyCd != null  and makeTyCd != ''">
+                    <if test="makeTyCd == 1001">
+                #{cnHtml},
+                    </if>
+                    <if test="makeTyCd == 1002">
+                #{cnUrl},
+                    </if>
+                    <if test="makeTyCd == 1003">
+                #{popupFilePath},#{fileNm},
+                    </if>
+                </if>
+                #{advrtsClientCd},
+                #{registId},
+                SYSDATETIME
+            )
+    </insert>
+
+    <select id="popupUpdateForm" parameterType="PopupVO" resultType="PopupVO">
+        
+        SELECT POPUP_SN AS popupSn
+             , POPUP_TITLE AS popupTitle
+             , BEGIN_DATE AS beginDate
+             , END_DATE AS endDate
+             , WIDTH_SIZE AS widthSize
+             , HEIGHT_SIZE AS heightSize
+             , TOP_LC AS topLc
+             , LEFT_LC AS leftLc
+             , SCRL_YN AS scrlYn
+             , POPUP_FILE_PATH AS popupFilePath
+             , RESIZING_YN AS resizingYn
+             , COOKIE_DE_CO AS cookieDeCo
+             , COOKIE_YN AS cookieYn
+             , POPUP_TY_CD AS popupTyCd
+             , USE_YN AS useYn
+             , MAKE_TY_CD AS makeTyCd
+             , CN_HTML AS cnHtml
+             , CN_URL AS cnUrl
+             , FILE_NM AS fileNm
+             , REGIST_ID AS registId
+             , ADVRTS_CLIENT_CD AS advrtsClientCd
+             , POPUP_CLICK_CO AS popupClickCo
+          FROM OP_POPUP
+         WHERE POPUP_SN = #{popupSn}
+    </select>
+
+    <update id="delfile" parameterType="PopupVO">        
+        UPDATE OP_POPUP
+           SET POPUP_FILE_PATH = ''
+             , FILE_NM = ''
+         WHERE POPUP_SN = #{popupSn}
+    </update>
+
+    <select id="popupFilePath" parameterType="PopupVO" resultType="string">
+        SELECT POPUP_FILE_PATH AS popupFilePath
+        FROM OP_POPUP
+        WHERE POPUP_SN = #{popupSn}
+    </select>
+
+    <update id="popupUpdate" parameterType="PopupVO">
+        
+        UPDATE OP_POPUP
+           SET POPUP_TITLE = #{popupTitle},
+               BEGIN_DATE        =    #{beginDate},
+               END_DATE          =    #{endDate},
+               WIDTH_SIZE      =    #{widthSize},
+               HEIGHT_SIZE     =    #{heightSize},
+               TOP_LC    =    #{topLc},
+               LEFT_LC   =    #{leftLc},
+               SCRL_YN       =    #{scrlYn},
+               RESIZING_YN     =    #{resizingYn},
+               COOKIE_YN      =    #{cookieYn},
+               COOKIE_DE_CO       =    NVL(#{cookieDeCo},'0'),
+               POPUP_TY_CD      =    #{popupTyCd},
+               MAKE_TY_CD       =    #{makeTyCd},
+               CN_HTML    =    #{cnHtml},
+               CN_URL     =    #{cnUrl},
+               <if test="popupFilePath != null  and popupFilePath != ''">
+               POPUP_FILE_PATH       =    #{popupFilePath},
+               </if>
+               USE_YN          =    #{useYn},
+               <if test="fileNm != null  and fileNm != ''">
+               FILE_NM         =    #{fileNm},
+               </if>
+               ADVRTS_CLIENT_CD = #{advrtsClientCd},
+               UPDT_ID          =    #{updtId},
+               UPDT_DT         =    SYSDATETIME
+        WHERE POPUP_SN = #{popupSn}
+    </update>
+
+    <select id="domainList" parameterType="PopupVO" resultType="PopupVO">
+        SELECT 
+            DOMAIN_CD AS domainCd
+            , DOMAIN_NM AS domainNm
+            , DOMAIN_DC AS domainDc
+            , (SELECT DOMAIN_CD
+                 FROM OP_POPUP_DOMAIN
+                WHERE A.DOMAIN_CD = DOMAIN_CD AND POPUP_SN = #{popupSn}) AS checkYn
+            FROM OP_DOMAIN A
+            WHERE USE_YN = 'Y'
+              AND DOMAIN_CD  != 1
+            ORDER BY  DOMAIN_CD
+    </select>
+
+    <insert id="popupInsertDomainCd" parameterType="PopupVO">
+        <selectKey order="BEFORE" keyProperty="domainSn" resultType="int">
+            SELECT NVL(MAX(DOMAIN_SN) + 1,1) FROM OP_POPUP_DOMAIN 
+        </selectKey>
+        
+        INSERT INTO OP_POPUP_DOMAIN(
+            DOMAIN_SN 
+            ,POPUP_SN
+            ,DOMAIN_CD
+        ) VALUES (
+            #{domainSn}
+        <if test="popupSn == null or popupSn == ''">
+            , (SELECT NVL(MAX(POPUP_SN), 1) FROM OP_POPUP)
+        </if>
+        <if test="popupSn != null  and popupSn != ''">
+             , #{popupSn}
+        </if>
+             , #{domainCd}
+        )
+    </insert>
+
+    <select id="popupDomainList" parameterType="PopupVO" resultType="PopupVO">
+        SELECT  DOMAIN_CD AS domainCd,
+                (SELECT DOMAIN_DC FROM OP_DOMAIN  WHERE A.DOMAIN_CD =  DOMAIN_CD) AS domainDc
+            FROM OP_POPUP_DOMAIN A
+            WHERE POPUP_SN = #{popupSn}
+    </select>
+
+    <delete id="popupDel" parameterType="PopupVO">
+        DELETE OP_POPUP
+        WHERE POPUP_SN = #{popupSn}
+    </delete>
+    
+    <delete id="popupDomainDel" parameterType="PopupVO">
+        DELETE OP_POPUP_DOMAIN
+        WHERE POPUP_SN = #{popupSn}
+    </delete>
+
+    <update id="useYnUpdate">
+        UPDATE OP_POPUP
+        SET
+            <if test="useYn != null  and useYn != ''">
+                USE_YN = #{useYn},
+            </if>
+            UPDT_DT = SYSDATETIME,
+            UPDT_ID = #{updtId}
+        WHERE POPUP_SN = #{popupSn}
+    </update>
+
+    <select id="popup" parameterType="map" resultType="PopupVO">
+        
+            SELECT A.POPUP_SN AS popupSn
+                 , A.POPUP_TITLE AS popupTitle
+                 , A.WIDTH_SIZE AS widthSize
+                 , A.HEIGHT_SIZE AS heightSize
+                 , A.TOP_LC AS topLc
+                 , A.LEFT_LC AS leftLc
+                 , A.SCRL_YN AS scrlYn
+                 , A.POPUP_FILE_PATH AS popupFilePath
+                 , A.RESIZING_YN AS resizingYn
+                 , A.COOKIE_DE_CO AS cookieDeCo
+                 , A.COOKIE_YN AS cookieYn
+                 , A.POPUP_TY_CD AS popupTyCd
+                 , A.MAKE_TY_CD AS makeTyCd
+                 , A.CN_HTML AS cnHtml
+                 , A.CN_URL AS cnUrl
+                 , A.FILE_NM AS fileNm
+                 , B.DOMAIN_CD AS domainCd
+                 , ADVRTS_CLIENT_CD AS advrtsClientCd
+                 , POPUP_CLICK_CO AS popupClickCo
+              FROM OP_POPUP A
+                 , OP_POPUP_DOMAIN B
+             WHERE B.DOMAIN_CD = #{domainCd}
+               AND   A.POPUP_SN = B.POPUP_SN
+               AND   A.USE_YN = 'Y'
+               AND   (A.BEGIN_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')
+            OR A.END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD'))
+    </select>
+
+    <select id="popupConfView" parameterType="PopupVO" resultType="PopupVO">
+        
+        SELECT A.POPUP_SN AS popupSn
+             , A.POPUP_TITLE AS popupTitle
+             , A.WIDTH_SIZE AS widthSize
+             , A.HEIGHT_SIZE AS heightSize
+             , A.TOP_LC AS topLc
+             , A.LEFT_LC AS leftLc
+             , A.SCRL_YN AS scrlYn
+             , A.POPUP_FILE_PATH AS popupFilePath
+             , A.RESIZING_YN AS resizingYn
+             , A.COOKIE_DE_CO AS cookieDeCo
+             , A.COOKIE_YN AS cookieYn
+             , A.POPUP_TY_CD AS popupTyCd
+             , A.MAKE_TY_CD AS makeTyCd
+             , A.CN_HTML AS cnHtml
+             , A.CN_URL AS cnUrl
+             , A.FILE_NM AS fileNm
+             , B.DOMAIN_CD AS domainCd
+             , ADVRTS_CLIENT_CD AS advrtsClientCd
+             , POPUP_CLICK_CO AS popupClickCo
+             , INCR(POPUP_CLICK_CO)
+          FROM OP_POPUP A
+             , OP_POPUP_DOMAIN B
+         WHERE B.DOMAIN_CD = #{domainCd}
+           AND   A.POPUP_SN    = #{popupSn}
+           AND   A.POPUP_SN = B.POPUP_SN
+           AND   A.USE_YN = 'Y'
+    </select>
+    
+    <select id="selectFrontInfo" resultType="FrontInfoVO">
+    
+    /* _popup.selectFrontInfo */
+        
+            SELECT agreement 
+                 , use_cnt    
+                 , use_amt 
+              FROM TST_FRONT_INFO
+            
+    </select>
+    
+    <update id="updateFrontInfo" parameterType="FrontInfoVO" >
+    
+    /* _popup.updateFrontInfo */
+    
+    UPDATE TST_FRONT_INFO 
+       SET agreement = #{agreement}
+         , use_cnt   = #{use_cnt}
+         , use_amt   = #{use_amt}
+    
+    </update>
+    
+</mapper>

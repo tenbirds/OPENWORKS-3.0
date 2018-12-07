@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =========================================================
+    * Description : Code sqlmap 
+    * Create      : wisepms
+    * $Id: code2-sqlmap.xml 50 2011-07-17 04:15:32Z oworks $
+    =========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userLog">
+    
+    <sql id="serchR">
+        <if test="q_searchVal != null  and q_searchVal != ''">AND
+            <if test="q_searchKey == 1001">
+                (B.USER_ID  LIKE '%' || #{q_searchVal} || '%' OR B.USER_NM LIKE '%' || #{q_searchVal} || '%' OR C.MNGR_ID LIKE '%' || #{q_searchVal} || '%' OR C.MNGR_NM LIKE '%' || #{q_searchVal} || '%')
+            </if>
+            <if test="q_searchKey == 1002">
+                B.USER_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == 1003">
+                B.USER_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == 1004">
+                C.MNGR_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey == 1005">
+                C.MNGR_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+        </if>
+        <if test="q_stDate != null  and q_stDate != ''">
+            <if test="q_enDate != null  and q_enDate != ''">
+                AND TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') BETWEEN #{q_stDate} || ' 00:00:00'
+                AND #{q_enDate} || ' 23:59:59'
+             </if>
+        </if>
+    </sql>  
+    
+    <select id="useLogListR" parameterType="map" resultType="userLogVO">
+    	/* _userLog.useLogListR */
+        SELECT
+               A.LOG_MENU_NM                                AS logMenuNm
+              ,A.USER_ID                                    AS userId
+              ,B.USER_NM                                    AS userNm
+              ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+              ,A.MNGR_ID                                    AS mngrId
+              ,C.MNGR_NM                                    AS mngrNm
+              ,A.ACCES_RESN                                 AS accessResn
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.LOG_MENU_TY = 'R' 
+           AND A.USER_ID = B.USER_ID
+           AND A.MNGR_ID = C.MNGR_ID
+           <include refid="serchR"/> 
+         ORDER BY A.ACCES_DT DESC
+           FOR ORDERBY_NUM()
+       BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <select id="userLogListCountR" parameterType="map" resultType="int">
+        SELECT COUNT(*) AS totalCount
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.LOG_MENU_TY = 'R' 
+           AND A.USER_ID   = B.USER_ID
+           AND A.MNGR_ID    = C.MNGR_ID
+          <include refid="serchR"/>
+    </select>
+
+    <sql id="serchO">
+        <if test="q_searchKey != null  and q_searchKey != ''">
+           <if test="q_searchKey != 'ALL'">
+                A.LOG_MENU_NM = #{q_searchKey}
+            </if>
+        </if>
+        <if test="q_searchVal != null  and q_searchVal != ''">AND
+            <if test="q_searchKey1 == 1001">
+                (B.MNGR_ID LIKE '%' || #{q_searchVal} || '%' OR B.MNGR_NM LIKE '%' || #{q_searchVal} || '%')
+            </if>
+            <if test="q_searchKey1 == 1002">
+                B.MNGR_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_searchKey1 == 1003">
+                B.MNGR_ID LIKE '%' || #{q_searchVal} || '%'
+            </if>
+        </if>
+        <if test="q_stDate != null  and q_stDate != ''">
+            <if test="q_enDate != null  and q_enDate != ''">
+                AND TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') BETWEEN #{q_stDate} || ' 00:00:00'
+                AND #{q_enDate} || ' 23:59:59'
+             </if>
+        </if>
+    </sql>  
+
+    <select id="useLogListO" parameterType="map" resultType="userLogVO">
+        /* _userLog.useLogListO */
+        SELECT  A.LOG_MENU_NM                                AS logMenuNm
+               ,A.OUTPT_CN                                   AS outptCn
+               ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+               ,B.MNGR_NM                                    AS mngrNm
+               ,A.MNGR_ID                                    AS mngrId
+               ,A.ACCES_RESN                                 AS accessResn
+               ,A.OUTPT_FILE_NM                              AS outptFileNm
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_MNGR B
+         WHERE A.LOG_MENU_TY = 'O' 
+           AND A.MNGR_ID = B.MNGR_ID
+           <include refid="serchO"/> 
+         ORDER BY A.ACCES_DT DESC
+           FOR ORDERBY_NUM()
+       BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <select id="userLogListCountO" parameterType="map" resultType="int">
+        SELECT COUNT(*) AS totalCount
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_MNGR B
+         WHERE A.LOG_MENU_TY = 'O' 
+           AND A.MNGR_ID    = B.MNGR_ID
+           <include refid="serchO"/>
+    </select>
+    
+    <!--회원정보변경이력관리  -->
+    <select id="userLogListU" parameterType="map" resultType="userLogVO">
+    	/* _userLog.userLogListU */
+        SELECT
+               A.LOG_MENU_NM                                AS logMenuNm
+              ,A.USER_ID                                    AS userId
+              ,B.USER_NM                                    AS userNm
+              ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+              ,A.MNGR_ID                                    AS mngrId
+              ,C.MNGR_NM                                    AS mngrNm
+              ,A.ACCES_RESN                                 AS accessResn 
+              ,B.UPDT_DT                                    AS modDtm
+              ,A.CHANGE_CN                                  AS changeCn
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.USER_ID = B.USER_ID
+           AND A.MNGR_ID = C.MNGR_ID
+           AND A.LOG_MENU_TY = 'U'
+           <include refid="serchR"/> 
+         ORDER BY A.ACCES_DT DESC
+           FOR ORDERBY_NUM()
+       BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <select id="userLogListUCount" parameterType="map" resultType="int">
+        /* _userLog.userLogListUCount */
+        SELECT
+               COUNT(*) AS totalCount
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.USER_ID = B.USER_ID
+           AND A.MNGR_ID = C.MNGR_ID
+           AND A.LOG_MENU_TY = 'U'
+           <include refid="serchR"/>
+    </select>    
+    <!--//회원정보변경이력관리  -->
+    <select id="menuNmList" parameterType="userLogVO" resultType="userLogVO">
+        /* _userLog.menuNmList */
+        SELECT
+               DISTINCT LOG_MENU_NM AS logMenuNm
+          FROM OP_USER_INFO_ACCESS_LOG
+         WHERE LOG_MENU_TY = 'O'
+         ORDER BY LOG_MENU_NM DESC
+    </select>
+    
+    <!-- 엑셀 출력 sql  -->    
+    <select id="userLogListRExcel" parameterType="map" resultType="userLogVO">
+        /* _userLog.userLogListRExcel */
+        SELECT
+               NVL(A.LOG_MENU_NM, ' ')                      AS logMenuNm
+              ,NVL(A.USER_ID, ' ')                          AS userId
+              ,NVL(B.USER_NM, ' ')                          AS userNm
+              ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+              ,NVL(A.MNGR_ID, ' ')                          AS mngrId
+              ,NVL(C.MNGR_NM, ' ')                          AS mngrNm
+              ,NVL(A.ACCES_RESN, ' ')                       AS accessResn
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.LOG_MENU_TY = #{menuType} 
+           AND A.USER_ID = B.USER_ID
+           AND A.MNGR_ID = C.MNGR_ID
+           <include refid="serchR"/> 
+         ORDER BY A.ACCES_DT DESC
+    </select>    
+    
+    <select id="userLogListUExcel" parameterType="map" resultType="userLogVO">
+        /* _userLog.userLogListUExcel */
+        SELECT
+               NVL(A.USER_ID, ' ')                          AS userId
+              ,NVL(B.USER_NM, ' ')                          AS userNm
+              ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+              ,NVL(A.MNGR_ID, ' ')                          AS mngrId
+              ,NVL(C.MNGR_NM, ' ')                          AS mgrNm
+              ,NVL(A.CHANGE_CN, ' ')                        AS changeCn
+              ,NVL(A.ACCES_RESN, ' ')                       AS accessResn
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_USER B, OP_MNGR C
+         WHERE A.LOG_MENU_TY = #{menuType} 
+           AND A.USER_ID = B.USER_ID
+           AND A.MNGR_ID = C.MNGR_ID
+           <include refid="serchR"/> 
+        ORDER BY A.ACCES_DT DESC
+    </select>    
+    
+    <select id="userLogListOExcel" parameterType="map" resultType="userLogVO">
+        /* _userLog.userLogListOExcel */
+        SELECT
+               NVL(A.LOG_MENU_NM, ' ')                     AS logMenuNm
+              ,NVL(A.OUTPT_CN, ' ')                        AS outputConts
+              ,TO_CHAR(A.ACCES_DT, 'YYYY-MM-DD hh24:mi:ss') AS accessDt
+              ,NVL(A.MNGR_ID, ' ')                         AS mngrId
+              ,NVL(C.MNGR_NM, ' ')                         AS mngrNm
+              ,NVL(A.ACCES_RESN, ' ')                      AS accessResn
+              ,NVL(A.OUTPT_FILE_NM, ' ')                   AS outputFileNm
+          FROM OP_USER_INFO_ACCESS_LOG A, OP_MNGR C
+         WHERE A.LOG_MENU_TY = #{menuType} 
+           AND A.MNGR_ID = C.MNGR_ID
+           <include refid="serchO"/> 
+        ORDER BY A.ACCES_DT DESC
+    </select>    
+
+    <!--// 엑셀 출력 sql  -->
+
+</mapper>

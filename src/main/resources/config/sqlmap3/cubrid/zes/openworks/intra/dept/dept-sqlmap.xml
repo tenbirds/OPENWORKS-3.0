@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_deptn">
+
+	<select id="treeList" parameterType="deptVO" resultType="treeVO">
+		/* _deptn.treeList */
+		SELECT
+               A.DEPT_CODE  AS id,
+               A.DEPT_NM  AS text,
+               DECODE(A.USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE(
+                  (SELECT COUNT(DEPT_CODE)
+                     FROM OP_DEPT
+                    WHERE UPPER_DEPT_CODE = A.DEPT_CODE), 0, '1', '0') AS leaf
+          FROM OP_DEPT A
+         WHERE A.DEPT_CODE &gt; 0
+           AND A.UPPER_DEPT_CODE = #{upperDeptCode}
+         ORDER BY A.DEPT_ORDR_NO ASC
+	</select>
+
+	<select id="list" parameterType="deptVO" resultType="deptVO">
+		/* _deptn.list */
+		SELECT A.UPPER_DEPT_CODE AS upperDeptCode,
+            A.DEPT_CODE AS deptCode,
+            A.DEPT_NM AS deptNm,
+            A.USE_YN AS useYn,
+            A.DEPT_NM AS label,
+            A.DEPT_NM AS value,
+            DECODE(
+                    (SELECT COUNT(DEPT_CODE)
+                        FROM OP_DEPT
+                        WHERE UPPER_DEPT_CODE = A.DEPT_CODE), 0, '1', '0') AS leaf
+        FROM OP_DEPT A
+        WHERE
+                A.DEPT_CODE ! = '0'
+            <if test="upperDeptCode != null  and upperDeptCode != ''">AND
+                A.UPPER_DEPT_CODE = #{upperDeptCode}
+            </if>
+            <if test="deptNm != null  and deptNm != ''">AND
+                A.DEPT_NM  LIKE '%' || #{deptNm} || '%'
+            </if>
+            <if test="useYn == null or useYn == ''">AND
+                A.USE_YN   = 'Y'
+            </if>
+            <if test="useYn != null  and useYn != ''">AND
+                A.USE_YN   = #{useYn}
+            </if>
+            ORDER BY A.DEPT_ORDR_NO ASC
+	</select>
+
+	<resultMap id="deptListMap" type="deptVO">
+		<result property="id" column="id"/>
+		<result property="text" column="text"/>
+		<result property="leaf" column="leaf"/>
+		<association property="children" select="_deptn.listAll" column="{upperDeptCode=id}"/>
+	</resultMap>
+
+	<select id="listAll" parameterType="deptVO" resultMap="deptListMap">
+		/* _deptn.listAll */
+		SELECT deptCode     AS id,
+               deptNm     AS text,
+               leaf       AS leaf
+          FROM (
+        SELECT A.DEPT_CODE  AS deptCode,
+               A.DEPT_NM  AS deptNm,
+               A.DEPT_ORDR_NO AS deptOrdrNo,
+               DECODE(
+                  (SELECT COUNT(DEPT_CODE)
+                     FROM OP_DEPT
+                    WHERE UPPER_DEPT_CODE = A.DEPT_CODE), 0, '1', '0') AS leaf
+          FROM OP_DEPT A
+         WHERE A.DEPT_CODE     != '0'
+           AND A.UPPER_DEPT_CODE = #{upperDeptCode}
+           AND A.USE_YN       = 'Y')
+         ORDER BY deptOrdrNo
+	</select>
+
+	<select id="view" parameterType="deptVO" resultType="deptVO">
+		/* _deptn.view */
+		SELECT A.UPPER_DEPT_CODE   	AS upperDeptCode,
+               A.DEPT_CODE        	AS deptCode,
+               A.DEPT_NM        	AS deptNm,
+               A.DEPT_ORDR_NO       AS deptOrdrNo,
+               A.USE_YN         	AS useYn,
+               A.TELNO         		AS telno,
+               A.FXNUM         		AS fxnum,
+               A.MAIN_DUTY      	AS mainDuty,
+               TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI') AS regDt,
+               TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI') AS modiDt
+          FROM OP_DEPT A
+         WHERE A.DEPT_CODE = #{deptCode}
+	</select>
+
+	<select id="deptKey" resultType="deptVO">
+		/* _deptn.deptKey */
+		SELECT NVL(MAX(TO_NUMBER(DEPT_CODE)), 0) + 1 AS deptKey
+		  FROM OP_DEPT
+		 WHERE TRANSLATE(DEPT_CODE, 'X01234567890', 'X') = ''
+	</select>
+
+	<insert id="insert" parameterType="deptVO">
+		/* _deptn.insert */
+		INSERT INTO OP_DEPT (
+            DEPT_CODE,     DEPT_NM,     UPPER_DEPT_CODE,
+            DEPT_ORDR_NO, TELNO, FXNUM, MAIN_DUTY,
+            REGIST_DT, UPDT_DT
+        )
+        VALUES (
+            #{deptCode},    #{deptNm},    #{upperDeptCode},
+            (
+            SELECT NVL(MAX(DEPT_ORDR_NO), 0) + 1
+              FROM OP_DEPT
+             WHERE UPPER_DEPT_CODE = #{upperDeptCode}
+            ), #{telno}, #{fxnum}, #{mainDuty},
+            SYS_DATETIME,
+            SYS_DATETIME
+        )
+	</insert>
+
+	<select id="dupCheckDept" parameterType="deptVO" resultType="int">
+		/* _deptn.dupCheckDept */
+		SELECT COUNT(*) AS cnt
+		  FROM OP_DEPT A
+		 WHERE A.DEPT_CODE = #{deptCode}
+	</select>
+
+	<update id="infoUpdate" parameterType="deptVO">
+		/* _deptn.infoUpdate */
+		UPDATE OP_DEPT
+           SET
+               DEPT_CODE    = #{deptCode},
+               DEPT_NM   	= #{deptNm},
+               USE_YN     	= #{useYn},
+               UPDT_DT    	= SYS_DATETIME,
+               TELNO    	= #{telno},
+               FXNUM    	= #{fxnum},
+               MAIN_DUTY 	= #{mainDuty}
+         WHERE DEPT_CODE    = #{oldDeptCd}
+	</update>
+
+	<update id="orderUpdate" parameterType="deptVO">
+		/* _deptn.orderUpdate */
+		UPDATE OP_DEPT
+           SET
+               DEPT_ORDR_NO     = #{deptOrdrNo},
+               UPPER_DEPT_CODE = #{upperDeptCode}
+         WHERE DEPT_CODE      = #{deptCode}
+	</update>
+
+	<select id="sameLevelList" parameterType="deptVO" resultType="deptVO">
+		/* _deptn.sameLevelList */
+		SELECT DEPT_CODE      	AS deptCode,
+               UPPER_DEPT_CODE 	AS upperDeptCode,
+               DEPT_ORDR_NO     AS deptOrdrNo
+          FROM OP_DEPT
+         WHERE DEPT_CODE &gt; 0
+           AND DEPT_CODE != #{deptCode}
+           AND UPPER_DEPT_CODE = #{upperDeptCode}
+           <!-- AND USE_YN       = 'Y' -->
+         ORDER BY DEPT_ORDR_NO ASC
+	</select>
+
+	<delete id="delete" parameterType="deptVO">
+		/* _deptn.delete */
+		DELETE 
+		  FROM OP_DEPT
+		 WHERE DEPT_CODE = #{deptCode}
+	</delete>
+
+	<select id="deptUserTreeList" parameterType="dutVO" resultType="dutVO">
+		/* _deptn.deptUserTreeList */
+		SELECT A.UPPER_DEPT_CODE 			AS upperDeptCode,
+			   A.DEPT_CODE  				AS deptCode,
+			   A.DEPT_NM 					AS deptNm,
+			   A.USE_YN 					AS useYn,
+			   DECODE(
+				   (SELECT COUNT(1)
+					  FROM OP_DEPT
+					 WHERE UPPER_DEPT_CODE = A.DEPT_CODE
+					   AND ROWNUM = 1), 0, DECODE(
+											   (SELECT COUNT(1)
+												  FROM OP_MNGR
+												 WHERE DEPT_CODE = A.DEPT_CODE
+												   AND ROWNUM = 1),0, '1', '0'),'0') AS LEAF,
+			   '1' 							AS FLAG,
+			   A.DEPT_ORDR_NO				AS ORDER_NO
+		  FROM OP_DEPT A
+		 WHERE A.DEPT_CODE != '0'
+		   AND A.UPPER_DEPT_CODE = #{upperDeptCode}
+			 <if test="useYn != null and useYn != ''">
+			   AND A.USE_YN   = 'Y'
+			 </if>
+		UNION ALL
+		SELECT A.DEPT_CODE,
+			   A.MNGR_ID,
+			   A.MNGR_NM,
+			   A.USE_YN,
+			   'true',
+			   '2',
+			   (SELECT DEPT_ORDR_NO FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS ORDER_NO
+		  FROM OP_MNGR A
+         WHERE DEPT_CODE = #{upperDeptCode}
+           AND A.MNGR_ID != #{loginVo.mngrId}
+			 <if test="useYn != null and useYn != ''">
+			   AND A.USE_YN = 'Y'
+			 </if>
+		 ORDER BY ORDER_NO, FLAG, deptCode ASC
+	</select>
+	
+	<select id="deptListExcel" parameterType="map" resultType="deptVO">
+		/* _deptn.deptListExcel */
+		SELECT (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.UPPER_DEPT_CODE) AS highDeptNm
+			   ,A.DEPT_NM AS deptNm
+			   ,A.DEPT_CODE AS deptCode
+			   ,A.TELNO AS telno
+			   ,A.FXNUM AS fxNum
+			   ,A.MAIN_DUTY AS mainDuty
+			   ,A.USE_YN AS useYn
+		  FROM OP_DEPT A
+		 WHERE A.DEPT_CODE &gt; 0
+		 ORDER BY A.DEPT_CODE ASC
+	</select>
+
+</mapper>

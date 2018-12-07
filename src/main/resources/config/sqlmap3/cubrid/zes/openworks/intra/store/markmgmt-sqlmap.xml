@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_markmgmt">
+
+	<!-- 인증구분코드목록 -->
+    <select id="markList" resultType="codeVO">
+		/* _markmgmt.markList */
+		SELECT INDVDLZ_CD			AS prvCd
+		     , INDVDLZ_CD_NM		AS prvNm
+	      FROM OP_CODE_INDVDLZ
+	     WHERE LANG_CODE = '00'
+	       AND GROUP_CD = 1011
+	       AND USE_YN = 'Y'
+	     ORDER BY CD_SORT_NO
+	</select>
+	<!-- 연계기관코드목록 -->
+    <select id="cntcImgList" resultType="codeVO">
+		/* _markmgmt.cntcImgList */
+		SELECT INDVDLZ_CD			AS prvCd
+		     , INDVDLZ_CD_NM		AS prvNm
+	      FROM OP_CODE_INDVDLZ
+	     WHERE LANG_CODE = '00'
+	       AND GROUP_CD = 201
+	       AND USE_YN = 'Y'
+	     ORDER BY CD_SORT_NO
+	</select>
+	<!-- 코드유무체크 -->
+	<select id="chkCnt" parameterType="markVO" resultType="int">
+		/* _markmgmt.chkCnt */
+		SELECT 
+			<if test="markCd != null">
+			   COUNT(MARK_CD)
+			</if>
+			<if test="cntcInsttCd != null">
+			   COUNT(CNTC_INSTT_CD)
+			</if>
+	      FROM
+	      	<if test="markCd != null">
+	      	   TST_GOOD_MARK_M
+			</if>
+			<if test="cntcInsttCd != null">
+	      	   TST_CNGD_IMG_M
+	      	</if>   
+	     WHERE 
+			<if test="markCd != null">
+	     	   MARK_CD = #{markCd}
+	     	</if>
+			<if test="cntcInsttCd != null">
+	     	   CNTC_INSTT_CD = #{cntcInsttCd}
+	     	</if>
+	</select>
+	<!-- 인증구분코드정보 -->
+	<select id="markInfo" parameterType="markVO" resultType="markVO">
+		/* _markmgmt.markInfo */
+		SELECT MARK_CD							AS markCd
+		     , MARK_NM							AS markNm
+		     , MARK_IMAGE_FILE_SEQ				AS markImageFileSeq
+		     , (SELECT COUNT(F.FILE_ORDR_NO)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = A.MARK_IMAGE_FILE_SEQ) AS fileCnt
+	      FROM TST_GOOD_MARK_M A
+	     WHERE MARK_CD = #{markCd}
+	</select>
+	<!-- 연계기관코드정보 -->
+	<select id="cntcImgInfo" parameterType="markVO" resultType="markVO">
+		/* _markmgmt.cntcImgInfo */
+		SELECT CNTC_INSTT_CD					AS cntcInsttCd
+			 , CNTC_GOODS_NM					AS cntcGoodsNm
+		     , CNTC_GOODS_IMAGE_SEQ				AS cntcGoodsImageSeq
+		     , (SELECT COUNT(F.FILE_ORDR_NO)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = A.CNTC_GOODS_IMAGE_SEQ) AS fileCnt
+	      FROM TST_CNGD_IMG_M A
+	     WHERE CNTC_INSTT_CD = #{cntcInsttCd}
+	</select>
+	<!-- 인증구분코드이미지등록 -->
+    <insert id="markInsert" parameterType="markVO">
+        /* _markmgmt.markInsert */
+        INSERT INTO TST_GOOD_MARK_M
+            (MARK_CD, MARK_NM, MARK_IMAGE_FILE_SEQ, REGIST_ID, REGIST_DT
+            )
+        VALUES
+            (#{markCd}, #{markNm}, #{markImageFileSeq}, #{registId}, SYS_DATETIME
+            )
+    </insert>
+    <!-- 연계기관코드이미지등록 -->
+    <insert id="cntcImgInsert" parameterType="markVO">
+        /* _markmgmt.cntcImgInsert */
+        INSERT INTO TST_CNGD_IMG_M
+            (CNTC_INSTT_CD, CNTC_GOODS_NM, CNTC_GOODS_IMAGE_SEQ, REGIST_ID, REGIST_DT
+            )
+        VALUES
+            (#{cntcInsttCd}, #{cntcGoodsNm}, #{cntcGoodsImageSeq}, #{registId}, SYS_DATETIME
+            )
+    </insert>
+    <!-- 인증구분코드정보수정 -->
+    <update id="markUpdate" parameterType="markVO">
+        /* _markmgmt.markUpdate */
+        UPDATE TST_GOOD_MARK_M
+           SET MARK_NM 				= #{markNm}
+             , MARK_IMAGE_FILE_SEQ 	= #{markImageFileSeq}
+	         , UPDT_ID       		= #{updtId}
+	         , UPDT_DT       		= SYS_DATETIME
+        WHERE        
+          MARK_CD = #{markCd}
+    </update>
+    <!-- 연계기관코드정보수정 -->
+    <update id="cntcImgUpdate" parameterType="markVO">
+        /* _markmgmt.cntcImgUpdate */
+        UPDATE TST_CNGD_IMG_M
+           SET CNTC_GOODS_NM 		= #{cntcGoodsNm}
+             , CNTC_GOODS_IMAGE_SEQ = #{cntcGoodsImageSeq}
+	         , UPDT_ID       		= #{updtId}
+	         , UPDT_DT       		= SYS_DATETIME
+        WHERE        
+          CNTC_INSTT_CD = #{cntcInsttCd}
+    </update>
+</mapper>

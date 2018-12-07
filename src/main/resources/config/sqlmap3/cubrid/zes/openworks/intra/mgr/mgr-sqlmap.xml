@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_mgr">
+
+	<sql id="selectColumn">
+		A.DEPT_CODE AS deptCode,
+		(SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm,
+		A.MNGR_ID AS mngrId,
+        A.MNGR_NM AS mngrNm,
+		decrypt(A.EMAIL, 'P008') AS email,
+		decrypt(A.MBTLNUM, 'P007') AS mbtlnum,
+        A.TELNO  AS telno,
+		A.USE_YN AS useYn,
+		<if test="langCode != null and langCode != ''">
+        (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS gradeNm,
+        </if>
+        <if test="langCode == null or langCode == ''">
+        (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS gradeNm,
+        </if>
+		A.OFCPS_CD AS ofcpsCd,
+		A.LOGIN_CNT AS loginCnt,
+	</sql>
+
+	 <sql id="dynamicWhere">
+		 <if test="q_searckValue != null and q_searckValue != ''">
+			 <if test="q_searckKey == 1001">
+				AND A.MNGR_ID LIKE '%' || #{q_searckValue} || '%'
+			 </if>
+			 <if test="q_searckKey == 1002">
+				AND A.MNGR_NM LIKE '%' || #{q_searckValue} || '%'
+			 </if>
+		 </if>
+	 </sql>
+
+	 <sql id="mgrDynamicWhere">
+		 <where>
+			 <if test="deptCd != '0'">AND
+				A.DEPT_CODE = #{deptCode}
+			 </if>
+			 <if test="q_searckValue != null and q_searckValue != ''">
+				 <if test="q_searckKey == 1001">AND 
+					A.MNGR_ID LIKE '%' || #{q_searckValue} || '%'
+				 </if>
+				 <if test="q_searckKey == 1002">AND 
+					A.MNGR_NM LIKE '%' || #{q_searckValue} || '%'
+				 </if>
+			 </if>
+		 </where>
+	 </sql>
+
+	<!--  담당자 목록조회 -->
+	<select id="list" parameterType="map" resultType="mgrVO">
+		/* _mgr.list */
+		SELECT <include refid="selectColumn"/>
+			   TO_CHAR(A.LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS') AS loginDt
+		  FROM OP_MNGR A
+		 WHERE A.USE_YN = 'Y'
+		   AND A.DEPT_CODE = #{deptCode}
+			<include refid="dynamicWhere"/>
+		 ORDER BY A.REGIST_DT DESC
+		   FOR ORDERBY_NUM()
+	   BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+	</select>
+
+	<select id="listCount" parameterType="map" resultType="int">
+		/* _mgr.listCount */
+		SELECT COUNT(A.MNGR_ID) AS totalCount
+		  FROM OP_MNGR A
+		<include refid="mgrDynamicWhere"/>
+	</select>
+
+	<select id="listExcel" parameterType="map" resultType="mgrVO">
+		/* _mgr.listExcel */
+		SELECT <include refid="selectColumn"/>
+			   TO_CHAR(A.LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS') AS loginDt
+			   , TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS modiDt
+		  FROM OP_MNGR A
+		<include refid="mgrDynamicWhere"/>
+		 ORDER BY A.REGIST_DT DESC
+	</select>
+
+    <resultMap id="authNmMappingMap" type="mgrVO">
+        <result property="mngrId" column="mngrId"/>
+        <association property="authNms" select="_mgr.selectAuthNmList" column="{mngrId=mngrId}"/>
+    </resultMap>
+    <select id="selectAuthNmMap" parameterType="mgrVO" resultMap="authNmMappingMap">
+        SELECT #{mngrId} AS mngrId
+    </select>
+    <select id="selectAuthNmList" parameterType="mgrVO" resultType="string">
+        SELECT AUTH_NM AS authNms
+          FROM (SELECT Y.AUTH_NM, Z.MNGR_ID
+                  FROM OP_AUTH_MNGR_ASSIGN Z,
+                       OP_AUTH Y
+                 WHERE Z.AUTH_CODE = Y.AUTH_CODE
+                   AND Y.AUTH_TY_CODE = 'G') X
+         WHERE X.MNGR_ID = #{mngrId}
+    </select>
+
+	<select id="mgrDeptNm" parameterType="mgrVO" resultType="string">
+		/* _mgr.mgrDeptNm */
+		SELECT DECODE(#{deptCode}, 0, '부서 목록', DEPT_NM) AS deptNm
+		  FROM OP_DEPT
+		 WHERE DEPT_CODE = #{deptCode}
+	</select>
+
+	<resultMap id="mgrListMap" type="mgrVO">
+		<result property="mngrId" column="mngrId"/>
+		<result property="mngrNm" column="mngrNm"/>
+		<result property="mngrPassword" column="mngrPassword"/>
+		<result property="beforePassword" column="beforePassword"/>
+		<result property="ofcpsCd" column="ofcpsCd"/>
+		<result property="gradeNm" column="gradeNm"/>
+		<result property="deptCode" column="deptCode"/>
+		<result property="deptNm" column="deptNm"/>
+		<result property="telno" column="telno"/>
+		<result property="fxnum" column="fxnum"/>
+		<result property="mbtlnum" column="mbtlnum"/>
+		<result property="email" column="email"/>
+		<result property="chrgJob" column="chrgJob"/>
+		<result property="useYn" column="useYn"/>
+		<result property="loginCnt" column="loginCnt"/>
+		<result property="loginDt" column="loginDt"/>
+		<result property="regDt" column="regDt"/>
+		<result property="modiDt" column="modiDt"/>
+		<result property="authCode" column="authCode"/>
+		<association property="menuGrpCds" select="_mgr.menuAssignNmList" column="{mngrId=mngrId}"/>
+	</resultMap>
+
+	<!-- 담당자 검색 목록 조회 -->
+	<select id="searchList" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.searchList */
+		SELECT <include refid="selectColumn"/>
+			   TO_CHAR(A.LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS') AS loginDt,
+			   ((SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) || '/' || A.MNGR_NM) AS label,
+			   A.MNGR_NM AS [value]
+		  FROM OP_MNGR A
+		 WHERE A.USE_YN = A.USE_YN
+			<trim>
+				<if test="useYn != null and useYn != ''">
+					AND A.USE_YN = #{useYn}
+				</if>
+				<if test="deptCode != null and deptCode != ''">
+					AND A.DEPT_CODE = #{deptCode}
+				</if>
+				<if test="mngrId != null and mngrId != ''">
+					AND A.MNGR_ID = #{mngrId}
+				</if>
+				<if test="mngrNm != null and mngrNm != ''">
+					AND A.MNGR_NM LIKE '%' || #{mngrNm} || '%'
+				</if>
+				<if test="email != null and email != ''">
+					AND decrypt(A.EMAIL, 'P008')   = #{email}
+				</if>
+			</trim>
+		ORDER BY A.MNGR_NM ASC
+	</select>
+
+	<!-- 담당자 목록 조회 (할당권한 포함) -->
+	<select id="view" parameterType="map" resultMap="mgrListMap">
+		/* _mgr.view */
+		SELECT Y.* FROM (
+			SELECT ROWNUM NUM, X.* FROM (
+				SELECT <include refid="selectColumn"/>
+					A.MNGR_PASSWORD AS mngrPassword,
+					A.CHRG_JOB AS chrgJob,
+					A.FXNUM AS fxnum,
+					(SELECT AUTH_CODE FROM OP_AUTH_MNGR_ASSIGN WHERE MNGR_ID = A.MNGR_ID AND ROWNUM = 1) AS authCode,
+					TO_CHAR(A.LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS') AS loginDt,
+					TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS') AS regDt,
+					TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS modiDt
+				FROM OP_MNGR A
+				<include refid="mgrDynamicWhere"/>
+				ORDER BY A.REGIST_DT DESC
+				) X
+				WHERE ROWNUM &lt;= #{pagingEndNum}
+			) Y
+			WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<!-- 담당자 정보 등록 -->
+	<insert id="insert" parameterType="mgrVO">
+		/* _mgr.insert */
+		INSERT INTO OP_MNGR (
+			MNGR_ID,
+			MNGR_NM,
+			DEPT_CODE,
+			MNGR_PASSWORD,
+			TELNO,
+			FXNUM,
+			MBTLNUM,
+			EMAIL,
+			CHRG_JOB,
+			OFCPS_CD,
+			PASSWORD_CHANGE_DE,
+			REGIST_DT,
+			UPDT_DT,
+			REGIST_ID,
+			UPDT_ID
+		) VALUES (
+			#{mngrId},
+			#{mngrNm},
+			#{deptCode},
+			#{mngrPassword},
+			#{telno},
+			#{fxnum},
+			encrypt(#{mbtlnum}, 'P007'),
+			encrypt(#{email}, 'P008'),
+			#{chrgJob},
+			#{ofcpsCd},
+			TO_CHAR(SYS_DATE, 'YYYYMMDD'),
+			SYS_DATETIME,
+			SYS_DATETIME,
+			#{modiId},
+			#{modiId}
+		)
+	</insert>
+
+	<!-- 비밀번호 수정 -->
+	<update id="updatePwd" parameterType="mgrVO">
+		/* _mgr.updatePwd */
+		UPDATE OP_MNGR
+		   SET BEFORE_PASSWORD = MNGR_PASSWORD,
+		       MNGR_PASSWORD = #{mngrPassword},
+			   PASSWORD_CHANGE_DE = TO_CHAR(SYS_DATE, 'YYYYMMDD'),
+			   UPDT_DT = SYS_DATETIME,
+			   UPDT_ID = #{modiId}
+	     WHERE MNGR_ID = #{mngrId}
+	</update>
+
+	<!-- 담당자 정보 수정 -->
+	<update id="update" parameterType="mgrVO">
+		/* _mgr.update */
+		UPDATE OP_MNGR
+		   SET
+			<if test="mngrNm != null and mngrNm != ''">
+               MNGR_NM = #{mngrNm},
+            </if>
+            <if test="deptCode != null and deptCode != ''">
+               DEPT_CODE = #{deptCode},
+            </if>
+			<if test="mngrPassword != null and mngrPassword != ''">
+               BEFORE_PASSWORD = MNGR_PASSWORD,
+               MNGR_PASSWORD    = #{mngrPassword},
+               PASSWORD_CHANGE_DE = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            </if>
+			   TELNO = #{telno},
+               FXNUM = #{fxnum},
+               MBTLNUM = encrypt(#{mbtlnum}, 'P007'),
+               EMAIL = encrypt(#{email}, 'P008'),
+               CHRG_JOB = #{chrgJob},
+               USE_YN = #{useYn},
+               OFCPS_CD = #{ofcpsCd},
+               UPDT_DT = SYS_DATETIME,
+               UPDT_ID = #{modiId}
+         WHERE MNGR_ID  = #{mngrId}
+	</update>
+
+	<!-- 담당자 부서 정보 수정 -->
+	<update id="deptUpdate" parameterType="mgrVO">
+		/* _mgr.deptUpdate */
+		UPDATE OP_MNGR
+		   SET DEPT_CODE = #{deptCode},
+			   UPDT_DT = SYS_DATETIME,
+			   UPDT_ID = #{modiId}
+		 WHERE MNGR_ID = #{mngrId}
+	</update>
+
+	<!-- 담당자 사용여부 수정  -->
+	<update id="useYnUpdate">
+		/* _mgr.useYnUpdate */
+		UPDATE OP_MNGR
+		   SET
+			<if test="useYn != null and useYn != ''">
+			   USE_YN = #{useYn},
+			</if>
+			   UPDT_DT = SYS_DATETIME,
+			   UPDT_ID = #{modiId}
+		 WHERE MNGR_ID = #{mngrId}
+	</update>
+
+	<!-- 담당자 부서이동  -->
+	<update id="deptTransfer">
+		/* _mgr.deptTransfer */
+		UPDATE OP_MNGR
+		   SET
+			<if test="deptCode != null  and deptCode != ''">
+               DEPT_CODE = #{deptCode},
+            </if>
+               UPDT_DT = SYS_DATETIME,
+               UPDT_ID = #{modiId}
+		 WHERE MNGR_ID = #{mngrId}
+	</update>
+
+	<!-- 담당자 삭제 -->
+	<delete id="delete" parameterType="mgrVO">
+		/* _mgr.delete */
+		DELETE FROM OP_MNGR
+		 WHERE MNGR_ID = #{mngrId}
+	</delete>
+
+	<!-- 담당자 할당 권한 코드 조회 -->
+	<select id="menuAssignList" parameterType="mgrVO" resultType="string">
+		/* _mgr.menuAssignList */
+		SELECT MENU_GROUP_CD
+		  FROM OP_MENU_ASSIGN
+		 WHERE MNGR_ID = #{mngrId}
+	</select>
+
+	<select id="menuAssignNmList" parameterType="mgrVO" resultType="menuGrpVO">
+		/* _mgr.menuAssignNmList */
+		SELECT (SELECT MENU_GROUP_NM FROM OP_MENU_GROUP WHERE MENU_GROUP_CD = A.MENU_GROUP_CD) AS menuGroupNm,
+               A.MENU_GROUP_CD AS menuGroupCd
+          FROM OP_MENU_ASSIGN A
+         WHERE A.MNGR_ID  = #{mngrId}
+         ORDER BY menuGroupNm
+	</select>
+
+	<!-- 담당자 권한 정보 수정 -->
+	<insert id="menuAssignInsert" parameterType="map">
+		/* _mgr.menuAssignInsert */
+		INSERT INTO OP_MENU_ASSIGN (
+               MENU_GROUP_CD,     MNGR_ID
+        )
+        VALUES (
+            #{menuGroupCd},     #{mngrId}
+        )
+	</insert>
+
+	<!-- 담당자 권한 정보 수정 -->
+	<delete id="menuAssignDelete" parameterType="mgrVO">
+		/* _mgr.menuAssignDelete */
+		DELETE
+          FROM OP_MENU_ASSIGN
+         WHERE MNGR_ID = #{mngrId}
+	</delete>
+
+	<select id="grpAuthCdSelect" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.grpAuthCdSelect */
+		SELECT A.AUTH_CODE AS authCode
+          FROM OP_AUTH_MNGR_ASSIGN A, OP_AUTH B
+         WHERE MNGR_ID = #{mngrId}
+           AND A.AUTH_CODE = B.AUTH_CODE
+           AND AUTH_TY_CODE = 'G'
+	</select>
+
+	<select id="mgrUpdateValues" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.mgrUpdateValues */
+		SELECT <include refid="selectColumn"/>
+               MNGR_PASSWORD  AS mngrPassword,
+               CHRG_JOB  	AS chrgJob,
+               FXNUM    	AS fxnum,
+               decrypt(MBTLNUM, 'P007')   	AS mbtlnum,
+               decrypt(EMAIL, 'P008')    	AS email
+          FROM OP_MNGR A
+         WHERE MNGR_ID = #{mngrId}
+	</select>
+
+	<!-- 담당자 아이디 중복 체크 -->
+	<select id="checkDupleId" parameterType="mgrVO" resultType="int">
+		/* _mgr.checkDupleId */
+		SELECT COUNT(*) AS cnt
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = #{mngrId}
+	</select>
+
+	<!-- 담당자 아이디를 가지고 권한코드, 권한명, 권한타입코드를 가져오는 부분임. -->
+	<select id="currentlyList" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.currentlyList */
+		SELECT
+               B.AUTH_NM AS authNm,
+               B.AUTH_CODE AS authCode,
+               B.AUTH_TY_CODE AS authTyCode
+          FROM OP_AUTH_MNGR_ASSIGN A,
+               OP_AUTH B
+         WHERE A.MNGR_ID  = #{mngrId}
+           AND A.AUTH_CODE = B.AUTH_CODE
+         ORDER BY B.AUTH_TY_CODE,B.AUTH_NM
+	</select>
+
+	<select id="authList" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.authList */
+		SELECT
+               AUTH_NM      	AS authNm,
+               AUTH_CODE      	AS authCode,
+               AUTH_TY_CODE 	AS authTyCode,
+               (SELECT COUNT(*)
+                  FROM OP_AUTH_MNGR_ASSIGN B
+                 WHERE A.AUTH_CODE = B.AUTH_CODE
+                   AND B.MNGR_ID = #{mngrId}) AS authCnt
+          FROM OP_AUTH A
+         WHERE A.AUTH_TY_CODE = 'G'
+         ORDER BY AUTH_NM ASC
+	 </select>
+
+	 <select id="currentlyListCount" parameterType="mgrVO" resultType="int">
+		/* _mgr.currentlyListCount */
+		SELECT COUNT(B.AUTH_CODE) AS cnt
+          FROM OP_AUTH_MNGR_ASSIGN A,
+               OP_AUTH B
+         WHERE A.MNGR_ID  = #{mngrId}
+           AND A.AUTH_CODE  = B.AUTH_CODE
+         ORDER BY B.AUTH_TY_CODE, B.AUTH_NM
+	 </select>
+
+	 <select id="menuList" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.menuList */
+		SELECT (SELECT MNGR_MENU_NM FROM OP_MENU WHERE MNGR_MENU_CD = A.MNGR_MENU_CD) AS mngrMenuNm,
+               A.ASGN_TY_CODE AS assignTyCode
+          FROM OP_AUTH_MENU_ASSIGN A
+         WHERE A.AUTH_CODE = #{authCode}
+	 </select>
+
+	<!-- 담당자 권한 할당 입력 -->
+	<insert id="mgrAssignInsert" parameterType="mgrVO">
+		/* _mgr.mgrAssignInsert */
+		INSERT INTO OP_AUTH_MNGR_ASSIGN (
+            AUTH_CODE,     MNGR_ID,		REGIST_ID
+        )
+        VALUES (
+            #{authCode},     #{mngrId},		#{regId}
+        )
+	</insert>
+
+	<!-- 담당자 권한 정보 삭제 -->
+	<delete id="mgrAssignDelete" parameterType="mgrVO">
+		/* _mgr.mgrAssignDelete */
+		DELETE FROM OP_AUTH_MNGR_ASSIGN
+         WHERE MNGR_ID = #{mngrId}
+	</delete>
+
+	<insert id="logging" parameterType="loggingMgrVO">
+		/* _mgr.logging */
+		INSERT INTO OP_MNGR_UPDT_LOG (
+			             MNGR_ID
+			            ,LOG_DT
+			            ,LOG_TY
+			            ,MNGR_NM
+			            ,DEPT_CODE
+			            ,MNGR_PASSWORD
+			            ,TELNO
+			            ,FXNUM
+			            ,MBTLNUM
+			            ,EMAIL
+			            ,CHRG_JOB
+			            ,USE_YN
+			            ,OFCPS_CD
+			            ,SNS_NTICE_YN
+			            ,UPDT_ID
+        <if test='logTy != "D"'>
+        ) SELECT MNGR_ID
+	               , SYS_DATETIME
+	               , #{logTy}
+	               , MNGR_NM
+	               , DEPT_CODE
+	                ,MNGR_PASSWORD
+	                ,TELNO
+	                ,FXNUM
+	                ,decrypt(MBTLNUM, 'P007') AS MBTLNUM
+	                ,decrypt(EMAIL, 'P008') AS EMAIL
+	                ,CHRG_JOB
+	                ,USE_YN
+	                ,OFCPS_CD
+	                ,SNS_NTICE_YN
+	                ,UPDT_ID
+            FROM OP_MNGR
+           WHERE MNGR_ID = #{mngrId}
+        </if>
+        <if test='logTy == "D"'>
+        ) VALUES (
+            #{mngrId}
+           ,SYS_DATETIME
+           ,#{logTy}
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,''
+           ,#{updtId}
+        )
+		</if>
+	</insert>
+
+	<select id="webLogList" parameterType="map" resultType="loggingWebLoginVO">
+		/* _mgr.webLogList */
+		SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT TO_CHAR(LOGIN_PNTTM, 'YYYY-MM-DD HH24:MI:SS') AS loginPnttm
+                     , LOGIN_TY   		AS loginTy
+                     , LOGIN_RESULT 	AS loginResult
+                     , LOGIN_IP     	AS loginIp
+                     , MNGR_LOGIN_MENU  AS mngrLoginMenu
+                  FROM OP_MNGR_LOGIN_HIST
+                 WHERE MNGR_ID = #{mngrId}
+                <if test="q_stDate != null and q_stDate != ''"><if test="q_enDate != null and q_enDate != ''">
+                   AND LOGIN_PNTTM BETWEEN TO_DATE(#{q_stDate})
+                                       AND TO_DATE(#{q_enDate}) + 1
+                </if></if>
+                 ORDER BY LOGIN_PNTTM DESC
+                ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+            ) Y
+            WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="webLogListExel" parameterType="map" resultType="loggingWebLoginVO">
+		/* _mgr.webLogListExel */
+		SELECT TO_CHAR(LOGIN_PNTTM, 'YYYY-MM-DD HH24:MI:SS') AS loginPnttm
+             , LOGIN_TY   		AS loginTy
+             , LOGIN_RESULT 	AS loginResult
+             , LOGIN_IP     	AS loginIp
+             , MNGR_LOGIN_MENU  AS mngrLoginMenu
+          FROM OP_MNGR_LOGIN_HIST
+         WHERE MNGR_ID = #{mngrId}
+        <if test="q_stDate != null  and q_stDate != ''"><if test="q_enDate != null  and q_enDate != ''">
+           AND LOGIN_PNTTM BETWEEN TO_DATE(#{q_stDate})
+                               AND TO_DATE(#{q_enDate}) + 1
+        </if></if>
+         ORDER BY LOGIN_PNTTM DESC
+	</select>
+
+	<select id="webLogListCount" parameterType="map" resultType="int">
+		/* _mgr.webLogListCount */
+		SELECT COUNT(*) AS cnt
+          FROM OP_MNGR_LOGIN_HIST
+         WHERE MNGR_ID = #{mngrId}
+        <if test="q_stDate != null and q_stDate != ''"><if test="q_enDate != null and q_enDate != ''">
+           AND LOGIN_PNTTM BETWEEN TO_DATE(#{q_stDate})
+                               AND TO_DATE(#{q_enDate}) + 1
+        </if></if>
+	</select>
+
+	<select id="ipStat" parameterType="mgrVO" resultType="loggingWebLoginVO">
+		/* _mgr.ipStat */
+		SELECT 
+               MNGR_ID 			AS mngrId
+             , LOGIN_IP 		AS loginIp
+             , COUNT(LOGIN_IP) 	AS ipCnt
+          FROM OP_MNGR_LOGIN_HIST
+         WHERE MNGR_ID = #{mngrId}
+		   AND LOGIN_PNTTM BETWEEN SYS_DATE - 365 AND SYS_DATE
+		 GROUP BY MNGR_ID, LOGIN_IP
+	</select>
+
+	<select id="webLogContents" parameterType="mgrVO" resultType="loggingWebLoginVO">
+		/* _mgr.webLogContents */
+		SELECT A.MNGR_ID 					AS mngrId
+			  ,A.LOGIN_IP 					AS loginIp
+			  ,TO_CHAR(A.LOGIN_PNTTM, 'YYYY-MM-DD HH24:MI:SS') AS loginPnttm
+			  ,CASE WHEN B.PASSWORD_CHANGE_DE IS NULL
+			        THEN (TO_DATE(TO_CHAR(B.REGIST_DT,'YYYYMMDD'), 'YYYYMMDD') + 91)
+			        ELSE (TO_DATE(B.PASSWORD_CHANGE_DE,'YYYYMMDD') + 91)
+			    END 						AS passwordChangeDe
+			  ,CASE WHEN B.PASSWORD_CHANGE_DE IS NULL
+			        THEN TRUNC(TO_DATE(TO_CHAR(B.REGIST_DT, 'YYYYMMDD'), 'YYYYMMDD') + 91 - SYS_DATE)
+			        ELSE TRUNC(TO_DATE(B.PASSWORD_CHANGE_DE,'YYYYMMDD') + 91 - SYS_DATE)
+			    END 						AS pwdChgDays	
+		  FROM OP_MNGR_LOGIN_HIST A
+			  ,OP_MNGR B
+		 WHERE A.MNGR_ID = #{mngrId}
+		   AND A.LOGIN_PNTTM = (SELECT MAX(LOGIN_PNTTM)
+							      FROM OP_MNGR_LOGIN_HIST
+							     WHERE MNGR_ID = #{mngrId})
+		   AND A.MNGR_ID = B.MNGR_ID
+	</select>
+
+	<select id="changeLogList" parameterType="map" resultType="loggingMgrVO">
+		/* _mgr.changeLogList */
+		SELECT Y.* FROM (
+			SELECT ROWNUM NUM, X.* FROM (
+				SELECT TO_CHAR(LOG_DT, 'YYYY-MM-DD HH24:MI:SS') AS logDt
+					  ,LOG_TY AS logTy
+					  ,(SELECT SUBSTR(CASE WHEN (A.DEPT_CODE IS NULL AND X.DEPT_CODE IS NOT NULL) OR (A.DEPT_CODE != X.DEPT_CODE) 
+                     					   THEN ', 부서'     END ||
+                                      CASE WHEN (A.MNGR_NM IS NULL AND X.MNGR_NM  IS NOT NULL) OR (NVL(A.MNGR_NM, ' ')  != NVL(X.MNGR_NM, ' ') ) 
+                                      	   THEN ', 담당자명' END ||
+                                      CASE WHEN (A.MNGR_PASSWORD IS NULL AND X.MNGR_PASSWORD IS NOT NULL) OR (NVL(A.MNGR_PASSWORD, ' ') != NVL(X.MNGR_PASSWORD, ' ')) 
+                                           THEN ', 비밀번호' END ||
+                                      CASE WHEN (A.TELNO IS NULL AND X.TELNO IS NOT NULL) OR (NVL(A.TELNO, ' ') != NVL(X.TELNO, ' ')) 
+                                           THEN ', 전화번호' END ||
+                                      CASE WHEN (A.FXNUM IS NULL AND X.FXNUM IS NOT NULL) OR (NVL(A.FXNUM, ' ') != NVL(X.FXNUM, ' ')) 
+                                           THEN ', 팩스번호' END ||
+                                      CASE WHEN (decrypt(A.MBTLNUM, 'P007') IS NULL AND decrypt(X.MBTLNUM, 'P007') IS NOT NULL) OR (NVL(decrypt(A.MBTLNUM, 'P007'), ' ')  != NVL(decrypt(X.MBTLNUM, 'P007'), ' ') ) 
+                                           THEN ', 휴대폰'   END ||
+                                      CASE WHEN (decrypt(A.EMAIL, 'P008') IS NULL AND decrypt(X.EMAIL, 'P008')   IS NOT NULL) OR (NVL(decrypt(A.EMAIL, 'P008'), ' ')   != NVL(decrypt(X.EMAIL, 'P008'), ' ')  ) 
+                                           THEN ', 이메일'   END ||
+                                      CASE WHEN (A.USE_YN  IS NULL AND X.USE_YN  IS NOT NULL) OR (A.USE_YN  != X.USE_YN ) 
+                                           THEN ', 사용가부' END ||
+                                      CASE WHEN (A.OFCPS_CD  IS NULL AND X.OFCPS_CD  IS NOT NULL) OR (A.OFCPS_CD  != X.OFCPS_CD ) 
+                                           THEN ', 직위' END ||
+                                      CASE WHEN (A.SNS_NTICE_YN  IS NULL AND X.SNS_NTICE_YN  IS NOT NULL) OR (NVL(A.SNS_NTICE_YN, ' ')  != NVL(X.SNS_NTICE_YN, ' ') ) 
+                                           THEN ', SMS 통지 가부' END ||
+                                      CASE WHEN (A.CHRG_JOB IS NULL AND X.CHRG_JOB IS NOT NULL) OR (NVL(A.CHRG_JOB, ' ') != NVL(X.CHRG_JOB, ' ')) 
+                                           THEN ', 담당업무' END, 3)
+						  FROM OP_MNGR_UPDT_LOG A
+						 WHERE A.MNGR_ID = X.MNGR_ID
+						   AND A.LOG_DT = (SELECT MAX(Z.LOG_DT)
+											 FROM OP_MNGR_UPDT_LOG Z
+											WHERE Z.LOG_DT &lt; X.LOG_DT
+											  AND Z.MNGR_ID = X.MNGR_ID)
+						   AND ROWNUM = 1) AS changeType
+					  ,(SELECT SUBSTR(CASE WHEN (A.DEPT_CODE IS NULL AND X.DEPT_CODE IS NOT NULL) OR (A.DEPT_CODE != X.DEPT_CODE)
+                                           THEN ', ' || (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) || ' -&gt; ' || (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = X.DEPT_CODE) 
+                                       END ||
+                                      CASE WHEN (A.MNGR_NM  IS NULL AND X.MNGR_NM  IS NOT NULL) OR (NVL(A.MNGR_NM, ' ')  != NVL(X.MNGR_NM, ' ') ) 
+                                           THEN ', ' || A.MNGR_NM  || ' -&gt; ' || X.MNGR_NM 
+                                       END ||
+                                      CASE WHEN (A.MNGR_PASSWORD IS NULL AND X.MNGR_PASSWORD IS NOT NULL) OR (NVL(A.MNGR_PASSWORD, ' ') != NVL(X.MNGR_PASSWORD, ' ')) 
+                                           THEN ', ' || A.MNGR_PASSWORD || ' -&gt; ' || X.MNGR_PASSWORD 
+                                       END ||
+                                      CASE WHEN (A.TELNO IS NULL AND X.TELNO IS NOT NULL) OR (NVL(A.TELNO, ' ') != NVL(X.TELNO, ' ')) 
+                                           THEN ', ' || A.TELNO || ' -&gt; ' || X.TELNO 
+                                       END ||
+                                      CASE WHEN (A.FXNUM IS NULL AND X.FXNUM IS NOT NULL) OR (NVL(A.FXNUM, ' ') != NVL(X.FXNUM, ' ')) 
+                                           THEN ', ' || A.FXNUM || ' -&gt; ' || X.FXNUM 
+                                       END ||
+                                      CASE WHEN (decrypt(A.MBTLNUM, 'P007') IS NULL AND decrypt(X.MBTLNUM, 'P007') IS NOT NULL) OR (NVL(decrypt(A.MBTLNUM, 'P007'), ' ')  != NVL(decrypt(X.MBTLNUM, 'P007'), ' ') ) 
+                                           THEN ', ' || decrypt(A.MBTLNUM, 'P007') || ' -&gt; ' || decrypt(X.MBTLNUM, 'P007')
+                                       END ||
+                                      CASE WHEN (decrypt(A.EMAIL, 'P008') IS NULL AND decrypt(X.EMAIL, 'P008') IS NOT NULL) OR (NVL(decrypt(A.EMAIL, 'P008'), ' ')   != NVL(decrypt(X.EMAIL, 'P008'), ' ')  ) 
+                                           THEN ', ' || decrypt(A.EMAIL, 'P008')  || ' -&gt; ' || decrypt(X.EMAIL, 'P008')
+                                       END ||
+                                      CASE WHEN (A.USE_YN IS NULL AND X.USE_YN  IS NOT NULL) OR (A.USE_YN  != X.USE_YN ) THEN ', ' || A.USE_YN  || ' -&gt; ' || X.USE_YN 
+                                       END ||
+                                      CASE WHEN (A.OFCPS_CD IS NULL AND X.OFCPS_CD  IS NOT NULL) OR (A.OFCPS_CD  != X.OFCPS_CD )
+                                           THEN ', ' || (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = X.OFCPS_CD) || ' -&gt; ' || (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = X.OFCPS_CD)
+                                       END ||
+                                      CASE WHEN (A.SNS_NTICE_YN IS NULL AND X.SNS_NTICE_YN  IS NOT NULL) OR (NVL(A.SNS_NTICE_YN, ' ')  != NVL(X.SNS_NTICE_YN, ' ') ) 
+                                           THEN ', ' || A.SNS_NTICE_YN  || ' -&gt; ' || X.SNS_NTICE_YN 
+                                       END ||
+                                      CASE WHEN (A.CHRG_JOB IS NULL AND X.CHRG_JOB IS NOT NULL) OR (NVL(A.CHRG_JOB, ' ') != NVL(X.CHRG_JOB, ' ')) 
+                                           THEN ', ' || A.CHRG_JOB || ' -&gt; ' || X.CHRG_JOB
+                                       END, 3)
+						  FROM OP_MNGR_UPDT_LOG A
+						 WHERE A.MNGR_ID = X.MNGR_ID
+						   AND A.LOG_DT = (SELECT MAX(Z.LOG_DT)
+											 FROM OP_MNGR_UPDT_LOG Z
+											WHERE Z.LOG_DT &lt; X.LOG_DT
+											  AND Z.MNGR_ID = X.MNGR_ID)
+						   AND ROWNUM = 1) AS changeResutl
+					 , UPDT_ID     AS updtId
+				  FROM OP_MNGR_UPDT_LOG X
+                 WHERE MNGR_ID = #{mngrId}
+				<if test="q_stDate != null and q_stDate != ''"><if test="q_enDate != null and q_enDate != ''">
+				   AND LOG_DT BETWEEN TO_DATE(#{q_stDate})
+                               AND TO_DATE(#{q_enDate}) + 1
+				</if></if>
+				 ORDER BY LOG_DT DESC
+				) X
+				WHERE ROWNUM &lt;= #{pagingEndNum}
+			) Y
+			WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="changeLogListExcel" parameterType="map" resultType="loggingMgrVO">
+		/* _mgr.changeLogListExcel */
+		SELECT TO_CHAR(LOG_DT, 'YYYY-MM-DD HH24:MI:SS') AS logDt
+			 , LOG_TY AS logTy
+			 , (SELECT SUBSTR(CASE WHEN (A.DEPT_CODE IS NULL AND X.DEPT_CODE IS NOT NULL) OR (NVL(A.DEPT_CODE, ' ') != NVL(X.DEPT_CODE, ' ')) 
+                                   THEN ', 부서'  
+                               END ||
+                              CASE WHEN (A.MNGR_NM  IS NULL AND X.MNGR_NM  IS NOT NULL) OR (NVL(A.MNGR_NM, ' ')  != NVL(X.MNGR_NM, ' ') ) 
+                                   THEN ', 담당자명' 
+                               END ||
+                              CASE WHEN (A.MNGR_PASSWORD IS NULL AND X.MNGR_PASSWORD IS NOT NULL) OR (NVL(A.MNGR_PASSWORD, ' ') != NVL(X.MNGR_PASSWORD, ' ')) 
+                                   THEN ', 비밀번호' 
+                               END ||
+                              CASE WHEN (A.TELNO IS NULL AND X.TELNO IS NOT NULL) OR (NVL(A.TELNO, ' ') != NVL(X.TELNO, ' ')) 
+                                   THEN ', 전화번호' 
+                               END ||
+                              CASE WHEN (A.FXNUM IS NULL AND X.FXNUM IS NOT NULL) OR (NVL(A.FXNUM, ' ') != NVL(X.FXNUM, ' ')) 
+                                   THEN ', 팩스번호' 
+                               END ||
+                              CASE WHEN (decrypt(A.MBTLNUM, 'P007') IS NULL AND decrypt(X.MBTLNUM, 'P007') IS NOT NULL) OR (NVL(decrypt(A.MBTLNUM, 'P007'), ' ')  != NVL(decrypt(X.MBTLNUM, 'P007'), ' ') ) 
+                                   THEN ', 휴대폰' 
+                               END ||
+                              CASE WHEN (decrypt(A.EMAIL, 'P008')   IS NULL AND decrypt(X.EMAIL, 'P008') IS NOT NULL) OR (NVL(decrypt(A.EMAIL, 'P008'), ' ')   != NVL(decrypt(X.EMAIL, 'P008'), ' ')  ) 
+                                   THEN ', 이메일' 
+                               END ||
+                              CASE WHEN (A.USE_YN  IS NULL AND X.USE_YN  IS NOT NULL) OR (NVL(A.USE_YN, ' ')  != NVL(X.USE_YN, ' ') ) 
+                                   THEN ', 사용가부' 
+                               END ||
+                              CASE WHEN (A.OFCPS_CD  IS NULL AND X.OFCPS_CD  IS NOT NULL) OR (A.OFCPS_CD  != X.OFCPS_CD ) 
+                                   THEN ', 직위' 
+                               END ||
+                              CASE WHEN (A.SNS_NTICE_YN  IS NULL AND X.SNS_NTICE_YN  IS NOT NULL) OR (NVL(A.SNS_NTICE_YN, ' ')  != NVL(X.SNS_NTICE_YN, ' ') ) 
+                                   THEN ', SMS 통지 가부'
+                               END ||
+                              CASE WHEN (A.CHRG_JOB IS NULL AND X.CHRG_JOB IS NOT NULL) OR (NVL(A.CHRG_JOB, ' ') != NVL(X.CHRG_JOB, ' ')) 
+                                   THEN ', 담당업무'
+                               END, 3)
+				  FROM OP_MNGR_UPDT_LOG A
+                 WHERE A.MNGR_ID = X.MNGR_ID
+                   AND A.LOG_DT = (SELECT MAX(Z.LOG_DT)
+                                     FROM OP_MNGR_UPDT_LOG Z
+                                    WHERE Z.LOG_DT &lt; X.LOG_DT
+                                      AND Z.MNGR_ID = X.MNGR_ID)
+                   AND ROWNUM = 1) AS changeType
+			  ,(SELECT SUBSTR(CASE WHEN (A.DEPT_CODE IS NULL AND X.DEPT_CODE IS NOT NULL) OR (NVL(A.DEPT_CODE, ' ') != NVL(X.DEPT_CODE, ' '))
+                                   THEN ', ' || (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) || ' -&gt; ' || (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = X.DEPT_CODE) 
+                               END ||
+                              CASE WHEN (A.MNGR_NM  IS NULL AND X.MNGR_NM  IS NOT NULL) OR (NVL(A.MNGR_NM, ' ')  != NVL(X.MNGR_NM, ' ') ) 
+                                   THEN ', ' || A.MNGR_NM  || ' -&gt; ' || X.MNGR_NM 
+                               END ||
+                              CASE WHEN (A.MNGR_PASSWORD IS NULL AND X.MNGR_PASSWORD IS NOT NULL) OR (NVL(A.MNGR_PASSWORD, ' ') != NVL(X.MNGR_PASSWORD, ' ')) 
+                                   THEN ', ' || A.MNGR_PASSWORD || ' -&gt; ' || X.MNGR_PASSWORD 
+                               END ||
+                              CASE WHEN (A.TELNO IS NULL AND X.TELNO IS NOT NULL) OR (NVL(A.TELNO, ' ') != NVL(X.TELNO, ' ')) 
+                                   THEN ', ' || A.TELNO || ' -&gt; ' || X.TELNO 
+                               END ||
+                              CASE WHEN (A.FXNUM IS NULL AND X.FXNUM IS NOT NULL) OR (NVL(A.FXNUM, ' ') != NVL(X.FXNUM, ' ')) 
+                                   THEN ', ' || A.FXNUM || ' -&gt; ' || X.FXNUM 
+                               END ||
+                              CASE WHEN (decrypt(A.MBTLNUM, 'P007') IS NULL AND decrypt(X.MBTLNUM, 'P007') IS NOT NULL) OR (NVL(decrypt(A.MBTLNUM, 'P007'), ' ')  != NVL(decrypt(X.MBTLNUM, 'P007'), ' ') ) 
+                                   THEN ', ' || decrypt(A.MBTLNUM, 'P007')  || ' -&gt; ' || decrypt(X.MBTLNUM, 'P007')
+                               END ||
+                              CASE WHEN (decrypt(A.EMAIL, 'P008') IS NULL AND decrypt(X.EMAIL, 'P008') IS NOT NULL) OR (NVL(decrypt(A.EMAIL, 'P008'), ' ')   != NVL(decrypt(X.EMAIL, 'P008'), ' ')  ) 
+                                   THEN ', ' || decrypt(A.EMAIL, 'P008')   || ' -&gt; ' || decrypt(X.EMAIL, 'P008')
+                               END ||
+                              CASE WHEN (A.USE_YN  IS NULL AND X.USE_YN  IS NOT NULL) OR (NVL(A.USE_YN, ' ')  != NVL(X.USE_YN, ' ') ) 
+                                   THEN ', ' || A.USE_YN  || ' -&gt; ' || X.USE_YN 
+                               END ||
+                              CASE WHEN (A.OFCPS_CD  IS NULL AND X.OFCPS_CD  IS NOT NULL) OR (A.OFCPS_CD  != X.OFCPS_CD )
+                                   THEN ', ' || (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) || ' -&gt; ' || (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = X.OFCPS_CD)
+                               END ||
+                              CASE WHEN (A.SNS_NTICE_YN  IS NULL AND X.SNS_NTICE_YN  IS NOT NULL) OR (NVL(A.SNS_NTICE_YN, ' ')  != NVL(X.SNS_NTICE_YN, ' ') ) 
+                                   THEN ', ' || A.SNS_NTICE_YN  || ' -&gt; ' || X.SNS_NTICE_YN 
+                               END ||
+                              CASE WHEN (A.CHRG_JOB IS NULL AND X.CHRG_JOB IS NOT NULL) OR (NVL(A.CHRG_JOB, ' ') != NVL(X.CHRG_JOB, ' ')) 
+                                   THEN ', ' || A.CHRG_JOB || ' -&gt; ' || X.CHRG_JOB
+                               END, 3)
+                  FROM OP_MNGR_UPDT_LOG A
+                 WHERE A.MNGR_ID = X.MNGR_ID
+                   AND A.LOG_DT = (SELECT MAX(Z.LOG_DT)
+                                     FROM OP_MNGR_UPDT_LOG Z
+                                    WHERE Z.LOG_DT &lt; X.LOG_DT
+                                      AND Z.MNGR_ID = X.MNGR_ID)
+                   AND ROWNUM = 1) AS changeResutl
+             , UPDT_ID     AS updtId
+		  FROM OP_MNGR_UPDT_LOG X
+         WHERE MNGR_ID = #{mngrId}
+		<if test="q_stDate != null and q_stDate != ''"><if test="q_enDate != null and q_enDate != ''">
+		   AND LOG_DT BETWEEN TO_DATE(#{q_stDate})
+                          AND TO_DATE(#{q_enDate}) + 1
+		</if></if>
+		 ORDER BY LOG_DT DESC
+	</select>
+
+	<select id="changeLogListCount" parameterType="map" resultType="int">
+		/* _mgr.changeLogListCount */
+		SELECT COUNT(*) AS cnt
+		  FROM OP_MNGR_UPDT_LOG
+		 WHERE MNGR_ID = #{mngrId}
+		<if test="q_stDate != null and q_stDate != ''"><if test="q_enDate != null and q_enDate != ''">
+		   AND LOG_DT BETWEEN TO_DATE(#{q_stDate})
+                          AND TO_DATE(#{q_enDate}) + 1
+		</if></if>
+	</select>
+
+	<select id="getDeptTransferInfo" parameterType="map" resultType="mgrVO">
+		/* _mgr.getDeptTransferInfo */
+		SELECT A.MNGR_NM AS mngrNm, B.INDVDLZ_CD_NM AS gradeNm
+		  FROM OP_MNGR A
+		     , OP_CODE_INDVDLZ B
+		 WHERE 1 = 1
+		<if test="langCode != null and langCode != ''">
+	       AND B.LANG_CODE = #{langCode}
+	    </if>
+	    <if test="langCode == null or langCode == ''">
+	       AND B.LANG_CODE = '00'
+	   	</if>
+		   AND B.GROUP_CD(+) = 9	<!-- 직위코드 -->
+		   AND B.INDVDLZ_CD(+) = A.OFCPS_CD
+		   AND A.MNGR_ID IN ( <foreach collection="mgrIds" item="item" separator=", ">#{item}</foreach>)
+         ORDER BY A.MNGR_NM
+	</select>
+
+	<!-- authCd 권한 정보 조회 -->
+	<select id="selectAuthNmByAuthCd" parameterType="mgrVO" resultType="mgrVO">
+		/* _mgr.selectAuthNmByAuthCd */
+		SELECT AUTH_CODE        	AS authCode
+             , UPPER_AUTH_CODE     	AS upperAuthCode
+             , AUTH_NM          	AS authNm
+             , USE_YN           	AS useYn
+             , AUTH_DC        		AS authDc
+             , AUTH_TY_CODE     	AS authTyCode
+          FROM OP_AUTH
+         WHERE AUTH_CODE = #{authCode}
+	</select>
+
+	<!-- 직위명 조회 -->
+	<select id="selectGradeNm" parameterType="mgrVO" resultType="string">
+		/* _mgr.selectGradeNm */
+		SELECT INDVDLZ_CD_NM
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+           <if test="langCode != null and langCode != ''">
+	       AND LANG_CODE = #{langCode}
+	       </if>
+	       <if test="langCode == null or langCode == ''">
+	       AND LANG_CODE = '00'
+	       </if>
+           AND GROUP_CD = 9
+           AND INDVDLZ_CD = #{ofcpsCd}
+	</select>
+
+	<!-- 부서명 조회 -->
+	<select id="selectDeptNm" parameterType="string" resultType="string">
+		/* _mgr.selectDeptNm */
+		SELECT DEPT_NM
+          FROM OP_DEPT
+         WHERE DEPT_CODE = #{deptCode}
+	</select>
+	<!-- 현재 비밀번호 체크 -->
+	<select id="currentPwd" parameterType="mgrVO" resultType="string">
+		/* _mgr.currentPwd */
+		SELECT MNGR_PASSWORD
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = #{mngrId}
+	</select>
+	<!-- 이전 비밀번호 체크 -->
+	<select id="beforePwd" parameterType="mgrVO" resultType="string">
+		/* _mgr.beforePwd */
+		SELECT BEFORE_PASSWORD
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = #{mngrId}
+	</select>
+</mapper>

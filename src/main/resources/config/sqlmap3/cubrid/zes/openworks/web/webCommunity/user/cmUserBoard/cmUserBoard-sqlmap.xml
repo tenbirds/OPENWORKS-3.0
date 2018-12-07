@@ -1,0 +1,1023 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmUserBoard">
+
+		<!-- cmUserBoardWhere  01-->
+		<sql id="cmUserBoardWhere01">
+			<where>
+				tb.LANG_CODE						= #{langCode}
+				AND tb.CMMNTY_ID				= #{cmmntyId}
+				AND tb.WRTER_DELETE_AT				= 'N'
+				AND tb.MNGR_DELETE_AT					= 'N'
+				<if test=' cmmntyMenuCode !=  "" and cmmntyMenuCode  != null '> 
+				AND tb.CMMNTY_MENU_CODE	= #{cmmntyMenuCode}
+				</if>
+				<if test=' othbcSetupCdChk ==  "1"  '> <!-- 비회원 / 로그인 전 -->
+				AND tb.OTHBC_SETUP_CD IN (1001,1002)
+				</if>
+				<if test=' othbcSetupCdChk ==  "2" '> <!-- 회원 / 로그인 후 -->
+				AND tb.OTHBC_SETUP_CD IN (1001,1002,1004)
+				</if>
+				<if test=' othbcSetupCdChk ==  "3" '> <!-- 회원 / 로그인 후/작성자만공개 --> <!-- 4일때는 다 나옴 운영자 -->
+				AND tb.OTHBC_SETUP_CD IN (1001,1002,1003,1004)
+				</if>
+	<!-- 			검색 옵션 : 제목 + 내용 , 태그 , 댓글 내용, 작성자, 댓글 작성자 -->
+				<if test=' q_searchKeyWord !=  ""  and q_searchKeyWord  != null '>
+					<if test=' q_keyWordSearch ==  "2001"  '> <!--  제목 ,내용 -->
+					AND	tb.BBSCTT_SJ ||  tb.BBSCTT_CN LIKE '%' || #{q_searchKeyWord} || '%'
+					</if>
+					<if test=' q_keyWordSearch ==  "2002"  '> <!--  태그 -->
+					AND	b.CMMNTY_BBS_SEQ IN ( SELECT tnti.CMMNTY_BBS_SEQ FROM TCM_NTT_TAG_I tnti WHERE tnti.TAG_NM LIKE '%' || #{q_searchKeyWord} || '%'  GROUP BY tnti.CMMNTY_BBS_SEQ ) 
+					</if>
+					<if test=' q_keyWordSearch ==  "2003"  '> <!-- 댓글 내용 -->
+					AND	tb.CMMNTY_BBS_SEQ IN (SELECT tcbc.CMMNTY_BBS_SEQ FROM TCM_NTT_CMT_I tcbc WHERE tcbc.CMT_CN LIKE  '%' || #{q_searchKeyWord} || '%' AND tcbc.CMT_DELETE_CD IS NULL  GROUP BY tcbc.CMMNTY_BBS_SEQ )
+					</if>
+					<if test=' q_keyWordSearch ==  "2004"  '> <!-- 작성자 -->
+					AND	tbi.WRTER_NCNM LIKE '%' || #{q_searchKeyWord} || '%' 
+					</if>
+					<if test=' q_keyWordSearch ==  "2005"  '> <!-- 댓글 작성자 -->
+					AND	tb.CMMNTY_BBS_SEQ IN (SELECT tcbc.CMMNTY_BBS_SEQ FROM TCM_NTT_CMT_I tcbc WHERE tcbc.WRTER_NCNM LIKE  '%' || #{q_searchKeyWord} || '%' AND tcbc.CMT_DELETE_CD IS NULL GROUP BY tcbc.CMMNTY_BBS_SEQ )
+					</if>
+				</if>
+			</where>
+		</sql>
+		
+			<!-- collection board file tag 리스트 -->
+		 <resultMap id="boardUserViewResult" type="cmManageBoardVO">	    
+		    <result property="atchFileSeq" column="atchFileSeq"/>
+		 	<result property="langCode" column="langCode"/>
+		 	<result property="cmmntyId" column="cmmntyId"/>
+		 	<result property="cmmntyMenuCode" column="cmmntyMenuCode"/>
+		 	<result property="cmmntyBbsSeq" column="cmmntyBbsSeq"/>
+		 	<collection property="cmUserBoardTagCollection" column="{langCode=langCode, cmmntyId=cmmntyId, cmmntyMenuCode=cmmntyMenuCode, cmmntyBbsSeq=cmmntyBbsSeq }"  javaType="java.util.ArrayList"  ofType="cmManageBoardVO" select="cmUserBoardTagList"/>
+	    	<collection property="cmUserBoardFileCollection" column="{atchFileSeq=atchFileSeq}"  javaType="java.util.ArrayList"  ofType="cmManageBoardVO" select="cmUserBoardFileList"/>
+	    </resultMap>
+
+		<!-- 커뮤니티 사용자 게시판 상세 file 리스트  -->
+	    <select id="cmUserBoardFileList" parameterType ="map" resultType="cmManageBoardVO">
+	        	/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardFileList */
+			SELECT 
+				 FILE_SEQ					AS fileSeq		   
+				, FILE_ID					AS fileId		   
+				, FILE_ORDR_NO			AS orderNo	   
+				, LOCAL_ORGINL_NM		AS localNm	
+				, SERVER_FILE_NM			AS serverNm	
+				, FILE_URL					AS fileUrl		   
+				, FILE_SIZE					AS fileSize		   
+				, FILE_TY					AS fileType		   
+				, FILE_EXTSN				AS fileExt		
+				, INPUT_NM				AS inputNm		
+				, DWLD_CNT				AS downCnt		
+				, FILE_BYTE_SIZE			AS fileByteSize
+				, FILE_DC					AS fileDesc	   
+			FROM 
+				OP_FILE
+			WHERE
+				file_seq = #{atchFileSeq}
+			ORDER BY file_ordr_no ASC
+	    </select>
+	    <!--커뮤니티 사용자 게시판 상세 태그 -->
+	    <select id="cmUserBoardTagList"  parameterType="map"  resultType="cmManageBoardVO">
+	    /* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardTagList */
+	    	SELECT
+				LANG_CODE				AS langCode
+				, CMMNTY_ID			AS cmmntyId
+				, CMMNTY_MENU_CODE	AS cmmntyMenuCode
+				, CMMNTY_BBS_SEQ		AS cmmntyBbsSeq
+				, TAG_NM						AS tagNm
+			FROM 
+				TCM_NTT_TAG_I
+			 WHERE
+		 		LANG_CODE							= #{langCode}
+				AND CMMNTY_ID					= #{cmmntyId}
+				AND CMMNTY_MENU_CODE		= #{cmmntyMenuCode}
+				AND CMMNTY_BBS_SEQ			= #{cmmntyBbsSeq} 
+	    </select>
+	<!--      사용자 게시판 상세 -->
+		<select id="cmUserBoardView"  parameterType="cmManageBoardVO"  resultMap="boardUserViewResult">
+			/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardView */
+					SELECT 
+										tb.LANG_CODE					AS langCode			
+								       , tb.CMMNTY_ID 					AS cmmntyId 			
+								       , tb.CMMNTY_MENU_CODE 	AS cmmntyMenuCode 	
+								       , tb.CMMNTY_BBS_SEQ 			AS cmmntyBbsSeq 		
+								       , tb.CMMNTY_BBS_TY_CD 		AS cmmntyBbsTyCd 	   
+								       , tb.CMMNTY_BBS_CD 			AS cmmntyBbsCd 		
+								       , tb.REGIST_ID 						AS registId 			
+								       , TO_CHAR( tb.REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+								       , tb.UPDT_ID 						AS updtId 				
+								       , TO_CHAR( tb.UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+								       , tb.BBSCTT_SJ 						AS bbscttSj 			
+								       , tb.BBSCTT_CN 					AS bbscttCn 			
+								       , tb.CN_SUMRY 					AS cnSumry 			
+								       , tb.ATCH_FILE_SEQ 				AS atchFileSeq 		   
+								       , tb.OTHBC_SETUP_CD			AS othbcSetupCd		
+								       , tb.RDCNT 							AS rdcnt 				
+								       , tb.ANSWER_CN 					AS answerCn 			
+								       , tb.ANSWER_ID 					AS answerId 			
+								       , TO_CHAR( tb.ANSWER_DT, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+								       , tb.WRTER_DELETE_AT 			AS wrterDeleteAt 		
+								       , tb.MNGR_DELETE_AT 			AS mngrDeleteAt 		
+								       , tb.ACCES_IP_ADRES 			AS accessIpAdres 		
+								       , tb.ACCES_BRWSR_AGENT		AS accessBrwsrAgent	  
+								       , tb.NOTICE_BBSCTT_AT			AS noticeBbscttAt
+								       , tb.WRTER_NCNM					AS wrterNcnm
+								       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+								       	  FROM TCM_NTT_CMT_I tbc 
+								       	  WHERE 
+								       	  	tbc.LANG_CODE = tb.LANG_CODE
+								       	   	AND tbc.CMMNTY_ID = tb.CMMNTY_ID
+								       	   	AND tbc.CMMNTY_MENU_CODE = tb.CMMNTY_MENU_CODE
+								       	   	AND tbc.CMMNTY_BBS_SEQ = tb.CMMNTY_BBS_SEQ 
+								       	   	AND tbc.CMT_DELETE_CD IS NULL
+								       	 ) AS cmBbsCmtCount
+								       	 ,(SELECT SUM (F.DWLD_CNT)
+							               FROM OP_FILE F
+							             WHERE F.FILE_SEQ = tb.ATCH_FILE_SEQ ) AS downCnt
+							           , (SELECT tbia.NCNM FROM TCM_CMNT_MBER_I tbia 
+											WHERE  tbia.CMMNTY_ID = tb.CMMNTY_ID
+												AND tbia.LANG_CODE = tb.LANG_CODE
+												AND tbia.CMMNTY_MBER_ID= tb.ANSWER_ID 
+										) AS answerNcnm 
+							           , tbi.NCNM							AS ncnm
+							          
+							  FROM 
+							  	TCM_CMNT_NTT_I tb
+								LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi
+	        					ON   tbi.CMMNTY_ID						= tb.CMMNTY_ID
+								AND tbi.LANG_CODE						= tb.LANG_CODE
+								AND tbi.CMMNTY_MBER_ID				= tb.REGIST_ID
+							 WHERE
+							 		tb.LANG_CODE						= #{langCode}
+									AND tb.CMMNTY_ID				= #{cmmntyId}
+									AND tb.CMMNTY_MENU_CODE	= #{cmmntyMenuCode}
+									AND tb.CMMNTY_BBS_SEQ		= #{cmmntyBbsSeq}
+		</select>
+	
+		<!--  사용자 게시판 -->
+		<select id="cmUserBoardList" parameterType="map" resultType="cmManageBoardVO">
+			/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardList */
+			SELECT * FROM
+					( SELECT		
+							A.langCode	        
+							, A.cmmntyId 	      
+							, A.cmmntyMenuCode 	            
+							, A.cmmntyBbsSeq        
+							, A.cmmntyBbsTyCd 	          
+							, A.cmmntyBbsCd          
+							, A.registId 	    
+							, A.registDt
+							, A.updtId    
+							, A.updtDt 	
+							, A.bbscttSj 	    
+							, A.bbscttCn 	      
+							, A.cnSumry 	        
+							, A.atchFileSeq        
+							, A.othbcSetupCd          
+							, A.rdcnt    
+							, A.answerCn 	      
+							, A.answerId 	      
+							, A.answerDt
+							, A.wrterDeleteAt      
+							, A.mngrDeleteAt        
+							, A.accessIpAdres      
+							, A.accessBrwsrAgent
+							, A.wrterNcnm
+							, A.cmBbsCmtCount
+							, A.noticeBbscttAt
+							, A.downCnt
+							, A.answerNcnm
+							, A.ncnm
+							, ROWNUM RNUM
+						FROM
+							(SELECT 
+									tb.LANG_CODE					AS langCode			
+							       , tb.CMMNTY_ID 					AS cmmntyId 			
+							       , tb.CMMNTY_MENU_CODE 	AS cmmntyMenuCode 	
+							       , tb.CMMNTY_BBS_SEQ 			AS cmmntyBbsSeq 		
+							       , tb.CMMNTY_BBS_TY_CD 		AS cmmntyBbsTyCd 	   
+							       , tb.CMMNTY_BBS_CD 			AS cmmntyBbsCd 		
+							       , tb.REGIST_ID 						AS registId 			
+							       , TO_CHAR( tb.REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+							       , tb.UPDT_ID 						AS updtId 				
+							       , TO_CHAR( tb.UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+							       , tb.BBSCTT_SJ 						AS bbscttSj 			
+							       , tb.BBSCTT_CN 					AS bbscttCn 			
+							       , tb.CN_SUMRY 					AS cnSumry 			
+							       , tb.ATCH_FILE_SEQ 				AS atchFileSeq	   
+							       , tb.OTHBC_SETUP_CD			AS othbcSetupCd		
+							       , tb.RDCNT 							AS rdcnt 				
+							       , tb.ANSWER_CN 					AS answerCn 			
+							       , tb.ANSWER_ID 					AS answerId 			
+							       , TO_CHAR( tb.ANSWER_DT, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+							       , tb.WRTER_DELETE_AT 			AS wrterDeleteAt 		
+							       , tb.MNGR_DELETE_AT 			AS mngrDeleteAt 		
+							       , tb.ACCES_IP_ADRES 			AS accessIpAdres 		
+							       , tb.ACCES_BRWSR_AGENT		AS accessBrwsrAgent	  
+							       , tb.NOTICE_BBSCTT_AT			AS noticeBbscttAt
+							       , tb.WRTER_NCNM					AS wrterNcnm
+							       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+							       	  FROM TCM_NTT_CMT_I tbc 
+							       	  WHERE 
+							       	  	tbc.LANG_CODE = tb.LANG_CODE
+							       	   	AND tbc.CMMNTY_ID = tb.CMMNTY_ID
+							       	   	AND tbc.CMMNTY_MENU_CODE = tb.CMMNTY_MENU_CODE
+							       	   	AND tbc.CMMNTY_BBS_SEQ = tb.CMMNTY_BBS_SEQ 
+							       	   	AND tbc.CMT_DELETE_CD IS NULL
+							       	 ) AS cmBbsCmtCount
+							       	 ,(SELECT SUM(F.DWLD_CNT)
+						               FROM OP_FILE F
+						             WHERE F.FILE_SEQ = tb.ATCH_FILE_SEQ ) AS downCnt
+						           , (SELECT tbia.NCNM FROM TCM_CMNT_MBER_I tbia 
+											WHERE  tbia.CMMNTY_ID = tb.CMMNTY_ID
+												AND tbia.LANG_CODE = tb.LANG_CODE
+												AND tbia.CMMNTY_MBER_ID= tb.ANSWER_ID 
+										) AS answerNcnm 
+						           , tbi.NCNM							AS ncnm
+						       
+						  FROM 
+						  	TCM_CMNT_NTT_I tb
+							LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi
+        					ON   tbi.CMMNTY_ID						= tb.CMMNTY_ID
+							AND tbi.LANG_CODE						= tb.LANG_CODE
+							AND tbi.CMMNTY_MBER_ID				= tb.REGIST_ID
+							<include refid="cmUserBoardWhere01"/>
+							
+							ORDER BY   
+							<if test=' cmmntyBbsTyCd ==  1001 '>
+								tb.NOTICE_BBSCTT_AT DESC,
+							</if>
+							tb.REGIST_DT DESC
+						) A
+				)
+			WHERE 
+			RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+		</select>
+		
+		
+			<!-- 커뮤니티 게시판 카운트  -->
+		<select id="cmUserBoardListCount" parameterType="map" resultType="int">
+		/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardListCount */
+					SELECT		
+							COUNT (A.cmmntyBbsSeq)        
+						FROM
+							(SELECT 
+									tb.LANG_CODE					AS langCode			
+							       , tb.CMMNTY_ID 					AS cmmntyId 			
+							       , tb.CMMNTY_MENU_CODE 	AS cmmntyMenuCode 	
+							       , tb.CMMNTY_BBS_SEQ 			AS cmmntyBbsSeq 		
+							       , tb.CMMNTY_BBS_TY_CD 		AS cmmntyBbsTyCd 	   
+							       , tb.CMMNTY_BBS_CD 			AS cmmntyBbsCd 		
+							       , tb.REGIST_ID 						AS registId 			
+							       , TO_CHAR( tb.REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+							       , tb.UPDT_ID 						AS updtId 				
+							       , TO_CHAR( tb.UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+							       , tb.BBSCTT_SJ 						AS bbscttSj 			
+							       , tb.BBSCTT_CN 					AS bbscttCn 			
+							       , tb.CN_SUMRY 					AS cnSumry 			
+							       , tb.ATCH_FILE_SEQ 				AS atchFileSeq 		   
+							       , tb.OTHBC_SETUP_CD			AS othbcSetupCd		
+							       , tb.RDCNT 							AS rdcnt 				
+							       , tb.ANSWER_CN 					AS answerCn 			
+							       , tb.ANSWER_ID 					AS answerId 			
+							       , TO_CHAR( tb.ANSWER_DT, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+							       , tb.WRTER_DELETE_AT 			AS wrterDeleteAt 		
+							       , tb.MNGR_DELETE_AT 			AS mngrDeleteAt 		
+							       , tb.ACCES_IP_ADRES 			AS accessIpAdres 		
+							       , tb.ACCES_BRWSR_AGENT		AS accessBrwsrAgent	  
+							       , tb.NOTICE_BBSCTT_AT			AS noticeBbscttAt
+							       , tb.WRTER_NCNM					AS wrterNcnm
+							       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+							       	  FROM TCM_NTT_CMT_I tbc 
+							       	  WHERE 
+							       	  	tbc.LANG_CODE = tb.LANG_CODE
+							       	   	AND tbc.CMMNTY_ID = tb.CMMNTY_ID
+							       	   	AND tbc.CMMNTY_MENU_CODE = tb.CMMNTY_MENU_CODE
+							       	   	AND tbc.CMMNTY_BBS_SEQ = tb.CMMNTY_BBS_SEQ 
+							       	   	AND tbc.CMT_DELETE_CD IS NULL
+							       	   	) AS cmBbsCmtCount
+							       	 ,(SELECT SUM(F.DWLD_CNT)
+						               FROM OP_FILE F
+						             WHERE F.FILE_SEQ = tb.ATCH_FILE_SEQ ) AS downCnt
+						           , tbi.NCNM							AS ncnm
+						  FROM 
+							TCM_CMNT_NTT_I tb
+							LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi
+        					ON   tbi.CMMNTY_ID						= tb.CMMNTY_ID
+							AND tbi.LANG_CODE						= tb.LANG_CODE
+							AND tbi.CMMNTY_MBER_ID						= tb.REGIST_ID
+							<include refid="cmUserBoardWhere01"/>
+						) A
+		</select>
+		
+				<!-- 커뮤니티 게시판 작성자만(1003) 글 카운트  -->
+		<select id="cmUserWriteBoardListCount" parameterType="cmManageBoardVO" resultType="int">
+		/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserWriteBoardListCount */
+					SELECT		
+							COUNT (A.cmmntyBbsSeq)        
+					FROM
+						(SELECT 
+								tb.LANG_CODE					AS langCode			
+						       , tb.CMMNTY_ID 					AS cmmntyId 			
+						       , tb.CMMNTY_MENU_CODE 	AS cmmntyMenuCode 	
+						       , tb.CMMNTY_BBS_SEQ 			AS cmmntyBbsSeq 		
+						       , tb.CMMNTY_BBS_TY_CD 		AS cmmntyBbsTyCd 	   
+						       , tb.CMMNTY_BBS_CD 			AS cmmntyBbsCd 		
+						       , tb.REGIST_ID 						AS registId 			
+						       , TO_CHAR( tb.REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+						       , tb.UPDT_ID 						AS updtId 				
+						       , TO_CHAR( tb.UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+						       , tb.BBSCTT_SJ 						AS bbscttSj 			
+						       , tb.BBSCTT_CN 					AS bbscttCn 			
+						       , tb.CN_SUMRY 					AS cnSumry 			
+						       , tb.ATCH_FILE_SEQ 				AS atchFileSeq 		   
+						       , tb.OTHBC_SETUP_CD			AS othbcSetupCd		
+						       , tb.RDCNT 							AS rdcnt 				
+						       , tb.ANSWER_CN 					AS answerCn 			
+						       , tb.ANSWER_ID 					AS answerId 			
+						       , TO_CHAR( tb.ANSWER_DT, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+						       , tb.WRTER_DELETE_AT 			AS wrterDeleteAt 		
+						       , tb.MNGR_DELETE_AT 			AS mngrDeleteAt 		
+						       , tb.ACCES_IP_ADRES 			AS accessIpAdres 		
+						       , tb.ACCES_BRWSR_AGENT		AS accessBrwsrAgent	  
+						       , tb.NOTICE_BBSCTT_AT			AS noticeBbscttAt
+						        , tb.WRTER_NCNM					AS wrterNcnm
+					FROM 
+						TCM_CMNT_NTT_I tb
+					WHERE
+						 	 tb.LANG_CODE						= #{langCode}
+							AND tb.CMMNTY_ID				= #{cmmntyId}
+							AND tb.WRTER_DELETE_AT				= 'N'
+							AND tb.MNGR_DELETE_AT					= 'N'
+							AND tb.CMMNTY_MENU_CODE	= #{cmmntyMenuCode}
+							AND tb.OTHBC_SETUP_CD   =  1003
+							AND tb.REGIST_ID 				= #{registId}
+						) A
+		</select>
+<!-- 	  커뮤니티 게시판 이전글 / 다음글 --> 
+		<sql id ="cmUserBoardPrevNextList" >
+		/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardPrevNextList */
+			SELECT		
+								A.langCode	        
+								, A.cmmntyId 	      
+								, A.cmmntyMenuCode 	            
+								, A.cmmntyBbsSeq        
+								, A.cmmntyBbsTyCd 	          
+								, A.cmmntyBbsCd          
+								, A.registId 	    
+								, A.registDt
+								, A.updtId    
+								, A.updtDt 	
+								, A.bbscttSj 	    
+								, A.bbscttCn 	      
+								, A.cnSumry 	        
+								, A.atchFileSeq        
+								, A.othbcSetupCd          
+								, A.rdcnt    
+								, A.answerCn 	      
+								, A.answerId 	      
+								, A.answerDt
+								, A.wrterDeleteAt      
+								, A.mngrDeleteAt        
+								, A.accessIpAdres      
+								, A.accessBrwsrAgent
+								, A.wrterNcnm
+								, A.cmBbsCmtCount
+								, A.noticeBbscttAt
+								, A.downCnt
+								, A.ncnm
+								, ROWNUM AS PrevNextRnum
+							FROM
+								(SELECT 
+										tb.LANG_CODE					AS langCode			
+								       , tb.CMMNTY_ID 					AS cmmntyId 			
+								       , tb.CMMNTY_MENU_CODE 	AS cmmntyMenuCode 	
+								       , tb.CMMNTY_BBS_SEQ 			AS cmmntyBbsSeq 		
+								       , tb.CMMNTY_BBS_TY_CD 		AS cmmntyBbsTyCd 	   
+								       , tb.CMMNTY_BBS_CD 			AS cmmntyBbsCd 		
+								       , tb.REGIST_ID 						AS registId 			
+								       , TO_CHAR( tb.REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+								       , tb.UPDT_ID 						AS updtId 				
+								       , TO_CHAR( tb.UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+								       , tb.BBSCTT_SJ 						AS bbscttSj 			
+								       , tb.BBSCTT_CN 					AS bbscttCn 			
+								       , tb.CN_SUMRY 					AS cnSumry 			
+								       , tb.ATCH_FILE_SEQ 				AS atchFileSeq 		   
+								       , tb.OTHBC_SETUP_CD			AS othbcSetupCd		
+								       , tb.RDCNT 							AS rdcnt 				
+								       , tb.ANSWER_CN 					AS answerCn 			
+								       , tb.ANSWER_ID 					AS answerId 			
+								       , TO_CHAR( tb.ANSWER_DT, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+								       , tb.WRTER_DELETE_AT 			AS wrterDeleteAt 		
+								       , tb.MNGR_DELETE_AT 			AS mngrDeleteAt 		
+								       , tb.ACCES_IP_ADRES 			AS accessIpAdres 		
+								       , tb.ACCES_BRWSR_AGENT		AS accessBrwsrAgent	
+								       , tb.NOTICE_BBSCTT_AT			AS noticeBbscttAt  
+								       , tb.WRTER_NCNM					AS wrterNcnm
+								       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+								       	  FROM TCM_NTT_CMT_I tbc 
+								       	  WHERE 
+								       	  	tbc.LANG_CODE = tb.LANG_CODE
+								       	   	AND tbc.CMMNTY_ID = tb.CMMNTY_ID
+								       	   	AND tbc.CMMNTY_MENU_CODE = tb.CMMNTY_MENU_CODE
+								       	   	AND tbc.CMMNTY_BBS_SEQ = tb.CMMNTY_BBS_SEQ 
+								       	   	AND tbc.CMT_DELETE_CD IS NULL
+								       	 ) AS cmBbsCmtCount
+								       	, (SELECT SUM(F.DWLD_CNT)
+							               FROM OP_FILE F
+							             	WHERE F.FILE_SEQ = tb.ATCH_FILE_SEQ ) AS downCnt
+							           , tbi.NCNM							AS ncnm
+							  FROM 
+							  	TCM_CMNT_NTT_I tb
+								LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi
+	        					ON   tbi.CMMNTY_ID						= tb.CMMNTY_ID
+								AND tbi.LANG_CODE						= tb.LANG_CODE
+								AND tbi.CMMNTY_MBER_ID				= tb.REGIST_ID
+								<include refid="cmUserBoardWhere01"/>
+								ORDER BY   
+								<if test=' cmmntyBbsTyCd == 1001 '>
+									tb.NOTICE_BBSCTT_AT DESC,
+								</if>
+								tb.REGIST_DT DESC
+							) A
+		</sql>
+	
+	 <!--  사용자 게시판 상세 이전글 -->
+	<select id="cmUserBoardRrevView"  parameterType="cmManageBoardVO"  resultType="cmManageBoardVO" >
+	/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardRrevView */
+		SELECT 
+							A.langCode			
+					       , A.cmmntyId 			
+					       , A.cmmntyMenuCode 	
+					       , A.cmmntyBbsSeq 		
+					       , A.cmmntyBbsTyCd 	   
+					       , A.cmmntyBbsCd 		
+					       , A.registId 			
+					       , TO_CHAR( A.registDt, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+					       , A.updtId 				
+					       , TO_CHAR( A.updtDt, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+					       , A.bbscttSj 			
+					       , A.bbscttCn 			
+					       , A.cnSumry 			
+					       , A.atchFileSeq 		   
+					       , A.othbcSetupCd		
+					       , A.rdcnt 				
+					       , A.answerCn 			
+					       , A.answerId 			
+					       , TO_CHAR( A.answerDt, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+					       , A.wrterDeleteAt 			
+					       , A.mngrDeleteAt 			
+					       , A.accessIpAdres 				
+					       , A.accessBrwsrAgent		
+					       , A.noticeBbscttAt			
+					       , A.wrterNcnm
+					       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+					       	  FROM TCM_NTT_CMT_I tbc 
+					       	  WHERE 
+					       	  	tbc.LANG_CODE = A.langCode
+					       	   	AND tbc.CMMNTY_ID = A.cmmntyId
+					       	   	AND tbc.CMMNTY_MENU_CODE = A.cmmntyMenuCode
+					       	   	AND tbc.CMMNTY_BBS_SEQ = A.cmmntyBbsSeq 
+					       	   	AND tbc.CMT_DELETE_CD IS NULL
+					       	 ) AS cmBbsCmtCount
+					       	 ,(SELECT SUM(F.DWLD_CNT)
+				               FROM OP_FILE F
+				             WHERE F.FILE_SEQ = A.atchFileSeq ) AS downCnt
+				           , A.ncnm
+				  FROM (<include refid="cmUserBoardPrevNextList"/>) A
+				 WHERE
+				 		A.PrevNextRnum = (
+					 		SELECT (B.PrevNextRnum - 1)
+					 		FROM (<include refid="cmUserBoardPrevNextList"/>) B
+						 	WHERE
+						 		B.langCode						= #{langCode}
+								AND B.cmmntyId				= #{cmmntyId}
+								AND B.cmmntyMenuCode	= #{cmmntyMenuCode}
+								AND B.cmmntyBbsSeq		= #{cmmntyBbsSeq}
+							) 
+		</select>
+		
+		<!--  사용자 게시판 상세 다음글-->
+		<select id="cmUserBoardNextView"  parameterType="cmManageBoardVO"  resultType="cmManageBoardVO">
+		/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardNextView */
+			SELECT 
+							A.langCode			
+					       , A.cmmntyId 			
+					       , A.cmmntyMenuCode 	
+					       , A.cmmntyBbsSeq 		
+					       , A.cmmntyBbsTyCd 	   
+					       , A.cmmntyBbsCd 		
+					       , A.registId 			
+					       , TO_CHAR( A.registDt, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+					       , A.updtId 				
+					       , TO_CHAR( A.updtDt, 'YYYY-MM-DD HH24:MI') 			AS updtDt 				
+					       , A.bbscttSj 			
+					       , A.bbscttCn 			
+					       , A.cnSumry 			
+					       , A.atchFileSeq 		   
+					       , A.othbcSetupCd		
+					       , A.rdcnt 				
+					       , A.answerCn 			
+					       , A.answerId 			
+					       , TO_CHAR( A.answerDt, 'YYYY-MM-DD HH24:MI')			AS answerDt 			
+					       , A.wrterDeleteAt 			
+					       , A.mngrDeleteAt 			
+					       , A.accessIpAdres 				
+					       , A.accessBrwsrAgent		
+					       , A.noticeBbscttAt	
+					       , A.wrterNcnm		
+					       , (SELECT COUNT(tbc.CMMNTY_CMT_SEQ) 
+					       	  FROM TCM_NTT_CMT_I tbc 
+					       	  WHERE 
+					       	  	tbc.LANG_CODE = A.langCode
+					       	   	AND tbc.CMMNTY_ID = A.cmmntyId
+					       	   	AND tbc.CMMNTY_MENU_CODE = A.cmmntyMenuCode
+					       	   	AND tbc.CMMNTY_BBS_SEQ = A.cmmntyBbsSeq 
+					       	   	AND tbc.CMT_DELETE_CD IS NULL
+					       	 ) AS cmBbsCmtCount
+					       	 ,(SELECT SUM(F.DWLD_CNT)
+				               FROM OP_FILE F
+				             WHERE F.FILE_SEQ = A.atchFileSeq ) AS downCnt
+				           , A.ncnm
+ 				  FROM (<include refid="cmUserBoardPrevNextList"/>) A
+				 WHERE
+				 		A.PrevNextRnum = (
+					 		SELECT (B.PrevNextRnum + 1)
+ 					 		FROM (<include refid="cmUserBoardPrevNextList"/>) B
+						 	WHERE
+						 		B.langCode						= #{langCode}
+								AND B.cmmntyId				= #{cmmntyId}
+								AND B.cmmntyMenuCode	= #{cmmntyMenuCode}
+								AND B.cmmntyBbsSeq		= #{cmmntyBbsSeq}
+							) 
+		</select>
+		
+		<!-- 커뮤니티 사용자 게시판 입력 하기  -->
+		<insert  id="cmUserBoardInsert" parameterType="cmManageBoardVO" >
+			/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardInsert */
+			INSERT INTO TCM_CMNT_NTT_I (
+						 LANG_CODE
+						 , CMMNTY_ID
+						 , CMMNTY_MENU_CODE
+						 , CMMNTY_BBS_SEQ
+						 , CMMNTY_BBS_TY_CD
+						 , CMMNTY_BBS_CD
+						 , REGIST_ID
+						 , REGIST_DT
+						 , BBSCTT_SJ
+						 , BBSCTT_CN
+						 , CN_SUMRY
+						 , ATCH_FILE_SEQ
+						 , OTHBC_SETUP_CD
+						 , ACCES_IP_ADRES
+						 , ACCES_BRWSR_AGENT
+						 , NOTICE_BBSCTT_AT
+						 , WRTER_NCNM
+			)VALUES (                                                  
+					 #{langCode}
+					, #{cmmntyId}
+					, #{cmmntyMenuCode}
+<!-- 					, (SELECT NVL(MAX(CMMNTY_BBS_SEQ),0)+1 -->
+<!-- 				       		FROM TCM_CMNT_NTT_I -->
+<!-- 						WHERE  -->
+<!-- 							CMMNTY_ID = #{cmmntyId} -->
+<!-- 							AND CMMNTY_MENU_CODE = #{cmmntyMenuCode} -->
+<!-- 							AND LANG_CODE = #{langCode} -->
+<!-- 						) -->
+					, #{cmmntyBbsSeq}
+					, #{cmmntyBbsTyCd}  /* 게시판 타입 1001:기본형		1002:FAQ형		1003:갤러리형		1004:답변형 */
+					, #{cmmntyBbsCd}
+					, #{registId}
+					, SYSDATETIME
+					, #{bbscttSj}   /* 게시글제목  */
+					, #{bbscttCn}  /* 게시글내용  */
+					, #{cnSumry} /* 내용요약  */
+					, #{atchFileSeq} /* 업로드 파일 순번 */
+					, #{othbcSetupCd}  /* 공개설정코드  */
+					, #{accessIpAdres}  /* 접속 아이피 */
+					, #{accessBrwsrAgent} /* 접속 브라우저 */
+					, #{noticeBbscttAt} /* 공지 설정 여부 */
+					, #{wrterNcnm} /* 작성자 닉네임 */
+			)		
+		</insert>
+		<!--   커뮤니티 사용자 게시판 순번  -->
+		<select id ="cmUserBoardBBSseq" parameterType="cmManageBoardVO" resultType="int">
+		/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardBBSseq */
+			SELECT NVL(MAX(CMMNTY_BBS_SEQ),0)+1
+				       		FROM TCM_CMNT_NTT_I
+						WHERE 
+							CMMNTY_ID = #{cmmntyId}
+							AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+							AND LANG_CODE = #{langCode}
+		</select>
+		
+		<!--  커뮤니티 사용자 게시판 수정 하기  -->
+		<update  id="cmUserBoardUpdate" parameterType="cmManageBoardVO" >
+				/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardUpdate */
+				UPDATE 
+					TCM_CMNT_NTT_I 
+				SET 
+				       BBSCTT_SJ						= #{bbscttSj}
+				       , BBSCTT_CN					= #{bbscttCn}
+				       , CN_SUMRY					= #{cnSumry}
+				       , ATCH_FILE_SEQ				= #{atchFileSeq}
+				       , OTHBC_SETUP_CD			= #{othbcSetupCd}
+				       , ACCES_IP_ADRES			= #{accessIpAdres}
+				       , ACCES_BRWSR_AGENT	= #{accessBrwsrAgent}
+				       , UPDT_ID						= #{updtId}
+<!-- 				       , RDCNT							= RDCNT + 1 -->
+				       , UPDT_DT						= SYSDATETIME
+			        	<if test=' noticeBbscttAt ==  "Y" and noticeBbscttAt  != null and noticeBbscttAt != "" '>
+			        	 , NOTICE_BBSCTT_AT		= #{noticeBbscttAt}
+			        	</if>
+				 WHERE     
+				        LANG_CODE			 		= #{langCode}
+				       AND CMMNTY_ID		 		= #{cmmntyId}
+				       AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				       AND CMMNTY_BBS_SEQ	 = #{cmmntyBbsSeq}
+       </update>
+       
+       <!--  커뮤니티 사용자 게시판 답변 하기  -->
+		<update  id="cmUserBoardAnswerUpdate" parameterType="cmManageBoardVO" >
+				/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardAnswerUpdate */
+				UPDATE 
+					TCM_CMNT_NTT_I 
+				SET 
+				       ANSWER_CN					= #{answerCn}
+				       , ANSWER_ID					= #{answerId}
+				       , ANSWER_DT					= SYSDATETIME
+				 WHERE     
+				        LANG_CODE			 		= #{langCode}
+				       AND CMMNTY_ID		 		= #{cmmntyId}
+				       AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				       AND CMMNTY_BBS_SEQ	 = #{cmmntyBbsSeq}
+       </update>
+       <!--  커뮤니티 사용자 게시판 수정 작성자 운영자 삭제 하기  -->
+		<update  id="cmUserBoardDelUpdate" parameterType="cmManageBoardVO" >
+				/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardDelUpdate */
+				UPDATE 
+					TCM_CMNT_NTT_I 
+				SET 
+<!-- 				    	ATCH_FILE_SEQ				= #{atchFileSeq},  -->
+				       ACCES_IP_ADRES			= #{accessIpAdres}
+				       , ACCES_BRWSR_AGENT	= #{accessBrwsrAgent}
+				       , UPDT_ID						= #{updtId}
+				       , UPDT_DT						= SYSDATETIME
+				       <if test=' wrterDeleteAt ==  "Y" '> 
+				       , WRTER_DELETE_AT 			= #{wrterDeleteAt} <!--  작성자 및 운영자 삭제 Y --> 
+				       </if>
+				       <if test=' mngrDeleteAt ==  "Y" '> 
+				       , MNGR_DELETE_AT			= #{mngrDeleteAt}
+				       </if>
+				 WHERE     
+				        LANG_CODE			 		= #{langCode}
+				       AND CMMNTY_ID		 		= #{cmmntyId}
+				       AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				       AND CMMNTY_BBS_SEQ	 = #{cmmntyBbsSeq}
+       </update>
+        	<!-- 커뮤니티 사용자 게시판 삭제시 댓글/답글 삭제 하기  -->
+		<update id="cmUserBoardCmtDelUpdate"  parameterType="cmManageBoardVO" >
+			/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtDelUpdate */
+			UPDATE TCM_NTT_CMT_I 
+			SET 
+			 WRTER_IP_ADRES	= #{wrterIpAdres}
+			, UPDT_ID			= #{updtId}
+			, UPDT_DT			= SYSDATETIME
+			, CMT_DELETE_CD    = #{cmtDeleteCd} <!--   댓글삭제코드   1001 작성자삭제 1002 운영자삭제 1003 관리자삭제 -->
+			WHERE 
+				LANG_CODE		= #{langCode} 
+				AND CMMNTY_ID	= #{cmmntyId}
+				AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				AND CMMNTY_BBS_SEQ	= #{cmmntyBbsSeq}
+		</update>
+       <!--  커뮤니티 사용자 게시판 첨부파일 삭제 하기  -->
+		<update  id="cmUserBoardFileUpdate" parameterType="cmManageBoardVO" >
+				/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardFileUpdate */
+				UPDATE 
+					TCM_CMNT_NTT_I 
+				SET   
+				       ATCH_FILE_SEQ				= #{atchFileSeq}
+				       , ACCES_IP_ADRES			= #{accessIpAdres}
+				       , ACCES_BRWSR_AGENT	= #{accessBrwsrAgent}
+				       , UPDT_ID						= #{updtId}
+				       , UPDT_DT						= SYSDATETIME
+				 WHERE     
+				        LANG_CODE			 		= #{langCode}
+				       AND CMMNTY_ID		 		= #{cmmntyId}
+				       AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				       AND CMMNTY_BBS_SEQ	 = #{cmmntyBbsSeq}
+       </update>
+       
+      
+		<!--커뮤니티 사용자 게시판 카운트 증가 -->
+	    <update id="cmUserBoardRDCNTUpdate" parameterType="cmManageBoardVO">
+	     /* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardRdcntUpdate*/      
+	        UPDATE TCM_CMNT_NTT_I 
+	           SET 
+	           		RDCNT = RDCNT + 1
+	          WHERE     
+				        LANG_CODE			 		= #{langCode}
+				       AND CMMNTY_ID		 		= #{cmmntyId}
+				       AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				       AND CMMNTY_BBS_SEQ	 = #{cmmntyBbsSeq}
+	    </update>
+<!-- 	    커뮤니티 사용자 게시판 태그 -->
+<!-- 	    <select id="cmUserBoardTagList"  parameterType="cmManageBoardVO"  resultType="cmManageBoardVO"> -->
+<!-- 	    /* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardTagList */ -->
+<!-- 	    	SELECT -->
+<!-- 				lang_code				AS langCode -->
+<!-- 				, cmmnty_id			AS cmmntyId -->
+<!-- 				, cmmnty_menu_code	AS cmmntyMenuCode -->
+<!-- 				, cmmnty_bbs_seq		AS cmmntyBbsSeq -->
+<!-- 				, tag_nm						AS tagNm -->
+<!-- 			FROM  -->
+<!-- 				TCM_NTT_TAG_I -->
+<!-- 			 WHERE -->
+<!-- 		 		LANG_CODE							= #{langCode} -->
+<!-- 				AND CMMNTY_ID					= #{cmmntyId} -->
+<!-- 				AND CMMNTY_MENU_CODE		= #{cmmntyMenuCode} -->
+<!-- 				AND CMMNTY_BBS_SEQ			= #{cmmntyBbsSeq}  -->
+<!-- 	    </select> -->
+	      <!--커뮤니티 사용자 게시판 태그 등록 -->
+	    <insert id="cmUserBoardTagInsert" parameterType="cmManageBoardVO" >
+	    	/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardTagInsert */
+	    	INSERT INTO TCM_NTT_TAG_I (
+					LANG_CODE
+					, CMMNTY_ID
+					, CMMNTY_MENU_CODE
+					, CMMNTY_BBS_SEQ
+					, TAG_NM 
+				)VALUES (
+					 #{langCode}                  
+					 , #{cmmntyId}               
+					 , #{cmmntyMenuCode}   
+					 , #{cmmntyBbsSeq}        
+					 , #{tagNm}       
+				)
+	    </insert>
+	    <!--커뮤니티 사용자 게시판 태그 삭제 업데이트 시 삭제 후 등록 -->
+	    <delete id="cmUserBoardTagDelete" parameterType="cmManageBoardVO" >
+	    	/* cmUserBoard-sqlmap.xml  _cmUserBoard.cmUserBoardTagDelete */
+	    	DELETE FROM 
+	    		TCM_NTT_TAG_I 
+			WHERE 
+				LANG_CODE				= #{langCode}  
+				AND CMMNTY_ID			= #{cmmntyId} 
+				AND CMMNTY_MENU_CODE	= #{cmmntyMenuCode}   
+				AND CMMNTY_BBS_SEQ		= #{cmmntyBbsSeq} 
+	    </delete>
+	    
+	    		<!--  커뮤니티 사용자 게시판 댓글 완전 삭제 -->
+		<delete	id="cmUserBoardCmtDelete" parameterType="cmManageBoardVO" >
+		/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtDelete */
+				DELETE FROM 
+				    TCM_NTT_CMT_I 
+				WHERE 
+				LANG_CODE = #{langCode}
+				AND CMMNTY_ID = #{cmmntyId}
+				AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				AND CMMNTY_BBS_SEQ = #{cmmntyBbsSeq}
+		</delete>
+		
+		<!-- 커뮤니티 사용자 게시판 댓글 리스트  -->
+		<select id="cmUserBoardCmtList" parameterType="map" resultType="cmManageBoardVO">
+			/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtList */
+			SELECT * FROM
+				( SELECT		
+					 A.langCode                        
+					, A.cmmntyId                       
+					, A.cmmntyMenuCode           
+					, A.cmmntyBbsSeq                
+					, A.cmmntyCmtSeq               
+					, A.refrnCmtSeq	             
+					, A.cmtDp                            
+					, A.cmtSortOrdr                    
+					, A.cmtCn                            
+					, A.wrterIpAdres                   
+					, A.registId   
+					, A.registDt 	      
+					, A.updtId
+					, A.updtDt   
+					, A.cmtDeleteCd
+					, A.wrterNcnm
+					, (SELECT tbi.NCNM FROM TCM_CMNT_MBER_I tbi 
+						WHERE  tbi.CMMNTY_ID = A.cmmntyId 
+							AND tbi.LANG_CODE = A.langCode
+							AND tbi.CMMNTY_MBER_ID= A.registId
+						) AS ncnm
+					, ROWNUM RNUM
+					, secretYn
+					FROM
+						(SELECT 
+								 tbcm.LANG_CODE						AS	langCode
+								, tbcm.CMMNTY_ID						AS	cmmntyId
+								, tbcm.CMMNTY_MENU_CODE		AS	cmmntyMenuCode
+								, tbcm.CMMNTY_BBS_SEQ				AS	cmmntyBbsSeq
+								, tbcm.CMMNTY_CMT_SEQ			AS	cmmntyCmtSeq
+								, tbcm.REFRN_CMT_SEQ				AS	refrnCmtSeq	
+								, tbcm.CMT_DP							AS	cmtDp
+								, tbcm.CMT_SORT_ORDR				AS	cmtSortOrdr
+								, tbcm.CMT_CN							AS	cmtCn
+								, tbcm.WRTER_IP_ADRES				AS	wrterIpAdres
+								, tbcm.REGIST_ID							AS	registId
+								, TO_CHAR( tbcm.REGIST_DT, 'YYYY-MM-DD HH24:MI')		AS registDt
+								, tbcm.UPDT_ID							AS	updtId
+								, TO_CHAR( tbcm.UPDT_DT, 'YYYY-MM-DD HH24:MI')		AS updtDt
+								, tbcm.CMT_DELETE_CD				AS	cmtDeleteCd 		/* 1001 작성자삭제 1002 운영자삭제 1003 관리자삭제 */
+								, tbcm.WRTER_NCNM					AS wrterNcnm
+<!-- 								, tbi.NCNM									AS ncnm -->
+								, tbcm.secret_yn					AS     secretYn
+							FROM 
+								(
+								  SELECT *
+                                     FROM TCM_NTT_CMT_I cm
+                                  WHERE
+									cm.LANG_CODE							= #{langCode}
+									AND cm.CMMNTY_ID					= #{cmmntyId}
+									AND cm.CMMNTY_MENU_CODE		= #{cmmntyMenuCode}
+									AND cm.CMMNTY_BBS_SEQ			= #{cmmntyBbsSeq}
+									AND cm.CMT_DELETE_CD IS NULL
+                                   ) tbcm
+                             START WITH tbcm.CMT_DP = 0
+                           	CONNECT BY NOCYCLE  PRIOR tbcm.CMMNTY_CMT_SEQ = tbcm.REFRN_CMT_SEQ
+								
+<!-- 								TCM_NTT_CMT_I tbcm -->
+<!-- 								LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi -->
+<!--         						ON   tbi.CMMNTY_ID						= tbcm.CMMNTY_ID -->
+<!-- 								AND tbi.LANG_CODE						= tbcm.LANG_CODE -->
+<!-- 								AND tbi.CMMNTY_MBER_ID				= tbcm.REGIST_ID -->
+							
+<!-- 							ORDER BY tbcm.CMT_SORT_ORDR ASC , tbcm.CMT_DP ASC , tbcm.REFRN_CMT_SEQ ASC -->
+						) A
+					)
+			WHERE 
+				RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+		</select>
+		
+		<!-- 커뮤니티 사용자 게시판 댓글 리스트 카운트  -->
+		<select id="cmUserBoardCmtListCount" parameterType="map" resultType="int">
+		/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtListCount */
+					SELECT		
+						COUNT (A.cmmntyCmtSeq)                 
+					FROM
+						(SELECT 
+								 tbcm.LANG_CODE						AS	langCode
+								, tbcm.CMMNTY_ID						AS	cmmntyId
+								, tbcm.CMMNTY_MENU_CODE		AS	cmmntyMenuCode
+								, tbcm.CMMNTY_BBS_SEQ				AS	cmmntyBbsSeq
+								, tbcm.CMMNTY_CMT_SEQ			AS	cmmntyCmtSeq
+								, tbcm.REFRN_CMT_SEQ				AS	refrnCmtSeq	
+								, tbcm.CMT_DP							AS	cmtDp
+								, tbcm.CMT_SORT_ORDR				AS	cmtSortOrdr
+								, tbcm.CMT_CN							AS	cmtCn
+								, tbcm.WRTER_IP_ADRES				AS	wrterIpAdres
+								, tbcm.REGIST_ID							AS	registId
+								, TO_CHAR( tbcm.REGIST_DT, 'YYYY-MM-DD HH24:MI')		AS registDt
+								, tbcm.UPDT_ID							AS	updtId
+								, TO_CHAR( tbcm.UPDT_DT, 'YYYY-MM-DD HH24:MI')		AS updtDt
+								, tbcm.CMT_DELETE_CD				AS	cmtDeleteCd 			/* 1001 작성자삭제 1002 운영자삭제 1003 관리자삭제 */
+<!-- 								, tbi.NCNM									AS ncnm -->
+							FROM 
+								(
+								  SELECT *
+                                     FROM TCM_NTT_CMT_I cm
+                                  WHERE
+									cm.LANG_CODE							= #{langCode}
+									AND cm.CMMNTY_ID					= #{cmmntyId}
+									AND cm.CMMNTY_MENU_CODE		= #{cmmntyMenuCode}
+									AND cm.CMMNTY_BBS_SEQ			= #{cmmntyBbsSeq}
+									AND cm.CMT_DELETE_CD IS NULL
+                                   ) tbcm
+                             START WITH tbcm.CMT_DP = 0
+                           	CONNECT BY NOCYCLE  PRIOR tbcm.CMMNTY_CMT_SEQ = tbcm.REFRN_CMT_SEQ    
+								
+<!-- 								TCM_NTT_CMT_I tbcm -->
+<!-- 								LEFT OUTER JOIN    TCM_CMNT_MBER_I tbi -->
+<!--         						ON   tbi.CMMNTY_ID						= tbcm.CMMNTY_ID -->
+<!-- 								AND tbi.LANG_CODE						= tbcm.LANG_CODE -->
+<!-- 								AND tbi.CMMNTY_MBER_ID				= tbcm.REGIST_ID -->
+							
+<!-- 							ORDER BY tbcm.CMT_SORT_ORDR ASC , tbcm.CMT_DP ASC , tbcm.REFRN_CMT_SEQ ASC -->
+							) A
+		</select>
+		
+		    
+    <!--커뮤니티 사용자 게시판 댓글 정렬번호 -->
+    <select id="cmUserBoardCmtMaxOrderNo" parameterType="boardVO" resultType="int">
+    /*cmUserBoard-sqlmap.xml 	_cmManageBoard.cmUserBoardCmtMaxOrderNo */
+        SELECT NVL(MAX(CMT_SORT_ORDR),0)
+          FROM TCM_NTT_CMT_I
+         WHERE 
+          	CMMNTY_ID = #{cmmntyId}
+			AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+			AND LANG_CODE = #{langCode} 
+			AND CMMNTY_CMT_SEQ = #{cmmntyCmtSeq} 
+    </select>
+    
+		<!-- 커뮤니티 사용자 게시판 댓글/답글 등록  -->
+		<insert id="cmUserBoardCmtInsert" parameterType="cmManageBoardVO" >
+		/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtInsert */
+				INSERT INTO TCM_NTT_CMT_I 
+				(
+					LANG_CODE 
+					,CMMNTY_ID 
+					,CMMNTY_MENU_CODE 
+					,CMMNTY_BBS_SEQ 
+					,CMMNTY_CMT_SEQ 
+					,REFRN_CMT_SEQ 
+					,CMT_DP 
+					,CMT_SORT_ORDR 
+					,CMT_CN 
+					,WRTER_NCNM
+					,WRTER_IP_ADRES 
+					,REGIST_ID 
+					,REGIST_DT
+					,SECRET_YN
+				)VALUES (
+					#{langCode} 
+					, #{cmmntyId} 
+					, #{cmmntyMenuCode}  
+					, #{cmmntyBbsSeq}  
+					, #{cmmntyCmtSeq}
+					, #{refrnCmtSeq}
+					, #{cmtDp}
+					, #{cmtSortOrdr}
+					, #{cmtCn}  
+					, #{wrterNcnm}
+					, #{wrterIpAdres}  
+					, #{registId}  
+					, SYSDATETIME
+					,#{secretYn}
+				)
+		</insert>
+		<!-- 커뮤니티 사용자 게시판 댓글/답글 수정  -->
+		<update id="cmUserBoardCmtUpdate"  parameterType="cmManageBoardVO" >
+			/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtUpdate */
+			UPDATE TCM_NTT_CMT_I 
+			SET 
+			CMT_CN			= #{cmtCn}
+			, SECRET_YN			= #{secretYn}
+			, WRTER_IP_ADRES	= #{wrterIpAdres}
+			, UPDT_ID			= #{updtId}
+			, UPDT_DT			= SYSDATETIME			
+			WHERE 
+				LANG_CODE		= #{langCode} 
+				AND CMMNTY_ID	= #{cmmntyId}
+				AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				AND CMMNTY_BBS_SEQ	= #{cmmntyBbsSeq}
+				AND CMMNTY_CMT_SEQ	= #{cmmntyCmtSeq}
+				AND REFRN_CMT_SEQ	= #{refrnCmtSeq}
+		</update>
+		<!-- 커뮤니티 사용자 게시판 댓글/답글 삭제  -->
+		<delete id="cmUserBoardCmtReplyDelete"  parameterType="cmManageBoardVO"  >
+		/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtReplyDelete */
+			DELETE FROM 
+				TCM_NTT_CMT_I 
+			WHERE 
+				LANG_CODE		= #{langCode} 
+				AND CMMNTY_ID	= #{cmmntyId}
+				AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+				AND CMMNTY_BBS_SEQ	= #{cmmntyBbsSeq}
+				<if test=' cmtDp ==  "1"  '> 
+				AND CMMNTY_CMT_SEQ	= #{cmmntyCmtSeq}
+				</if>
+				<if test=' cmtDp ==  "0"  '> 
+				AND REFRN_CMT_SEQ	= #{refrnCmtSeq}
+				</if>
+				
+		</delete>
+		
+		<!--  커뮤니티 사용자 게시판 댓글 수정 폼조회  -->
+		<select id="cmUserBoardCmtView" parameterType="cmManageBoardVO" resultType="cmManageBoardVO">
+		/* cmUserBoard-sqlmap.xml  _cmManageBoard.cmUserBoardCmtView */
+			SELECT 
+								CMMNTY_ID						AS cmmntyId
+								, LANG_CODE						AS	 langCode
+								, CMMNTY_ID						AS	 cmmntyId
+								, CMMNTY_MENU_CODE		AS	 cmmntyMenuCode
+								, CMMNTY_BBS_SEQ				AS	 cmmntyBbsSeq
+								, CMMNTY_CMT_SEQ			AS	 cmmntyCmtSeq
+								, REFRN_CMT_SEQ				AS	 refrnCmtSeq	
+								, CMT_DP							AS	 cmtDp
+								, CMT_SORT_ORDR				AS	 cmtSortOrdr
+								, CMT_CN							AS	 cmtCn
+								, WRTER_IP_ADRES				AS wrterIpAdres
+								, REGIST_ID							AS	 registId
+								, TO_CHAR( REGIST_DT, 'YYYY-MM-DD HH24:MI')		AS registDt
+								, UPDT_ID							AS	updtId
+								, TO_CHAR( UPDT_DT, 'YYYY-MM-DD HH24:MI')		AS updtDt
+								, CMT_DELETE_CD				AS	cmtDeleteCd 		/* 1001 작성자삭제 1002 운영자삭제 1003 관리자삭제 */
+								, WRTER_NCNM					AS wrterNcnm
+								, SECRET_YN					AS secretYN
+				FROM
+				TCM_NTT_CMT_I
+				WHERE
+					LANG_CODE		= #{langCode} 
+					AND CMMNTY_ID	= #{cmmntyId}
+					AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+					AND CMMNTY_BBS_SEQ	= #{cmmntyBbsSeq}
+					AND CMMNTY_CMT_SEQ	= #{cmmntyCmtSeq}
+					AND REFRN_CMT_SEQ	= #{refrnCmtSeq}
+		</select>
+</mapper>

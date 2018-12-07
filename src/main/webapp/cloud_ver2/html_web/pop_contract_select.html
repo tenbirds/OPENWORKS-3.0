@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>POPUP - 계약대상 선정</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_pop.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body class="winPopup">
+	<h2>계약대상 선정 <a href="#">닫기</a></h2>
+	<div>
+		<table class="tbl_st4 e2">
+			<tr>
+				<th>사업명</th>
+				<td>2016인트라넷 도입</td>
+			</tr>					
+			<tr>
+				<th class="requ">서비스</th>
+				<td>
+					<span class="sel_box">
+						<select>
+							<option>선택</option>
+							<option>선택 선택 선택 선택</option>
+						</select>
+					</span>
+				</td>
+			</tr>					
+			<tr>
+				<th class="requ">선정날짜</th>
+				<td class="term">
+					<input type="text" id="dPicker_1" />
+				</td>
+			</tr>					
+			<tr>
+				<th class="requ">평가서첨부</th>
+				<td>
+					<div class="uploadFile">
+						<input type="text" readonly="readonly" />
+						<div>
+							<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+			            	<span class="btns st3">
+			            		파일선택
+			            		<input type="file" />
+			            	</span>
+		            	</div>
+		            </div>
+		            <p class="uploaded">
+		            	<span>
+		            		FrameWork.psd
+		            		<a href="#">삭제</a>
+		            	</span>
+		            </p>				            
+				</td>
+			</tr>					
+		</table>		
+	</div>
+
+ 
+  <script src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!-- datepicker -->
+  <link rel="stylesheet" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+  <script src="/resources/openworks/spi/openworks/openworks.ui.js"></script>
+  <script>
+	$(document).ready(function() {
+	  $("#dPicker_1").datepicker({
+	          showOn: "both", 
+	          buttonImage: "/cloud_ver2/new_cloud/images/icn_calen.png", 
+	          buttonImageOnly: false,
+	          buttonText: "달력"
+	    });
+	});
+  </script>
+  <!--// datepicker -->
+  
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>  
+  
+ </body>
+</html>

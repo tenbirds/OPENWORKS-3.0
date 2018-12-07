@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_bannerstats">
+
+    <sql id="domain">
+        <choose>
+	        <when test="q_domainCd == 3">
+	        WHERE LOG_DOMAIN_NM LIKE 'english' || '.ceart.kr'  
+	          AND LOG_PGE_TITLE LIKE '%HOME : HOME%'  <!--도메인코드 3 -->
+	        </when>
+	        <when test="q_domainCd == 4">
+	        WHERE LOG_DOMAIN_NM LIKE 'spanish' || '.ceart.kr'  
+	          AND LOG_PGE_TITLE LIKE '%Inicio : Inicio%'  <!--도메인코드 4 -->
+	        </when>
+	        <otherwise>
+	        WHERE (LOG_DOMAIN_NM LIKE 'korean' || '.ceart.kr' OR LOG_DOMAIN_NM LIKE 'www' || '.ceart.kr')  <!--서브도메인 -->
+	          AND LOG_PGE_TITLE LIKE '%홈 : 홈%'  <!--도메인코드 2 -->
+	        </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="where">
+        <if test="q_domainCd != null  and q_domainCd != ''">
+        AND DOMAIN_CD = #{q_domainCd}
+        </if>
+        <if test="q_startDate != null  and q_startDate != ''">
+        AND BEGIN_DATE &gt;= #{q_startDate}
+        </if>
+        <if test="q_endDate != null  and q_endDate != ''">
+        AND END_DATE &lt;= #{q_endDate}
+        </if>
+    </sql>
+
+    <select id="statsList" parameterType="map" resultType="map">
+        /* _bannerstats.statsList */
+        SELECT
+               (SELECT
+                       ADVRTS_REQEST_ENTRPS_NM 
+                  FROM TRM_AVTS_CINT_M 
+                 WHERE ADVRTS_CLIENT_SEQ = ADVRTS_CLIENT_CD
+               ) AS AVTS_NM
+              ,IV.POP_SHOW_CNT AS POP_SHOW_CNT
+              ,IV.POP_CLICK_CNT AS POP_CLICK_CNT
+              ,CASE WHEN IV.POP_SHOW_CNT = 0 
+                    THEN 0
+                    ELSE CAST(CAST(IV.POP_CLICK_CNT AS NUMERIC)  / CAST(IV.POP_SHOW_CNT AS NUMERIC) * 100 AS NUMERIC(10,2))
+                END AS POP_CTR
+              ,IV.ZON_SHOW_CNT
+              ,IV.ZON_CLICK_CNT
+              ,CASE WHEN IV.ZON_SHOW_CNT = 0 
+                    THEN 0
+                    ELSE CAST(CAST(IV.ZON_CLICK_CNT AS NUMERIC)  / CAST(IV.ZON_SHOW_CNT AS NUMERIC) * 100 AS NUMERIC(10,2))
+                END AS ZON_CTR
+              ,IV.BAN_SHOW_CNT AS BAN_SHOW_CNT
+              ,IV.BAN_CLICK_CNT AS BAN_CLICK_CNT
+              ,CASE WHEN IV.BAN_SHOW_CNT = 0
+                    THEN 0
+                    ELSE CAST(CAST(IV.BAN_CLICK_CNT AS NUMERIC)  / CAST(IV.BAN_SHOW_CNT AS NUMERIC) * 100 AS NUMERIC(10,2))
+                END AS BAN_CTR
+          FROM (SELECT
+                       OP.ADVRTS_CLIENT_CD AS ADVRTS_CLIENT_CD
+                      ,EXPSR_CO AS POP_SHOW_CNT
+                      ,POPUP_CLICK_CO AS POP_CLICK_CNT
+                      ,0 AS ZON_SHOW_CNT
+                      ,0 AS ZON_CLICK_CNT
+                      ,0 AS BAN_SHOW_CNT
+                      ,0 AS BAN_CLICK_CNT
+                  FROM OP_POPUP OP
+                      ,OP_POPUP_DOMAIN PD
+                 WHERE ADVRTS_CLIENT_CD IS NOT NULL
+                   AND OP.POPUP_SN = PD.POPUP_SN
+                   <include refid="where"/>
+                 GROUP BY OP.ADVRTS_CLIENT_CD
+                 UNION ALL
+                SELECT
+                       OB.ADVRTS_CLIENT_CD AS ADVRTS_CLIENT_CD
+                      ,0 AS POP_SHOW_CNT
+                      ,0 AS POP_CLICK_CNT
+                      ,(SELECT
+                               COUNT(LOG_SESION_ID) 
+                          FROM OP_PGE_ANALS_L
+                         <include refid="domain"/>
+                        ) AS ZON_SHOW_CNT
+                      ,COUNT(CASE WHEN OB.BANNER_TY_CD = 1001
+                                  THEN OB.BANNER_SN 
+                                   END
+                       )AS ZON_CLICK_CNT
+                      ,(SELECT
+                               COUNT(LOG_SESION_ID) 
+                          FROM OP_PGE_ANALS_L 
+                          <include refid="domain"/>
+                       ) AS BAN_SHOW_CNT
+                      ,COUNT(CASE WHEN OB.BANNER_TY_CD = 1002 THEN OB.BANNER_SN END) AS BAN_CLICK_CNT
+              FROM OP_BANNER OB
+                  ,OP_BANNER_DOMAIN BD
+             WHERE OB.ADVRTS_CLIENT_CD IS NOT NULL
+               AND OB.BANNER_SN = BD.BANNER_SN
+               <include refid="where"/>
+             GROUP BY OB.ADVRTS_CLIENT_CD
+             ) IV
+        GROUP BY AVTS_NM
+    </select>
+
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_changeMyInfo">
+
+	<!-- 나의 정보 조회 -->
+	<select id="viewMyInfo" parameterType="mgrVO" resultType="mgrVO">
+    	/* _changeMyInfo.viewMyInfo */
+        SELECT A.MNGR_ID 			AS mngrId
+        	   , MNGR_PASSWORD  	AS mngrPassword
+               , A.DEPT_CODE 		AS deptCode
+               , (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm
+               , A.MNGR_NM AS mngrNm
+               , A.USE_YN AS useYn
+               , A.OFCPS_CD AS ofcpsCd
+               , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS gradeNm
+               , A.TELNO  			AS telNo
+               , A.FXNUM  			AS fxNum
+               , decrypt(A.MBTLNUM, 'P007')  		AS mbtlnum
+               , decrypt(A.EMAIL, 'P008')			AS email
+               , A.LOGIN_CNT 		AS loginCnt
+               , TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS regD
+        FROM OP_MNGR A
+        WHERE MNGR_ID = #{mngrId}
+    </select>
+	
+	<!-- 나의 정보 수정 -->
+    <update id="updateMyInfo" parameterType="mgrVO">
+    	/* _changeMyInfo.updateMyInfo */
+        UPDATE OP_MNGR
+           SET UPDT_DT 			= SYSDATE
+             , UPDT_ID 			= #{modiId}
+             , TELNO 			= #{telno}
+             , FXNUM 			= #{fxnum}
+             , MBTLNUM 			= encrypt(#{mbtlnum}, 'P007')
+             , OFCPS_CD 		= #{ofcpsCd}
+             , EMAIL			= encrypt(#{email}, 'P008')
+   		<if test="mngrNm != null and mngrNm != ''">
+             , MNGR_NM 			= #{mngrNm}
+        </if>            
+        <if test="mngrPassword != null and mngrPassword != ''">
+             , MNGR_PASSWORD  	= #{mngrPassword}
+             , PASSWORD_CHANGE_DE = TO_CHAR(SYSDATE, 'YYYYMMDD')
+        </if>
+         WHERE MNGR_ID = #{mngrId}
+    </update>
+    
+    <!-- 현재 비밀번호 체크 -->
+	<select id="currentPwd" parameterType="mgrVO" resultType="string">
+		/* _mgr.currentPwd */
+		SELECT MNGR_PASSWORD
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = #{mngrId}
+	</select>
+	<!-- 이전 비밀번호 체크 -->
+	<select id="beforePwd" parameterType="mgrVO" resultType="string">
+		/* _mgr.beforePwd */
+		SELECT BEFORE_PASSWORD
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID = #{mngrId}
+	</select>
+    
+    <!-- 비밀번호 수정 -->
+    <update id="updatePwd" parameterType="mgrVO">
+        /* _changeMyInfo.updatePwd */
+        UPDATE OP_MNGR 
+           SET BEFORE_PASSWORD		= MNGR_PASSWORD
+             , MNGR_PASSWORD    	= #{mngrPassword}
+             , PASSWORD_CHANGE_DE 	= TO_CHAR(SYSDATE, 'YYYYMMDD')
+             , UPDT_DT				= SYS_DATETIME
+             , UPDT_ID 				= #{modiId}
+         WHERE MNGR_ID 				= #{mngrId}
+    </update>
+</mapper>

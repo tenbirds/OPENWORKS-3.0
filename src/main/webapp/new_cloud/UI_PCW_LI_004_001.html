@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+
+	<script defer src="/new_cloud/js/jquery.flexslider.js"></script>
+	<link rel="stylesheet" href="/new_cloud/css/flexslider.css" type="text/css" media="screen" />
+
+<script>
+$(window).load(function() {
+  $('.flexslider').flexslider({
+    animation: "slide"
+  });
+});
+</script>
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left introduce">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>소개</h2>
+					<ul>
+					<li class="on"><a href="#">씨앗클라우드 소개</a></li>
+					<li><a href="#">사이트 체험/설명</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>씨앗클라우드 소개</h2>					
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section" id="software">
+					<!-- 씨앗클라우드란 -->
+					<h3>씨앗클라우드란?</h3>
+					<p class="ml20">씨앗클라우드(CEART Cloud)는 공공 부문 클라우드 서비스를 한 곳에서 조달/체험/구매할 수 있는 클라우드 스토어 입니다.<br /><span class="txt-word">씨앗(CEART: Creative Economy Application maRT)</span><span class="caption">은 클라우드 서비스, 소프트웨어, IT전문가서비스를 위한 오픈마켓/정보유통허브로써<br />국내 기업의 성장과 글로벌 진출을 지원하여 창조경제 실현의 ‘씨앗’이 된다는 의미입니다. </span></p>
+					<p class="mt20"><img src="/new_cloud/images/sub/img-introduce01.jpg" alt="국내 IT유통 활성화와 IT기업들의 글로벌 시장 진출을 지원하기 위한 IT전문유통마켓" /></p>
+					<!-- //씨앗클라우드란 -->
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<div class="section" id="service">
+					<!-- 주요 서비스 -->
+					<h3>주요 서비스</h3>
+					<ul class="check-list">
+					<li>다양한 클라우드 서비스를 제공하는 전문스토어</li>
+					<li>조달청 나라장터/종합쇼핑몰과 연계한 공공조달</li>
+					<li>클라우드 무료체험 서비스</li>
+					<li>구매자를 위한 맞춤 서비스 ‘전문가상담’</li>
+					<li>공공과 민간이 연결된 융합스토어</li>
+					<li>다양한 이해관계자들이 만나는 커뮤니티</li>
+					</ul>
+					<!-- //주요 서비스 -->
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<div class="section" id="effect">
+					<!-- 기대효과 -->
+					<h3>기대효과</h3>
+					<p><img src="/new_cloud/images/sub/img-introduce02.jpg" alt="IT생태계 기반 조성으로 창조경제 실현" /></p>
+					<!-- //기대효과 -->
+				</div>
+				<!-- //section -->
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

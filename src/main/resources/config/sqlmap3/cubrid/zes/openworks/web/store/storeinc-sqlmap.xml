@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_storeinc">
+   <sql id="dynamicWhere">
+             
+           <if test="goodsCode != null  and goodsCode != ''">
+                AND A.GOODS_CODE = #{goodsCode}
+           </if>
+   </sql>
+
+    <select id="incCommentList" parameterType="map" resultType="storeincVO">
+    
+      SELECT Y.* FROM (
+       SELECT ROWNUM NUM, X.* FROM (
+
+          SELECT
+                 GOODS_EVl_SEQ AS goodsEvlSeq 
+               , EVL_SCORE AS evlScore
+               , EVL_SNTNC AS evlSntnc
+               , CASE WHEN length(A.REGIST_ID) > 3 THEN  
+                                   SUBSTR(A.REGIST_ID,0,3) || LPAD('*',LENGTH(SUBSTR(A.REGIST_ID,4)),'*')
+                                ELSE  SUBSTR(A.REGIST_ID,0,2) || '*' END registId
+               , A.REGIST_ID AS orgRegistId
+               , B.USER_NM AS registNm
+               , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD HH24:MI') AS registDt
+            FROM TST_GOOD_EVL_I A , OP_USER B
+           WHERE A.REGIST_ID = B.USER_ID
+           <include refid="dynamicWhere"/>
+            
+           ORDER BY A.REGIST_DT DESC
+
+       ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+           ) Y WHERE NUM &gt;= #{pagingStartNum}
+    
+    
+    </select>
+    
+    <select id="incCommentCount" parameterType="map" resultType="int">
+         SELECT 
+                COUNT(1)
+           FROM TST_GOOD_EVL_I A , OP_USER B
+          WHERE A.REGIST_ID = B.USER_ID
+          <include refid="dynamicWhere"/>
+    </select>
+    
+    <select id="incCommentAvg" parameterType="storeincVO" resultType="storeincVO">
+        SELECT
+             COUNT(1) AS evlTotal
+           , NVL(TRUNC(AVG(EVL_SCORE),1),0) AS evlScore
+           , COUNT(DECODE(EVL_SCORE,1,1)) AS evlScore1
+           , COUNT(DECODE(EVL_SCORE,2,1)) AS evlScore2
+           , COUNT(DECODE(EVL_SCORE,3,1)) AS evlScore3
+           , COUNT(DECODE(EVL_SCORE,4,1)) AS evlScore4
+           , COUNT(DECODE(EVL_SCORE,5,1)) AS evlScore5
+        FROM TST_GOOD_EVL_I A
+       WHERE 1=1
+        <include refid="dynamicWhere"/>
+    </select>
+
+
+    <select id="incCommentCheck"  parameterType="storeincVO" resultType="int">
+        SELECT 
+               COUNT(1) 
+          FROM TST_GOOD_EVL_I
+         WHERE GOODS_CODE = #{goodsCode}
+           AND REGIST_ID = #{registId}
+    </select>
+    
+    <insert id="incCommentInsertAction"  parameterType="storeincVO" >
+         <selectKey order="BEFORE" keyProperty="goodsEvlSeq" resultType="int">
+            SELECT SEQ_AUTO_PLUS.NEXTVAL 
+        </selectKey>
+        INSERT INTO TST_GOOD_EVL_I (
+               GOODS_CODE
+             , GOODS_EVL_SEQ
+             , REGIST_ID
+             , REGIST_DT
+             , EVL_SCORE
+             , EVL_SNTNC
+             , REGISTER_IP)
+      VALUES (               
+               #{goodsCode}
+             , #{goodsEvlSeq}
+             , #{registId}
+             , SYSDATETIME
+             , #{evlScore}
+             , #{evlSntnc}
+             , #{registIp})
+    </insert>
+    
+    <delete id="incCommentDeleteAction" parameterType="storeincVO">
+        DELETE 
+          FROM TST_GOOD_EVL_I
+         WHERE GOODS_EVL_SEQ = #{goodsEvlSeq}
+    </delete>
+
+    <update id="incCommentUpdateAction" parameterType="storeincVO">
+        UPDATE TST_GOOD_EVL_I
+           SET 
+               EVL_SCORE =  #{evlScore}
+             , EVL_SNTNC = #{evlSntnc}
+             , UPDT_ID = #{registId}
+             , UPDT_DT = SYSDATETIME
+             , REGISTER_IP = #{registIp}
+         WHERE GOODS_EVL_SEQ = #{goodsEvlSeq}
+               
+    </update>    
+
+
+    <select id="incLnquiryList" parameterType="map" resultType="storeincVO">
+       SELECT Y.* FROM (
+              SELECT ROWNUM NUM, X.* FROM (
+              
+                  SELECT 
+                         GOODS_INQRY_NO AS goodsInqryNo
+                       , ANSWER_STTUS_CD AS answerSttusCd
+                       , C.INDVDLZ_CD_NM AS answerSttusNm
+                       , INQRY_SJ AS inqrySj
+                       , CASE WHEN length(INQR_ID) > 3 THEN  
+                                   SUBSTR(INQR_ID,0,3) || LPAD('*',LENGTH(SUBSTR(INQR_ID,4)),'*')
+                                ELSE  SUBSTR(INQR_ID,0,2) || '*' END inqrId
+                       , INQR_ID AS orgInqrId
+                       , USER_NM AS inqrNm
+                       , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD HH24:MI') AS registDt
+                       , OTHBC_AT AS othbcAt
+                       , INQRY_CN AS inqryCn
+                       , DECRYPT(ANSWER_RECPTN_EMAIL,'P008') AS answerRecptnEmail
+                       , INQRY_ANSWER_CN AS inqryAnswerCn
+                       , TO_CHAR(A.ANSWER_DT,'YYYY-MM-DD HH24:MI')  AS answerDt
+                    FROM TST_GOOD_INQR_I A , OP_USER B , OP_CODE_INDVDLZ C
+                    WHERE A.INQR_ID = B.USER_ID
+                      AND A.ANSWER_STTUS_CD = C.INDVDLZ_CD
+                      AND C.GROUP_CD = '1012'
+                      AND (SELECT LANG_CODE FROM TST_GOOD_INFO_I WHERE GOODS_CODE =  #{goodsCode}) =  C.LANG_CODE
+                    <include refid="dynamicWhere"/>
+                    ORDER BY A.REGIST_DT DESC
+       
+       ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+              ) Y WHERE NUM &gt;= #{pagingStartNum}
+       
+    
+    </select>
+
+    <select id="incLnquiryCount" parameterType="map" resultType="int">
+    /* incLnquiryCount */
+            SELECT 
+                   COUNT(1) total
+              FROM TST_GOOD_INQR_I A , OP_USER B , OP_CODE_INDVDLZ C
+             WHERE A.INQR_ID = B.USER_ID
+               AND A.ANSWER_STTUS_CD = C.INDVDLZ_CD
+               AND C.GROUP_CD = '1012'
+               AND C.LANG_CODE= '00'   /* POTALSITE */
+               <include refid="dynamicWhere"/>
+    </select>
+    
+    <insert id="inquiryInsertAction" parameterType="storeincVO">
+        <selectKey order="BEFORE" keyProperty="goodsInqryNo" resultType="int">
+            SELECT SEQ_AUTO_PLUS.NEXTVAL 
+        </selectKey>
+        INSERT INTO TST_GOOD_INQR_I (
+                    GOODS_CODE
+                  , GOODS_INQRY_NO
+                  , INQR_ID
+                  , REGIST_DT
+                  , INQRY_SJ
+                  , OTHBC_AT
+                  , INQRY_CN
+                  , ANSWER_STTUS_CD
+                  <if test="answerRecptnEmail != null  and answerRecptnEmail != ''">
+                  , ANSWER_RECPTN_EMAIL
+                  </if>
+                  )
+             VALUES (
+                    #{goodsCode}
+                  , #{goodsInqryNo}
+                  , #{inqrId}
+                  , SYSDATETIME
+                  , #{inqrySj}
+                  , #{othbcAt}
+                  , #{inqryCn}
+                  , 1001
+                  <if test="answerRecptnEmail != null  and answerRecptnEmail != ''">
+                  , ENCRYPT(#{answerRecptnEmail},'P008')
+                  </if>
+                  
+                  )
+    </insert>
+    
+    <select id="inquirySelectKey" parameterType="storeincVO" resultType="storeincVO">
+        SELECT NVL(MAX(GOODS_INQRY_NO),0) AS goodsInqryNo FROM TST_GOOD_INQR_I
+    </select>
+    
+    <update id="inquiryUpdateAction" parameterType="storeincVO">
+        UPDATE TST_GOOD_INQR_I A
+           SET 
+                GOODS_INQRY_NO = #{goodsInqryNo}
+                
+                <if test="inqrySj != null  and inqrySj != ''">
+                    ,INQRY_SJ            = #{inqrySj}
+                </if>
+                <if test="othbcAt != null  and othbcAt != ''">
+                    ,OTHBC_AT            = #{othbcAt}
+                </if>                
+                <if test="inqryCn != null  and inqryCn != ''">
+                    ,INQRY_CN            = #{othbcAt}
+                </if>
+                <if test="answerRecptnEmail != null  and answerRecptnEmail != ''">
+                    ,ANSWER_RECPTN_EMAIL            = ENCRYPT(#{answerRecptnEmail},'P008')
+                </if>
+                <if test="answerSttusCd != null  and answerSttusCd != ''">
+                    ,ANSWER_STTUS_CD            = #{answerSttusCd}
+                </if>
+                <if test="inqryAnswerCn != null  and inqryAnswerCn != ''">
+                   ,INQRY_ANSWER_CN            = #{inqryAnswerCn}
+                </if>
+                <if test="answerDt != null  and answerDt != ''">
+                    ,ANSWER_DT            = SYSDATETIME
+                </if>
+                <if test="answerUpdateDt != null  and answerUpdateDt != ''">
+                    ,ANSWER_UPDT_DT            = SYSDATETIME
+                </if>
+                
+                
+                <!-- 신고하기 시작 -->                  
+                  <!-- 문의자 -->
+                  <if test='accuseAtCd == "1001"'>
+                      ,INQRY_ACCUSE_RESN_CD =  #{accuseResnCd}
+                      ,INQRY_ACCUSE_ETC_CN = #{accuseResnEtcCn,jdbcType=VARCHAR}
+                      ,INQRY_APLCNT_ID =  #{inqryAplcntId}
+                      ,INQRY_ACCUSE_DT = SYSDATETIME
+                  </if>
+                  <!-- 답변자 -->
+                  <if test='accuseAtCd == "1002"'>
+                      ,ANSWER_ACCUSE_RESN_CD =  #{accuseResnCd}
+                      ,ANSWER_ACCUSE_ETC_CN = #{accuseResnEtcCn,jdbcType=VARCHAR}
+                      ,ANSWER_APLCNT_ID =  #{answerAplcntId}
+                      ,ANSWER_ACCUSE_DT = SYSDATETIME
+                  </if>
+                <!-- 신고하기 끝 -->
+                
+            WHERE  GOODS_INQRY_NO      = #{goodsInqryNo}
+            
+    </update>
+    
+    <select id="inquiryView" parameterType="storeincVO" resultType="storeincVO">
+        SELECT A.GOODS_CODE AS goodsCode
+             , C.GOODS_NM AS goodsNm /* 2016.07.22 추가 */
+             , C.GOODS_SUMRY AS goodsSumry /* 2016.07.22 추가 */
+             , A.GOODS_INQRY_NO AS goodsInqryNo
+             , B.FILE_URL fileUrl
+             , B.LOCAL_ORGINL_NM localOrginlNm
+             , A.INQRY_SJ AS inqrySj /*문의자 제목*/
+             , A.INQRY_CN AS inqryCn /*문의자 내용*/
+             , DECODE(othbc_at,'N','공개','미공개') AS othbcAt /*문의자 내용*/
+             , A.INQR_ID AS inqrId  /*문의자*/
+             , (SELECT USER_NM FROM OP_USER WHERE USER_ID =  A.INQR_ID) AS inqrNm /*문의자 명*/
+             , DECRYPT(ANSWER_RECPTN_EMAIL,'P008') AS answerRecptnEmail /*문의자 이메일*/
+             , C.GOODS_CHARGER_NM AS goodsChargerNm /*판매자 명*/
+             , DECRYPT(C.goods_charger_email,'P008') AS goodsChargerEmail  /*판매자 이메일*/
+             , NVL(A.INQRY_ANSWER_CN, '') AS inqryAnswerCn /*답변 내용*/
+             , CASE WHEN LENGTH(A.INQRY_ACCUSE_ETC_CN) > 0 THEN NVL(A.INQRY_ACCUSE_ETC_CN, '') ELSE
+               NVL((SELECT INDVDLZ_CD_NM FROM op_code_indvdlz  WHERE GROUP_CD = '1014' AND LANG_CODE = '00' AND indvdlz_cd = A.inqry_accuse_resn_cd),'') END  AS inqryAccuseEtcCn /*문의 신고 내용*/
+             , CASE WHEN LENGTH(A.ANSWER_ACCUSE_ETC_CN) > 0 THEN NVL(A.ANSWER_ACCUSE_ETC_CN, '') ELSE
+               NVL((SELECT INDVDLZ_CD_NM FROM op_code_indvdlz  WHERE GROUP_CD = '1014' AND LANG_CODE = '00' AND indvdlz_cd = A.answer_accuse_resn_cd),'') END AS answerAccuseEtcCn /*답변 신고 내용*/
+             , NVL(A.INQRY_APLCNT_ID, '') AS inqryAplcntId  /*문의 신고자 ID*/
+             , NVL((SELECT USER_NM FROM OP_USER WHERE USER_ID =  A.INQRY_APLCNT_ID), '') AS inqryAplcntNm /*문의 신고자 명*/
+             , NVL((SELECT DECRYPT(EMAIL,'P008') FROM OP_USER WHERE USER_ID =  A.INQRY_APLCNT_ID), '') AS inqryAplcntEmail /*문의 신고자 이메일*/
+             , NVL((SELECT DECRYPT(mbtlnum,'P007') FROM OP_USER WHERE USER_ID =  A.INQRY_APLCNT_ID), '') AS inqryAplcntPhoen /*문의 신고자 연락처*/             
+             , A.ANSWER_APLCNT_ID  AS  answerAplcntId /*답변 신고자 ID*/
+             , (SELECT USER_NM FROM OP_USER WHERE USER_ID =  A.ANSWER_APLCNT_ID) AS answerAplcntNm /*답변 신고자 명*/
+             , (SELECT DECRYPT(EMAIL,'P008') FROM OP_USER WHERE USER_ID =  A.ANSWER_APLCNT_ID) AS answerAplcntEmail /*답변 신고자 이메일*/
+             , (SELECT DECRYPT(mbtlnum,'P007') FROM OP_USER WHERE USER_ID =  A.ANSWER_APLCNT_ID) AS answerAplcntPhoen /*답변 신고자 연락처*/
+          FROM TST_GOOD_INQR_I A  , (SELECT * FROM OP_FILE WHERE FILE_ORDR_NO = 1)  B, TST_GOOD_INFO_I C  
+         WHERE A.GOODS_CODE = C.GOODS_CODE
+           AND C.GOODS_IMAGE_FILE_SEQ = B.FILE_SEQ(+)
+           AND A.GOODS_INQRY_NO = #{goodsInqryNo}
+    </select>
+    
+    <select id="inquiryCheck" parameterType="storeincVO" resultType="storeincVO">
+        SELECT 
+                GOODS_INQRY_NO AS goodsInqryNo
+              , INQRY_ACCUSE_RESN_CD AS inqryAccuseResnCd
+              , INQRY_ACCUSE_ETC_CN AS inqryAccuseEtcCn
+              , ANSWER_ACCUSE_RESN_CD AS answerAccuseResnCd
+              , ANSWER_ACCUSE_ETC_CN AS answerAccuseEtcCn
+         FROM TST_GOOD_INQR_I
+        WHERE  GOODS_INQRY_NO      = #{goodsInqryNo}
+    </select>
+    
+    <select id="adminEmailList"  parameterType="storeincVO" resultType="storeincVO">
+      SELECT 
+             DECRYPT(EMAIL,'P008') AS mngrEmail 
+           , MNGR_NM mngrNm FROM OP_MNGR
+      WHERE USE_YN = 'Y'
+        AND EMAIL_NTICE_YN = 'N'
+        AND LENGTH(EMAIL) > 0
+    </select>
+    
+    <delete id="inquiryDeleteAction"  parameterType="storeincVO">
+        DELETE
+          FROM TST_GOOD_INQR_I
+         WHERE GOODS_INQRY_NO = #{goodsInqryNo}
+    </delete>    
+    
+    <resultMap id="relationResult" type="premiumVO">     
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <result property="langCode" column="LANG_CODE"/>
+        <collection property="goodsMarkList" column="{goodsCode = GOODS_CODE, langCode = LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+    </resultMap>
+    
+    <select id="incRelationList" parameterType="map" resultMap="relationResult">
+    /*_storeinc.incRelationList*/
+     <!--  SELECT Y.* FROM (
+       SELECT ROWNUM NUM, X.* FROM ( -->
+        SELECT 
+                A.GOODS_CODE,
+                A.LANG_CODE,
+                A.GOODS_NM AS goodsNm,
+                A.USER_ID AS userId,
+                A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+                A.GOODS_SUMRY AS goodsSumry,
+                A.GOODS_RDCNT AS goodsRdcnt,
+                (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) AS langNm,
+                (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=1007 AND INDVDLZ_CD = A.SLE_MTHD_CD) AS sleMthdNm,
+                (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=1008 AND INDVDLZ_CD = A.GOODS_REGIST_STTUS) AS goodsRegistSttusNm, 
+                (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt,
+                (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore,
+                (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm,
+                (SELECT CMMNTY_ID FROM TCM_CMNT_INFO_I WHERE MNGR_CLS_AT = 'N' AND CMMNTY_STTUS_CD = '1002' AND LANG_CODE = A.LANG_CODE AND USER_ID = A.USER_ID ORDER BY CONFM_DT DESC LIMIT 1) AS cmmntyId
+                ,TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') AS registDt
+           FROM TST_GOOD_INFO_I A
+          WHERE A.MNGR_DELETE_AT='N' AND A.GOODS_ACTVTY_AT='Y'
+            AND A.GOODS_REGIST_STTUS = 1006
+            AND A.LANG_CODE = #{langCode}
+            AND A.GOODS_CODE IN
+                    ( SELECT  A.GOODS_CODE
+                        FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+                       WHERE  A.CTGRY_CODE = B.CTGRY_CODE                         
+                         AND  B.LANG_CODE = #{langCode}
+                         AND  A.CTGRY_CODE IN (SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = #{goodsCode}) 
+                    GROUP BY  A.GOODS_CODE )
+            AND A.GOODS_CODE &lt;&gt; #{goodsCode} 
+            ORDER BY RANDOM()
+            LIMIT 15
+       <!--     ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;=  #{pagingStartNum} -->
+    </select>
+    <select id="incRelationListCount" parameterType="map" resultType="int">
+            SELECT 
+                   COUNT(1) total
+              FROM TST_GOOD_INFO_I A
+	          WHERE A.MNGR_DELETE_AT='N' AND A.GOODS_ACTVTY_AT='Y'
+	            AND A.GOODS_REGIST_STTUS = 1006
+	            AND A.LANG_CODE = #{langCode}
+	            AND A.GOODS_CODE IN
+	                    ( SELECT  A.GOODS_CODE
+	                        FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+	                       WHERE  A.CTGRY_CODE = B.CTGRY_CODE                         
+	                         AND  B.LANG_CODE = #{langCode}
+	                         AND  A.CTGRY_CODE IN (SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = #{goodsCode}) 
+	                    GROUP BY  A.GOODS_CODE )
+	            AND A.GOODS_CODE &lt;&gt; #{goodsCode} 
+    </select>
+    <select id="goodsMarkImageList" resultType="map">
+          SELECT   B.MARK_IMAGE_FILE_SEQ AS MARKIMAGEFILESEQ,
+                   B.MARK_NM AS markNm
+            FROM   TST_GOOD_MARK_I A, TST_GOOD_MARK_M B 
+           WHERE   A.MARK_CD = B.MARK_CD
+             AND   A.GOODS_CODE = #{goodsCode}
+        ORDER BY   A.MARK_CD         
+    </select>
+    
+    <select id="incReviewList" parameterType="boardVO" resultType="boardVO">
+    /*_storeinc : storeinc-sqlmap.xml : incReviewList */
+      SELECT Y.* FROM (
+       SELECT ROWNUM NUM, X.* FROM (
+          SELECT
+                A.DOMAIN_CD                 AS domainCd
+              , A.BBS_CD                    AS bbsCd
+              , A.BBSCTT_SEQ                AS bbscttSeq
+              , A.BBSCTT_SJ                 AS bbscttSj
+              , A.CN_SUMRY                  AS cnSumry
+              , A.FILE_SEQ                  AS fileSeq
+              , A.REGIST_ID                 AS registId
+              , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD') AS registDt
+              , A.RDCNT                     AS rdCnt
+              , SUBSTRING(A.ESTN_COLUMN7,INSTR(A.ESTN_COLUMN7, '_',1)+1 ) AS goodsCode
+            FROM OP_BOARD A
+           WHERE A.BBS_CD = #{bbsCd}
+             AND A.DOMAIN_CD = #{domainCd}
+             AND SUBSTRING(A.ESTN_COLUMN7,INSTR(A.ESTN_COLUMN7, '_',1)+1 ) = #{goodsCode}
+             AND A.MNGR_DELETE_AT = 'N'
+           ORDER BY A.REGIST_DT DESC
+       ) X WHERE ROWNUM &lt;= 2
+           ) Y WHERE NUM &gt;= 1
+    </select>
+    
+    <select id="incReviewListCount" parameterType="boardVO" resultType="int">
+    /*_storeinc : storeinc-sqlmap.xml : incReviewListCount */
+         SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_BOARD A
+          WHERE A.DOMAIN_CD = #{domainCd}
+            AND A.BBS_CD = #{bbsCd}
+            AND SUBSTRING(A.ESTN_COLUMN7,INSTR(A.ESTN_COLUMN7, '_',1)+1 ) = #{goodsCode}
+    </select>
+    
+    <select id="dstbStoreView" parameterType="storeincVO" resultType="string">
+    /*_storeinc.dstbStoreView*/
+        SELECT
+         <!--{{ 변경전 SKYOU 2015.11.26  표준프레임워크호환+소루션서비스 통합으로인한 수정  
+                CASE WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1001') > 0 THEN 'premium'
+                WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1002') > 0 THEN 'solution'
+				변경후            
+          -->             
+             	CASE WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1001') > 0 THEN '1001'
+                WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1002') > 0 THEN '1002'
+         <!--   }}            
+              -->            
+                WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1003') > 0 THEN '1003'
+                WHEN INSTR(GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD) ,'1004') > 0 THEN '1004'
+            END AS storeViewNm
+            FROM TST_CATE_MGMT_M AA, OP_CODE_INDVDLZ BB
+            WHERE CTGRY_CL_CD = BB.INDVDLZ_CD
+            AND BB.GROUP_CD = '1005'
+            AND CTGRY_CODE IN ( SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = #{goodsCode})
+    </select>
+    
+    <select id="dstbStoreStatus" parameterType="storeincVO" resultType="int">
+        <!-- 정시 상태만 확인한다. 1006 -->
+        /*_storeinc.dstbStoreStatus*/
+        SELECT 
+               DECODE(GOODS_REGIST_STTUS,'1006',true,false) 
+          FROM TST_GOOD_INFO_I WHERE GOODS_CODE = #{goodsCode}
+    </select>
+    
+</mapper>

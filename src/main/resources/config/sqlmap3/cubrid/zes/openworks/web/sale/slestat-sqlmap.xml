@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_sleStat">
+
+    <sql id="searchWhere">
+        <!-- 카테고리 -->
+        <if test="q_goodsTyCd != null  and  q_goodsTyCd != ''"> 
+            <choose>
+                <when test="q_ctgryCd3 != null  and q_ctgryCd3 != ''">
+                    AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd3})
+                </when>
+                <when test="q_ctgryCd2 != null  and q_ctgryCd2 != ''">
+                    AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd2})
+                </when>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != ''">
+                    AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd1})
+                </when>
+                <otherwise>
+                    AND GOODS_CODE IN
+                    ( SELECT  A.GOODS_CODE
+                        FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+                       WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+                         AND  B.CTGRY_CL_CD = #{q_goodsTyCd}
+                    GROUP BY  A.GOODS_CODE )  
+                </otherwise>
+            </choose>
+        </if>
+        
+        <if test="q_goodsTyCd == null  or  q_goodsTyCd == ''">
+                     AND GOODS_CODE IN
+                     ( SELECT  A.GOODS_CODE
+                         FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+                        WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+                     GROUP BY  A.GOODS_CODE ) 
+        </if>
+
+        <!-- 서비스 언어 -->
+        <if test="q_langCodes != null  and q_langCodes != ''">
+            AND A.LANG_CODE IN 
+            <foreach collection="q_langCodes" item="item" index="index" separator="," open=" (" close=") ">
+                    TRIM(#{item})
+            </foreach>
+        </if>
+        
+        <!-- 등록일 -->
+        <if test="q_beginDate != null and q_beginDate != ''">
+            AND TO_CHAR(REGIST_DT,'YYYYMMDD') BETWEEN REPLACE(#{q_beginDate},'-','') AND REPLACE(#{q_endDate},'-','')
+        </if>
+
+        <!-- 상세 검색 -->
+        <if test="q_searchKey != null  and q_searchKey != ''">
+            <choose>
+                <!-- 서비스명 -->
+                <when test="q_searchKey == '1001'">
+                    AND GOODS_NM LIKE  '%' || #{q_searchVal} || '%'
+                </when>
+            </choose>
+        </if>
+        
+    </sql>
+
+    <resultMap id="goodsResult" type="goodsManageVO">     
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <result property="langCode" column="LANG_CODE"/>
+        <collection property="goodsType" column="{goodsCode = GOODS_CODE, langCode = LANG_CODE}" ofType="map" select="goodsTyList"/>
+        <collection property="goodsMarkList" column="{goodsCode = GOODS_CODE, langCode = LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+    </resultMap>
+    <select id="goodsList" parameterType="map" resultMap="goodsResult">     
+    /* _webGoods : goodsList*/      
+       SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (
+               SELECT            
+					 A.GOODS_CODE,
+					 A.LANG_CODE,
+					 (SELECT   DECODE(LANG_CODE, '00', LANG_NM, LANG_ENG_NM)   FROM  TCO_SVC_LANG_C   WHERE  LANG_CODE = A.LANG_CODE  ) AS langNm,
+					 A.GOODS_NM AS goodsNm,
+					 A.GOODS_PC AS goodsPc,
+					 A.GOODS_RDCNT AS goodsRdcnt,
+					 (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt,
+					 (SELECT COUNT(GOODS_CODE) FROM TUM_ITST_GOOD_I WHERE GOODS_CODE = A.GOODS_CODE) AS inqrCnt,
+					 (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_EVL_I  WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore
+				FROM
+					 TST_GOOD_INFO_I A
+				WHERE
+					 A.USER_ID = #{q_userId}
+			     AND A.CONFM_DT IS NOT NULL
+                     <include refid="searchWhere"/>
+			ORDER BY CONFM_DT, REGIST_DT DESC
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}         
+    </select>
+
+    <select id="goodsTyList" resultType="map">
+    /* _webGoods : goodsTyList*/      
+        SELECT  (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE LANG_CODE = #{langCode} AND GROUP_CD = 1005 AND INDVDLZ_CD = B.CTGRY_CL_CD) AS GOODSTYNM
+          FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+         WHERE  A.GOODS_CODE = #{goodsCode}
+           AND  A.CTGRY_CODE = B.CTGRY_CODE
+      GROUP BY  B.CTGRY_CL_CD
+      ORDER BY  B.CTGRY_CL_CD    
+    </select>
+    
+    <select id="goodsMarkImageList" resultType="map">
+    /* _webGoods : goodsMarkImageList*/      
+          SELECT   B.MARK_IMAGE_FILE_SEQ AS MARKIMAGEFILESEQ
+            FROM   TST_GOOD_MARK_I A, TST_GOOD_MARK_M B 
+           WHERE   A.MARK_CD = B.MARK_CD
+             AND A.GOODS_CODE = #{goodsCode}
+        ORDER BY   A.MARK_CD         
+    </select>
+
+    <select id="goodsCount" parameterType="map" resultType="int">
+    /* _webGoods : goodsCount*/     
+        SELECT
+            COUNT(A.GOODS_CODE) AS totalCount
+        FROM
+            TST_GOOD_INFO_I A
+        WHERE
+            A.USER_ID = #{q_userId}
+        AND A.CONFM_DT IS NOT NULL
+        <include refid="searchWhere"/>        
+    </select>
+
+    <select id="langList" parameterType="goodsManageVO" resultType="goodsManageVO">
+    /* _webGoods : langList*/    
+         SELECT
+                LANG_CODE AS langCode
+              , LANG_NM    AS langNm
+              , DOMAIN_CD  AS domainCd
+              , LANG_ENG_ABRV AS  langEngAbrv
+              , LANG_ENG_NM   AS  langEngNm
+           FROM TCO_SVC_LANG_C
+          WHERE DOMAIN_CD IS NOT NULL
+    </select> 
+
+    <select id="ctgryList"  parameterType="goodsManageVO" resultType="goodsManageVO">
+    /* _webGoods : ctgryList*/    
+        SELECT 
+               PARNTS_CTGRY_CODE AS parntsCtgryCd
+             , CTGRY_CODE AS ctgryCd
+             , LANG_CTGRY_NM AS ctgryNm
+          FROM TST_CATE_MGMT_M
+         WHERE CTGRY_CL_CD = #{goodsTyCd}
+           AND CTGRY_DP = #{ctgryDp}
+           <if test="ctgryCd != null and ctgryCd != '' and ctgryCd != 'null'">
+                AND PARNTS_CTGRY_CODE = #{ctgryCd}
+           </if>
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_DELETE_AT = 'N'           
+         ORDER BY LANG_CODE, SORT_ORDR
+    </select>
+</mapper>

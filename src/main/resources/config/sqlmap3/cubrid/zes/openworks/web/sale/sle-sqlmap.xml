@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_sle">
+
+	<!-- 처리해야할 상세정보(견적)요청서 -->
+    <!-- <select id="goodsOrder" parameterType="SuplerCeartVO" resultType="SuplerCeartVO"> -->
+    <select id="goodsOrder" parameterType="sleVO" resultType="sleVO">
+
+    /*_sle.goodsOrder*/
+     
+            SELECT A.NOTIFY_NUM                  	AS notifyNum
+                 , A.NOTIFY_SEQ                     AS notifySeq
+                 , B.USER_ID                        AS userId
+                 , E.GOODS_NM                       AS goodsNm
+                 , TO_CHAR(B.RPLY_DT, 'YYYY-MM-DD') AS rplyDt
+              FROM TCN_BEFORE_ESTE_SPLY A
+        INNER JOIN TCN_BEFORE_ESTE_NOFY B
+                ON A.NOTIFY_NUM = B.NOTIFY_NUM
+               AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+         LEFT JOIN TCM_WISHORDER_INFO_I C
+                ON B.USER_ID = C.USER_ID
+               AND B.GRP_SEQ = C.GRP_SEQ
+         LEFT JOIN TUM_SVC_STOR_I D
+                ON B.USER_ID   = D.USER_ID
+               AND D.LANG_CODE =  '00'
+         LEFT JOIN TST_GOOD_INFO_I E
+                ON A.GOODS_CODE = E.GOODS_CODE
+         LEFT JOIN OP_CODE_INDVDLZ F
+                ON F.GROUP_CD = '2043'
+               AND A.ASK_APPLY_CD = F.INDVDLZ_CD
+             WHERE A.USER_ID      = #{masterId}
+               AND A.ASK_APPLY_CD = '1005'  /* 접수 건만..*/
+               AND B.BID_GBN_CD   = '1004'
+          ORDER BY A.NOTIFY_NUM DESC
+             LIMIT 5
+
+    </select>
+    
+    <select id="goodsOrderCount" parameterType="sleVO" resultType="int">
+    
+    /*_sle.goodsOrderCount*/
+           
+            SELECT COUNT(A.GOODS_CODE) AS totalNum 
+              FROM TCN_BEFORE_ESTE_SPLY A
+        INNER JOIN TCN_BEFORE_ESTE_NOFY B
+                ON A.NOTIFY_NUM = B.NOTIFY_NUM
+               AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+         LEFT JOIN TCM_WISHORDER_INFO_I C
+                ON B.USER_ID = C.USER_ID
+               AND B.GRP_SEQ = C.GRP_SEQ
+         LEFT JOIN TUM_SVC_STOR_I D
+                ON B.USER_ID   = D.USER_ID
+               AND D.LANG_CODE = '00'
+         LEFT JOIN TST_GOOD_INFO_I E
+                ON A.GOODS_CODE = E.GOODS_CODE
+         LEFT JOIN OP_CODE_INDVDLZ F
+                ON F.GROUP_CD = '2043'
+               AND A.ASK_APPLY_CD = F.INDVDLZ_CD
+             WHERE A.USER_ID      = #{masterId}
+               AND A.ASK_APPLY_CD = '1005'  /* 접수 건만..*/
+               AND B.BID_GBN_CD   = '1004'             
+    </select>
+
+    
+    <!-- 승인 대기 서비스현황 -->
+    <select id="goodsWait" parameterType="sleVO" resultType="sleVO">
+    
+    /*_sle.goodsWait*/
+    
+		SELECT LPAD(ROW_NUMBER() OVER(ORDER BY A.REGIST_DT), 2, '0') AS seqNo
+		       ,A.GOODS_CODE AS goodsCode, A.GOODS_NM AS goodsNm
+		       ,A.GOODS_REGIST_STTUS AS goodsRegistSttus
+		  FROM TST_GOOD_INFO_I A
+		 WHERE A.GOODS_REGIST_STTUS NOT IN (1006,1007)
+		   AND A.MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+		   AND A.GOODS_CODE IN
+                    ( SELECT  C.GOODS_CODE
+                     FROM  TST_GOOD_CATE_I C, TST_CATE_MGMT_M D
+                    WHERE  C.CTGRY_CODE = D.CTGRY_CODE
+                      AND  D.CTGRY_CL_CD IN 
+                      <foreach item="item" index="index" collection="ctgryClCd" open="(" separator=", " close=")">TRIM(#{item})</foreach>
+                       <!-- AND  D.LANG_CODE = #{langCode} -->
+                 GROUP BY  C.GOODS_CODE )
+		  AND A.USER_ID = #{userId}
+	 ORDER BY A.REGIST_DT DESC
+	    LIMIT 5
+	  <!-- 공급자씨앗 - 공급자홈 리스트 갯수가 더보기와 동일하지 않아 수정 -->
+    </select>
+    
+    <select id="goodsWaitCount" parameterType="sleVO" resultType="int">
+    
+    /*_sle.goodsWaitCount*/
+    
+        SELECT COUNT(A.GOODS_CODE) AS totalNum
+          FROM TST_GOOD_INFO_I A
+         WHERE A.GOODS_REGIST_STTUS NOT IN (1006,1007)
+           AND A.MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+           AND A.GOODS_CODE IN
+                    ( SELECT  C.GOODS_CODE
+                     FROM  TST_GOOD_CATE_I C, TST_CATE_MGMT_M D
+                    WHERE  C.CTGRY_CODE = D.CTGRY_CODE
+                      AND  D.CTGRY_CL_CD IN 
+                      <foreach item="item" index="index" collection="ctgryClCd" open="(" separator=", " close=")">TRIM(#{item})</foreach>
+                       <!-- AND  D.LANG_CODE = #{langCode} -->
+                 GROUP BY  C.GOODS_CODE )
+           AND A.USER_ID = #{userId}
+    </select>
+  
+      <!-- 입찰참여(응찰)현황 -->
+    <select id="buyingRequest" parameterType="sleVO" resultType="sleVO">
+    
+    /*_sle.buyingRequest*/
+    
+        SELECT A.NOTIFY_NUM                     AS notifyNum 
+	             , A.NOTIFY_SEQ                     AS notifySeq
+	             , B.BID_NOTIFY_NM                  AS bidNotifyNm  <!-- 공고명 -->
+	             , B.CNTR_MOTHOD                    AS cntrMothod  <!-- 계약방법 -->
+	             , C.INDVDLZ_CD_NM                  AS cntrMothodNm
+	             , B.BID_PGES_STAT                  AS bidPgesStat  <!-- 입찰진행상태 2044 -->
+	             , D.INDVDLZ_CD_NM                  AS bidPgesStatNm
+	          FROM TCN_NOTIFY_SPLY_I A
+	               INNER JOIN TCN_BID_NOTIFY_I B
+	                       ON A.NOTIFY_NUM = B.NOTIFY_NUM
+	                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+	                LEFT JOIN OP_CODE_INDVDLZ C
+	                       ON C.GROUP_CD    = '2040'
+	                      AND B.CNTR_MOTHOD = C.INDVDLZ_CD
+	                LEFT JOIN OP_CODE_INDVDLZ D
+	                       ON D.GROUP_CD      = '2044'
+	                      AND B.BID_PGES_STAT = D.INDVDLZ_CD
+	                LEFT JOIN OP_CODE_INDVDLZ E
+	                       ON E.GROUP_CD     = '2043'
+	                      AND A.ASK_APPLY_CD = E.INDVDLZ_CD
+	         WHERE A.USER_ID = #{userId}
+	           AND B.BID_GBN_CD = '1001' /*입찰건만 조회*/
+	 ORDER BY A.NOTIFY_NUM DESC
+	    LIMIT 5
+    </select>
+    
+      
+    <!-- 답변대기 Q&A --> 
+    <select id="goodsInqr" parameterType="sleVO" resultType="sleVO">
+    
+    /*_sle.goodsInqr*/
+     
+        SELECT A.GOODS_CODE AS goodsCode
+               ,A.GOODS_INQRY_NO AS goodsInqryNo
+               ,A.INQRY_SJ AS inqrySj
+               ,A.ANSWER_STTUS_CD AS answerSttusCd
+               ,TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS registDt
+          FROM TST_GOOD_INQR_I A, TST_GOOD_INFO_I B
+		 WHERE A.GOODS_CODE = B.GOODS_CODE
+		   AND A.ANSWER_STTUS_CD IN (1001) /* 답변대기만.. (,1002)*/
+		   AND B.USER_ID = #{userId}
+	  ORDER BY A.REGIST_DT DESC
+	     LIMIT 5
+    </select>
+    
+    <select id="goodsInqrCount" parameterType="sleVO" resultType="int">
+    
+    /*_sle.goodsInqrCount*/
+    
+        SELECT COUNT(A.GOODS_INQRY_NO) AS totalNum
+          FROM TST_GOOD_INQR_I A, TST_GOOD_INFO_I B
+         WHERE A.GOODS_CODE = B.GOODS_CODE
+           AND A.ANSWER_STTUS_CD IN (1001) /* 답변대기만.. (,1002)*/
+           AND B.USER_ID = #{userId}
+    </select>
+    
+    
+    <!-- 답변대기 비즈매칭 -->
+    <select id="goodsBiz" parameterType="sleVO" resultType="sleVO">
+    
+    /*_sle.goodsBiz*/
+     
+		SELECT DOMAIN_CD AS domainCd
+				, BBS_CD AS bbsCd
+				, BBSCTT_SEQ AS bbscttSeq
+				, BBSCTT_SJ AS bbscttSj
+				,TO_CHAR(REGIST_DT, 'YYYY-MM-DD') AS registDt		
+		  FROM OP_BOARD A 
+		 WHERE A.DOMAIN_CD = 2 
+		 AND A.BBS_CD = 1010 
+		 AND A.ESTN_COLUMN1 LIKE '%'|| #{userId} || '%' 
+		 AND (ESTN_COLUMN8 IN( SELECT CTGRY_CODE 
+		                         FROM TUM_ITST_CATE_I 
+		                        WHERE USER_ID = #{userId} 
+		                          AND LANG_CODE = '00'
+		                      
+		                        UNION 
+		                       
+		                       SELECT DISTINCT B.CTGRY_CODE 
+		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+		                          AND A.USER_ID = #{userId} 
+		                          AND A.LANG_CODE = '00' ) 
+ 		  OR ESTN_COLUMN9  IN( SELECT CTGRY_CODE 
+ 		                         FROM TUM_ITST_CATE_I 
+ 		                        WHERE USER_ID = #{userId} 
+ 		                          AND LANG_CODE = '00'
+ 		                        
+ 		                        UNION 
+ 		                        
+ 		                       SELECT DISTINCT B.CTGRY_CODE 
+ 		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+ 		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+ 		                          AND A.USER_ID = #{userId} 
+ 		                          AND A.LANG_CODE = '00' ) 
+ 		  OR ESTN_COLUMN10 IN( SELECT CTGRY_CODE 
+ 		                         FROM TUM_ITST_CATE_I 
+ 		                        WHERE USER_ID = #{userId} 
+ 		                          AND LANG_CODE = '00' 
+ 		                          
+ 		                        UNION 
+ 		                        
+ 		                       SELECT DISTINCT B.CTGRY_CODE 
+ 		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+ 		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+ 		                          AND A.USER_ID = #{userId} 
+ 		                          AND A.LANG_CODE = '00' ) 
+ 		     ) ORDER BY REGIST_DT DESC
+ 	   LIMIT 5
+ 			
+ 			
+		 <!--  
+		  FROM OP_BOARD
+		 WHERE DOMAIN_CD = (SELECT DOMAIN_CD FROM TCO_SVC_LANG_C WHERE LANG_CODE=#{langCode})
+		   AND BBS_CD = 1010
+	       AND ( (ESTN_COLUMN8  IN (SELECT CTGRY_CODE FROM TUM_ITST_CATE_I WHERE USER_ID=#{userId})) OR
+			     (ESTN_COLUMN9  IN (SELECT CTGRY_CODE FROM TUM_ITST_CATE_I WHERE USER_ID=#{userId})) OR
+			     (ESTN_COLUMN10 IN (SELECT CTGRY_CODE FROM TUM_ITST_CATE_I WHERE USER_ID=#{userId})) )
+      ORDER BY REGIST_DT DESC 
+      공급자씨앗 - 공급자홈 리스트 갯수가 정확하지 않음 수정
+      -->
+		 
+    </select>
+    
+    <select id="goodsBizCount" parameterType="sleVO" resultType="int">
+    
+    /*_sle.goodsBizCount*/
+    
+        SELECT COUNT(BBSCTT_SEQ) AS totalNum
+          FROM OP_BOARD A
+		 WHERE A.DOMAIN_CD = 2 
+		 AND A.BBS_CD = 1010 
+		 AND A.ESTN_COLUMN1 LIKE '%'|| #{userId} || '%' 
+		 AND (ESTN_COLUMN8 IN( SELECT CTGRY_CODE 
+		                         FROM TUM_ITST_CATE_I 
+		                        WHERE USER_ID = #{userId} 
+		                          AND LANG_CODE = '00'
+		                      
+		                        UNION 
+		                       
+		                       SELECT DISTINCT B.CTGRY_CODE 
+		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+		                          AND A.USER_ID = #{userId} 
+		                          AND A.LANG_CODE = '00' ) 
+ 		  OR ESTN_COLUMN9  IN( SELECT CTGRY_CODE 
+ 		                         FROM TUM_ITST_CATE_I 
+ 		                        WHERE USER_ID = #{userId} 
+ 		                          AND LANG_CODE = '00'
+ 		                        
+ 		                        UNION 
+ 		                        
+ 		                       SELECT DISTINCT B.CTGRY_CODE 
+ 		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+ 		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+ 		                          AND A.USER_ID = #{userId} 
+ 		                          AND A.LANG_CODE = '00' ) 
+ 		  OR ESTN_COLUMN10 IN( SELECT CTGRY_CODE 
+ 		                         FROM TUM_ITST_CATE_I 
+ 		                        WHERE USER_ID = #{userId} 
+ 		                          AND LANG_CODE = '00' 
+ 		                          
+ 		                        UNION 
+ 		                        
+ 		                       SELECT DISTINCT B.CTGRY_CODE 
+ 		                         FROM TST_GOOD_INFO_I A , TST_GOOD_CATE_I B 
+ 		                        WHERE A.GOODS_CODE = B.GOODS_CODE 
+ 		                          AND A.USER_ID = #{userId} 
+ 		                          AND A.LANG_CODE = '00' ) 
+ 		     ) ORDER BY REGIST_DT DESC
+    </select>
+    
+ 	<!-- 씨앗공지 -->
+    <select id="goodsNoti" parameterType="sleVO" resultType="sleVO"> 
+	
+	/*_sle.goodsNoti*/
+	
+		SELECT DOMAIN_CD AS domainCd
+			   ,BBS_CD AS bbsCd, BBSCTT_SEQ AS bbscttSeq
+			   ,BBSCTT_SJ AS bbscttSj
+			   ,TO_CHAR(REGIST_DT,'YYYY-MM-DD') AS registDt
+		  FROM OP_BOARD
+		 WHERE BBS_CD = 1019
+		   AND DOMAIN_CD = 2		
+      ORDER BY REGIST_DT DESC
+		 LIMIT 5
+    </select>
+
+	<!-- 마스터/서브관리 의견공유 리스트 -->
+    <select id="goodsSubBoard" parameterType="sleVO" resultType="sleVO">
+     
+	/*_sle.goodsSubBoard*/
+
+       SELECT  A.MASUB_TITLE AS masubTitle
+         	   ,A.MASTER_ID  AS masterId
+        	   ,A.MASUB_NUM  AS masubNum
+        	   ,TO_CHAR(A.MASUB_ENTR_DATE,'YYYY-MM-DD') AS masubEntrDate
+		 FROM  OP_USER_MASUB_L  A 
+		 LEFT JOIN OP_USER B
+		   ON A.USER_ID = B.USER_ID
+		WHERE A.MASTER_ID = #{masterId}
+	 ORDER BY A.MASUB_NUM DESC
+		LIMIT 5
+		
+    </select>        
+  
+                
+</mapper>

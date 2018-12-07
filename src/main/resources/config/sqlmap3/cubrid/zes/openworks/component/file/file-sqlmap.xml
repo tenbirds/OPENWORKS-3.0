@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="zes.openworks.component.file">
+
+	<resultMap id="fileResult" type="fileVO">
+		<result property="fileSeq" column="FILE_SEQ"/>
+		<result property="fileId" column="FILE_ID"/>
+		<result property="orderNo" column="FILE_ORDR_NO"/>
+		<result property="localNm" column="LOCAL_ORGINL_NM"/>
+		<result property="serverNm" column="SERVER_FILE_NM"/>
+		<result property="fileDesc" column="FILE_DC"/>
+		<result property="fileUrl" column="FILE_URL"/>
+		<result property="fileSize" column="FILE_SIZE"/>
+		<result property="fileByteSize" column="FILE_BYTE_SIZE"/>
+		<result property="fileType" column="FILE_TY"/>
+		<result property="fileExt" column="FILE_EXTSN"/>
+		<result property="inputNm" column="INPUT_NM"/>
+		<result property="downCnt" column="DWLD_CNT"/>
+	</resultMap>
+
+	<select id="getMaxFileSeq" resultType="int">
+	
+		/* zes.openworks.component.file.getMaxFileSeq */
+		
+		SELECT OP_FILE_SEQ.NEXT_VALUE
+		  FROM DB_ROOT
+		  
+	</select>
+
+	<select id="getFiles" parameterType="int" resultMap="fileResult">
+		/* zes.openworks.component.file.getFiles */
+		SELECT FILE_SEQ,
+			   FILE_ID,
+			   FILE_ORDR_NO,
+			   LOCAL_ORGINL_NM,
+			   SERVER_FILE_NM,
+			   FILE_DC,
+			   FILE_URL,
+			   FILE_SIZE,
+			   FILE_BYTE_SIZE,
+			   FILE_TY,
+			   FILE_EXTSN,
+			   INPUT_NM,
+			   DWLD_CNT
+		  FROM OP_FILE
+		 WHERE FILE_SEQ = #{fileSeq}
+		 ORDER BY FILE_ORDR_NO ASC
+	</select>
+	<select id="getFiles1" parameterType="int" resultMap="fileResult">
+		/* zes.openworks.component.file.getFiles1 */
+		SELECT FILE_SEQ,
+			   FILE_ID,
+			   FILE_ORDR_NO,
+			   LOCAL_ORGINL_NM,
+			   SERVER_FILE_NM,
+			   FILE_DC,
+			   FILE_URL,
+			   FILE_SIZE,
+			   FILE_BYTE_SIZE,
+			   FILE_TY,
+			   FILE_EXTSN,
+			   INPUT_NM,
+			   DWLD_CNT
+		  FROM OP_FILE
+		 WHERE FILE_SEQ = #{fileSeq}
+  		  and  FILE_ORDR_NO = (SELECT MAX(file_ordr_no) FROM OP_FILE WHERE FILE_SEQ = #{fileSeq})
+		 ORDER BY FILE_ORDR_NO ASC
+	</select>
+
+	<select id="getFilesOrdr" parameterType="java.util.Map" resultMap="fileResult">
+    
+        /* zes.openworks.component.file.getFilesOrdr */
+    
+            SELECT FILE_SEQ
+                 , FILE_ID
+                 , FILE_ORDR_NO
+                 , LOCAL_ORGINL_NM
+                 , SERVER_FILE_NM
+                 , FILE_DC
+                 , FILE_URL
+                 , FILE_SIZE
+                 , FILE_BYTE_SIZE
+                 , FILE_TY
+                 , FILE_EXTSN
+                 , INPUT_NM
+                 , DWLD_CNT
+             FROM OP_FILE
+            WHERE FILE_SEQ     = #{fileSeq}
+              AND FILE_ORDR_NO = #{fileOrdrNo}
+         
+	</select>
+
+	<select id="getFile" parameterType="string" resultMap="fileResult">
+		/* zes.openworks.component.file.getFile */
+		SELECT FILE_SEQ,
+			   FILE_ID,
+			   FILE_ORDR_NO,
+			   LOCAL_ORGINL_NM,
+			   SERVER_FILE_NM,
+			   FILE_DC,
+			   FILE_URL,
+			   FILE_SIZE,
+			   FILE_BYTE_SIZE,
+			   FILE_TY,
+			   FILE_EXTSN,
+			   INPUT_NM,
+			   DWLD_CNT
+		  FROM OP_FILE
+		 WHERE FILE_ID = #{fileId}
+	</select>
+
+	<update id="updateFileDown" parameterType="string">
+		/* zes.openworks.component.file.updateFileDown */
+		UPDATE OP_FILE
+		   SET DWLD_CNT = DWLD_CNT + 1
+		 WHERE FILE_ID = #{fileId}
+	</update>
+
+	<insert id="insertFile" parameterType="fileVO">
+ 	/* zes.openworks.component.file.insertFile */
+    
+    INSERT INTO OP_FILE ( FILE_SEQ
+                        , FILE_ID
+                        , FILE_ORDR_NO
+                        , LOCAL_ORGINL_NM
+                        , SERVER_FILE_NM
+                        , FILE_DC
+                        , FILE_BYTE_SIZE
+                        , FILE_SIZE
+                        , FILE_TY
+                        , INPUT_NM
+                        , FILE_URL
+                        , FILE_EXTSN
+                        ) 
+                 VALUES ( #{fileSeq}
+                        , #{fileId}
+                        , (SELECT NVL(MAX(FILE_ORDR_NO), 0) + 1 FROM OP_FILE WHERE FILE_SEQ = #{fileSeq})
+                        , #{localNm}
+                        , #{serverNm}
+                        , #{fileDesc}
+                        , #{fileByteSize}
+                        , #{fileSize}
+                        , #{fileType}
+                        , #{inputNm}
+                        , #{fileUrl}
+                        , #{fileExt}
+                        )
+
+	</insert>
+
+	<update id="updateFile" parameterType="fileVO">
+		/* zes.openworks.component.file.updateFile */
+		UPDATE OP_FILE SET
+			   LOCAL_ORGINL_NM = #{localNm},
+			   FILE_DC = #{fileDesc},
+			   FILE_ORDR_NO = #{orderNo}
+		 WHERE FILE_ID = #{fileId}
+	</update>
+
+	<update id="updateFileShiftOrdNo" parameterType="fileVO">
+	
+	/* zes.openworks.component.file.updateFileShiftOrdNo */
+	/* file_ordr_no를 한칸씩뒤로 밀어 낸다. */
+		
+		UPDATE OP_FILE 
+		   SET FILE_ORDR_NO = FILE_ORDR_NO + 1
+		 WHERE FILE_SEQ = #{fileSeq}
+		 
+	</update>
+	
+	<delete id="deleteFileOrdNo" parameterType="fileVO">
+	
+		/* zes.openworks.component.file.deleteFileOrdNo */
+		/* file_ordr_no = 1 을 지운다. */
+		
+		DELETE FROM OP_FILE_LOG
+		      WHERE FILE_SEQ = #{fileSeq}
+		        AND FILE_ORDR_NO = 1 
+		  
+	</delete>
+	
+
+	<insert id="insertFileToFirst" parameterType="fileVO">
+		
+ 	/* zes.openworks.component.file.insertFileToFirst */
+ 	/* 무조건 첫번째에 등록 한다.. zes.openworks.component.file.updateFileShiftOrdNo 를 선행호출 필 */
+    
+    INSERT INTO OP_FILE ( FILE_SEQ
+                        , FILE_ID
+                        , FILE_ORDR_NO
+                        , LOCAL_ORGINL_NM
+                        , SERVER_FILE_NM
+                        , FILE_DC
+                        , FILE_BYTE_SIZE
+                        , FILE_SIZE
+                        , FILE_TY
+                        , INPUT_NM
+                        , FILE_URL
+                        , FILE_EXTSN
+                        ) 
+                 VALUES ( #{fileSeq}
+                        , #{fileId}
+                        , 1     /* 무조건 첫번째에 등록 한다.. */ 
+                        , #{localNm}
+                        , #{serverNm}
+                        , #{fileDesc}
+                        , #{fileByteSize}
+                        , #{fileSize}
+                        , #{fileType}
+                        , #{inputNm}
+                        , #{fileUrl}
+                        , #{fileExt}
+                        )
+
+	</insert>
+
+	<!-- {{SKYOU, 2016.01.20 이미지 파일 다운로드 로그 삭제 -->
+	<!--
+     * SQL 명      : zes.openworks.component.file.downLoadFileLog
+     * 기능(설명)  : 이미지 파일 다운로드 로그 삭제
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-20
+    -->
+	<delete id="downLoadFileLog" parameterType="fileVO">
+		/* zes.openworks.component.file.downLoadFileLog */
+		DELETE FROM OP_FILE_LOG
+		 WHERE FILE_SEQ =#{fileSeq} 
+	</delete>
+	<!-- }} -->
+	
+	<!-- {{SKYOU, 2016.01.15 서비스메인이미지 수정 추가 -->
+	<!-- 대표이미지 수정  -->
+	<update id="updateMainFile" parameterType="fileVO">
+		
+	/* zes.openworks.component.file.updateMainFile */
+    
+    UPDATE OP_FILE 
+       SET FILE_ID         = #{fileId}
+         , LOCAL_ORGINL_NM = #{localNm}
+         , SERVER_FILE_NM  = #{serverNm}
+         , FILE_DC         = #{fileDesc}
+         , FILE_BYTE_SIZE  = #{fileByteSize}
+         , FILE_SIZE       = #{fileSize}
+         , FILE_TY         = #{fileType}
+         , FILE_URL        = #{fileUrl}
+         , FILE_EXTSN      = #{fileExt}
+     WHERE FILE_ORDR_NO = 1
+       AND FILE_SEQ     = #{fileSeq}
+      
+	</update>
+	<!-- }} -->
+	<delete id="deleteFile" parameterType="fileVO">
+		/* zes.openworks.component.file.deleteFile */
+		DELETE FROM OP_FILE
+		 WHERE FILE_SEQ = #{fileSeq}
+		   AND FILE_ID = #{fileId}
+	</delete>
+
+	<delete id="deleteFiles" parameterType="int">
+		/* zes.openworks.component.file.deleteFiles */
+		DELETE FROM OP_FILE
+		 WHERE FILE_SEQ = #{fileSeq}
+	</delete>
+
+	<delete id="deleteFilesOrdr" parameterType="java.util.Map">
+		
+		/* zes.openworks.component.file.deleteFilesOrdr */
+		
+		DELETE FROM OP_FILE
+		 WHERE FILE_SEQ     = #{fileSeq}
+		   AND FILE_ORDR_NO = #{fileOrdrNo}
+		    
+	</delete>
+
+	<!-- file log -->
+	<select id="getFileLogs" parameterType="map" resultType="filesLogVO">
+		/* zes.openworks.component.file.getFileLogs */
+		SELECT Y.* FROM (
+			SELECT ROWNUM NUM, X.* FROM (
+				SELECT A.FILE_SEQ AS fileSeq,
+					   A.FILE_ID AS fileId,
+					   A.FILE_ORDR_NO AS orderNo,
+					   A.REGISTER_NM AS workerNm,
+					   TO_CHAR(TO_DATETIME(A.REGIST_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MI:SS') AS regDt
+				  FROM OP_FILE_LOG A
+				 WHERE A.FILE_SEQ = #{fileSeq}
+				   AND A.FILE_ID = #{fileId}
+				  ORDER BY A.FILE_ORDR_NO ASC
+				) X
+			WHERE ROWNUM &lt;= #{pagingEndNum}
+		 ) Y
+		 WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="getFileLogCount" parameterType="map" resultType="int">
+		/* zes.openworks.component.file.getFileLogCount */
+		SELECT COUNT(A.FILE_ORDR_NO) AS totalCount
+		  FROM OP_FILE_LOG A
+		 WHERE A.FILE_SEQ = #{fileSeq}
+		   AND A.FILE_ID = #{fileId}
+	</select>
+
+	<select id="getFileSeqByFileId" parameterType="string" resultType="int">
+		/* zes.openworks.component.file.getFileSeqByFileId */
+		SELECT FILE_SEQ
+		  FROM OP_FILE
+		 WHERE FILE_ID = #{fileId}
+	</select>
+	<select id="getFileSeqByFileId2" parameterType="string" resultType="int">
+		/* zes.openworks.component.file.getFileSeqByFileId */
+		SELECT FILE_SEQ
+		  FROM OP_FILE
+		 WHERE FILE_SEQ = (select distinct GOODS_IMAGE_FILE_SEQ from TST_GOOD_INFO_I_TMP where goods_code = #{goodsCode})
+		 and file_ordr_no = 1
+	</select>
+
+	<insert id="insertFileLog" parameterType="filesLogVO">
+		/* zes.openworks.component.file.insertFileLog */
+		<selectKey order="BEFORE" keyProperty="orderNo" resultType="int">
+			SELECT NVL(MAX(FILE_ORDR_NO), 0) + 1
+			  FROM OP_FILE_LOG
+			 WHERE FILE_SEQ = #{fileSeq}
+			   AND FILE_ID = #{fileId}
+		</selectKey>
+		INSERT INTO OP_FILE_LOG (
+			FILE_SEQ,	FILE_ID,	FILE_ORDR_NO,	LOG_YM, REGISTER_NM,		REGIST_DT
+		) VALUES (
+			#{fileSeq},	#{fileId},	#{orderNo},	TO_CHAR(SYS_DATETIME, 'YYYYMM'), #{workerNm}, TO_CHAR(SYS_DATETIME, 'YYYYMMDDHH24MISS')
+		)
+	</insert>
+
+</mapper>

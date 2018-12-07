@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_myapply">
+
+
+
+    <!--  공통 부분 시작  -->
+			   <select id="listCount" parameterType="map" resultType="int">
+			         SELECT
+			                COUNT(1)
+			           FROM tcn_notify_sply_i
+			          WHERE USER_ID = #{q_userId}
+			    </select>    
+			    
+			   <!-- 팝업창 체결완료 데이터 추출  -->
+			   <select id="applyPopUp" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			 	
+						 	SELECT 
+							 		A.CNTRCT_SNn 									AS cntrctSn
+									,A.SVC_NM										AS svcNm
+									,A.TO_CHAR(CNTRCT_BEGIN_DE,'YYYY-MM-DD') 		AS cntrctBeginDe
+									,A.TO_CHAR(CNTRCT_END_DE,'YYYY-MM-DD') 			AS cntrctEndDe
+									,A.CNTRCTAMOUNT									AS cntrctaMount
+									,A.PURCHS_INSTT_NM								AS purchsInsttNm
+									,A.CNTR_COUNT 									AS cntrCount
+									,A.SPLY_FORM									AS splyForm
+									,A.SPLY_FORM_ETC								AS splyFormEtc
+									,(SELECT USER_NM FROM op_user WHERE user_id = #{demandId}) As userNm
+							FROM TCM_CNTRCT_MANAGE_I A
+							WHERE A.NOTIFY_NUM = #{notifyNum}
+							  AND A.NOTIFY_SEQ = #{notifySeq}
+							  AND A.USER_ID    = #{userId}
+			    </select>    
+			    
+			    <!-- 답변시 공통적으로 수정되는 사항 -->
+			   <update id="applyPopUpUpdate" parameterType="ApplyManageVO" >
+				   /*_myapply.applyPopUpUpdate*/
+				   /* 폼 답변 update  bidUpdate*/
+				      UPDATE TCM_CNTRCT_MANAGE_I
+							  SET 	svc_nm = #{svc_Nm}
+									,cntrct_begin_de = #{cntrctBeginDe}
+									,cntrct_end_de = #{cntrctEndDe}
+									,cntrctamount = #{cntrctaMount}
+									,ctrtc_sn = #{ctrtcSn}
+									,sply_form = #{splyForm}
+									,sply_form_etc = #{splyFormEtc}
+							WHERE svc_nm = #{cntrctSn}
+				</update>
+				   
+			   <!-- 팝업창 체결완료  -->
+			   <insert id="applyPopUpInsert" parameterType="ApplyManageVO">
+		    INSERT INTO TCM_CNTRCT_MANAGE_I VALUES (
+									,USER_ID			= #{userId}
+									,SVC_NM				= #{svcNm}
+									,CNTRCT_BEGIN_DE	= #{cntrctBeginDe}
+									,CNTRCT_END_DE 		= #{cntrctEndDe}
+									,CNTRCTAMOUNT		= #{cntrctaMount}
+									,PURCHS_INSTT_NM	= #{purchsInsttNm}
+									,SLE_INSTT_NM		= #{sleInsttNm}
+									,CTRTC_SN			= #{ctrtcSn}
+									,REGIST_ID		  	= #{registId}
+									,REGIST_DT			= #{registDt}
+									,UPDT_ID			= #{updtId}
+									,UPDT_DT			= #{updtDt}
+									,DELETE_AT			= #{deleteAt}
+									,CNTR_NUM			= #{cntrNum}
+									,SPLY_FORM			= #{splyForm}
+									,SPLY_FORM_ETC		= #{splyFormEtc}
+									,CNTR_DT			= #{cntrDt}
+									,COMM_USER_ID		= #{demandId}
+									};
+    </insert>
+    
+  			   <!-- 팝업창 체결 수정 -->
+    
+			   <!-- apply 답변 요청 출력 -->
+			   <select id="applyList" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			    /*_myapply.applyList*/
+			    /*applyList 답변 요청 출력 */
+			    SELECT Y.* 
+			      FROM (SELECT  ROWNUM NUM
+			                  , X.* 
+			              FROM  (SELECT  A.GOODS_CODE						AS goodsCode
+			                           , C.AUDITLOG_NM						AS cmpnyNm
+			                           , D.BID_GBN_CD						AS bidGbnCd
+			                           , D.GOOD_KND_CD						AS goodKndCd
+			                           , A.NOTIFY_NUM						AS notifyNum
+			                           , A.NOTIFY_SEQ						AS notifySeq
+			                           , D.USER_ID							AS demandId
+			                           , A.CNTR_GBN							AS cntrGbn
+			                           , (SELECT b.user_nm 
+									        FROM op_user b 
+									       WHERE b.user_id = a.user_id)		AS userNm
+									   ,(SELECT goods_nm 
+									       FROM tst_good_info_i 
+									      WHERE goods_code = a.goods_code)	AS applyNm
+									   , (SELECT goods_makr 
+									        FROM tst_good_info_i 
+									       WHERE goods_code = a.goods_code)	AS applyMakr
+									   , A.ASK_APPLY_CD						AS askApply
+									   , A.BID_SUSS_GBN						AS bidSuss
+									   , TO_CHAR(d.RPLY_DT,'YYYY.MM.DD') 	AS rplyDt
+								   FROM  TCN_NOTIFY_SPLY_I A
+								       , TCM_WISHORDER_INFO_I C
+								       , TCN_BID_NOTIFY_I D
+								  WHERE  (D.USER_ID = C.USER_ID AND A.NOTIFY_NUM = D.NOTIFY_NUM)
+								    AND  (D.GRP_SEQ = C.GRP_SEQ AND A.NOTIFY_SEQ = D.NOTIFY_SEQ)
+								    AND  A.user_id = #{q_userId}
+								  ORDER  BY a.notify_num DESC
+								       , a.notify_seq DESC
+							) X WHERE ROWNUM &lt;= #{pagingEndNum}
+					) Y WHERE NUM &gt;= #{pagingStartNum}
+			    </select>
+			    
+			    
+			   <!-- 마스터 폼 상단 정보 -->
+			   <select id="bidRequestMasterInfo" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			    /*_myapply.bidRequestMasterInfo*/
+			    /* 마스터 폼 상단 정보 */
+						SELECT 
+							 c.notify_num As notifyNum,
+							 c.notify_seq As notifySeq,
+							 c.good_knd_cd As goodKndCd,
+							 (SELECT b.user_nm FROM op_user b WHERE b.user_id = c.user_id) AS userNm,
+				        	 c.goods_charger_cttpc As  goodsChargerCttpc,
+						  	 c.real_dmnd_orgn As readDmndOrgn, 
+							 c.goods_charger_nm As goodsChargerNm,
+							 (SELECT e.auditlog_nm From tcm_wishorder_info_i e WHERE e.user_id = c.user_id AND e.grp_seq = c.grp_seq) As cmpnyNm,
+							 (SELECT DECRYPT(b.email,'P008') FROM op_user b WHERE b.user_id = c.user_id) AS emailId,
+							 c.user_position AS userPosition,
+							 (SELECT b.telno FROM op_user b WHERE b.user_id = c.user_id) AS telnoNum,
+							 c.hope_puch_amt As hopePuchAmt,
+							 c.vat_gbn As vatGbn,
+							 TO_CHAR(c.dely_dt,'YYYY.MM.DD HH') AS delyDt,
+							 TO_CHAR(c.rply_dt,'YYYY.MM.DD') AS rplyDt,
+							 c.dely_plac As delyPlac,
+							 c.dely_file As delyFile,
+							 c.notify_cont AS notifyCont,
+							 c.user_id As bidUserId
+					    FROM 
+							 tcn_bid_notify_i c, tcm_wishorder_info_i e
+						 WHERE (c.notify_num = #{notifyNum}  AND c.grp_seq = e.grp_seq AND c.user_id = e.user_id)
+					     AND (c.notify_seq =  #{notifySeq} AND c.grp_seq = e.grp_seq  AND c.user_id = e.user_id) 
+			    </select> 
+			    
+			
+			   <!-- 마스터 폼 하단 정보 -->
+			   <select id="bidSupplierMasterInfo" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			    /*_myapply.bidSupplierMasterInfo*/
+			    /* 마스터 폼 하단 정보 */
+						SELECT 
+							o.user_nm AS userNm,
+							DECRYPT(o.email,'P008') AS emailId,
+							(SELECT cmpny_nm FROM op_user_entrprs_option WHERE user_id = a.user_id) AS cmpnyNm,
+							(SELECT cmpny_reprsnt_telno FROM op_user_entrprs_option WHERE user_id = a.user_id) AS cmpnyReprsntTelno,
+							DECRYPT(o.mbtlnum,'P007') AS mbtlNumber,
+							a.sply_amt As splyAmt,
+							a.vat_gbn As vatGbn,
+							a.add_answer As addAnswer,
+							a.sply_note As splyNote
+						FROM 
+							tcn_notify_sply_i a, op_user o
+						WHERE (a.user_id  = #{userId} AND o.user_id= a.user_id)
+						AND a.notify_num = #{notifyNum}
+						AND a.notify_seq =#{notifySeq}
+			    </select>    
+			     
+			     
+			    <!-- 답변시 공통적으로 수정되는 사항 -->
+			   <update id="bidUpdate" parameterType="ApplyManageVO" >
+				   /*_myapply.bidUpdate*/
+				   /* 폼 답변 update  bidUpdate*/
+				      UPDATE tcn_notify_sply_i
+							  SET 	sply_amt= #{splyAmts},
+							     	vat_gbn = #{vatGbns},	
+							   	  	add_answer = #{addAnswers},
+							      	sply_note = #{splyNotes},
+							      	sply_file = #{splyFile},
+							    	ask_apply_cd = '1003'
+							WHERE notify_num = #{notifyNum}
+							  AND notify_seq = #{notifySeq}
+							  AND user_id = #{userId}
+			   </update>
+
+   <!-- 공통 부분 끝 -->
+   
+   
+   <!-- PasS 부분 시작 -->
+   
+			   <!-- bidPaaSInfoOne 시작 Paas 내용 상단 내용-->
+			   <select id="bidPaaSInfoOne" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			 				 	 SELECT   A.notify_num As notifyNum
+										 ,A.notify_seq As notifySeq
+										 ,A.USER_ID AS userId
+										 , A.lang_sys AS langSys
+										 , A.framework_sys AS frameworkSys
+										 , A.cache_sys AS cacheSys
+										 , A.dbms_sys AS dbmsSys
+										 , A.fast_deploy_sys AS fastDeploySys
+										 , A.etc_sys AS etcSys
+							  FROM  tcn_bid_paas_i A
+					         WHERE A.NOTIFY_NUM = #{notifyNum}
+					           AND A.NOTIFY_SEQ = #{notifySeq}
+					           AND A.USER_ID    = #{demandId}
+			    </select> 
+			
+			
+			    <!-- PaaS 데이터 정보-->
+			   <select id="bidPaaSInfoTwo" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+								SELECT   A.notify_num As notifyNum
+										 ,A.notify_seq As notifySeq
+										  ,'N'  AS consumerYn
+										 , B.lang_sys AS langSys
+										 , B.framework_sys AS frameworkSys
+										 , B.cache_sys AS cacheSys
+										 , B.dbms_sys AS dbmsSys
+										 , B.fast_deploy_sys AS fastDeploySys
+										 , B.etc_sys AS etcSys
+							  FROM  tcn_bid_paas_i A
+							  		LEFT JOIN tcn_bid_paas_i B
+							  			ON A.NOTIFY_NUM = B.NOTIFY_NUM
+				                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+				                      AND B.USER_ID =  #{userId}
+					         WHERE A.NOTIFY_NUM = #{notifyNum}
+					           AND A.NOTIFY_SEQ = #{notifySeq}
+					           AND A.USER_ID    = #{demandId}
+			    </select> 
+			    
+			    
+			    
+			    
+			   <!-- PaaS 폼 답변 tcn_bid_saas_i insert 2 -->
+			   <insert id="bidPaaSInsert" parameterType="ApplyManageVO" >
+			   /*_myapply.bidPaaSInsert*/
+			   /* PaaS 폼 답변 tcn_bid_paas_i insert 2*/
+			   			INSERT INTO tcn_bid_paas_i
+					    	 VALUES (
+					    	#{notifyNum},
+				   			#{notifySeq},
+				   			#{userId},
+				   			'Y',
+				   			#{langSys},
+				   			#{frameworkSys},
+							#{cacheSys},
+							#{dbmsSys},
+							#{fastDeploySys},
+							#{etcSys});
+			   </insert>
+			   
+			   <!-- PaaS 답변 수정 -->
+			   <update id="bidPaaSUpdate" parameterType="ApplyManageVO" >
+	   /*_myapply.bidPaaSUpdate*/
+	   /* 폼 답변 update  bidPaaSUpdate*/
+      UPDATE tcn_bid_paas_i
+		 SET
+				lang_sys = #{langSys}
+				,framework_sys = #{frameworkSys}
+				,cache_sys = #{cacheSys}
+				,dbms_sys = #{dbmsSys}
+				,fast_deploy_sys = #{fastDeploySys}
+				,etc_sys = #{etcSys}
+	   WHERE notify_num = #{notifyNum}
+			 AND notify_seq = #{notifySeq}
+			 AND user_id = #{userId}
+   </update>
+   
+    <!-- Paas 부분 종료 -->
+    
+
+    
+   <!--  SaaS 부분 시작 -->
+   
+			   <!-- SaaS 데이터 추출 시스템 요구 상단 데이터-->
+			   <select id="bidSaaSInfoOne" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			    /*_myCeart.bidSaaSInfoOne*/
+							SELECT   A.notify_num As notifyNum
+									,A.notify_seq As notifySeq
+									,A.user_id As userId
+									,A.apply_gbn As applyGbn
+									,A.unit_sys AS unitSys
+									,A.etc_unit_sys AS etcUnitSys
+									,A.capty_sys AS captySys
+									,A.amount_sys AS amountSys
+									,'Y' AS consumerYn
+									,A.sply_moth_sys AS splyMothSys
+							  FROM  TCN_BID_SAAS_I A
+					         WHERE A.NOTIFY_NUM = #{notifyNum}
+					           AND A.NOTIFY_SEQ = #{notifySeq}
+					           AND A.USER_ID    = #{demandId}
+						     UNION  ALL
+							SELECT   A.notify_num As notifyNum
+									,A.notify_seq As notifySeq
+									,B.user_id As userId
+									,B.apply_gbn As applyGbn
+									,B.unit_sys AS unitSys
+									,B.etc_unit_sys AS etcUnitSys
+									,B.capty_sys AS captySys
+									,B.amount_sys AS amountSys
+									,'N' AS consumerYn
+									,B.sply_moth_sys AS splyMothSys
+							  FROM  TCN_BID_SAAS_I A
+							  		LEFT JOIN TCN_BID_SAAS_I B
+							  			ON A.NOTIFY_NUM = B.NOTIFY_NUM
+				                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+				                      AND B.USER_ID = #{userId}
+					         WHERE A.NOTIFY_NUM = #{notifyNum}
+					           AND A.NOTIFY_SEQ = #{notifySeq}
+					           AND A.USER_ID    = #{demandId}
+			
+			    </select> 
+			    
+			    
+			   <!-- SaaS 데이터 추출 시스템 요구 하단 데이터-->
+			   <select id="bidSaaSInfoTwo" parameterType="ApplyManageVO" resultType="map">
+			      /*_myapply.bidSaaSInfoTwo*/
+			        SELECT A.NOTIFY_NUM    AS notifyNum
+			             , A.NOTIFY_SEQ    AS notifySeq
+			             , A.USER_ID       AS userId
+			             , #{langStoreId}  AS langStoreId
+			             , 'Y'             AS consumerYn
+			             , A.APPLY_SEQ     AS applySeq
+			             , A.OPTION_NM     AS optionNm
+			             , A.UNIT_ITEM     AS unitItem
+			             , A.CAPTY_ITEM    AS captyItem
+			             , A.AMOUNT_ITEM   AS amountItem
+			             , A.CMNT_ITEM     AS cmntItem
+			          FROM TCN_BID_SAAS_D A
+			         WHERE A.NOTIFY_NUM = #{notifyNum}
+			           AND A.NOTIFY_SEQ = #{notifySeq}
+			           AND A.USER_ID    = #{demandId}
+			        UNION ALL
+			        SELECT A.NOTIFY_NUM    AS notifyNum
+			             , A.NOTIFY_SEQ    AS notifySeq
+			             , A.USER_ID       AS userId
+			             , B.USER_ID       AS langStoreId
+			             , 'N'             AS consumerYn
+			             , A.APPLY_SEQ     AS applySeq
+			             , B.OPTION_NM     AS optionNm
+			             , B.UNIT_ITEM     AS unitItem
+			             , B.CAPTY_ITEM    AS captyItem
+			             , B.AMOUNT_ITEM   AS amountItem
+			             , B.CMNT_ITEM     AS cmntItem
+			          FROM TCN_BID_SAAS_D A
+			               LEFT JOIN TCN_BID_SAAS_D B
+			                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+			                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+			                     AND A.APPLY_SEQ  = B.APPLY_SEQ
+			                     AND B.USER_ID    = #{userId}
+			         WHERE A.NOTIFY_NUM = #{notifyNum}
+			           AND A.NOTIFY_SEQ = #{notifySeq}
+			           AND A.USER_ID    = #{demandId}
+			         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+			    </select> 
+			
+			    
+			   <!--  SaaS 폼 답변 tcn_bid_saas_d insert 1 -->
+			   <insert id="bidSaaSInsertSaaSD" parameterType="ApplyManageVO" >
+			   /*_myapply.bidSaaSInsertSaaSD*/
+			   /* SaaS 폼 답변 tcn_bid_saas_d insert 1*/
+			   			INSERT INTO tcn_bid_saas_d 
+			   			VALUES(
+					   			#{notifyNum},
+					   			#{notifySeq},
+					   			#{userId},
+					   			#{applySeq},
+					   			#{optionNm},
+					   			#{unitItem},
+					   			#{captyItem},
+					   			#{amountItem1},
+					   			#{cmntItem});
+			   </insert>
+			   
+			
+			   <!-- SaaS 폼 답변 tcn_bid_saas_i insert 2 -->
+			   <insert id="bidSaaSInsertSaaSI" parameterType="ApplyManageVO" >
+			   /*_myapply.bidSaaSInsertSaaSI*/
+			   /* SaaS 폼 답변 tcn_bid_saas_i insert 2*/
+			   			INSERT INTO tcn_bid_saas_i
+			   			VALUES(
+			   			#{notifyNum},
+			   			#{notifySeq},
+			   			#{userId},
+			   			'Y',
+			   			#{unitSys},
+			   			#{etcUnitSys},
+						#{captySys},
+						#{amountSys},
+						#{splyMothSys});
+			   </insert>
+			   
+			 
+			   <!-- SaaS 답변 수정 -->
+			   <update id="bidSaaSUpdateSaaSD" parameterType="ApplyManageVO" >
+			   /*_myapply.bidSaaSUpdateSaaSD*/
+			   /* 폼 답변 update  bidSaaSUpdateSaaSD*/
+			      UPDATE tcn_bid_saas_d
+				 	 SET
+						 option_nm = #{optionNm}
+					  	 ,unit_item = #{unitItem}
+						 ,capty_item = #{captyItem}
+						 ,amount_item = #{amountItem1}
+						 ,cmnt_item = #{cmntItem}
+					WHERE notify_num = #{notifyNum}
+						  AND notify_seq = #{notifySeq}
+						  AND user_id = #{userId}
+						  AND apply_seq = #{applySeq}
+			   </update>
+			   
+			   <!-- SaaS 답변 수정 -->
+			   <update id="bidSaaSUpdateSaaSI" parameterType="ApplyManageVO" >
+     	/*_myapply.bidSaaSUpdateSaaSI*/
+     	/* 폼 답변 update  bidSaaSUpdateSaaSI*/
+      UPDATE tcn_bid_saas_i
+		 SET
+			 apply_gbn = #{applyGbn}
+			 ,unit_sys = #{unitSys}
+			 ,etc_unit_sys = #{etcUnitSys} 
+			 ,capty_sys = #{captySys}
+			 ,amount_sys = #{amountSys}
+			 ,sply_moth_sys = #{splyMothSys}
+	   WHERE notify_num = #{notifyNum}
+			 AND notify_seq = #{notifySeq}
+			 AND user_id = #{userId}
+   </update>
+   
+   
+    <!-- SaaS 부분 끝 -->
+   
+   
+
+    
+    <!-- IaaS 부분 시작 -->
+    
+    <!-- IaaS 서버 I 업데이트 -->
+   <update id="bidIaaSUpdateIaaSI" parameterType="ApplyManageVO" >
+   /*_myapply.bidIaaSUpdateIaaSI*/
+   /* 폼 답변 update  bidIaaSUpdateIaaSI*/
+      UPDATE tcn_bid_iaas_i
+		 SET
+			 CDN_TRANS_VLMN = #{cdnTransVlmn}
+			, CDN_REQU_CNT = #{cdnRequCnt}
+			, WEB_GOODS_KIND = #{webGoodsKind}
+			, WEB_ACCESS = #{webAccess}
+			, MNTING_VM = #{mntingVm}
+			, MNTING_ID_CNT = #{mntingIdCnt}
+			, BAKUP_CNT = #{bakupCnt}
+			, BAKUP_STORG = #{bakupStorg}
+			, MANG_FUNC = #{mangFunc}
+			, SECTY_VPN = #{sectyVpn}
+			, SECTY_SSLVPN = #{sectySslvpn}
+			, TECH_SUPT = #{techSupt}
+			, FUNC_DMND1 = #{funcDmnd1}
+			, FUNC_DMND2 = #{funcDmnd2}
+			, FUNC_DMND3 = #{funcDmnd3}
+			, FUNC_DMND4 = #{funcDmnd4}
+			, INTERFACE_DMND = #{interfaceDmnd}
+			, SECTY_DMND1 = #{sectyDmnd1}
+			, SECTY_DMND2 = #{sectyDmnd2}
+			, SECTY_DMND3 = #{sectyDmnd3} 
+			, SECTY_DMND4 = #{sectyDmnd4}
+			, SECTY_DMND5 = #{sectyDmnd5}
+			, QUTY_DMND1 = #{qutyDmnd1}
+			, QUTY_DMND2 = #{qutyDmnd2}
+			, OPTN_DMND1 = #{optnDmnd1}
+			, OPTN_DMND2 = #{optnDmnd2}
+			, PRJT_DMND1 = #{prjtDmnd1}
+			, PRJT_DMND2 = #{prjtDmnd2}
+			, PRJT_DMND3 = #{prjtDmnd3}
+			, ETC_DMN = #{etcDmnd}
+	   WHERE notify_num = #{notifyNum}
+			 AND notify_seq = #{notifySeq}
+			 AND user_id = #{userId}
+   </update>
+   
+
+   <!-- IaaS 서버 DS 업데이트 -->
+   <update id="bidIaaSUpdateIaaSDS" parameterType="ApplyManageVO" >
+   /*_myapply.bidIaaSUpdateIaaSDS*/
+   /* 폼 답변 update  bidSaaSUpdateSaaSD*/
+      UPDATE tcn_bid_iaas_ds
+		 SET
+			server_use = #{serverUse}
+			,server_os = #{serverOs}
+			,server_cpu = #{serverCpu}
+			,server_memory = #{serverMemory}
+			,server_disk = #{serverDisk}
+			,server_qnty = #{serverQnty}
+			,server_ip = #{serverIp}
+			,server_network = #{serverNetwork}
+			,server_gslb = #{serverGslb}
+			,server_ldbl = #{serverLdbl}
+			,server_snap = #{serverSnap}
+			,server_img= #{serverImg}
+	   WHERE notify_num = #{notifyNum}
+			 AND notify_seq = #{notifySeq}
+			 AND user_id = #{userId}
+			 AND apply_seq = #{applySeq}
+   </update>
+   
+   <!-- IaaS 서버 SDD 업데이트 -->
+   <update id="bidIaaSUpdateIaaSDD" parameterType="ApplyManageVO" >
+   /*_myapply.bidIaaSUpdateIaaSDD*/
+   /* 폼 답변 update  bidSaaSUpdateSaaSI*/
+      UPDATE tcn_bid_iaas_dd
+		 SET
+			 db_use = #{dbUse}
+			,db_os = #{dbOs}
+			,db_cpu = #{dbCpu}
+			,db_memory = #{dbMemory}
+			,db_disk = #{dbDisk}
+			,db_qnty = #{dbQnty}
+			,db_ip = #{dbIp}
+			,db_network = #{dbNetwork}
+			,db_add_disk = #{dbAddDisk}
+			,db_back_storg = #{dbBackStorg}
+			,db_storg_space = #{dbStorgSpace}
+			,db_trans_vlmn = #{dbTransVlmn}
+	   WHERE notify_num = #{notifyNum}
+			 AND notify_seq = #{notifySeq}
+			 AND user_id = #{userId}
+			 AND apply_seq = #{applySeq}
+   </update>
+   
+   
+    <!-- IaaS 폼 데이터 정보 -->
+    <select id="bidIaaSInfoDB" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+			 		SELECT 
+					A.NOTIFY_NUM AS notifyNum
+					,A.NOTIFY_SEQ AS notifySeq
+					,A.USER_ID AS userId
+					,A.APPLY_SEQ AS applySeq
+					,'Y' AS consumerYn
+					,A.db_use AS dbUse
+					,A.db_os AS dbOs
+					,A.db_cpu AS dbCpu
+					,A.db_memory AS dbMemory
+					,A.db_disk AS dbDisk
+					,A.db_qnty AS dbQnty
+					,A.db_ip As dbIp
+					,A.db_network As dbNetwork
+					,A.db_add_disk As dbAddDisk
+					,A.db_back_storg As dbBackStorg
+					,A.db_storg_space As dbStorgSpace
+					,A.db_trans_vlmn As dbTransVlmn
+			   FROM TCN_BID_iAAS_DD A
+			  WHERE A.NOTIFY_NUM = #{notifyNum}
+			    AND A.NOTIFY_SEQ = #{notifySeq}
+			    AND A.USER_ID    = #{demandId}
+		      UNION ALL
+ 			  SELECT  					
+						A.NOTIFY_NUM AS notifyNum
+						,A.NOTIFY_SEQ AS notifySeq
+						,#{userId} AS userId
+						,A.APPLY_SEQ AS applySeq
+						,'N' AS consumerYn
+						,B.db_use AS dbUse
+						,B.db_os AS dbOs
+						,B.db_cpu AS dbCpu
+						,B.db_memory AS dbMemory
+						,B.db_disk AS dbDisk
+						,B.db_qnty AS dbQnty
+				    	,B.db_ip As dbIp
+					    ,B.db_network As dbNetwork
+					    ,B.db_add_disk As dbAddDisk
+					    ,B.db_back_storg As dbBackStorg
+					    ,B.db_storg_space As dbStorgSpace
+					    ,B.db_trans_vlmn As dbTransVlmn
+			       FROM TCN_BID_iAAS_DD A
+			       LEFT JOIN TCN_BID_iAAS_DD B
+				          ON A.NOTIFY_NUM = B.NOTIFY_NUM
+	                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+	              		  AND A.APPLY_SEQ = B.APPLY_SEQ
+                          AND B.USER_ID    = #{userId}
+			      WHERE A.NOTIFY_NUM = #{notifyNum}
+			        AND A.NOTIFY_SEQ = #{notifySeq}
+			        AND A.USER_ID    = #{demandId}
+		          ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+
+    </select> 
+    
+    
+    
+    <!-- IaaS 데이터 정보-->
+    <select id="bidIaaSInfoServer" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+       /*_myapply.bidIaaSInfoServer*/
+       /* IaaS 데이터 정보 */
+		 	  SELECT 
+						A.NOTIFY_NUM AS notifyNum
+						,A.NOTIFY_SEQ AS notifySeq
+						,A.USER_ID AS userId
+						,A.APPLY_SEQ AS applySeq
+						,'Y' AS consumerYn
+						,A.server_use AS serverUse
+						,A.server_os AS serverOs
+						,A.server_cpu AS serverCpu
+						,A.server_memory AS serverMemory
+						,A.server_disk AS serverDisk
+						,A.server_qnty AS serverQnty
+						,A.server_ip AS serverIp
+						,A.server_network AS serverNetwork
+						,A.server_gslb AS serverGslb
+						,A.server_ldbl AS serverLdbl
+						,A.server_snap AS serverSnap
+						,A.server_img AS serverImg
+			     FROM TCN_BID_iAAS_DS A
+			         WHERE A.NOTIFY_NUM = #{notifyNum}
+			         AND A.NOTIFY_SEQ = #{notifySeq}
+			         AND A.USER_ID    = #{demandId}
+		        UNION ALL
+ 				SELECT  					
+						A.NOTIFY_NUM AS notifyNum
+						,A.NOTIFY_SEQ AS notifySeq
+						,#{userId} AS userId
+						,A.APPLY_SEQ AS applySeq
+						,'N' AS consumerYn
+						,B.server_use AS serverUse
+						,B.server_os AS serverOs
+						,B.server_cpu AS serverCpu
+						,B.server_memory AS serverMemory
+						,B.server_disk AS serverDisk
+						,B.server_qnty AS serverQnty
+						,B.server_ip AS serverIp
+						,B.server_network AS serverNetwork
+						,B.server_gslb AS serverGslb
+						,B.server_ldbl AS serverLdbl
+						,B.server_snap AS serverSnap
+						,B.server_img AS serverImg
+			       FROM TCN_BID_iAAS_DS A
+			       LEFT JOIN TCN_BID_iAAS_DS B
+					      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+		                 AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+		                 AND A.APPLY_SEQ = B.APPLY_SEQ
+                          AND B.USER_ID    = #{userId}
+			      WHERE A.NOTIFY_NUM = #{notifyNum}
+			              AND A.NOTIFY_SEQ = #{notifySeq}
+			              AND A.USER_ID    = #{demandId}
+		           ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+    
+  
+   	<!-- IaaS 데이터 정보-->
+    <select id="bidIaaSInfo" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+       /*_myapply.bidIaaSInfo*/
+       /* IaaS 데이터 정보 */
+		 					SELECT 
+						A.NOTIFY_NUM AS notifyNum
+						,A.NOTIFY_SEQ AS notifySeq
+						,A.USER_ID AS userId
+						,'Y' AS consumerYn
+						,A.CDN_TRANS_VLMN AS cdnTransVlmn
+						,A.CDN_REQU_CNT AS cdnRequCnt
+						,A.WEB_GOODS_KIND AS webGoodsKind
+						,A.WEB_ACCESS AS webAccess
+						,A.MNTING_VM AS mntingVm
+						,A.MNTING_ID_CNT AS mntingIdCnt
+						,A.BAKUP_CNT AS bakupCnt
+						,A.BAKUP_STORG AS bakupStorg
+						,A.MANG_FUNC AS mangFunc
+						,A.SECTY_VPN AS sectyVpn
+						,A.SECTY_SSLVPN AS sectySslvpn
+						,A.TECH_SUPT AS techSupt
+						,A.FUNC_DMND1 AS funcDmnd1
+						,A.FUNC_DMND2 AS funcDmnd2
+						,A.FUNC_DMND3 AS funcDmnd3
+						,A.FUNC_DMND4 AS funcDmnd4
+						,A.INTERFACE_DMND AS interfaceDmnd
+						,A.SECTY_DMND1 AS sectyDmnd1
+						,A.SECTY_DMND2 AS sectyDmnd2
+						,A.SECTY_DMND3 AS sectyDmnd3
+						,A.SECTY_DMND3 AS sectyDmnd4
+						,A.SECTY_DMND4 AS sectyDmnd5
+						,A.SECTY_DMND5 AS qutyDmnd1
+						,A.QUTY_DMND1 AS qutyDmnd2
+						,A.QUTY_DMND2 AS optnDmnd1
+						,A.OPTN_DMND1 AS optnDmnd2
+						,A.OPTN_DMND2 AS prjtDmnd1
+						,A.PRJT_DMND1 AS prjtDmnd1
+						,A.PRJT_DMND2 AS prjtDmnd2
+						,A.PRJT_DMND3 AS prjtDmnd3
+						,A.ETC_DMND AS etcDmnd
+				  FROM tcn_bid_iaas_i A
+			      WHERE A.NOTIFY_NUM = #{notifyNum}
+			        AND A.NOTIFY_SEQ = #{notifySeq}
+			        AND A.USER_ID    = #{demandId}
+				 UNION ALL
+				 			SELECT 
+						A.NOTIFY_NUM AS notifyNum
+						,A.NOTIFY_SEQ AS notifySeq
+						,A.USER_ID AS userId
+						,'N' AS consumerYn
+						,B.CDN_TRANS_VLMN AS cdnTransVlmn
+						,B.CDN_REQU_CNT AS cdnRequCnt
+						,B.WEB_GOODS_KIND AS webGoodsKind
+						,B.WEB_ACCESS AS webAccess
+						,B.MNTING_VM AS mntingVm
+						,B.MNTING_ID_CNT AS mntingIdCnt
+						,B.BAKUP_CNT AS bakupCnt
+						,B.BAKUP_STORG AS bakupStorg
+						,B.MANG_FUNC AS mangFunc
+						,B.SECTY_VPN AS sectyVpn
+						,B.SECTY_SSLVPN AS sectySslvpn
+						,B.TECH_SUPT AS techSupt
+						,B.FUNC_DMND1 AS funcDmnd1
+						,B.FUNC_DMND2 AS funcDmnd2
+						,B.FUNC_DMND3 AS funcDmnd3
+						,B.FUNC_DMND4 AS funcDmnd4
+						,B.INTERFACE_DMND AS interfaceDmnd
+						,B.SECTY_DMND1 AS sectyDmnd1
+						,B.SECTY_DMND2 AS sectyDmnd2
+						,B.SECTY_DMND3 AS sectyDmnd3
+						,B.SECTY_DMND3 AS sectyDmnd4
+						,B.SECTY_DMND4 AS sectyDmnd5
+						,B.SECTY_DMND5 AS qutyDmnd1
+						,B.QUTY_DMND1 AS qutyDmnd2
+						,B.QUTY_DMND2 AS optnDmnd1
+						,B.OPTN_DMND1 AS optnDmnd2
+						,B.OPTN_DMND2 AS prjtDmnd1
+						,B.PRJT_DMND1 AS prjtDmnd1
+						,B.PRJT_DMND2 AS prjtDmnd2
+						,B.PRJT_DMND3 AS prjtDmnd3
+						,B.ETC_DMND AS etcDmnd
+				  FROM  tcn_bid_iaas_i A
+				  LEFT JOIN tcn_bid_iaas_i B
+				          ON A.NOTIFY_NUM = B.NOTIFY_NUM
+	                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                        AND B.USER_ID    = #{userId}
+			      WHERE A.NOTIFY_NUM = #{notifyNum}
+			            AND A.NOTIFY_SEQ = #{notifySeq}
+			            AND A.USER_ID    = #{demandId}
+				 ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ
+    </select>   
+   
+   
+   	<!--  TCN_BID_IAAS_I 데이터 입력 -->
+    <insert id="bidIaaSInsertIaaSI"  parameterType="ApplyManageVo">
+      	/*_myapply.bidIaaSInsertIaaSI*/
+      	/* TCN_BID_IAAS_I 데이터 */ 
+   			INSERT INTO TCN_BID_IAAS_I( NOTIFY_NUM, NOTIFY_SEQ, USER_ID, APPLY_GBN,CDN_TRANS_VLMN, CDN_REQU_CNT, WEB_GOODS_KIND
+		                         , WEB_ACCESS, MNTING_VM, MNTING_ID_CNT, BAKUP_CNT, BAKUP_STORG
+		                         , MANG_FUNC, SECTY_VPN, SECTY_SSLVPN, TECH_SUPT, FUNC_DMND1
+		                         , FUNC_DMND2, FUNC_DMND3, FUNC_DMND4, INTERFACE_DMND
+		                         , SECTY_DMND1, SECTY_DMND2, SECTY_DMND3, SECTY_DMND4, SECTY_DMND5
+		                         , QUTY_DMND1, QUTY_DMND2, OPTN_DMND1, OPTN_DMND2, PRJT_DMND1, PRJT_DMND2, PRJT_DMND3
+		                         , ETC_DMND)
+						VALUES(#{notifyNum} , #{notifySeq}  , #{userId}  , 'Y' , #{cdnTransVlmn} , #{cdnRequCnt}
+						     , #{webGoodsKind} , #{webAccess}  , #{mntingVm}   , #{mntingIdCnt} , #{bakupCnt}
+						     , #{bakupStorg} , #{mangFunc}  , #{sectyVpn} , #{sectySslvpn} , #{techSupt} , #{funcDmnd1}
+						     , #{funcDmnd2}, #{funcDmnd3}  , #{funcDmnd4}, #{interfaceDmnd} , #{sectyDmnd1}
+						     , #{sectyDmnd2} , #{sectyDmnd3} , #{sectyDmnd4} , #{sectyDmnd5} , #{qutyDmnd1}
+						     , #{qutyDmnd2} , #{optnDmnd1} , #{optnDmnd2} , #{prjtDmnd1} , #{prjtDmnd2}
+						     , #{prjtDmnd3}  , #{etcDmnd});
+	   	</insert>
+	   	
+	   	
+	<!-- TCN_BID_iAAS_DS 데이터 입력  -->
+    <insert id="bidIaaSInsertIaaSDS"  parameterType="ApplyManageVo">
+      	 /*_myapply.bidIaaSInsertIaaSDS*/
+      	 /* bidIaaSInsertDS 데이터 */ 
+   					INSERT INTO TCN_BID_iAAS_DS VALUES(
+									#{notifyNum}
+									,#{notifySeq}
+									,#{userId}
+									,#{applySeq}
+									,#{serverUse}
+									,#{serverOs}
+									,#{serverCpu}
+									,#{serverMemory}
+									,#{serverDisk}
+									,#{serverQnty}
+									,#{serverIp}
+									,#{serverNetwork}
+									,#{serverGslb}
+									,#{serverLdbl}
+									,#{serverSnap}
+									,#{serverImg}
+									);
+
+	   	</insert>
+   
+	<!-- TCN_BID_iAAS_DD 데이터 입력  -->
+    <insert id="bidIaaSInsertIaaSDD"  parameterType="ApplyManageVo">
+      	 /*_myapply.bidIaaSInsertIaaSDD*/ 
+   					INSERT INTO TCN_BID_iAAS_DD VALUES(
+									#{notifyNum}
+									,#{notifySeq}
+									,#{userId}
+									,#{applySeq}
+									,#{dbUse}
+									,#{dbOs}
+									,#{dbCpu}
+									,#{dbMemory}
+									,#{dbDisk}
+									,#{dbQnty}
+									,#{dbIp}
+									,#{dbNetwork}
+									,#{dbAddDisk}
+									,#{dbBackStorg}
+									,#{dbStorgSpace}
+									,#{dbTransVlmn}
+									);
+
+	   	</insert>
+   
+   
+   
+   
+   <!-- IaaSInfo -->
+   <select id="applycomplete" parameterType="ApplyManageVO" resultType="ApplyManageVO">
+       /*_myapply.applycomplete*/
+       /* IaaS 데이터 정보 */
+			SELECT 
+				option_nm AS optionNm,
+				unit_item AS unitItem,
+				capty_item AS captyItem,
+				amount_item AS amountItem,
+				cmnt_item AS cmntItem
+			FROM tcn_bid_saas_d
+			WHERE notify_num = #{notifyNum} 
+			AND notify_seq = #{notifySeq}
+    </select>
+    
+</mapper>

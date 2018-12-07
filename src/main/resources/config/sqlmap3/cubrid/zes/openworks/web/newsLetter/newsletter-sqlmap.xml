@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_newsletter">
+    <select id="emailDupleCheck" parameterType="newsLetterVO" resultType="Integer">
+        /* _newsletter.emailDupleCheck */
+        <!--
+        SELECT CASE WHEN (SELECT COUNT(EMAIL)
+                            FROM OP_USER
+                           WHERE EMAIL = encrypt(#{email}, 'P008')
+                         ) > 0 THEN 1
+                    WHEN (SELECT COUNT(CMPNY_EMAIL)
+                            FROM OP_USER_OPTION
+                           WHERE CMPNY_EMAIL = #{email}
+                         ) > 0 THEN 2
+                    WHEN (SELECT COUNT(CMPNY_EMAIL)
+                            FROM OP_USER_ENTRPRS_OPTION
+                           WHERE CMPNY_EMAIL = #{email}
+                         ) > 0 THEN 3
+                    WHEN (SELECT COUNT(EMAIL)
+                            FROM TRM_NEWS_LETTER_I
+                           WHERE EMAIL = encrypt(#{email}, 'P008')
+                             AND EMAIL_CRTFC_YN_CD = 1001
+                         ) > 0 THEN 4
+                    WHEN (SELECT COUNT(EMAIL)
+                            FROM TRM_NEWS_LETTER_I
+                           WHERE EMAIL = encrypt(#{email}, 'P008')
+                             AND EMAIL_CRTFC_YN_CD = 1002
+                             AND <![CDATA[CRTFC_REQST_DT >= SYS_DATETIME-3600*24*3*1000]]>
+                         ) > 0 THEN 5
+                    ELSE 6
+               END AS CHECK_NUM FROM DB_ROOT
+        -->
+        <choose>
+            <when test="requestKind == 'EMAIL' or requestKind == 'NSLET' or requestKind == 'BID'">
+            SELECT CASE WHEN (SELECT COUNT(EMAIL)
+                                FROM OP_USER
+                               WHERE EMAIL = #{email}
+                             ) > 0 THEN 1
+                        WHEN (SELECT COUNT(EMAIL)
+                                FROM TRM_NEWS_LETTER_I
+                               WHERE EMAIL = #{email}
+                                 AND EMAIL_CRTFC_YN_CD = 1001
+                           ) > 0 THEN 4
+                        WHEN (SELECT COUNT(EMAIL)
+                                FROM TRM_NEWS_LETTER_I
+                               WHERE EMAIL = #{email}
+                                 AND EMAIL_CRTFC_YN_CD = 1002
+                               AND <![CDATA[CRTFC_REQST_DT >= SYS_DATETIME-3600*24*3*1000]]>
+                             ) > 0 THEN 5
+                        ELSE 6
+                   END AS CHECK_NUM FROM DB_ROOT
+            </when>
+            <otherwise>
+            SELECT CASE WHEN (SELECT COUNT(EMAIL)
+                                FROM OP_USER
+                               WHERE EMAIL = encrypt(#{email}, 'P008')
+                             ) > 0 THEN 1
+                        WHEN (SELECT COUNT(EMAIL)
+                                FROM TRM_NEWS_LETTER_I
+                               WHERE EMAIL = encrypt(#{email}, 'P008')
+                                 AND EMAIL_CRTFC_YN_CD = 1001
+                             ) > 0 THEN 4
+                        WHEN (SELECT COUNT(EMAIL)
+                                FROM TRM_NEWS_LETTER_I
+                               WHERE EMAIL = encrypt(#{email}, 'P008')
+                                 AND EMAIL_CRTFC_YN_CD = 1002
+                                 AND <![CDATA[CRTFC_REQST_DT >= SYS_DATETIME-3600*24*3*1000]]>
+                             ) > 0 THEN 5
+                        ELSE 6
+                   END AS CHECK_NUM FROM DB_ROOT
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="emailDupleCheck2" parameterType="map" resultType="Integer">
+        /* _newsletter.emailDupleCheck2 */
+        <!--
+        SELECT COUNT(*) AS CNT
+          FROM TRM_NEWS_LETTER_I
+         WHERE EMAIL = encrypt(#{email}, 'P008')
+           AND <![CDATA[CRTFC_REQST_DT >= SYS_DATETIME-60*10*1000]]>
+        -->
+        SELECT COUNT(*) AS CNT
+          FROM TRM_NEWS_LETTER_I
+         WHERE EMAIL = encrypt(#{email}, 'P008')
+           AND EMAIL_CRTFC_YN_CD = 1002
+    </select>
+
+    <insert id="emailCrtfcInsert" parameterType="map">
+        /* _newsletter.emailCrtfcInsert */
+        INSERT INTO TRM_NEWS_LETTER_I
+            (
+              USER_NM
+            , EMAIL
+            , CRTFC_REQST_DT
+            , CRTFC_KEY_VALUE
+            , EMAIL_CRTFC_YN_CD
+            , LANG_CODE
+            ) VALUES (
+              #{userNm}
+            , encrypt(#{email}, 'P008')
+            , SYS_DATETIME
+            , #{crtfcKeyValue}
+            , #{emailCrtfcYnCd}
+            , #{langCode}
+            )
+    </insert>
+
+    <update id="emailCrtfcUpdate" parameterType="map">
+        /* _newsletter.emailCrtfcUpdate */
+        <!--
+        UPDATE TRM_NEWS_LETTER_I
+           SET CRTFC_REQST_DT = SYS_DATETIME
+             , EMAIL_CRTFC_YN_CD = 1002
+             , CRTFC_KEY_VALUE = #{crtfcKeyValue}
+         WHERE EMAIL = encrypt(#{email}, 'P008')
+        -->
+        UPDATE TRM_NEWS_LETTER_I
+           SET CRTFC_REQST_DT = SYS_DATETIME
+             , CRTFC_KEY_VALUE = #{crtfcKeyValue}
+         WHERE EMAIL = encrypt(#{email}, 'P008')
+    </update>
+
+    <select id="emailCrtfcCheck" parameterType="map" resultType="Integer">
+        /* _newsletter.emailCrtfcCheck */
+        SELECT COUNT(*) AS CNT
+          FROM TRM_NEWS_LETTER_I
+         WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+           AND EMAIL = encrypt(#{email}, 'P008')
+           AND <![CDATA[CRTFC_REQST_DT >= SYS_DATETIME-3600*24*3*1000]]>
+    </select>
+
+    <update id="newsLetterUpdate" parameterType="map">
+        /* _newsletter.newsLetterUpdate */
+        UPDATE TRM_NEWS_LETTER_I
+           SET EMAIL_CRTFC_YN_CD = #{emailCrtfcYnCd}
+         WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+           AND EMAIL = encrypt(#{email}, 'P008')
+    </update>
+
+    <delete id="newsLetterDelete" parameterType="map">
+        /* _newsletter.newsLetterDelete */
+        <choose>
+            <when test="requestKind == 'EMAIL' or requestKind == 'NSLET' or requestKind == 'BID'">
+            DELETE FROM TRM_NEWS_LETTER_I
+             WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+               AND EMAIL = #{email}
+            </when>
+            <otherwise>
+            DELETE FROM TRM_NEWS_LETTER_I
+             WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+               AND EMAIL = encrypt(#{email}, 'P008')
+            </otherwise>
+        </choose>
+    </delete>
+
+    <delete id="deleteExpired" parameterType="map">
+        /* _newsletter.deleteExpired */
+        DELETE FROM TRM_NEWS_LETTER_I
+         WHERE EMAIL_CRTFC_YN_CD = 1002
+           AND <![CDATA[CRTFC_REQST_DT < SYS_DATETIME-3600*24*3*1000]]>
+    </delete>
+
+    <delete id="deleteMemberData" parameterType="map">
+        /* _newsletter.deleteMemberData */
+        DELETE FROM TRM_NEWS_LETTER_I
+         WHERE EMAIL IN (SELECT encrypt(EMAIL, 'P008') FROM OP_USER)
+        <!--
+            OR EMAIL IN (SELECT encrypt(CMPNY_EMAIL, 'P008') FROM OP_USER_OPTION)
+            OR EMAIL IN (SELECT encrypt(CMPNY_EMAIL, 'P008') FROM OP_USER_ENTRPRS_OPTION)
+        -->
+    </delete>
+
+    <select id="newsLetterRejectCheck" parameterType="map" resultType="Integer">
+        /* _newsletter.newsLetterRejectCheck */
+        <choose>
+            <when test="requestKind == 'EMAIL' or requestKind == 'NSLET' or requestKind == 'BID'">
+            SELECT COUNT(*) AS CNT
+              FROM TRM_NEWS_LETTER_I
+             WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+               AND EMAIL = #{email}
+            </when>
+            <otherwise>
+            SELECT COUNT(*) AS CNT
+              FROM TRM_NEWS_LETTER_I
+             WHERE CRTFC_KEY_VALUE = #{crtfcKeyValue}
+               AND EMAIL = encrypt(#{email}, 'P008')
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

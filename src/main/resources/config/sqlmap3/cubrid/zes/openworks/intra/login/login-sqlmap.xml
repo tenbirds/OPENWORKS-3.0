@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_login">
+
+	<select id="view" parameterType="loginVO" resultType="loginVO">
+		/* _login.view */
+		SELECT
+               A.DEPT_CODE   	AS deptCode
+             , (SELECT DEPT_NM FROM OP_DEPT WHERE DEPT_CODE = A.DEPT_CODE) AS deptNm
+             , A.MNGR_ID    	AS mngrId
+             , A.MNGR_NM    	AS mngrNm
+             , A.MNGR_PASSWORD  AS mngrPassword
+             , A.TELNO   		AS telNo
+             , decrypt(A.MBTLNUM, 'P007')		AS mbtlnum
+             , decrypt(A.EMAIL, 'P008')			AS email
+             , A.NTCN_YN   		AS ntcnYn
+             , A.EMAIL_NTICE_YN AS emailNticeYn
+             , A.USE_YN    		AS useYn
+             , A.LOGIN_CNT 		AS loginCnt
+           	<if test="langCode != null and langCode != ''">
+		     , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = #{langCode} AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		    </if>
+		    <if test="langCode == null or langCode == ''">
+		   	 , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = '00' AND GROUP_CD = 9 AND INDVDLZ_CD = A.OFCPS_CD) AS ofcpsNm
+		    </if>
+             , TO_CHAR(A.LOGIN_DT, 'YYYY-MM-DD HH24:MI:SS') AS loginDt
+             , TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS') AS registDt
+          FROM OP_MNGR A
+         WHERE A.MNGR_ID  = #{mngrId}
+	</select>
+
+	<select id="menuGrpList" parameterType="loginVO" resultType="zes.openworks.intra.menugrp.MenuItemVO">
+		/* _login.menuGrpList */
+		SELECT
+               A.MNGR_MENU_CD  AS menuCd
+             , A.ASGN_TY_CODE  AS asgnTyCode
+             , C.MENU_URL      AS menuUrl
+             , C.MENU_FOLDER   AS menuFolder
+             , C.CONTROLLER_NM AS controllerNm
+          FROM OP_AUTH_MENU_ASSIGN A
+             , OP_AUTH_MNGR_ASSIGN B
+             , OP_MENU C
+         WHERE B.MNGR_ID = #{mngrId}
+           AND A.AUTH_CODE = B.AUTH_CODE
+           AND A.MNGR_MENU_CD = C.MNGR_MENU_CD
+         ORDER BY A.MNGR_MENU_CD
+	</select>
+
+	<select id="asnMenuGrpList" parameterType="loginVO" resultType="zes.openworks.intra.menugrp.MenuGrpVO">
+		/* _login.asnMenuGrpList */
+		SELECT A.MENU_GROUP_CD AS menuGroupCd,
+			   (SELECT MENU_GROUP_NM
+				  FROM OP_MENU_GROUP
+				 WHERE MENU_GROUP_CD = A.MENU_GROUP_CD) AS menuGroupNm
+		  FROM OP_MENU_ASSIGN A
+		 WHERE A.MNGR_ID = #{mngrId}
+	</select>
+
+	<select id="__asnMenuGrpList" parameterType="loginVO" resultType="zes.openworks.intra.menugrp.MenuGrpVO">
+		/* _login.__asnMenuGrpList */
+		SELECT A.AUTH_CODE AS authCode
+			   (SELECT AUTH_NM
+				  FROM OP_AUTH
+				 WHERE AUTH_CODE = A.AUTH_CODE) AS menuGroupNm
+		  FROM OP_AUTH_MNGR_ASSIGN A
+		 WHERE A.MNGR_ID = #{mngrId}
+	</select>
+
+	<select id="__menuGrpCdList" parameterType="loginVO" resultType="int">
+		/* _login.__menuGrpCdList */
+		SELECT B.MENU_GROUP_CD
+		  FROM OP_MNGR A,
+			   OP_MENU_ASSIGN B
+		 WHERE A.MNGR_ID = #{mngrId}
+           AND A.MNGR_ID = B.MNGR_ID
+         ORDER BY B.MENU_GROUP_CD
+	</select>
+
+	<select id="menuGrpCdList" parameterType="loginVO" resultType="String">
+		/* _login.menuGrpCdList */
+		SELECT B.AUTH_CODE
+		  FROM OP_MNGR A,
+			   OP_AUTH_MNGR_ASSIGN B
+		 WHERE A.MNGR_ID = #{mngrId}
+           AND A.MNGR_ID = B.MNGR_ID
+         ORDER BY B.AUTH_CODE
+	</select>
+
+	<update id="loginUpdate" parameterType="loginVO">
+		/* _login.loginUpdate */
+		UPDATE OP_MNGR
+		   SET LOGIN_CNT = LOGIN_CNT + 1,
+			   LOGIN_DT = #{loginDt}
+		 WHERE MNGR_ID = #{mngrId}
+	</update>
+
+	<!-- log insert -->
+	<insert id="webLogging" parameterType="logVO">
+		/* _login.webLogging */
+		INSERT INTO OP_MNGR_LOGIN_HIST (
+			   MNGR_ID
+             , LOGIN_PNTTM
+             , LOGIN_TY
+             , LOGIN_RESULT
+             , LOGIN_IP
+             , MNGR_LOGIN_MENU
+             , LOGIN_AUTH
+		) VALUES (
+			  #{loginVO.mngrId}
+            , SYSDATETIME
+            , #{loginTy}
+            , #{loginResult}
+            , #{loginIp}
+            , #{mngrLoginMenu}
+            , #{loginAuth}
+		)
+	</insert>
+</mapper>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+	<title>씨앗소프트웨어</title>	
+	<link rel="shortcut icon" href="/new_cloud_m/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud_m/css/main.css" />
+	<script type="text/javascript" src="/new_cloud_m/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud_m/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud_m/js/common.js"></script>
+
+	<script defer src="/new_cloud_m/js/jquery.flexslider.js"></script>
+	<link rel="stylesheet" href="/new_cloud_m/css/flexslider.css" type="text/css" media="screen" />
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+<script>
+$(window).load(function() {
+  $('.flexslider').flexslider({
+    animation: "slide"
+  });
+});
+</script>
+<style>
+.table01 {margin-bottom:30px;}
+.table01 table {width:100%; border:1px solid #dbdbdb; border-collapse:collapse;}
+.table01 thead th {text-align:center; background:#f1f1f1;}
+.table01 th, .table01 td {padding:10px 5px; color:#333; font-size:13px; text-align:left; border:1px solid #dbdbdb;}
+.table01 td a {color:#333;}
+td:nth-child(3) {text-align:center;}
+</style>
+</head>
+<body>
+
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<div class="head">
+					<h1><a href="/new_cloud_m/main.html"><img src="/new_cloud_m/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+					<a href="#" class="btn-search">검색</a>
+				</div>
+
+				<div class="navi">
+					<ul>
+					<li class="on"><a href="#">SaaS</a></li>
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="/new_cloud_m/intoduce.html" target="_blank">소개</a></li>
+					</ul>
+				</div>
+
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+				</div>
+				<!-- //quick -->
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container">
+
+			<!-- contents -->
+			<div class="contents">
+				<div class="table01">
+					<table>
+						<colgroup>
+						<col style="width:30%;">
+						<col style="width:;">
+						<col style="width:20;">
+						</colgroup>
+
+						<thead>
+							<th>리스트</th>
+							<th>주소</th>
+							<th>진행여부</th>
+						</thead>
+						<tbody>
+							<tr>
+								<th>main</th>
+								<td><a href="/new_cloud_m/main.html" target="_blank">/new_cloud_m/main</a></td>
+								<td>complete</td>
+							</tr>
+							<!-- <tr>
+								<th>전자정부 표준프레임워크 list</th>
+								<td><a href="/new_cloud_m/framework-list.html" target="_blank">/new_cloud_m/framework-list</a></td>
+								<td></td>
+							</tr> -->
+							<tr>
+								<th>SaaS list</th>
+								<td><a href="/new_cloud_m/software-list.html" target="_blank">/new_cloud_m/software-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>SaaS view</th>
+								<td><a href="/new_cloud_m/software-view.html" target="_blank">/new_cloud_m/software-view</a></td>
+								<td></td>
+							</tr>
+							<!-- <tr>
+								<th>IT전문가서비스 list</th>
+								<td><a href="/new_cloud_m/it-list.html" target="_blank">/new_cloud_m/it-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>IT전문가서비스 view</th>
+								<td><a href="/new_cloud_m/it-view.html" target="_blank">/new_cloud_m/it-view</a></td>
+								<td></td>
+							</tr> -->
+							<tr>
+								<th>지식-지식나눔 list</th>
+								<td><a href="/new_cloud_m/knowledge-list.html" target="_blank">/new_cloud_m/knowledge-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>지식-지식나눔 view</th>
+								<td><a href="/new_cloud_m/knowledge-view.html" target="_blank">/new_cloud_m/knowledge-view</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>지식-이벤트 list</th>
+								<td><a href="/new_cloud_m/event-list.html" target="_blank">/new_cloud_m/event-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>지식-이벤트 view</th>
+								<td><a href="/new_cloud_m/event-view.html" target="_blank">/new_cloud_m/event-view</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>지식-성공스토리 list</th>
+								<td><a href="/new_cloud_m/success-list.html" target="_blank">/new_cloud_m/success-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>지식-성공스토리 view</th>
+								<td><a href="/new_cloud_m/success-view.html" target="_blank">/new_cloud_m/success-view</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>이벤트 list</th>
+								<td><a href="/new_cloud_m/events-list.html" target="_blank">/new_cloud_m/events-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>이벤트 view</th>
+								<td><a href="/new_cloud_m/events-view.html" target="_blank">/new_cloud_m/events-view</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>공지사항 list</th>
+								<td><a href="/new_cloud_m/notice-list.html" target="_blank">/new_cloud_m/notice-list</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>공지사항 view</th>
+								<td><a href="/new_cloud_m/notice-view.html" target="_blank">/new_cloud_m/notice-view</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>오시는길-대구</th>
+								<td><a href="/new_cloud_m/location01.html" target="_blank">/new_cloud_m/location01</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>오시는길-서울</th>
+								<td><a href="/new_cloud_m/location02.html" target="_blank">/new_cloud_m/location02</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>통합검색</th>
+								<td><a href="/new_cloud_m/search.html" target="_blank">/new_cloud_m/search</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>소개</th>
+								<td><a href="/new_cloud_m/intoduce.html" target="_blank">/new_cloud_m/intoduce</a></td>
+								<td>complete / 16.01-05</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+			<!-- //contents -->
+
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<div class="foot-area">
+					<!-- quick -->
+					<div class="quick">
+						<ul>
+						<li><a href="#">이벤트</a></li>
+						<li><a href="#">공지사항</a></li>
+						<li><a href="#">오시는길</a></li>
+						<li class="new"><a href="#">씨앗클라우드</a></li>
+						<li class="new"><a href="#">PC버전</a></li>
+						</ul>
+					</div>
+					<!-- //quick -->
+					<address>
+						<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span></p>
+						<p><strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>					
+						<p><strong>대표전화</strong><span><a href="tel:070-4870-4015">070-4870-4015</a></span><strong>이메일</strong><span><a href="mailto:ceart@ceart.kr">ceart@ceart.kr</a></span></p>
+						<p><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+						<p>Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+					</address>
+				</div>
+
+				<!-- select box -->
+				<div class="section">
+					<div class="box ar">
+						<!-- 구글번역 -->
+						<div id="google_translate_element" class="google"></div>
+						<script type="text/javascript">
+						function googleTranslateElementInit() {
+							new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+						}
+						</script>
+						<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+						<!-- //구글번역 -->
+					</div>
+				</div>
+				<!-- //select box -->
+
+				<p class="copyright">©씨앗소프트웨어</p>
+			</div>
+		</footer>
+		<!-- //footer -->
+	</div>
+
+</body>
+</html>

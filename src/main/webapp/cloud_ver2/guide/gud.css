@@ -1,0 +1,160 @@
+	@import url(/cloud_ver2/new_cloud/css/v3_cmm.css);
+	
+	h1{
+		padding:15px 0 10px;
+		background:#fff;
+		text-align:center;
+		font-size:xx-large
+		}
+	h2{
+		margin-top:40px;
+		font-size:x-large
+		}
+	h3{
+		font-size:large
+		}
+	p{
+		margin-right:1%;
+		text-align:right
+		}
+	p + p{
+		margin-top:10px
+		}
+	table{
+		width:98%;
+		border-collapse:collapse
+		}
+	caption{
+		overflow:visible;
+		width:auto;
+		height:auto;
+		padding:10px 0;
+		font-weight:900;
+		font-size:larger;
+		text-align:center
+		}
+	td b{
+		color:#d91f84;
+		font-weight:bold
+		}	
+	td:nth-child(6),
+	td:nth-child(7),
+	td:nth-child(8),
+	td:nth-child(9){
+		text-align:center
+		}
+	ol,
+	ul{
+		margin-left:40px
+		}
+	ol li{
+		margin-bottom:7px;
+		list-style-type:upper-roman;
+		}
+	ul li{
+		margin-bottom:5px;
+		list-style-type:square;
+		}
+	table + h3{
+		margin:50px 0 10px
+		}
+
+	.trans th{
+		background:#000
+		}
+
+	.tbl_gid{
+		margin:10px 1%;
+		border-top:3px solid #333;
+		border-bottom:2px solid #666
+		}
+	.tbl_gid th,
+	.tbl_gid td{
+		padding:4px 10px;
+		border:1px solid #ccc
+		}
+	.tbl_gid th{
+		width:30%;			
+		padding:10px 0;
+		border:1px solid #aaa;
+		font-size:1.1em
+		}
+
+	.cate{
+		text-align:right
+		}
+	.cate .tbl_gid.idx{
+		display:inline-table;
+		width:300px;
+		text-align:center
+		}
+		
+	.tbl_gid.idx th{
+		width:auto;
+		background:#eee
+		}
+	.tbl_gid.idx td a{
+		font-weight:bolder
+		}
+	.tbl_gid th img{
+		max-width:100%
+		}
+
+	.tbl_gid.idx .sepa td{
+		background:#efefef
+		}
+	.tbl_gid.idx .confirm td{
+		background:chocolate;
+		color:#fff
+		}
+	.tbl_gid.idx .confirm td a{
+		color:#fff
+		}
+	.tbl_gid.idx .confirm.pb td{
+		background:darkseagreen;
+		color:#fff
+		}
+	.tbl_gid.idx .confirm.pb td a{
+		color:#fff
+		}
+	.tbl_gid.idx .confirm.today td{
+		background:antiquewhite;
+		color:#000
+		}
+	.tbl_gid.idx .confirm.today td a{
+		color:#000
+		}
+	.tbl_gid.idx .modi.d1 td{
+		background:yellowgreen;
+		color:#fff
+		}
+	.tbl_gid.idx .modi.d1 td a{
+		color:#fff
+		}
+	.tbl_gid.idx .modi.d2 td{
+		background:lightsalmon;
+		color:#fff
+		}
+	.tbl_gid.idx .modi.d2 td a{
+		color:#fff
+		}
+	
+	
+	.btns_box{
+		width:98%;
+		margin:10px auto 50px
+		}
+	.btnArea + .btnArea{
+		margin-top:20px
+		}
+	.btnArea + .btnArea a{
+		margin-bottom:5px
+		}
+
+/* tab_menu */
+	.tab_menu .tab_con{
+		display:none
+		}
+	.tab_menu .on .tab_con{
+		display:block
+		}

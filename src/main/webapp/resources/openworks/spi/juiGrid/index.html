@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<META charset="UTF-8">
+<title>수요예보조사</title>
+
+<link rel="stylesheet" href="dist/grid.css" />
+<link rel="stylesheet" href="dist/grid-jennifer.css" />
+<link rel="stylesheet" href="dist/layout.css" />
+<script src="lib/jquery-1.8.0.min.js"></script>
+<script src="lib/core.js"></script>
+<script src="dist/grid.js"></script>
+
+<script>
+function getData() {
+    var data = [];
+    data.push(
+          {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"1", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"CCTV 통합관제 시스템 운영시스템",            "No5":"CCTV 통합관제",                                                "No6":"기존","No7":"이재영","No8":"ljy@korea.kr","No9":"010-1234-5678","No10":"2013","No11":"2015","No12":"894,369","No13":"55,410","No14":"0","No15":"Y","No16":"민간","No17":"2014","No18":"상","No19":"상","No20":"상","No21":"없음","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+          {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"2", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"IP 관리 시스템",                     "No5":"군 행정망 IP관리",                                             "No6":"기존","No7":"안승집","No8":"","No9":"","No10":"2014","No11":"","No12":"77,220","No13":"6,177","No14":"0","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"2018년","No23":"민간","No24":"SaaS","No25":"100,000","No26":"Y","No27":"N","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"3", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"IP동보방송 시스템(CCTV 관제센터)",            "No5":"IP동보방송",                                                "No6":"기존","No7":"이재영","No8":"","No9":"","No10":"2013","No11":"2014","No12":"41,973","No13":"0","No14":"0","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"향후 5년 이내","No23":"민간","No24":"SaaS","No25":"100,000","No26":"Y","No27":"N","No28":"없음"},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"4", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"PC 보안관리시스템(내PC지키미)",               "No5":"-개인용 PC의 취약점 점검 및 조치 -사이버 보안진단의 날 운영",                        "No6":"기존","No7":"김혜경","No8":"","No9":"","No10":"2015","No11":"","No12":"22,653","No13":"0","No14":"9,620","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"예정없음","No23":"","No24":"","No25":"","No26":"N","No27":"N","No28":"조사형식 간소화 요청"},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"5", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"e-자료모아시스템",                     "No5":"각종 자료 취합업무, 설문, 신청서 접수업무의 전산화",                              "No6":"기존","No7":"노성호","No8":"","No9":"","No10":"2012","No11":"","No12":"500","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"6", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"가로등 관제 시스템",                     "No5":"가로등 관제",                                                "No6":"기존","No7":"이계철","No8":"","No9":"","No10":"2009","No11":"","No12":"195,667","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"7", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"강우량관측시스템",                     "No5":"읍면 강우량을 실시간 관측하여 신속한 재난대비업무 추진",                           "No6":"기존","No7":"조정효","No8":"","No9":"","No10":"2010","No11":"","No12":"70,545","No13":"4,950","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"8", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"건축행정시스템(세움터)",                  "No5":"건축, 주택 관련 인허가에 대하여 무방문,무서류, 사이버협의 등 실질적 전자화를 목표로 웹기반으로 개발",   "No6":"기존","No7":"김용학","No8":"","No9":"","No10":"2007","No11":"","No12":"0","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"9", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"계약정보공개시스템",                     "No5":"계약 정보공개",                                                "No6":"기존","No7":"권연주","No8":"","No9":"","No10":"2014","No11":"","No12":"15,840","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"10","No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"공공도서관표준자료관리시스템(KOLASⅢ)",         "No5":"공공도서관의 효율적인 자료관리 및 편리한 대국민 정보 서비스 제공을 지원,보급",               "No6":"기존","No7":"김신휘","No8":"","No9":"","No10":"2009","No11":"","No12":"64,320","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"11","No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"공작산 생태숲 홈페이지",                  "No5":"공작산 홈페이지 운영",                                             "No6":"기존","No7":"원현숙","No8":"","No9":"","No10":"2009","No11":"2014","No12":"18,000","No13":"600","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"12", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"CCTV 통합관제 시스템 운영시스템",            "No5":"CCTV 통합관제",                                                "No6":"기존","No7":"이재영","No8":"ljy@korea.kr","No9":"010-1234-5678","No10":"2013","No11":"2015","No12":"894,369","No13":"55,410","No14":"0","No15":"Y","No16":"민간","No17":"2014","No18":"상","No19":"상","No20":"상","No21":"없음","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+          {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"13", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"IP 관리 시스템",                     "No5":"군 행정망 IP관리",                                             "No6":"기존","No7":"안승집","No8":"","No9":"","No10":"2014","No11":"","No12":"77,220","No13":"6,177","No14":"0","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"2018년","No23":"민간","No24":"SaaS","No25":"100,000","No26":"Y","No27":"N","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"14", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"IP동보방송 시스템(CCTV 관제센터)",            "No5":"IP동보방송",                                                "No6":"기존","No7":"이재영","No8":"","No9":"","No10":"2013","No11":"2014","No12":"41,973","No13":"0","No14":"0","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"향후 5년 이내","No23":"민간","No24":"SaaS","No25":"100,000","No26":"Y","No27":"N","No28":"없음"},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"15", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"PC 보안관리시스템(내PC지키미)",               "No5":"-개인용 PC의 취약점 점검 및 조치 -사이버 보안진단의 날 운영",                        "No6":"기존","No7":"김혜경","No8":"","No9":"","No10":"2015","No11":"","No12":"22,653","No13":"0","No14":"9,620","No15":"N","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"예정없음","No23":"","No24":"","No25":"","No26":"N","No27":"N","No28":"조사형식 간소화 요청"},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"16", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"e-자료모아시스템",                     "No5":"각종 자료 취합업무, 설문, 신청서 접수업무의 전산화",                              "No6":"기존","No7":"노성호","No8":"","No9":"","No10":"2012","No11":"","No12":"500","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"17", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"강우량관측시스템",                     "No5":"읍면 강우량을 실시간 관측하여 신속한 재난대비업무 추진",                           "No6":"기존","No7":"조정효","No8":"","No9":"","No10":"2010","No11":"","No12":"70,545","No13":"4,950","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"18", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"건축행정시스템(세움터)",                  "No5":"건축, 주택 관련 인허가에 대하여 무방문,무서류, 사이버협의 등 실질적 전자화를 목표로 웹기반으로 개발",   "No6":"기존","No7":"김용학","No8":"","No9":"","No10":"2007","No11":"","No12":"0","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"19", "No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"계약정보공개시스템",                     "No5":"계약 정보공개",                                                "No6":"기존","No7":"권연주","No8":"","No9":"","No10":"2014","No11":"","No12":"15,840","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"20","No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"공공도서관표준자료관리시스템(KOLASⅢ)",         "No5":"공공도서관의 효율적인 자료관리 및 편리한 대국민 정보 서비스 제공을 지원,보급",               "No6":"기존","No7":"김신휘","No8":"","No9":"","No10":"2009","No11":"","No12":"64,320","No13":"0","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+         {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"21","No1":"기초자치단체","No2":"강원도","No3":"홍천군","No4":"공작산 생태숲 홈페이지",                  "No5":"공작산 홈페이지 운영",                                             "No6":"기존","No7":"원현숙","No8":"","No9":"","No10":"2009","No11":"2014","No12":"18,000","No13":"600","No14":"0","No15":"","No16":"","No17":"","No18":"","No19":"","No20":"","No21":"","No22":"","No23":"","No24":"","No25":"","No26":"","No27":"","No28":""},
+		 {"Delete":"<img src='img/delete.png' width='15' height='15'/>","No":"22","No1":"<input type='text' value='' />","No2":"<input type='text' value='' />","No3":"<input type='text' value='' />","No4":"<input type='text' value='' />",                  "No5":"<input type='text' value='' />",                                             "No6":"<input type='text' value='' />","No7":"<input type='text' value='' />","No8":"<input type='text' value='' />","No9":"<input type='text' value='' />","No10":"<input type='text' value='' />","No11":"<input type='text' value='' />","No12":"<input type='text' value='' />","No13":"<input type='text' value='' />","No14":"<input type='text' value='' />","No15":"<input type='text' value='' />","No16":"<input type='text' value='' />","No17":"<input type='text' value='' />","No18":"<input type='text' value='' />","No19":"<input type='text' value='' />","No20":"<input type='text' value='' />","No21":"<input type='text' value='' />","No22":"<input type='text' value='' />","No23":"<input type='text' value='' />","No24":"<input type='text' value='' />","No25":"<input type='text' value='' />","No26":"<input type='text' value='' />","No27":"<input type='text' value='' />","No28":"<input type='text' value='' />"}
+         )
+    return data;
+}
+
+jui.ready([ "util.base", "grid.xtable" ], function(_, xtableUI) {
+    var body_width = $("body").width();
+
+    xtable = xtableUI("#xtable", {
+        fields: [ "Delete","No","No1","No2","No3","No4","No5","No6","No7","No8","No9","No10","No11","No12","No13","No14","No15","No16","No17","No18","No19","No20","No21","No22","No23","No24","No25","No26","No27","No28"],
+        width: 800,
+        scrollWidth: 1580,
+        scrollHeight: 400,
+        rowHeight: 31,
+        buffer: "vscroll",
+		resize: true,
+        event: {
+            colmenu: function(column, e) {
+                this.toggleColumnMenu(e.pageX - 25);
+            },
+            colresize: function() {
+                console.log("resize");
+            }
+        }
+    });
+    xtable.update(getData());
+    _.resize(function() {
+        xtable.scrollWidth($("body").width(), true);
+    });
+});
+
+</script>
+</head>
+<body class="jui" style="background-color: #fff;">
+<div id="header">
+<table style="width:100%">
+      <tbody>
+         <tr style="height:50px; background-color:#4567a3;">
+            <td style="font-size:24px; font-weight:600; color:#fff; padding-left:15px;">2018년 클라우드 수요예보조사</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+<div id="xtable" class="xtable scroll">
+    <table class="table classic">
+        <thead>
+        <tr>
+        <th width="100px">행삭제</th>
+        <th width="100px">순번</th>
+        <th width="100px">①기관유형</th>
+		<th width="100px">②상위기관명</th>
+        <th width="100px">③기관명</th>
+        <th width="100px">④시스템명</th>
+		<th width="100px">⑤시스템목적</th>
+        <th width="100px">⑥시스템구분</th>
+        <th width="100px">⑦담당자</th>
+		<th width="100px">⑧이메일</th>
+        <th width="100px">⑨연락처</th>
+        <th width="100px">⑩구축년도(YYYY)</th>
+		<th width="100px">⑪최근 업그레이드년도(YYYY)</th>
+        <th width="100px">⑫구축비(단위:천원)</th>
+        <th width="100px">⑬당해년도유지보수비(단위:천원)</th>
+		<th width="100px">⑭당해년도운영비(단위:천원)</th>
+        <th width="100px">⑮클라우드 기이용여부</th>
+        <th width="100px">⑮-1)클라우드구분</th>
+		<th width="100px">⑮-2)클라우드 도입년도(YYYY)</th>
+        <th width="100px">보안성</th>
+        <th width="100px">경제성</th>
+		<th width="100px">업무혁신 및 만족도</th>
+        <th width="100px">장점 및 단점(서술형)</th>
+        <th width="100px">⑯클라우드전환 또는 도입예정</th>
+		<th width="100px">클라우드 구분</th>
+        <th width="100px">서비스구분</th>
+        <th width="100px">⑯-2)클라우드 예산(단위:천원)</th>
+		<th width="100px">⑰-1)비밀여부</th>
+		<th width="100px">⑰-2)경제성</th>
+		<th width="100px">⑱기타사유 및 의견(서술형)</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div><input type="button" value="행추가 +" onClick="javascript:addRow();" />
+<div class="btndown_Wrap">
+	<table border="0" cellspacing="0" cellpadding="0" width="100%" class="input_box">
+	  <colgroup>
+		<col width="20%">
+		<col width="*">
+		<col width="10%">
+		<col width="10%">
+	  </colgroup>
+	  <tr>
+		<td>수요예보조사표 업로드</td>
+		<td><input name="" type="text" placeholder="한국정보화진흥원_0920_수요조사 결과.xls"></td>
+		<td><a class="txt_white">찾아보기</a></td>
+		<td><a>적용</a></td>
+	  </tr>
+	</table>
+	<table border="0" cellspacing="0" cellpadding="0" width="100%" class="mt15 btn_area" >
+	  <colgroup>
+		<col width="33%">
+		<col width="33%">
+		<col width="33%">
+	  </colgroup>    
+	  <tr>
+		<td><a><span><img src="img/icon_download1.png" width="20" height="16"></span>조사표 다운로드</a></td>
+		<td><a>저장</a></td>
+		<td><a>제출</a></td>
+	  </tr>
+	</table>	
+</div>
+
+<script data-jui="#xtable" data-tpl="row" type="text/template">
+   <tr>
+   <td><!= Delete !></td>
+   <td><!= No !></td>
+   <td><!= No1 !></td>
+   <td><!= No2 !></td>
+   <td><!= No3 !></td>
+   <td><!= No4 !></td>
+   <td><!= No5 !></td>
+   <td><!= No6 !></td>
+   <td><!= No7 !></td>
+   <td><!= No8 !></td>
+   <td><!= No9 !></td>
+   <td><!= No10 !></td>
+   <td><!= No11 !></td>
+   <td><!= No12 !></td>
+   <td><!= No13 !></td>
+   <td><!= No14 !></td>
+   <td><!= No15 !></td>
+   <td><!= No16 !></td>
+   <td><!= No17 !></td>
+   <td><!= No18 !></td>
+   <td><!= No19 !></td>
+   <td><!= No20 !></td>
+   <td><!= No21 !></td>
+   <td><!= No22 !></td>
+   <td><!= No23 !></td>
+   <td><!= No24 !></td>
+   <td><!= No25 !></td>
+   <td><!= No26 !></td>
+   <td><!= No27 !></td>
+   <td><!= No28 !></td>
+   </tr>
+</script>
+<script data-jui="#xtable" data-tpl="loading" type="text/template">
+    <div class="loading"></div>
+</script>
+
+<script data-jui="#xtable" data-tpl="none" type="text/template">
+    <tr>
+        <td colspan="30" class="none" align="center">데이터가 없습니다.</td>
+    </tr>
+</script>
+<script>
+function = addRow(){
+
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <!-- [Log to console] ========================================================== -->
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="[%d{MM-dd HH:mm:ss}] %-5p %F:%L : %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- [Log to file] ============================================================= -->
+    <appender name="DAILY" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="datePattern" value="'.'yyyy_MM_dd" />
+        <param name="file"
+            value="D:/NCIA/app_data/openworks/logs/webapp.log" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="[%d{MM-dd HH:mm:ss}] %-5p %F:%L : %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="sql-appender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="datePattern" value="'.'yyyy_MM_dd" />
+        <param name="File" value="D:/NCIA/app_data/openworks/logs/sql.log" />
+        <param name="Append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                value="[%d{MM-dd HH:mm:ss}] %-5p %F:%L : %m%n" />
+        </layout>
+    </appender>
+
+    <logger name="jdbc.sqltiming" additivity="false">
+        <level value="info" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="zes.core" additivity="false">
+        <level value="info" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="zes.base" additivity="false">
+        <level value="info" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="zes.openworks" additivity="false">
+        <level value="info" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <root>
+        <priority value="info" />
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</log4j:configuration>

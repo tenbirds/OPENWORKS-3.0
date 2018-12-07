@@ -1,0 +1,121 @@
+@charset "utf-8";
+
+/*--------------------------------------------------------------------------
+ * BBS List
+ *-------------------------------------------------------------------------*/
+
+.h4_r{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+/* 
+comment
+.comment{
+    margin:0 0 10px 0;
+}
+.star_smile{
+    float:left;
+    width:100%;
+    margin:0 0 5px 0;
+}
+.star_smile span.divStar{
+    width:120px;
+    float:left;
+}
+.star_smile ul{
+    float:left;
+}
+.star_smile ul li{
+    display:inline;
+}
+.star_smile p{
+    float:right;
+    width:180px;
+    padding-right:20px;
+    text-align:right;
+} */
+
+/* 게시글의 댓글 작성폼(Defalut) */
+.comment_wrap {margin:0px 0px 5px 5px; overflow:hidden}
+.comment_wrap .titbox {float:right; margin:0px 5px 5px 0px; overflow:hidden}
+.comment_wrap .titbox h5 {font-family:Arial; font-size:14px; font-style:normal; font-weight:bold; color:#444}
+.comment_wrap .titbox span {color:#c90a11;}
+.comment_wrap .wrtbox {position:relative; width:99.5%; height:70px; overflow:hidden}
+.comment_wrap .wrtbox textarea {float:left; position:absolute; top:0; left:0; width:90%; height:64px; border:1px solid #deded7}
+.comment_wrap .wrtbox .btn_comment {float:right; position:absolute; top:0; right:0; padding:0px 0px;}
+
+/* 게시글의 댓글 리슽 */
+.comment {margin-top:20px; border-top:2px solid #deded7; border-bottom:2px solid #deded7; }
+.comment .inner {margin: 0 0 5px 0; overflow:hidden;}
+
+.comment .reply1 {padding:15px 10px 0 15px; border-top:1px solid #deded7; overflow:hidden}
+.comment .reply1:first-child {margin-top:0; padding-top:25px; border-top:0}
+.comment .reply1 .txtbox {margin-bottom:15px}
+.comment .reply1 .replyWrap {padding:5px 0 0 0}
+.comment .reply1 .replyWrap fieldset {padding:15px 0 15px 0; border-top:1px solid #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 15px; }
+.comment .reply1 .replyWrap .inner {margin-left:20px; overflow:hidden;}
+.comment .reply1 .replyWrap .titbox span {color:#c90a11;}
+.comment .reply1 .replyWrap .wrtbox {margin-left:20px; width:98%;}
+
+.comment .reply2 {clear:both; padding:15px 10px 0 15px; margin-left:15px; border-top:1px dotted #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 20px;}
+.comment .reply2 .inner {margin: 0 0 5px 5px; overflow:hidden;}
+.comment .reply2 p {margin:0 0 15px 5px}
+.comment .reply2 .replyWrap {padding:5px 0 0 0}
+.comment .reply2 .replyWrap fieldset {padding:15px 0 15px 0; border-top:1px solid #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 15px; }
+.comment .reply2 .replyWrap .inner {margin-left:20px; overflow:hidden;}
+.comment .reply2 .replyWrap .titbox span {color:#c90a11;}
+.comment .reply2 .replyWrap .wrtbox {margin-left:20px; width:98%;}
+
+.comment .reply3 {clear:both; padding:15px 10px 0 15px; margin-left:30px; border-top:1px dotted #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 20px;}
+.comment .reply3 .inner {margin: 0 0 5px 5px; overflow:hidden;}
+.comment .reply3 .txtbox {margin:0 0 15px 5px}
+.comment .reply3 .replyWrap {padding:5px 0 0 0}
+.comment .reply3 .replyWrap fieldset {padding:15px 0 15px 0; border-top:1px dotted #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 15px; }
+.comment .reply3 .replyWrap .inner {margin-left:20px; overflow:hidden;}
+.comment .reply3 .replyWrap .titbox span {color:#c90a11;}
+.comment .reply3 .replyWrap .wrtbox {margin-left:20px; width:98%;}
+
+.comment .reply4 {clear:both; padding:15px 10px 0 15px; margin-left:45px; border-top:1px dotted #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 20px;}
+.comment .reply4 .inner {margin: 0 0 5px 5px; overflow:hidden;}
+.comment .reply4 .txtbox {margin:0 0 15px 5px}
+.comment .reply4 .replyWrap {padding:5px 0 0 0}
+.comment .reply4 .replyWrap form {padding:15px 0 15px 0; border-top:1px dotted #deded7; background:url('/resources/openworks/theme/default/images/contents/replyLine.png') no-repeat 0 15px; }
+.comment .reply4 .replyWrap .inner {margin-left:20px; overflow:hidden;}
+.comment .reply4 .replyWrap .titbox span {color:#c90a11;}
+.comment .reply4 .replyWrap .wrtbox {margin-left:20px; width:98%;}
+
+.comment .info {float:left; overflow:hidden}
+.comment .info * {float:left; margin-left:12px}
+.comment .info strong {margin-left:0px; padding-top:5px}
+.comment .info span {padding-top:5px}
+.comment .info a * {margin-left:0px}
+.comment .txtbox {line-height:1.6em; margin-bottom:15px}
+.comment .etc {float:right; overflow:hidden}
+.comment .etc a:hover, .comment .etc a:focus, .comment .etc a:active {text-decoration:underline; color:#c90a11}
+.comment .etc span {margin-left:6px; padding-left:7px; background:url('../images/board/txt_bar2.gif') no-repeat 0 50%}
+.comment .etc span:first-child {margin:0; padding:0; background-image:none}
+.comment_wrap .pagination {position:relative; padding:0 0 15px; border-bottom:1px solid #deded7}
+
+
+
+
+.comment_area ul.list{
+    margin-top:15px;
+    width:100%;
+}
+.comment_area ul.list li{
+    position:relative;
+    border-bottom:1px dotted #cbcbcb;
+    padding:8px 8px;
+    font-size:11px;
+}
+.comment_area ul.list li span.btn{
+    position:absolute;
+    right:6px;
+    top:5px;
+}
+.comment_area ul.list li.bg_gray{
+    background-color:#f3f3f3;
+}

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userguide">
+	<select id="getAllMenuList" parameterType="cmsVO" resultType="cmsVO">
+		/*_userguide.getAllMenuList*/
+		SELECT USER_MENU_CODE AS menuCode
+             , (SELECT A.USER_MENU_NM 
+	          	  FROM OP_USER_MENU A 
+	             WHERE A.DOMAIN_CD = #{domainCd}
+	               AND A.USER_MENU_CODE = OUM.TOP_MENU_CODE)	AS topMenuNm
+	         , USER_MENU_NM 									AS menuNm
+	         , BASS_PATH 										AS basePath
+	         , MENU_PATH 										AS menuPath
+	         , TOP_MENU_CODE 									AS topMenuCode
+	         , PARNTS_MENU_CODE 								AS parentMenuCode
+	         , MENU_DP 											AS menuDepth
+	         , SORT_ORDR 										AS sortOrder
+	         , USER_MENU_URL 									AS userMenuUrl
+	         , MENU_TY 											AS menuType
+	         , LINK_TY 											AS linkType
+	         , LAYOUT_CODE 										AS layoutCode
+	         , INDICT_YN 										AS showYn
+	         , USE_YN 											AS useYn
+	         , DECODE((SELECT COUNT(USER_MENU_CODE) 
+	                     FROM OP_USER_MENU MENU
+	                    WHERE MENU.DOMAIN_CD = OUM.DOMAIN_CD
+	                      AND MENU.PARNTS_MENU_CODE = OUM.USER_MENU_CODE), 0, '1', '0') AS leaf
+	      FROM OP_USER_MENU OUM
+	     WHERE DOMAIN_CD = #{domainCd}
+     	   AND USE_YN = 'Y'
+	       AND PARNTS_MENU_CODE != 'DOMAIN'
+	 	<if test="domainCd == 2">
+	       AND BASS_PATH LIKE '/kor/%'
+	    </if>
+	    <if test="domainCd == 3">
+	       AND BASS_PATH LIKE '/eng/%'
+	    </if>
+	    <if test="domainCd == 4">
+	       AND BASS_PATH LIKE '/esp/%'
+	    </if>
+     	   <!-- AND INDICT_YN = 'Y' -->
+     	   AND MENU_DP &lt; 4
+    	 START WITH MENU_DP = 1 AND USE_YN = 'Y' AND DOMAIN_CD = #{domainCd}
+ 	   CONNECT BY PRIOR USER_MENU_CODE = PARNTS_MENU_CODE AND DOMAIN_CD = #{domainCd}
+   		 ORDER SIBLINGS BY SORT_ORDR
+	</select>
+	
+	 <resultMap id="ctgryListMap" type="map">
+        <result property="ctgryCode" column="CTGRY_CODE"/>
+        <result property="langCtgryNm"	column="LANG_CTGRY_NM"/>
+        <result property="ctgryClCd"	column="CTGRY_CL_CD"/>
+        <result property="ctgryCnt" 	column="CTGRY_CNT"/>
+        <result property="ctgryGroup"	column="CTGRY_GROUP"/>
+    </resultMap>
+    <select id="getCtgryList" parameterType="map" resultMap="ctgryListMap">
+    	/*_userguide.getCtgryList*/
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , CTGRY_CL_CD
+    	      , CTGRY_GROUP
+    	      , COUNT(CTGRYCODE) AS CTGRY_CNT
+    	      , SORT_ORDR
+    	  FROM  (SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344', '6202_349', '6202_350', '6202_341', '6202_350', '6202_351', '6202_348', '6202_337', '6202_353', '6202_363', '6202_362', A.CTGRY_CODE) AS CTGRY_CODE
+                       , DECODE(A.CTGRY_CODE, '6202_343', '마케팅/세일즈', '6202_350', '산업', '6202_349', '산업', '6202_341', '산업', '6202_348', '교육/도서', '6202_351', '교육/도서', '6202_353', '방송/문화/콘텐츠', '6202_337', '방송/문화/콘텐츠', A.LANG_CTGRY_NM) AS LANG_CTGRY_NM
+                       , A.CTGRY_CL_CD
+                       , A.CTGRY_GROUP
+                       , A.CTGRY_DP
+                       , A.PARNTS_CTGRY_CODE
+                       , 0 AS SUB_CNT
+                       , B.CTGRY_CODE AS CTGRYCODE
+                       , A.SORT_ORDR
+                   FROM  TST_CATE_MGMT_M A, TST_GOOD_CATE_I B, TST_GOOD_INFO_I C
+                  WHERE  A.PARNTS_CTGRY_CODE &gt;= '0'
+                    AND  A.LANG_CODE = #{langCode}
+                    AND  A.CTGRY_DELETE_AT = 'N'
+                    AND  A.CTGRY_USE_YN = 'Y'
+                    AND  B.GOODS_CODE = C.GOODS_CODE
+                    AND  C.MNGR_DELETE_AT = 'N'
+                    AND  C.GOODS_ACTVTY_AT = 'Y'
+                    AND  C.GOODS_REGIST_STTUS = 1006
+                    AND  C.LANG_CODE = #{langCode}
+                    AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', '6202_363', '6202_362', A.CTGRY_CODE)  = B.CTGRY_CODE)
+         GROUP  BY  CTGRY_CODE 
+        HAVING  COUNT(CTGRYCODE) &gt; 0
+         ORDER  BY SORT_ORDR
+
+<!--          ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM --> 
+    	
+<!--  
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , CTGRY_CL_CD
+    	      , SUM(CTGRY_CNT) AS CTGRY_CNT
+    	      , CTGRY_GROUP
+    	  FROM  (SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344', '6202_349', '6202_350', '6202_341', '6202_350', '6202_351', '6202_348', '6202_337', '6202_353', A.CTGRY_CODE) AS CTGRY_CODE
+                       , DECODE(A.CTGRY_CODE, '6202_343', '마케팅/세일즈', '6202_350', '산업', '6202_349', '산업', '6202_341', '산업', '6202_348', '교육/도서', '6202_351', '교육/도서', '6202_353', '방송/문화/콘텐츠', '6202_337', '방송/문화/콘텐츠', A.LANG_CTGRY_NM) AS LANG_CTGRY_NM
+                       , A.CTGRY_CL_CD
+                       , (SELECT COUNT(*) FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE) GROUP BY ctgry_code ) AS CTGRY_CNT
+                       , A.CTGRY_GROUP
+                   FROM  TST_CATE_MGMT_M A
+                  WHERE  A.PARNTS_CTGRY_CODE &gt;=  '0'
+                    AND  A.LANG_CODE = '00'
+                    AND  A.CTGRY_DELETE_AT = 'N'
+                    AND  A.CTGRY_USE_YN = 'Y')
+         WHERE  CTGRY_CNT &gt; 0
+         GROUP  BY CTGRY_CODE_DC
+         ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM
+-->
+<!--          ORDER  BY lang_ctgry_nm -->
+    	
+ <!--    	
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , CTGRY_CL_CD
+    	      , CTGRY_CNT
+    	  FROM  (SELECT  A.CTGRY_CODE
+    	               , A.LANG_CTGRY_NM
+    	               , A.CTGRY_CL_CD
+		               , (SELECT COUNT(*)
+	                        FROM TST_GOOD_INFO_I C
+	                       WHERE C.MNGR_DELETE_AT='N'
+	                         AND C.GOODS_ACTVTY_AT='Y'
+	                         AND C.GOODS_REGIST_STTUS = 1006
+	                         AND C.LANG_CODE = #{langCode}
+	                         AND C.GOODS_CODE IN ( SELECT D.GOODS_CODE
+	                                                 FROM TST_GOOD_CATE_I D, TST_CATE_MGMT_M E
+	                                                WHERE D.CTGRY_CODE = E.CTGRY_CODE
+	                                                  AND E.LANG_CODE = #{langCode}              
+	                                                  AND E.CTGRY_CL_CD = A.CTGRY_CL_CD
+	                                                  AND D.CTGRY_CODE IN(SELECT CTGRY_CODE 
+	                                                                        FROM TST_CATE_MGMT_M
+	                                                                       WHERE CTGRY_USE_YN='Y' 
+	                                                                         AND CTGRY_DELETE_AT='N' 
+	                                                                         AND LANG_CODE = #{langCode}
+	                                                                         AND CTGRY_CL_CD =  A.CTGRY_CL_CD
+	                                                                       START WITH ctgry_code = DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)
+	                                                                     CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE)   
+	                                                                       GROUP BY D.GOODS_CODE )
+ 	                     ) AS CTGRY_CNT
+	             FROM  TST_CATE_MGMT_M A
+	            WHERE  A.LANG_CODE ='00'
+	              AND  A.CTGRY_USE_YN = 'Y'
+	              AND  A.CTGRY_DELETE_AT = 'N'
+	              AND  A.PARNTS_CTGRY_CODE != (SELECT DECODE(COUNT(CTGRY_CODE), 0, (SELECT PARNTS_CTGRY_CODE FROM TST_CATE_MGMT_M WHERE CTGRY_CODE = #{ctgryCode}), #{ctgryCode})
+ 				   FROM  TST_CATE_MGMT_M
+				  WHERE  PARNTS_CTGRY_CODE = #{ctgryCode}
+				    AND  LANG_CODE = '00'
+				    AND  CTGRY_DELETE_AT = 'N'
+				    AND  CTGRY_USE_YN = 'Y')
+				)
+		 WHERE  CTGRY_CNT > 0
+		 ORDER  BY LANG_CTGRY_NM
+-->
+    </select>
+</mapper>

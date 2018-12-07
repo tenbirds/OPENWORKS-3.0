@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+<script>
+$(document).ready(function(){
+	$('#daegu').show();
+	$('.tab-area .map li a').click(function(){
+		$('.location').hide();
+		$('.tab-area ul.cs-center li').removeClass('on');
+		$(this).parent('li').addClass('on');
+		var activeTab = $(this).attr("href");
+		$(activeTab).show();
+		return false;
+	});
+});
+
+
+
+</script>
+
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container">
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>오시는길</h2>
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section">
+					
+					<!-- tab -->
+					<div class="tab-area">
+						<ul class="cs-center map">
+						<li class="on"><a href="#daegu">대구 본원</a></li>
+						<li><a href="#seoul">서울 사무소</a></li>
+						</ul>
+					</div>
+					<!-- //tab -->
+
+				</div>
+				<!-- //section -->
+				
+				<!-- section -->
+				<div class="section">
+					<!-- location -->
+					<div class="location" id="daegu">
+						<dl class="map">
+							<dt>
+								<strong>대구 본원</strong>
+								<ul>
+									<li>주소 : 대구광역시 동구 첨단로 53 (41068)</li>
+									<li>전화 : 053-230-1114</li>
+								</ul>
+							</dt>
+							<dd><img src="/new_cloud/images/sub/img-location01.jpg" alt="대구 본원 지도" /></dd>
+						</dl>
+						<dl class="traffic">
+							<dt>
+								<strong>찾아오시는 방법</strong></dt>
+							<dd>
+								<dl class="transit">
+									<dt><span>아이콘</span><strong>대중교통</strong></dt>
+									<dd>
+										<strong>서울 출발 기준</strong>
+										<p>서울 ~ 동대구 (서울 - 동대구 이동)<br />동대구역 또는 동대구 고속버스터미널까지 이동 → 지하철 1호선 동대구역 승차 →<br />안심역 1번 출구 → 동구4-1번 환승 → 4개 정류장 이동 후 한국정보화진흥원 앞 하차</p>
+									</dd>
+								</dl>
+								<dl class="car">
+									<dt><span>아이콘</span><strong>자가운전</strong></dt>
+									<dd>
+										<strong>서울 출발 기준</strong>
+										<p>서울 ~ 동대구 IC (서울 - 동대구 이동)<br />동대구 IC → 화랑로 안심방면 우측 → 동부경찰서 좌회전 → 신서로 지하차도 진입 →<br />대구지방병무청 방면 우회전 → 동내로 우회전 → 첨단로 우회전 → 한국정보화진흥원 도착</p>
+									</dd>
+								</dl>
+							</dd>
+						</dl>
+					</div>
+					<!-- //location -->
+
+					<!-- location -->
+					<div class="location" id="seoul">
+						<dl class="map">
+							<dt>
+								<strong>서울 사무소</strong>
+								<ul>
+									<li>주소 : 서울특별시 중구 청계천로 14 (04520)</li>
+									<li>전화 : 052-6191-2114</li>
+								</ul>
+							</dt>
+							<dd><img src="/new_cloud/images/sub/img-location02.jpg" alt="서울 사무소 지도" /></dd>
+						</dl>
+						<dl class="traffic">
+							<dt>
+								<strong>찾아오시는 방법</strong></dt>
+							<dd>
+								<dl class="transit">
+									<dt><span>아이콘</span><strong>지하철</strong></dt>
+									<dd>
+										<ul>
+										<li><strong class="txt-blue">1호선</strong> 1호선 시청역 5번출구 → 시청삼거리에서 좌회전(무교로방면) → 서울파이낸스빌딩 옆</li>
+										<li><strong class="txt-green">2호선</strong> 2호선 을지로입구역 1번출구 → 시청삼거리에서 우회전(무교로방면) → 코코부르니(커피숍) 건너편</li>
+										<li><strong class="txt-purple">5호선</strong> 5호선 광화문역 5번출구 → 동아일보사 건너편</li>
+										</ul>
+									</dd>
+								</dl>
+								<dl class="bus">
+									<dt><span>아이콘</span><strong>버스</strong><em>정류장에서 무교청사 까지 버스 교통안내</em></dt>
+									<dd>										
+										<dl class="explain">
+											<dt><strong>· 종로 1가에서 하차</strong></dt>
+											<dd>
+												<ul>
+												<li><strong class="txt-blue">간선버스</strong> 101, 103, 109, 150, 160, 260, 270, 271, 273, 370, 408, 470, 471, 501, 506, 601, 606, 705, 710, 721, 720, 702A(서오릉)</li>
+												<li><strong class="txt-green">지선버스</strong> 1020, 7018, 7212</li>
+												<li><strong class="txt-red">광역버스</strong> 2500, 9701</li>
+												<li><strong class="txt-gray">경기버스</strong> (일반)111</li>
+												</ul>
+											</dd>
+										</dl>
+										<dl class="explain">
+											<dt><strong>· 광화문(역)에서 하차</strong></dt>
+											<dd>
+												<ul>
+												<li><strong class="txt-blue">간선버스</strong> 101, 160, 260, 270, 273, 370, 470, 471, 704, 710, 720</li>
+												<li><strong class="txt-red">광역버스</strong> 9709</li>
+												<li><strong class="txt-gray">경기버스</strong> (일반)99, 1002 / (급행)8600, 8601 / (직행)9710</li>
+												</ul>
+											</dd>
+										</dl>
+										<dl class="explain">
+											<dt><strong>· 서울신문사에서 하차</strong></dt>
+											<dd>
+												<ul>
+												<li><strong class="txt-blue">간선버스</strong> 101, 150, 402, 501, 506, 405A</li>
+												<li><strong class="txt-green">지선버스</strong> 1711, 7016</li>
+												</ul>
+											</dd>
+										</dl>
+									</dd>
+								</dl>
+								<dl class="car">
+									<dt><span>아이콘</span><strong>승용차</strong></dt>
+									<dd>
+										<p>· 건물뒷편 주차장 입구에서 차량용 리프트를 이용하여 지하 주차장에 주차한 후 엘리베이터를 이용하여<br />1F 안내데스크에서 안내를 받아 주십시오.</p>
+									</dd>
+								</dl>
+								<dl class="airport">
+									<dt><span>아이콘</span><strong>공항</strong></dt>
+									<dd>
+										<dl class="explain">
+											<dt><strong>· KAL LIMOUSINE BUS</strong></dt>
+											<dd>
+												<ul>
+												<li>- 승차위치 : 인천공항(동4B, 11A), 코리아나호텔 정문 앞</li>
+												<li>- 인천공항 → 코리아나호텔<span>(첫차 : 04:45 / 간격 : 20~30분 / 막차 : 22:44분 / 소요시간 : 60~70분)</span></li>
+												<li>- 코리아나호텔 → 인천공항<span>(첫차 : 05:00 / 간격 : 20~30분 / 막차 : 19:05분 / 소요시간 : 60~70분)</span></li>
+												<li>- 김포공항 → 인천공항<span>(첫차 : 04:00 / 간격 : 10~30분 / 막차 : 21:50분 / 소요시간 : 40분)</span></li>
+												<li>- 요금 : 코리아나호텔 ↔ 인천공항 16,000원 / 김포공항 → 인천공항 7,000원</li>
+												</ul>
+											</dd>
+										</dl>
+										<dl class="explain">
+											<dt><strong>· 6005번</strong>(AIRPORT LIMOUSINE BUS)</dt>
+											<dd>
+												<ul>
+												<li>- 승차위치 : 인천공항(동4B, 11A), 코리아나호텔 정문 앞</li>
+												<li>- 인천공항 → 코리아나호텔<span>(첫차 : 04:45 / 간격 : 20~30분 / 막차 : 22:44분 / 소요시간 : 60~70분)</span></li>
+												<li>- 코리아나호텔 → 인천공항<span>(첫차 : 05:00 / 간격 : 20~30분 / 막차 : 19:05분 / 소요시간 : 60~70분)</span></li>
+												<li>- 김포공항 → 인천공항<span>(첫차 : 04:00 / 간격 : 10~30분 / 막차 : 21:50분 / 소요시간 : 40분)</span></li>
+												<li>- 요금 : 코리아나호텔 ↔ 인천공항 16,000원 / 김포공항 → 인천공항 7,000원</li>
+												</ul>
+											</dd>
+										</dl>
+										<dl class="explain">
+											<dt><strong>· 6701번</strong>(KAL LIMOUSINE BUS)</dt>
+											<dd>
+												<ul>
+												<li>- 승차위치 : 인천공항(동4B, 11A), 코리아나호텔 정문 앞</li>
+												<li>- 인천공항 → 코리아나호텔<span>(첫차 : 04:45 / 간격 : 20~30분 / 막차 : 22:44분 / 소요시간 : 60~70분)</span></li>
+												<li>- 코리아나호텔 → 인천공항<span>(첫차 : 05:00 / 간격 : 20~30분 / 막차 : 19:05분 / 소요시간 : 60~70분)</span></li>
+												<li>- 김포공항 → 인천공항<span>(첫차 : 04:00 / 간격 : 10~30분 / 막차 : 21:50분 / 소요시간 : 40분)</span></li>
+												<li>- 요금 : 코리아나호텔 ↔ 인천공항 16,000원 / 김포공항 → 인천공항 7,000원</li>
+												</ul>
+											</dd>
+										</dl>
+									</dd>
+								</dl>
+							</dd>
+						</dl>
+					</div>
+					<!-- //location -->
+
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

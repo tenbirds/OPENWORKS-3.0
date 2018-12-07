@@ -1,0 +1,145 @@
+@charset "utf-8";
+
+/*  ------------------------------------------------------------------
+ *  skip navigation, location, paging
+ *  ------------------------------------------------------------------*/
+.skip_navi{position:absolute; left:0; top:0; width:100%; z-index:999;}
+.skip_navi li{position:absolute; left:0; top:0; width:100%; z-index:999;}
+.skip_navi a{overflow:hidden; display:block; width:1px; height:1px; margin-bottom:-1px; color:#293134; font-size:0; text-decoration:none;}
+.skip_navi a:active, .skip_navi a:focus{width:100%; height:auto; padding:5px 0; background:#eee; font-size:14px; font-family:'돋움'; text-align:center;}
+
+.location{width:100%; margin-top:30px; text-align:right;}
+.location .home{padding-left:20px; background:url('/resources/cmmnty/english/images/common/ico/ico_home.gif') no-repeat left center;}
+.location span{display:inline-block; margin-left:12px; padding-left:18px; background:url('/resources/cmmnty/english/images/common/bul/bul_arrow_c0.gif') no-repeat left center; color:#737373; font-size:11px;}
+.location strong{display:inline-block; margin-left:12px; padding-left:18px; background:url('/resources/cmmnty/english/images/common/bul/bul_arrow_c0.gif') no-repeat left center; color:#ff7a00; font-size:11px;}
+
+.paging{width:100%; margin-top:25px; text-align:center;}
+.paging a{padding:0 4px; color:#707070; font-family:'Dotum'; font-size:12px; vertical-align:middle;}
+.paging strong{padding:0 4px; color:#ff9132; font-family:'Dotum'; font-size:12px; font-weight:bold; text-decoration:underline;}
+.paging img{vertical-align:middle;}
+.paging .first,
+.paging .prev,
+.paging .next,
+.paging .end{padding:0;}
+
+/*  ------------------------------------------------------------------
+ *  input, select style
+ *  ------------------------------------------------------------------*/
+.file{position:relative;}
+.fake_input{position:absolute; top:0; right:0; width:60px; height:24px; z-index:1; cursor:pointer;}
+.fake_input input[type="file"]{width:60px; height:24px; filter:alpha(opacity:0); opacity:0;}
+.fake_input .file_photo {filter:alpha(opacity=0); opacity:0; width:60px; height:24px; cursor:pointer}
+span.btn{display:block; position:absolute; top:0; right:0;}
+.calendar_input {float:left;height:24px;border:1px solid #d5d5d5;background:url('/resources/cmmnty/english/images/btn/btn_calendar.gif') no-repeat right center;}
+.calendar_input.end {margin-right:12px;}
+.calendar_input input[type=text] {float:left;height:22px;border:none;line-height:22px;}
+.calendar_input button {width:25px;height:22px;margin:2px 0 0 2px;background:transparent;border:none;text-indent:-9999px;}
+.divide {float:left;padding:0 5px;line-height:22px;}
+
+/*  ------------------------------------------------------------------
+ *  font-face (기본 : 나눔고딕, 영문 : NotoSans-Regular,
+ 			   그 외 폰트 : 한글: 돋움, 영문 : verdana)
+ *  ------------------------------------------------------------------*/
+@font-face{
+	font-family:'NanumGothic';
+	font-style: normal;
+	font-weight:normal;
+	src: url('/resources/cmmnty/english/font/NanumGothic.eot');
+	src: local('☺'),url('/resources/cmmnty/english/font/NanumGothic.eot?#iefix') format('embedded-opentype'), url('/resources/cmmnty/english/font/NanumGothic.woff') format('woff'), url('/resources/cmmnty/english/font/NanumGothic.ttf') format('truetype');
+}
+@font-face{
+	font-family:'NanumGothicBold';
+	font-style: normal;
+	font-weight:normal;
+	src: url('/resources/cmmnty/english/font/NanumGothicBold.eot');
+	src: local('☺'),url('/resources/cmmnty/english/font/NanumGothicBold.eot?#iefix') format('embedded-opentype'), url('/resources/cmmnty/english/font/NanumGothicBold.woff') format('woff'), url('/resources/cmmnty/english/font/NanumGothicBold.ttf') format('truetype');
+}
+@font-face{
+	font-family:'NotoSans-Regular';
+	font-style: normal;
+	font-weight:normal;
+	src: url('/resources/cmmnty/english/font/NotoSans-Regular.eot');
+	src: local('☺'),url('/resources/cmmnty/english/font/NotoSans-Regular.eot?#iefix') format('embedded-opentype'), url('/resources/cmmnty/english/font/NotoSans-Regular.woff') format('woff'), url('/resources/cmmnty/english/font/NotoSans-Regular.ttf') 
+}
+
+/*  ------------------------------------------------------------------
+ *  btn type
+ *  ------------------------------------------------------------------*/
+.btn_org{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_org_radius_left.png') no-repeat left top;}
+.btn_org a{display:inline-block; min-width:55px; padding:7px 15px 9px 10px; background:url('/resources/cmmnty/english/images/common/bg/bg_org_radius_right.png') no-repeat right top; color:#fff; text-decoration:none; font-size:12px; font-family:'NanumGothic'; text-align:center; line-height:16px;}
+.btn_org .community{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_community.png') no-repeat left 2px; text-shadow: 0px 1px 1px rgba(119, 119, 119, 1);}
+
+.btn_navi{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_left.gif') no-repeat left top;}
+.btn_navi a{display:inline-block; padding:6px 20px 10px 10px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_right.gif') no-repeat right top; color:#fff; text-decoration:none; font-size:12px; font-family:'NanumGothic'; line-height:16px;}
+.btn_navi .list{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_list.png') no-repeat left 4px;} /* 리스트 아이콘일 경우 */
+.btn_navi .save{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_save.png') no-repeat left 2px;} /* 저장 아이콘일 경우 */
+.btn_navi .join{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_join.png') no-repeat left 2px;} /* 가입승인 아이콘일 경우 */
+.btn_navi .withdraw{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_withdraw.png') no-repeat left 2px;} /* 강제탈퇴 아이콘일 경우 */
+
+.btn_navi_s{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_s_left.gif') no-repeat left top;}
+.btn_navi_s a{display:inline-block; padding:5px 20px 10px 15px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_s_right.gif') no-repeat right top; color:#fff; text-decoration:none; font-size:12px; font-family:'NanumGothic'; line-height:14px;}
+
+.btn_navi_g{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_g_left.gif') no-repeat left top;}
+.btn_navi_g a{display:inline-block; padding:6px 20px 10px 10px; background:url('/resources/cmmnty/english/images/common/bg/bg_navi_g_right.gif') no-repeat right top; color:#fff; text-decoration:none; font-size:12px; font-family:'NanumGothic'; line-height:16px;}
+.btn_navi_g .trash{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_trash.png') no-repeat left 2px;}
+.btn_navi_g .modify{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_modify.png') no-repeat left 2px;}
+.btn_navi_g .disk{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_disk.png') no-repeat left 2px;}
+.btn_navi_g .prv{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_prv.png') no-repeat left 2px;}
+.btn_navi_g .answer{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_answer.png') no-repeat left 2px;} /* 답변 */
+.btn_navi_g .no_join{display:inline-block; padding-left:24px; background:url('/resources/cmmnty/english/images/common/ico/ico_no_join.png') no-repeat left 2px;} /* 가입거절 */
+.btn_navi_g .cancel {display:inline-block;padding-left:24px;background:url('/resources/cmmnty/english/images/common/bul/bul_x.png') no-repeat left 4px;}
+
+.btn_light_gray{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_squ_round_left.gif') no-repeat left top;}
+.btn_light_gray a{display:inline-block; padding:6px 20px 6px 10px; background:url('/resources/cmmnty/english/images/common/bg/bg_squ_round_right.gif') no-repeat right top; color:#737373; text-decoration:none; font-size:11px; line-height:14px;}
+
+.btn_light_gray02{overflow:hidden; display:inline-block; padding-left:5px; background:url('/resources/cmmnty/english/images/common/bg/bg_squ_round_02_left.gif') no-repeat left top;}
+.btn_light_gray02 a{display:inline-block; padding:5px 12px 6px 7px; background:url('/resources/cmmnty/english/images/common/bg/bg_squ_round_02_right.gif') no-repeat right top; color:#737373; text-decoration:none; font-size:11px; line-height:15px;}
+
+/*  ------------------------------------------------------------------
+ *  select box
+ *  ------------------------------------------------------------------*/
+span.selectbox_title{text-align:left;padding:3px 10px 4px;border:1px solid #d5d5d5; background:url('/resources/cmmnty/english/images/btn/btn_select.gif') no-repeat right center;}
+span.selectbox_title strong{overflow:hidden; display:block; width:100%; height:15px; padding:0 0 2px; color:#737373; font-weight:normal; font-size:11px; word-break:break-all; line-height:16px;}
+span.selectbox_title_focus{border-color:#a5c7fe;}
+span.selectbox_title_focus strong{color:#737373;}
+span.selectbox_title_disabled{background-color:#eee;}
+span.selectbox_title_disabled strong{color:#737373;}
+div.selectbox_option{overflow:hidden; border:1px solid #d5d5d5; background:#fff;}
+div.selectbox_option li{list-style:none;}
+div.selectbox_option a{overflow:hidden; display:block; padding:5px 5px 5px 10px; color:#666; font-size:11px; word-break:break-all; line-height:16px; text-decoration:none;}
+div.selectbox_option a.on,
+div.selectbox_option a:hover,
+div.selectbox_option a:focus{color:#737373; background:#eee;}
+
+/*  ------------------------------------------------------------------
+*  Font color style
+*  ------------------------------------------------------------------*/
+span.totalcount{display:block; width:100%; margin-bottom:10px; color:#acacac; text-align:left;font-size:11px;}
+span.totalcount.space{margin-top:25px;}
+.tx_orange{color:#ffa439 !important; /*font-family:'NotoSans-Regular';*/ font-size:12px;}
+/*.fc_ac{color:#acacac !important;}*/
+
+/*  ------------------------------------------------------------------
+ *  tab style
+ *  ------------------------------------------------------------------*/
+.tab_style{width:100%; height:28px; border-bottom:2px solid #e4e4e4;}
+.tab_style ul li{float:left; /*width:103px;*/ background:url('/resources/cmmnty/english/images/common/bul/bul_e3.gif') no-repeat right 3px; font-family:'NanumGothicBold'; font-weight:normal; text-align:center;}
+.tab_style ul li:last-child{background:none;}
+.tab_style ul li a{display:block; height:28px; padding:0 40px; color:#666; text-decoration:none;}
+.tab_style ul li a.on{border-bottom:2px solid #ff7a00;}
+/*.tab_style ul li a:hover,*/
+/*.tab_style ul li a:focus{border-bottom:2px solid #ff7a00;}*/
+
+/* calendar */
+.tbl_calendar{width:100%; border-top:2px solid #ff7a00;}
+.tbl_calendar th{height:33px; padding:0; border-bottom:1px solid #e4e4e4; border-right:1px solid #e4e4e4; color:#333; font-size:12px; font-family:'NanumGothicBold'; font-weight:normal;}
+.tbl_calendar td{position:relative; height:72px; padding:8px 0 0 8px; border-bottom:1px solid #e4e4e4; border-right:1px solid #e4e4e4; color:#333; font-size:10px; vertical-align:top;}
+.tbl_calendar tr.date td{position:relative; height:63px; padding:0; background:#f7f7f7; border-right:none; text-align:center;}
+.tbl_calendar .last{border-right:none;}
+.tbl_calendar .gray{color:#d7d7d7;}
+.tbl_calendar .org{color:#ff7a00;}
+.tbl_calendar .name{display:block; margin:10px 0 0 3px; color:#ff7a00;}
+.tbl_calendar .lunar{position:absolute; top:7px; right:15px; color:#afadad;}
+.tbl_calendar tr.date .today{position:absolute; top:20px; left:20px;}
+.tbl_calendar tr.date .year {margin-top:20px;}
+.tbl_calendar tr.date .year strong{margin:0 15px; color:#262425; font-family:'NanumGothicBold'; font-size:18px;}

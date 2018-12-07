@@ -1,0 +1,1939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	=========================================================
+	* Description : Board sqlmap 정의 파일
+	* Create	  : 
+	* $Id: board-sqlmap.xml 1596 2012-05-14 04:54:59Z evergrin $
+	=========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_board">
+
+	<!-- 게시물 목록용-->
+	<sql id="boardListBody">
+		SELECT 
+               A.DOMAIN_CD              AS domainCd
+             , A.BBS_CD                 AS bbsCd
+             , A.BBSCTT_SEQ             AS bbscttSeq
+             , A.REFRN_SEQ              AS refrnSeq
+             , A.BBSCTT_ORDR_NO         AS bbscttOrdrNo
+             , A.BBSCTT_DP              AS bbscttDp
+             , A.CTG_CD                 AS ctgCd
+			 , (SELECT CTG_NM FROM OP_BOARD_CTG 
+                WHERE DOMAIN_CD = A.DOMAIN_CD 
+                  AND BBS_CD = A.BBS_CD 
+                  AND CTG_CD = A.CTG_CD) AS ctgNm
+             , DECODE (A.NOTICE_BBSCTT_AT, 'Y', 'Y', 'N') AS noticeBbscttAt
+			<if test="cutTitleNum != null  and cutTitleNum != ''">
+             , SUBSTRB(A.BBSCTT_SJ, 0, (#{cutTitleNum} * 2)) AS bbscttSj
+            </if>
+            <if test="cutTitleNum == null or cutTitleNum == ''">
+             , A.BBSCTT_SJ              AS bbscttSj
+            </if>
+             , LENGTHB(A.BBSCTT_SJ)     AS bbscttSjLength
+             , A.BBSCTT_CN              AS bbscttCn
+             , A.CN_SUMRY               AS cnSumry
+             , A.FILE_SEQ               AS fileSeq
+             , A.RDCNT                  AS rdCnt
+             , TO_CHAR(A.REPLY_DT,'YYYY.MM.DD HH24:MI') AS replyDt
+			 , A.ACCUSE_CNT             AS accuseCnt
+             , A.RECOMEND_CNT           AS recomendCnt
+             , A.IP_ADRES               AS ipAdres
+             , A.BRWSR_AGENT            AS brwsrAgent
+             , A.OTHBC_AT               AS othbcAt
+             , A.BANNED_WRD_AT         AS bannedWordAt
+             , DECODE(A.REGIST_PASSWORD, '', 'N', 'Y') AS registPassword
+             , A.REGISTER_NM            AS registerNm
+             , A.REGIST_ID              AS registId  
+             , A.USER_KEY               AS userKey
+             , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD HH24:MI') AS registDt
+             , A.UPDT_ID                AS updtId
+             , TO_CHAR(A.UPDT_DT, 'YYYY/MM/DD') AS updtDt
+             , A.MNGR_ID                AS mngrId
+             , A.MNGR_NM                AS mngrNm
+             , A.DEPT_CODE              AS deptCode
+             , A.DEPT_NM                AS deptNm
+			 , A.ESTN_COLUMN1           AS estnColumn1
+             , A.ESTN_COLUMN2           AS estnColumn2
+             , A.ESTN_COLUMN3           AS estnColumn3
+             , A.ESTN_COLUMN4           AS estnColumn4
+             <choose>
+                 <when test="bbsCd == '1010'">
+                 , (CASE
+                    <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'Y'
+                    <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL    THEN 'N'
+                    <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 대기중-->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'S'
+                         ELSE ''
+                      END)                  AS estnColumn5
+                , TO_CHAR(TO_TIMESTAMP(ESTN_COLUMN6,  'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH:MI' ) AS estnColumn6
+                 </when>
+                 <otherwise>
+              , A.ESTN_COLUMN5              AS estnColumn5
+              , A.ESTN_COLUMN6              AS estnColumn6
+                 </otherwise>
+             </choose>
+             , A.ESTN_COLUMN7           AS estnColumn7
+             , A.ESTN_COLUMN8           AS estnColumn8
+             , A.ESTN_COLUMN9           AS estnColumn9
+             , A.ESTN_COLUMN10          AS estnColumn10
+             , A.GOODS_CODE					    AS goodsCode
+             , A.GOODS_NAME							AS goodsNm
+             , A.MNGR_DELETE_AT         AS mngrDeleteAt
+             , A.REPLY_ID               AS replyId
+             <if test="bbsCd == '1010'">
+              , (CASE
+                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'COM'
+                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N'  AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'INC'
+                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'PRO'
+                     ELSE ''
+                  END)                      AS bizProgression
+              </if>
+          FROM OP_BOARD A
+            <if test="q_searchType != null  and q_searchType != ''">
+                <if test="q_searchType == 1005">
+                    , OP_NTT_TAG B
+                </if>
+            </if>
+         WHERE A.BBS_CD = #{bbsCd}
+        <if test="q_domainCdAll !='0'"> 
+            <if test="q_domainCd != null  and q_domainCd != ''">
+               AND A.DOMAIN_CD IN (<foreach collection="q_domainCd" item="item" separator=", ">#{item}</foreach>)
+            </if>
+        </if>
+        <if test="q_domainCd == null  or q_domainCd == ''">
+           AND A.DOMAIN_CD = #{domainCd}
+        </if>
+        <if test="q_searchType != null  and q_searchType != ''">
+            <if test="q_searchType == 1005">
+                AND A.DOMAIN_CD = B.DOMAIN_CD
+                AND A.BBS_CD = B.BBS_CD
+                AND A.BBSCTT_SEQ = B.BBSCTT_SEQ
+            </if>
+        </if>
+    </sql>
+
+	<!-- 검색 (searchType에 따라서 조건이 변경됨)-->
+	<sql id="searchDynamic">
+        <trim>
+            <if test="bizProgression != null  and bizProgression != ''">
+                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                <if test="bizProgression == 'COM'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'Y'
+                </if>
+                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                <if test="bizProgression == 'INC'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL
+                </if>
+                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+                <if test="bizProgression == 'PRO'">
+                    AND SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL
+                </if>
+            </if>
+            <if test="q_ctgCd != null  and q_ctgCd != ''">
+                AND A.CTG_CD = #{q_ctgCd}
+            </if>
+            <if test="q_aditCtgCd != null  and q_aditCtgCd != ''">
+                AND A.ESTN_COLUMN1 = #{q_aditCtgCd}
+            </if>
+            <if test="q_othbcAt != null  and q_othbcAt != ''">
+                AND A.OTHBC_AT = #{q_othbcAt}
+            </if>
+            <if test="q_estnColumn3 != null  and q_estnColumn3 != ''">
+                AND A.ESTN_COLUMN3 = #{q_estnColumn3}
+            </if>
+            <if test="q_estnColumn5 != null  and q_estnColumn5 != ''">
+                <!-- 대기중은 S이므로 조건이 다르게 검색되어야함 -->
+                <choose>
+                    <when test='q_estnColumn5 == "N"'>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = #{q_estnColumn5}
+                        AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6
+                        AND ESTN_COLUMN6 IS NOT NULL
+                    </when>
+                    <when test='q_estnColumn5 == "S"'>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = 'N'
+                        AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6
+                        AND ESTN_COLUMN6 IS NOT NULL
+                    </when>
+                    <otherwise>
+                        AND SUBSTR (ESTN_COLUMN5,0,1) = #{q_estnColumn5}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                <if test="q_searchType == 1001">
+                    AND A.${q_searchKey} = #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1002">
+                   AND A.${q_searchKey} LIKE '%' || #{q_searchVal} || '%'
+                </if>
+                <if test="q_searchType == 1003">
+                   AND A.${q_searchKey} &lt;= #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1004">
+                   AND A.${q_searchKey} &gt;= #{q_searchVal}
+                </if>
+                <if test="q_searchType == 1005">
+                    AND B.TAG_NM = #{q_searchVal}
+                </if>
+            </if>
+            <if test='bannedWordAt != null  and bannedWordAt != "" and bannedWordAt == "N"'>
+                AND A.BANNED_WRD_AT = 'N'
+            </if>
+            <if test="q_startDt != null  and q_startDt != ''">
+                AND TO_CHAR( A.REGIST_DT, 'YYYYMMDDHHMISS' ) &gt;= #{q_startDt}
+            </if>
+            <if test="q_endDt != null  and q_endDt != ''">
+                AND TO_CHAR( A.REGIST_DT, 'YYYYMMDDHHMISS' ) &lt;= #{q_endDt}
+            </if>
+        </trim>
+    </sql>
+
+	<!-- 공지를 포함하지 않는 정렬 -->
+	<sql id="sortDynamic">
+        <trim>
+            <if test="q_sortName != null  and q_sortName != ''">
+               <if test="q_sortName == 'ROWNUM'">
+                   ORDER BY A.REFRN_SEQ ${q_sortOrder}, A.BBSCTT_ORDR_NO ASC
+               </if>
+               <if test="q_sortName != 'ROWNUM'">
+                  ORDER BY A.${q_sortName} ${q_sortOrder}, A.REGIST_DT DESC
+               </if>
+            </if>
+            <if test="q_sortName == null or q_sortName == ''">
+                ORDER BY A.REGIST_DT DESC, A.REFRN_SEQ DESC, A.BBSCTT_ORDR_NO ASC
+            </if>
+        </trim>
+    </sql>
+
+	<!-- 공지를 포함한 정렬 -->
+	<sql id="sortDynamicAll">
+        <trim>
+            <if test="q_sortName != null  and q_sortName != ''">
+               <if test="q_sortName == 'ROWNUM'">
+                   ORDER BY A.NOTICE_BBSCTT_AT DESC, A.REFRN_SEQ ${q_sortOrder}, A.BBSCTT_ORDR_NO
+               </if>
+               <if test="q_sortName != 'ROWNUM'">
+                  ORDER BY A.${q_sortName} ${q_sortOrder}, A.REGIST_DT DESC
+               </if>
+            </if>
+            <if test="q_sortName == null or q_sortName == ''">
+                ORDER BY A.NOTICE_BBSCTT_AT DESC, A.REGIST_DT DESC, A.REFRN_SEQ DESC, A.BBSCTT_ORDR_NO ASC
+            </if>
+        </trim>
+    </sql>
+
+	<!-- 공지가 아닌 게시물 목록 -->
+	<select id="boardList" parameterType="java.util.Map" resultMap="Select">
+    /*board-sqlmap.xml : _board.boardList */
+        SELECT  Z.*
+              , (SELECT COUNT(F.FILE_ORDR_NO) FROM OP_FILE F WHERE F.FILE_SEQ = Z.fileSeq) AS fileCnt
+              , (SELECT SUM(F.DWLD_CNT) FROM OP_FILE F WHERE F.FILE_SEQ = Z.fileSeq) AS downCnt
+              , (SELECT COUNT(C.BBS_CD) FROM OP_NTT_CMT C WHERE C.DOMAIN_CD = #{domainCd} AND C.BBS_CD = #{bbsCd} AND C.BBSCTT_SEQ = Z.bbscttSeq) AS commentCnt
+          FROM  ( SELECT Y.* 
+                    FROM (SELECT  ROWNUM NUM
+                                , X.* 
+                            FROM (<include refid="boardListBody"/>
+                    <trim>
+                        <if test="noticeBbscttAt != null  and noticeBbscttAt != ''">
+                            AND A.NOTICE_BBSCTT_AT = 'N'
+                        </if>
+                    </trim>
+                    <include refid="searchDynamic"/>
+                    <include refid="sortDynamic"/>
+                    ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+             ) Y
+             WHERE NUM &gt;= #{pagingStartNum} ) Z
+    </select>
+
+	<!-- 공지 목록 -->
+	<select id="noticeList" parameterType="java.util.Map" resultType="boardVO">
+    /*board-sqlmap.xml: _board.noticeList */
+        SELECT
+            Z.*
+            , (SELECT COUNT(F.FILE_ORDR_NO)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = Z.fileSeq) AS fileCnt
+            , (SELECT SUM(F.DWLD_CNT) 
+             FROM OP_FILE F
+            WHERE F.FILE_SEQ = Z.fileSeq) AS downCnt
+            , (SELECT COUNT(C.BBS_CD)
+                  FROM OP_NTT_CMT C
+                WHERE C.DOMAIN_CD = #{domainCd}
+                  AND C.BBS_CD = #{bbsCd}
+                   AND C.BBSCTT_SEQ = Z.bbscttSeq) AS commentCnt
+        FROM (
+            SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (
+                    <include refid="boardListBody"/>
+                       AND A.NOTICE_BBSCTT_AT = 'Y'
+                    <include refid="searchDynamic"/>
+                      ORDER BY A.REFRN_SEQ DESC, A.BBSCTT_ORDR_NO
+                    ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+             ) Y
+             WHERE NUM &gt;= #{pagingStartNum} ) Z
+        ORDER BY refrnSeq DESC, bbscttOrdrNo ASC
+    </select>
+
+    <!-- 게시물 갯수 페이져용 -->
+    <select id="boardListCount" parameterType="java.util.Map" resultType="int">
+    /*_board : board-sqlmap.xml : boardListCount */
+        SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_BOARD A
+        <if test="q_searchType != null  and q_searchType != ''">
+            <if test="q_searchType == 1005">
+                , OP_NTT_TAG B
+            </if>
+        </if>
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         <if test="q_searchType != null  and q_searchType != ''">
+            <if test="q_searchType == 1005">
+                AND A.DOMAIN_CD = B.DOMAIN_CD
+                AND A.BBS_CD = B.BBS_CD
+                AND A.BBSCTT_SEQ = B.BBSCTT_SEQ
+            </if>
+        </if>
+           AND A.NOTICE_BBSCTT_AT = #{noticeBbscttAt}
+           <include refid="searchDynamic"/>
+    </select>
+
+	<!-- 전체 게시물 갯수 boardConf에서 삭제시 확인 -->
+	<select id="boardTotalListCount" parameterType="java.util.Map" resultType="int">
+    /*_board : board-sqlmap.xml : boardTotalListCount */
+        SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_BOARD A
+         WHERE A.DOMAIN_CD  = #{domainCd}
+           AND A.BBS_CD     = #{bbsCd}
+    </select>
+
+	<!-- excel, pdf 컨버전용 -->
+	<select id="boardAllList" parameterType="java.util.Map" resultType="boardVO">
+    /*_board : board-sqlmap.xml : boardAllList */
+        SELECT
+            Z.*
+            , (SELECT COUNT(F.FILE_ORDR_NO)
+                  FROM OP_FILE F
+                 WHERE F.FILE_SEQ = Z.fileSeq) AS fileCnt
+            , (SELECT COUNT(C.BBS_CD)
+                  FROM OP_NTT_CMT C
+                WHERE C.DOMAIN_CD = #{domainCd}
+                  AND C.BBS_CD = #{bbsCd}
+                   AND C.BBSCTT_SEQ = Z.bbscttSeq) AS commentCnt
+        FROM (
+            SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (
+                    <include refid="boardListBody"/>
+                    <include refid="searchDynamic"/>
+                    <include refid="sortDynamicAll"/>
+                    ) X
+            <trim>
+                <if test="pagingEndNum != null  and pagingEndNum != ''">
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+                   </if>
+             ) Y
+                <if test="pagingStartNum != null  and pagingStartNum != ''">
+             WHERE NUM &gt;= #{pagingStartNum} 
+                   </if>
+            </trim>
+            ) Z
+    </select>
+
+	<!-- 게시물 댓글포함 갯수 -->
+	<select id="getBoardCount" parameterType="boardVO" resultType="int">
+    /*_board : board-sqlmap.xml : getBoardCount */
+        SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_BOARD A
+         WHERE A.DOMAIN_CD  = #{domainCd}
+           AND A.BBS_CD     = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+    </select>
+
+    <resultMap id="Select" type="boardVO">
+        <collection property="ctgryList" column="{estnColumn8=estnColumn8,estnColumn9=estnColumn9,estnColumn10=estnColumn10}" ofType="boardVO" select="ctgrySelect"/>
+    </resultMap>
+    <!-- 비즈매칭 구분값 가져오기 -->
+    <select id="ctgrySelect"  parameterType="boardVO" resultType="boardVO">
+        /*_board : board-sqlmap.xml : ctgrySelect */ 
+        SELECT
+                A.CTGRY_CODE  AS ctgryCode,
+                (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE GROUP_CD = 1005
+                    AND LANG_CODE = A.LANG_CODE
+                    AND INDVDLZ_CD = A.CTGRY_CL_CD) AS ctgryClNm,         
+                (SELECT SYS_CONNECT_BY_PATH(B.LANG_CTGRY_NM, ' > ')
+                   FROM TST_CATE_MGMT_M B
+                  WHERE B.CTGRY_CODE = A.CTGRY_CODE                       
+             START WITH B.PARNTS_CTGRY_CODE = '0'
+       CONNECT BY PRIOR B.CTGRY_CODE = B.PARNTS_CTGRY_CODE  ) AS ctgryPath
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_DELETE_AT = 'N'    
+           AND A.CTGRY_CODE IN (#{estnColumn8},#{estnColumn9},#{estnColumn10})
+           ORDER BY A.CTGRY_CODE DESC
+    </select>
+
+	<!-- 게시물 보기 -->
+	<select id="boardView" parameterType="boardVO" resultMap="Select">
+        /*_board : board-sqlmap.xml : boardView */ 
+        SELECT 
+              A.DOMAIN_CD           AS domainCd
+            , A.BBS_CD              AS bbsCd
+            , A.BBSCTT_SEQ          AS bbscttSeq
+            , A.REFRN_SEQ           AS refrnSeq
+            , A.BBSCTT_ORDR_NO      AS bbscttOrdrNo
+            , A.BBSCTT_DP           AS bbscttDp
+            , A.CTG_CD              AS ctgCd
+            ,(SELECT CTG_NM 
+                FROM OP_BOARD_CTG 
+                WHERE DOMAIN_CD = A.DOMAIN_CD
+                  AND BBS_CD = A.BBS_CD 
+                  AND CTG_CD = A.CTG_CD) AS ctgNm
+            , DECODE(A.NOTICE_BBSCTT_AT, 'Y', 'Y', 'N') AS noticeBbscttAt
+            , A.BBSCTT_SJ           AS bbscttSj
+            , A.BBSCTT_CN           AS bbscttCn
+            , A.CN_SUMRY            AS cnSumry
+            , A.REPLY_ID            AS replyId
+            , A.REPLY_CN            AS replyCn
+            , TO_CHAR(A.REPLY_DT,'YYYY.MM.DD HH24:MI') AS replyDt
+            , A.FILE_SEQ            AS fileSeq
+            , A.RDCNT               AS rdCnt
+            , A.RECOMEND_CNT        AS recomendCnt
+            , A.ACCUSE_CNT          AS accuseCnt
+            , A.IP_ADRES            AS ipAdres
+            , A.BRWSR_AGENT         AS brwsrAgent
+            , A.OTHBC_AT            AS othbcAt
+            , A.BANNED_WRD_AT       AS bannedWordAt
+            , A.REGIST_ID           AS registId
+            , A.REGISTER_NM         AS registerNm
+            , A.REGIST_PASSWORD     AS registPassword
+            , A.UPDT_ID             AS updtId
+            , (SELECT MNGR_NM   
+                FROM OP_MNGR 
+                WHERE MNGR_ID = A.UPDT_ID)  AS modNm
+            , TO_CHAR(A.REGIST_DT,'YYYY.MM.DD HH24:MI') AS registDt
+            , TO_CHAR(A.UPDT_DT,'YYYY.MM.DD HH24:MI')   AS updtDt
+            , A.MNGR_ID             AS mngrId
+            , A.DEPT_CODE           AS deptCode
+            , A.DEPT_NM             AS deptNm
+            , A.MNGR_NM             AS mngrNm
+            , A.USER_KEY            AS userKey
+            , A.ESTN_COLUMN1        AS estnColumn1
+            , A.ESTN_COLUMN2        AS estnColumn2
+            , A.ESTN_COLUMN3        AS estnColumn3
+            , A.ESTN_COLUMN4        AS estnColumn4
+             <choose>
+                 <when test="bbsCd == '1010'">
+                 , (CASE
+                    <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'Y'
+                    <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'N'
+                    <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 대기중-->
+                         WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'S'
+                         ELSE ''
+                      END)   AS estnColumn5
+                 , SUBSTR (ESTN_COLUMN5,3)  AS bizCmtSeq
+                 , TO_CHAR(TO_TIMESTAMP(ESTN_COLUMN6,  'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI' ) AS estnColumn6
+                 </when>
+                 <otherwise>
+                     , A.ESTN_COLUMN5        AS estnColumn5
+                     , A.ESTN_COLUMN6        AS estnColumn6
+                 </otherwise>
+             </choose>
+            , A.ESTN_COLUMN7        AS estnColumn7
+            , A.ESTN_COLUMN8        AS estnColumn8
+            , A.ESTN_COLUMN9        AS estnColumn9
+            , A.ESTN_COLUMN10       AS estnColumn10
+            , A.GOODS_CODE					AS goodsCode
+            , A.GOODS_NAME					AS goodsNm
+            <if test="bbsCd == '1010'">
+             , (CASE
+                <!-- 선정한 댓글이 있는경우(무조건) = 완료 -->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'Y'                              THEN 'COM'
+                <!-- 선정한 댓글이 없고, 종료일이 지났을경우 = 미완료-->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &gt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'INC'
+                <!-- 선정한 댓글이 없고, 종료일이 안지났을경우 = 진행중-->
+                     WHEN SUBSTR (ESTN_COLUMN5,0,1) = 'N' AND TO_CHAR(SYS_DATETIME,'yyyyMMddhh24miss') &lt; ESTN_COLUMN6 AND ESTN_COLUMN6 IS NOT NULL   THEN 'PRO'
+                     ELSE ''
+                  END)   AS bizProgression
+              </if>
+            , (SELECT COUNT(BBS_CD)
+               FROM OP_NTT_CMT
+               WHERE DOMAIN_CD = #{domainCd}
+                 AND BBS_CD = #{bbsCd}
+                 AND BBSCTT_SEQ = A.BBSCTT_SEQ) AS commentCnt
+            , A.MNGR_DELETE_AT      AS mngrDeleteAt
+            <if test="bbsCd == '1008'">
+              ,(SELECT 
+                    I.GOODS_NM 
+                FROM 
+                    TST_GOOD_ORDR_I O, 
+                    TST_GOOD_INFO_I I 
+                WHERE O.GOODS_CODE = I.GOODS_CODE
+                    AND O.ORDRR_ID = A.REGIST_ID
+                    AND I.MNGR_DELETE_AT ='N' 
+                    AND I.GOODS_ACTVTY_AT ='Y' 
+                    AND I.GOODS_REGIST_STTUS = 1006 
+                    AND I.LANG_CODE = #{langCode} 
+                    AND O.ORDER_CNFIRM_AT = 'Y'
+                    AND O.PURCHS_NO = SUBSTRING(A.ESTN_COLUMN7,0,1) 
+                ) AS goodsNm 
+            </if>
+          FROM OP_BOARD A
+         WHERE A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+           AND A.DOMAIN_CD = #{domainCd}
+    </select>
+
+	<!-- 게시물 이동용 보기 -->
+    <select id="boardMoveView" parameterType="boardVO" resultType="boardVO">
+    /*_board : board-sqlmap.xml : boardMoveView */
+        SELECT 
+               A.DOMAIN_CD          AS domainCd
+             , A.BBS_CD             AS bbsCd
+             , A.BBSCTT_SEQ         AS bbscttSeq
+             , A.REFRN_SEQ          AS refrnSeq
+             , A.BBSCTT_ORDR_NO     AS bbscttOrdrNo
+             , A.BBSCTT_DP          AS bbscttDp
+             , A.CTG_CD             AS ctgCd
+             , A.NOTICE_BBSCTT_AT   AS noticeBbscttAt
+             , A.BBSCTT_SJ          AS bbscttSj
+             , A.BBSCTT_CN          AS bbscttCn
+             , A.CN_SUMRY           AS cnSumry
+             , A.REPLY_ID           AS replyId
+             , A.REPLY_CN           AS replyCn
+             , A.REPLY_DT           AS replyDt
+             , A.FILE_SEQ           AS fileSeq
+             , A.RDCNT              AS rdCnt
+             , A.RECOMEND_CNT       AS recomendCnt
+             , A.ACCUSE_CNT         AS accuseCnt
+             , A.IP_ADRES           AS ipAdres
+             , A.BRWSR_AGENT        AS brwsrAgent
+             , A.OTHBC_AT           AS othbcAt
+             , A.BANNED_WRD_AT     AS bannedWordAt
+             , A.REGIST_ID          AS registId
+             , A.REGISTER_NM        AS registerNm
+             , A.REGIST_PASSWORD    AS registPassword
+             , A.UPDT_ID            AS updtId
+             , A.REGIST_DT          AS registDt
+             , A.UPDT_DT            AS updtDt
+             , A.MNGR_ID            AS mngrId
+             , A.MNGR_NM            AS mngrNm
+             , A.DEPT_CODE          AS deptCode
+             , A.DEPT_NM            AS deptNm
+             , A.ESTN_COLUMN1       AS estnColumn1
+             , A.ESTN_COLUMN2       AS estnColumn2
+             , A.ESTN_COLUMN3       AS estnColumn3
+             , A.ESTN_COLUMN4       AS estnColumn4
+             , A.ESTN_COLUMN5       AS estnColumn5
+             , A.ESTN_COLUMN6       AS estnColumn6
+             , A.ESTN_COLUMN7       AS estnColumn7
+             , A.ESTN_COLUMN8       AS estnColumn8
+             , A.ESTN_COLUMN9       AS estnColumn9
+             , A.ESTN_COLUMN10      AS estnColumn10
+             , A.MNGR_DELETE_AT     AS mngrDeleteAt
+             , A.REPLY_ID           AS replyId
+          FROM OP_BOARD A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+    </select>
+
+    <!-- 게시물 등록 -->
+    <insert id="boardInsert" parameterType="boardVO">
+        /* board-sqlmap.xml:_board.boardInsert */
+        INSERT INTO OP_BOARD (
+               DOMAIN_CD
+             , BBS_CD
+             , BBSCTT_SEQ
+             , REFRN_SEQ
+             , BBSCTT_ORDR_NO
+             , BBSCTT_DP
+             , CTG_CD
+             , NOTICE_BBSCTT_AT
+             , BBSCTT_SJ
+             , BBSCTT_CN
+             , CN_SUMRY
+             , FILE_SEQ
+             , IP_ADRES
+             , BRWSR_AGENT
+             , OTHBC_AT
+             , BANNED_WRD_AT
+             , REGIST_PASSWORD
+             , REGISTER_NM
+             , REGIST_ID
+             , REGIST_DT
+             , MNGR_ID
+             , MNGR_NM
+             , DEPT_CODE
+             , DEPT_NM
+             , ESTN_COLUMN1
+             , ESTN_COLUMN2
+             , ESTN_COLUMN3
+             , ESTN_COLUMN4
+             , ESTN_COLUMN5
+             , ESTN_COLUMN6
+             , ESTN_COLUMN7
+             , ESTN_COLUMN8
+             , ESTN_COLUMN9
+             , ESTN_COLUMN10
+             , GOODS_CODE
+             , GOODS_NAME
+        ) 
+        VALUES (
+               #{domainCd} 
+             , #{bbsCd}
+             , #{bbscttSeq}
+             , #{refrnSeq}
+             , #{bbscttOrdrNo}
+             , #{bbscttDp}
+             , #{ctgCd}
+             , #{noticeBbscttAt}
+             , #{bbscttSj}
+             , #{bbscttCn}
+             , NVL(#{cnSumry},' ')
+             , #{fileSeq}
+             , #{ipAdres}
+             , #{brwsrAgent}
+             , #{othbcAt}
+             , #{bannedWordAt}
+             , #{registPassword}
+             , #{registerNm}
+             , #{registId}
+             , SYS_DATETIME
+             , #{mngrId}
+             , #{mngrNm}
+             , #{deptCode}
+             , #{deptNm}
+             , #{estnColumn1}
+             , #{estnColumn2}
+             , #{estnColumn3}
+             , #{estnColumn4}
+             , #{estnColumn5}
+             , #{estnColumn6}
+             , #{estnColumn7}
+             , #{estnColumn8}
+             , #{estnColumn9}
+             , #{estnColumn10}
+             , #{goodsCode}
+             , #{goodsNm}
+        )
+    </insert>
+
+	<!-- 게시물 첫번째 자식-->
+    <select id="boardMinChildNode" parameterType="boardVO" resultType="boardVO">
+    /*_board : board-sqlmap.xml : boardMinChildNode */
+        SELECT 
+               DOMAIN_CD        AS domainCd
+             , BBS_CD           AS bbsCd
+             , BBSCTT_SEQ       AS bbscttSeq
+             , REFRN_SEQ        AS refrnSeq
+             , BBSCTT_ORDR_NO   AS bbscttOrdrNo
+             , BBSCTT_DP        AS bbscttDp
+          FROM OP_BOARD
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+            AND REFRN_SEQ = #{refrnSeq}
+            AND BBSCTT_ORDR_NO = 
+               (SELECT NVL(MIN(BBSCTT_ORDR_NO), #{bbscttOrdrNo}) 
+                  FROM OP_BOARD
+                 WHERE DOMAIN_CD = #{domainCd} 
+                   AND BBS_CD = #{bbsCd}
+                   AND REFRN_SEQ = #{refrnSeq}
+                        AND BBSCTT_ORDR_NO &gt; #{bbscttOrdrNo}
+                        AND BBSCTT_DP = (#{bbscttDp} - 1) )
+    </select>
+
+    <!-- 게시물 마지막 자식-->
+    <select id="boardMaxChildNode" parameterType="boardVO" resultType="boardVO">
+    /*_board : board-sqlmap.xml : boardMaxChildNode */
+        SELECT 
+               DOMAIN_CD        AS domainCd
+             , BBS_CD           AS bbsCd
+             , BBSCTT_SEQ       AS bbscttSeq
+             , REFRN_SEQ        AS refrnSeq
+             , BBSCTT_ORDR_NO   AS bbscttOrdrNo
+             , BBSCTT_DP        AS bbscttDp
+          FROM OP_BOARD
+         WHERE DOMAIN_CD = #{domainCd} 
+           AND BBS_CD = #{bbsCd}
+            AND REFRN_SEQ = #{refrnSeq}
+            AND BBSCTT_ORDR_NO =
+               (SELECT NVL(MAX(BBSCTT_ORDR_NO), #{bbscttOrdrNo}) 
+                  FROM OP_BOARD
+                 WHERE DOMAIN_CD = #{domainCd} 
+                   AND BBS_CD = #{bbsCd} 
+                   AND REFRN_SEQ =  #{refrnSeq}
+                        AND BBSCTT_ORDR_NO &gt; #{bbscttOrdrNo}
+                        AND BBSCTT_DP &gt; #{bbscttDp} )
+    </select>
+
+    <!-- 게시물 마지막 자식-->
+    <select id="boardMmaxOrderNo" parameterType="boardVO" resultType="int">
+    /*_board : board-sqlmap.xml : boardMmaxOrderNo */
+        SELECT NVL(MAX(BBSCTT_ORDR_NO),0)
+          FROM OP_BOARD
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+    </select>
+
+    <!-- 게시물 하위 자식들 OrderNo 1증가 -->
+    <update id="boardUpdateOrderNo" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardUpdateOrderNo */
+        UPDATE OP_BOARD
+           SET BBSCTT_ORDR_NO = BBSCTT_ORDR_NO + 1
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND REFRN_SEQ        = #{refrnSeq}
+           AND BBSCTT_ORDR_NO &gt; #{bbscttOrdrNo}
+    </update>
+
+    <!-- 게시물 ReadCnt 1증가 -->
+    <update id="boardIncRdCnt" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardIncRdCnt */
+        UPDATE OP_BOARD
+           SET RDCNT = RDCNT + 1
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 평점 1증가 -->
+    <update id="scoreInc" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : scoreInc */
+        UPDATE OP_BOARD
+           SET STSFDG_EVL_CNT = STSFDG_EVL_CNT + 1
+             , SCORE_SUM = SCORE_SUM + #{scoreSum}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 추천 1증가 -->
+    <update id="recommInc" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : recommInc */
+        UPDATE OP_BOARD
+           SET RECOMEND_CNT = RECOMEND_CNT + 1
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 신고 1증가 -->
+    <update id="accuseInc" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : accuseInc */
+        UPDATE OP_BOARD
+           SET ACCUSE_CNT = ACCUSE_CNT + 1
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+    
+    <!-- 민원형 게시판 답변 등록 수정 -->
+    <update id="boardAnswerUpdate" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardAnswerUpdate */
+        UPDATE OP_BOARD 
+           SET REPLY_ID      = #{replyId}
+             , REPLY_CN      = #{replyCn}
+             <if test='estnColumn3 == "Y"'>
+             , REPLY_DT      = SYS_DATETIME
+             </if>
+             , UPDT_DT       = SYS_DATETIME
+             , ESTN_COLUMN3  = #{estnColumn3}
+<!--              <if test="othbcAt != null  and othbcAt != ''">
+             , OTHBC_AT      = #{othbcAt}
+             </if> -->
+             , MNGR_NM       = #{mngrNm} 
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+	<!-- 민원형 게시판 답변 등록 수정 -->
+    <update id="boardAnswerUpdateOld" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardAnswerUpdateOld */
+        UPDATE OP_BOARD SET
+            REPLY_CN  = #{replyCn},
+            REPLY_DT = SYS_DATETIME,
+            OTHBC_AT = #{othbcAt},
+            <if test="mngrNm != null  and mngrNm != ''">
+                MNGR_NM = #{mngrNm},
+            </if>
+            <if test="deptCode != null  and deptCode != ''">
+                DEPT_CODE = #{deptCode},
+           </if>
+           <if test="deptNm != null  and deptNm != ''">
+                DEPT_NM = #{deptNm},
+           </if>
+           <if test="estnColumn1 != null  and estnColumn1 != ''">
+                   ESTN_COLUMN1 = #{estnColumn1},
+           </if>
+           <if test="estnColumn2 != null  and estnColumn2 != ''">
+                   ESTN_COLUMN2 = #{estnColumn2},
+           </if>
+           <if test="estnColumn3 != null  and estnColumn3 != ''">
+                   ESTN_COLUMN3 = #{estnColumn3},
+           </if>
+           <if test="estnColumn4 != null  and estnColumn4 != ''">
+                   ESTN_COLUMN4 = #{estnColumn4},
+           </if>
+           <if test="estnColumn5 != null  and estnColumn5 != ''">
+                   ESTN_COLUMN5 = #{estnColumn5},
+           </if>
+           <if test="estnColumn6 != null  and estnColumn6 != ''">
+                   ESTN_COLUMN6 = #{estnColumn6},
+           </if>
+           <if test="estnColumn7 != null  and estnColumn7 != ''">
+                   ESTN_COLUMN7 = #{estnColumn7},
+           </if>
+           <if test="estnColumn8 != null  and estnColumn8 != ''">
+                   ESTN_COLUMN8 = #{estnColumn8},
+           </if>
+           <if test="estnColumn9 != null  and estnColumn9 != ''">
+                   ESTN_COLUMN9 = #{estnColumn9},
+           </if>
+           <if test="estnColumn10 != null  and estnColumn10 != ''">
+                   ESTN_COLUMN10 = #{estnColumn10},
+           </if>
+            UPDT_DT = SYS_DATETIME
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 게시물 수정 -->
+    <update id="boardUpdate" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardUpdate */
+        UPDATE OP_BOARD
+        <set>
+           <if test="bbscttSj != null  and bbscttSj != ''">
+                BBSCTT_SJ = #{bbscttSj},
+           </if>
+           <if test="bbscttCn != null  and bbscttCn != ''">
+                BBSCTT_CN = #{bbscttCn},
+           </if>
+           <if test="cnSumry != null  and cnSumry != ''">
+                CN_SUMRY  = #{cnSumry},
+           </if>
+           <if test="replyCn != null  and replyCn != ''">
+                REPLY_CN = #{replyCn},
+                REPLY_DT = TO_CHAR(SYS_DATETIME, 'YYYYMMDDhh24miSss'),
+           </if>
+           <if test="ctgCd != null  and ctgCd != ''">
+                CTG_CD = #{ctgCd},
+           </if>
+           <if test="noticeBbscttAt != null  and noticeBbscttAt != ''">
+                NOTICE_BBSCTT_AT = #{noticeBbscttAt},
+           </if>
+           <if test="registPassword != null  and registPassword != ''">
+                REGIST_PASSWORD = #{registPassword},
+           </if>
+           <if test="registerNm != null  and registerNm != ''">
+                REGISTER_NM = #{registerNm},
+           </if>
+           <if test="fileSeq &gt; 0">
+               FILE_SEQ = #{fileSeq},
+           </if>
+           <if test="othbcAt != null  and othbcAt != ''">
+                OTHBC_AT = #{othbcAt},
+           </if>
+           <if test="bannedWordAt != null  and bannedWordAt != ''">
+                BANNED_WRD_AT = #{bannedWordAt},
+           </if>
+           <if test="deptCode != null  and deptCode != ''">
+                DEPT_CODE = #{deptCode},
+           </if>
+           <if test="deptNm != null  and deptNm != ''">
+                DEPT_NM = #{deptNm},
+           </if>
+           <if test="estnColumn1 != null  and estnColumn1 != ''">
+                   ESTN_COLUMN1 = #{estnColumn1},
+           </if>
+           <if test="estnColumn2 != null  and estnColumn2 != ''">
+                   ESTN_COLUMN2 = #{estnColumn2},
+           </if>
+           <if test="estnColumn3 != null  and estnColumn3 != ''">
+                   ESTN_COLUMN3 = #{estnColumn3},
+           </if>
+           <if test="estnColumn4 != null  and estnColumn4 != ''">
+                   ESTN_COLUMN4 = #{estnColumn4},
+           </if>
+           <if test="estnColumn5 != null  and estnColumn5 != ''">
+                   ESTN_COLUMN5 = #{estnColumn5},
+           </if>
+           <if test="estnColumn6 != null  and estnColumn6 != ''">
+                   ESTN_COLUMN6 = #{estnColumn6},
+           </if>
+           <if test="estnColumn7 != null  and estnColumn7 != ''">
+                   ESTN_COLUMN7 = #{estnColumn7},
+           </if>
+           <if test="estnColumn8 != null  and estnColumn8 != ''">
+                   ESTN_COLUMN8 = #{estnColumn8},
+           </if>
+           <if test="estnColumn9 != null  and estnColumn9 != ''">
+                   ESTN_COLUMN9 = #{estnColumn9},
+           </if>
+           <if test="estnColumn10 != null  and estnColumn10 != ''">
+                   ESTN_COLUMN10 = #{estnColumn10},
+           </if>
+           <if test="goodsCode != null  and goodsCode != ''">
+           				 GOODS_CODE = #{goodsCode},
+           </if>
+           <if test="goodsNm != null  and goodsNm != ''">
+           				 GOODS_NAME = #{goodsNm},
+           </if>
+               UPDT_ID = #{updtId},
+               UPDT_DT = SYS_DATETIME
+         </set>
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 게시물 수정 -->
+    <update id="boardUpdateYn" parameterType="java.util.Map">
+    /*_board : board-sqlmap.xml : boardUpdateYn */
+        UPDATE OP_BOARD
+        <set>
+           <if test="bannedWordAt != null  and bannedWordAt != ''">
+               BANNED_WRD_AT = #{bannedWordAt},
+           </if>
+         </set>
+               UPDT_DT = #{updtDt}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+	<!-- 이동할 게시판 코드 저장 -->
+	<!-- <update id="updateMoveBbsCd" parameterType="java.util.Map">
+    /*_board : board-sqlmap.xml : updateMoveBbsCd */
+        UPDATE OP_BOARD
+           SET MOVE_BBS_CD = #{toBbsCd}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update> -->
+
+	<!-- 관리자 플래그삭제 저장 -->
+	<update id="updateMngrDelAt" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : updateMMngrDelAt */
+        UPDATE OP_BOARD
+           SET MNGR_DELETE_AT = 'Y'
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+    <!-- 게시물 목록에서 여러개 삭제시 -->
+    <select id="deleteBoardList" parameterType="boardVO" resultType="boardVO">
+    /*_board : board-sqlmap.xml : deleteBoardList */
+        SELECT A.DOMAIN_CD          AS domainCd
+             , A.BBS_CD             AS bbsCd
+             , A.BBSCTT_SEQ         AS bbscttSeq
+             , A.BBSCTT_SJ          AS bbscttSj
+             , A.FILE_SEQ           AS fileSeq
+             , A.REFRN_SEQ          AS refrnSeq
+             , A.BBSCTT_ORDR_NO     AS bbscttOrdrNo
+             , A.BBSCTT_DP          AS bbscttDp
+          FROM OP_BOARD A 
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.REFRN_SEQ = #{refrnSeq}
+           AND A.BBSCTT_SEQ &gt;= #{bbscttSeq}
+           AND A.BBSCTT_ORDR_NO &gt;= #{bbscttOrdrNo}
+           AND A.BBSCTT_ORDR_NO &lt;= #{bbscttDp}
+    </select>
+
+	<!-- 게시물 보기에서 하나 삭제 -->
+	<delete id="boardDelete" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardDelete */
+        DELETE FROM OP_BOARD
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </delete>
+
+    
+    <!-- 다음글/이전글용 -->
+    <sql id="boardSimpleList">
+    /*_board : board-sqlmap.xml : boardSimpleList */
+        SELECT 
+             DOMAIN_CD
+           , BBS_CD
+           , BBSCTT_SEQ
+           , BBSCTT_SJ
+           , MNGR_DELETE_AT
+           , OTHBC_AT
+           , REGIST_PASSWORD
+           , FILE_SEQ
+           , PASS_DAY
+           , ROWNUM AS POS
+           , REGISTER_NM
+           , REGIST_ID
+           , REGIST_DT
+           , LENGTHB(BBSCTT_SJ)
+           , ESTN_COLUMN3
+          FROM (SELECT 
+                       A.DOMAIN_CD
+                     , A.BBS_CD
+                     , A.BBSCTT_SJ
+                     , A.BBSCTT_SEQ
+                     , A.OTHBC_AT
+                     , A.REGIST_PASSWORD
+                     , A.MNGR_DELETE_AT
+                     , A.FILE_SEQ
+                     , A.REGISTER_NM
+                     , A.REGIST_ID
+                     , A.REGIST_DT
+                     , TO_NUMBER(TO_CHAR(SYS_DATE, 'YYYYMMDD') - TO_CHAR(A.REGIST_DT, 'YYYYMMDD')) AS PASS_DAY
+                     , LENGTHB(A.BBSCTT_SJ)
+                     , A.ESTN_COLUMN3
+                  FROM OP_BOARD A
+                <if test="q_searchType != null  and q_searchType != ''">
+                    <if test="q_searchType == 1005">
+                        , OP_NTT_TAG B
+                    </if>
+                    <if test="q_searchType == 1007">
+                        , OP_NTT_CMT C
+                    </if>
+                </if>
+                 WHERE A.DOMAIN_CD = #{domainCd}
+                   AND A.BBS_CD  = #{bbsCd}
+                   AND A.NOTICE_BBSCTT_AT    = #{noticeBbscttAt}
+                <if test="q_searchType != null  and q_searchType != ''">
+                    <if test="q_searchType == 1005">
+                        AND A.DOMAIN_CD = B.DOMAIN_CD
+                        AND A.BBS_CD = B.BBS_CD
+                        AND A.BBSCTT_SEQ = B.BBSCTT_SEQ
+                    </if>
+                    <if test="q_searchType == 1007">
+                        AND A.DOMAINC_CD = C.DOMAINC_CD
+                        AND A.BBS_CD = C.BBS_CD
+                        AND A.BBSCTT_SEQ = C.BBSCTT_SEQ
+                    </if>
+                </if>
+                       <include refid="searchDynamic"/>
+                       <include refid="sortDynamic"/>
+        ) C
+    </sql>
+
+    <!-- 다음글 -->
+    <select id="boardNextView" parameterType="boardVO" resultType="boardVO">
+    /*_boardWeb : board-sqlmap.xml : boardNextView */
+        SELECT 
+               Z.DOMAIN_CD              AS domainCd
+             , Z.BBS_CD                 AS bbsCd
+             , Z.BBSCTT_SJ              AS bbscttSj
+             , Z.BBSCTT_SEQ             AS bbscttSeq
+             , Z.OTHBC_AT               AS othbcAt
+             , Z.REGIST_PASSWORD        AS registPassword
+             , Z.REGISTER_NM            AS registerNm
+             , SUBSTR(Z.REGIST_ID,0,LENGTH(Z.REGIST_ID)-3)||'***'   AS registId
+             , TO_CHAR(Z.REGIST_DT,'YYYY-MM-DD HH24:MI') AS registDt
+             , Z.MNGR_DELETE_AT         AS mngrDeleteAt
+             , LENGTHB(Z.BBSCTT_SJ)     AS bbscttSjLength
+             , ESTN_COLUMN3             AS estnColumn3
+             , (SELECT COUNT(F.FILE_ORDR_NO) 
+                FROM OP_FILE F WHERE F.FILE_SEQ = Z.FILE_SEQ) AS fileCnt
+             , (SELECT COUNT(C.BBS_CD) 
+                FROM 
+                    OP_NTT_CMT C 
+                WHERE 
+                      C.DOMAIN_CD = #{domainCd} 
+                  AND C.BBS_CD = #{bbsCd} 
+                  AND C.BBSCTT_SEQ = Z.BBSCTT_SEQ) AS commentCnt
+             , PASS_DAY AS passDay
+          FROM (<include refid="boardSimpleList"/>) Z
+         WHERE Z.POS = ( SELECT (X.POS-1)
+                           FROM (<include refid="boardSimpleList"/>) X
+                          WHERE X.DOMAIN_CD = #{domainCd}
+                            AND X.BBSCTT_SEQ = #{bbscttSeq}
+                            AND X.BBS_CD = #{bbsCd} )
+    </select>
+
+    <!-- 이전글 -->
+    <select id="boardPrevView" parameterType="boardVO" resultType="boardVO">
+    /*_boardWeb : board-sqlmap.xml : boardPrevView */
+        SELECT 
+              Z.DOMAIN_CD               AS domainCd
+            , Z.BBS_CD                  AS bbsCd
+            , Z.BBSCTT_SJ               AS bbscttSj
+            , Z.BBSCTT_SEQ              AS bbscttSeq
+            , Z.OTHBC_AT                AS othbcAt
+            , Z.REGISTER_NM             AS registerNm
+            , SUBSTR(Z.REGIST_ID,0,LENGTH(Z.REGIST_ID)-3)||'***'   AS registId
+            , TO_CHAR(Z.REGIST_DT,'YYYY-MM-DD HH24:MI') AS registDt
+            , Z.OTHBC_AT                AS othbcAt
+            , Z.REGIST_PASSWORD         AS registPassword
+            , Z.MNGR_DELETE_AT          AS mngrDeleteAt
+            , LENGTHB(Z.BBSCTT_SJ)      AS bbscttSjLength
+            , ESTN_COLUMN3              AS estnColumn3
+            , (SELECT COUNT(F.FILE_ORDR_NO) 
+                FROM OP_FILE F 
+                WHERE F.FILE_SEQ = Z.FILE_SEQ)  AS fileCnt
+            , (SELECT COUNT(C.BBS_CD) 
+                FROM OP_NTT_CMT C 
+                WHERE C.DOMAIN_CD = #{domainCd} 
+                  AND C.BBS_CD = #{bbsCd} 
+                  AND C.BBSCTT_SEQ = Z.BBSCTT_SEQ) AS commentCnt
+            , PASS_DAY       AS passDay
+          FROM (<include refid="boardSimpleList"/>) Z
+         WHERE Z.POS = ( SELECT (X.POS+1)
+                           FROM (<include refid="boardSimpleList"/>) X
+                          WHERE X.DOMAIN_CD = #{domainCd}
+                            AND X.BBSCTT_SEQ = #{bbscttSeq}
+                            AND X.BBS_CD = #{bbsCd} )
+    </select>
+	<!-- 게시물 댓글 목록 페이징 -->
+	<select id="commentList" parameterType="java.util.Map" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : commentList */
+        SELECT
+            Z.*
+            , Z.registPassword AS registPassword
+            , (SELECT MNGR.MNGR_NM FROM OP_MNGR MNGR WHERE Z.mngrId = MNGR.MNGR_ID) AS mngrNm
+            , (SELECT USR.USER_NM FROM OP_USER USR WHERE Z.registId = USR.USER_ID) AS userNm
+            , (SELECT USR.USER_ID FROM OP_USER USR WHERE Z.registId = USR.USER_ID) AS userId
+        FROM (
+             SELECT Y.* 
+               FROM (
+                    SELECT ROWNUM NUM, X.* 
+                      FROM (
+                            SELECT 
+                                   A.DOMAIN_CD              AS domainCd
+                                 , A.BBS_CD                 AS bbsCd
+                                 , A.BBSCTT_SEQ             AS bbscttSeq
+                                 , A.CMT_SEQ                AS cmtSeq
+                                 , A.ICON_KEY               AS iconKey
+                                 , A.NTT_CMT_CN             AS nttCmtCn
+                                 , A.REGIST_PASSWORD        AS registPassword
+                                 , A.REGIST_ID              AS registId
+                                 , A.REGISTER_NM            AS registerNm
+                                 , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD HH24:MI:SS') AS registDt
+                                 , A.UPDT_ID                AS updtId
+                                 , TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS updtDt
+                                 , A.MNGR_ID                AS mngrId
+                                 , A.BBSCTT_EVL_SCORE       AS bbscttEvlScore
+                                 , A.MNGR_DELETE_AT         AS mngrDeleteAt
+                                 , A.CMT_ORDR_NO            AS cmtOrdrNo
+                                 , A.REFRN_CMT_SEQ          AS refrnCmtSeq
+                                 , A.CMT_DP                 AS cmtDp
+                                 , A.USER_DELETE_AT         AS userDeleteAt
+                              FROM (
+                                   SELECT *
+                                     FROM OP_NTT_CMT V
+                                    WHERE V.DOMAIN_CD = #{domainCd}
+                                      AND V.BBS_CD = #{bbsCd}
+                                      AND V.BBSCTT_SEQ = #{bbscttSeq}
+                                   ) A
+                             START WITH CMT_DP = 0
+                           CONNECT BY NOCYCLE  PRIOR CMT_SEQ = REFRN_CMT_SEQ     
+                    ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+             ) Y
+             WHERE NUM &gt;= #{pagingStartNum}
+        ) Z
+    </select>
+
+	<!-- 게시물 댓글 목록 전체 -->
+	<select id="commentListAll" parameterType="boardVO" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : commentListAll */
+        SELECT 
+               A.DOMAIN_CD          AS domainCd
+             , A.BBS_CD             AS bbsCd
+             , A.BBSCTT_SEQ         AS bbscttSeq
+             , A.CMT_SEQ            AS cmtSeq
+             , A.ICON_KEY           AS iconKey
+             , A.NTT_CMT_CN         AS nttCmtCn  
+             , A.IP_ADRES           AS ipAdres
+             , A.REGIST_PASSWORD    AS registPassword
+             , A.REGIST_ID          AS registId
+             , A.REGISTER_NM        AS registerNm
+             , A.REGIST_DT          AS registDt
+             , A.UPDT_ID            AS updtId
+             , A.UPDT_DT            AS updtDt
+             , A.MNGR_ID            AS mngrId
+             , A.BBSCTT_EVL_SCORE   AS bbscttEvlScore
+             , A.MNGR_DELETE_AT     AS mngrDeleteAt
+             , A.CMT_ORDR_NO        AS cmtOrdrNo
+             , A.REFRN_CMT_SEQ      AS refrnCmtSeq
+             , A.CMT_DP             AS cmtDp
+             , A.USER_DELETE_AT     AS userDeleteAt
+          FROM OP_NTT_CMT A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD= #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+           AND A.CMT_SEQ = #{cmtSeq}
+         ORDER BY A.REGIST_DT DESC
+    </select>
+
+	<!-- 게시물 댓글 갯수 -->
+	<select id="commentListCount" parameterType="java.util.Map" resultType="int">
+    /*_board : board-sqlmap.xml : commentListCount */
+        SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_NTT_CMT A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         <trim>
+           <if test="bbscttSeq != null  and bbscttSeq != ''">
+                AND A.BBSCTT_SEQ = #{bbscttSeq}
+           </if>
+           <if test="ctgCd != null  and ctgCd != ''">
+                AND A.BBSCTT_SEQ IN (SELECT BBSCTT_SEQ FROM OP_BOARD WHERE CTG_CD =#{ctgCd}) 
+            </if>
+         </trim>
+    </select>
+
+	<!-- 게시물 댓글 추가 -->
+	<insert id="commentInsert" parameterType="boardCmtVO">
+    /*_board : board-sqlmap.xml : commentInsert */
+        <!-- selectKey resultClass="int" keyProperty="cmtSeq">
+            SELECT NVL(MAX(CMT_SEQ), 0) + 1
+              FROM OP_NTT_CMT
+             WHERE BBS_CD = #{bbsCd}
+               AND SEQ = #{seq}
+        </selectKey -->
+        INSERT INTO OP_NTT_CMT (
+               DOMAIN_CD
+             , BBS_CD
+             , BBSCTT_SEQ
+             , CMT_SEQ
+             , ICON_KEY
+             , NTT_CMT_CN
+             , IP_ADRES
+             , REGIST_PASSWORD
+             , REGIST_ID
+             , REGISTER_NM
+             , REGIST_DT
+             , MNGR_ID
+             , BBSCTT_EVL_SCORE
+             , CMT_ORDR_NO
+             , REFRN_CMT_SEQ
+             , CMT_DP
+             , USER_DELETE_AT
+        ) 
+        VALUES (
+               #{domainCd}
+             , #{bbsCd}
+             , #{bbscttSeq}
+             , #{cmtSeq}
+             , #{iconKey}
+             , #{nttCmtCn} 
+             , #{ipAdres}
+             , #{registPassword}
+             , #{registId}
+             , #{registerNm}
+             , SYS_DATETIME
+             , #{mngrId}
+             , #{bbscttEvlScore}
+             , NVL(#{cmtOrdrNo}, 0)
+             , #{refrnCmtSeq}
+             , NVL(#{cmtDp}, 0)
+             , NVL(#{userDeleteAt}, 'N')
+        )
+    </insert>
+    
+    <!-- 코멘트 첫번째 자식-->
+    <select id="boardMinCmtChildNode" parameterType="boardCmtVO" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : boardMinCmtChildNode */
+        SELECT 
+               DOMAIN_CD        AS domainCd
+             , BBS_CD           AS bbsCd
+             , BBSCTT_SEQ       AS bbscttSeq
+             , CMT_SEQ          AS cmtSeq
+             , CMT_ORDR_NO      AS cmtOrdrNo
+             , REFRN_CMT_SEQ    AS refrnCmtSeq
+             , CMT_DP           AS cmtDp
+          FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd} 
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND CMT_SEQ = #{cmtSeq}
+        <trim>         
+            <if test="refrnCmtSeq == null and refrnCmtSeq == ''" >
+            AND REFRN_CMT_SEQ = #{cmtSeq}
+            </if>
+            <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+            AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+            </if>
+        </trim>
+           AND CMT_ORDR_NO = 
+               (SELECT NVL(MIN(CMT_ORDR_NO), #{cmtOrdrNo}) 
+                  FROM OP_NTT_CMT
+                 WHERE DOMAIN_CD = #{domainCd} 
+                   AND BBS_CD = #{bbsCd}
+                   AND BBSCTT_SEQ = #{bbscttSeq}
+                   AND CMT_SEQ = #{cmtSeq}
+                <trim>         
+                    <if test="refrnCmtSeq == null and refrnCmtSeq == ''" >
+                    AND REFRN_CMT_SEQ = #{cmtSeq}
+                    </if>
+                    <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+                    AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+                    </if>
+                </trim>
+                   AND CMT_ORDR_NO &gt; #{cmtOrdrNo}
+                   AND CMT_DP = (#{cmtDp} - 1))
+    </select>
+
+    <!-- 코멘트 마지막 자식-->
+    <select id="boardMaxCmtChildNode" parameterType="boardCmtVO" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : boardMaxCmtChildNode */
+        SELECT DOMAIN_CD        AS domainCd
+             , BBS_CD           AS bbsCd
+             , BBSCTT_SEQ       AS bbscttSeq
+             , CMT_SEQ          AS cmtSeq
+             , REFRN_CMT_SEQ    AS refrnCmtSeq
+             , CMT_DP           AS cmtDp
+             , CMT_ORDR_NO      AS cmtOrdrNo
+          FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd} 
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND CMT_SEQ = #{cmtSeq}
+        <trim>         
+           <if test="refrnCmtSeq == null and refrnCmtSeq == ''" >
+           AND REFRN_CMT_SEQ = #{cmtSeq}
+           </if>
+           <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+           AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+           </if>
+        </trim>
+           AND CMT_ORDR_NO =
+               (SELECT NVL(MAX(CMT_ORDR_NO), #{cmtOrdrNo}) 
+                  FROM OP_NTT_CMT
+                 WHERE DOMAIN_CD = #{domainCd} 
+                   AND BBS_CD = #{bbsCd}
+                   AND BBSCTT_SEQ = #{bbscttSeq}
+                   AND CMT_SEQ = #{cmtSeq}
+                <trim>         
+                   <if test="refrnCmtSeq == null and refrnCmtSeq == ''" >
+                   AND REFRN_CMT_SEQ = #{cmtSeq}
+                   </if>
+                   <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+                   AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+                   </if>
+                </trim>
+                   AND CMT_ORDR_NO &gt; #{cmtOrdrNo}
+                   AND CMT_DP &gt; #{cmtDp} )
+    </select>
+    
+    <!-- 게시물 댓글 마지막 자식-->
+    <select id="boardCmtMaxOrderNo" parameterType="boardVO" resultType="int">
+    /*_board : board-sqlmap.xml : boardCmtMaxOrderNo */
+        SELECT NVL(MAX(CMT_ORDR_NO),0)
+          FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND REFRN_CMT_SEQ = #{cmtSeq}
+    </select>
+
+    <!-- 게시물 댓글 하위 자식들 OrderNo 1증가 -->
+    <update id="boardCmtUpdateOrderNo" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardCmtUpdateOrderNo */
+        UPDATE OP_NTT_CMT
+           SET CMT_ORDR_NO = CMT_ORDR_NO + 1
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND CMT_SEQ = #{cmtSeq}
+           AND CMT_ORDR_NO &gt; #{cmtOrdrNo}
+    </update>
+
+	<!-- 게시물 댓글 보기 -->
+	<select id="commentView" parameterType="boardCmtVO" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : commentView */
+        SELECT A.DOMAIN_CD          AS domainCd
+             , A.BBS_CD             AS bbsCd
+             , A.BBSCTT_SEQ         AS bbscttSeq
+             , A.CMT_SEQ            AS cmtSeq
+             , A.ICON_KEY           AS iconKey
+             , A.NTT_CMT_CN         AS nttCmtCn
+             , A.IP_ADRES           AS ipAdres
+             , A.REGIST_PASSWORD    AS registPassword
+             , A.REGIST_ID          AS registId
+             , A.REGISTER_NM        AS registerNm
+             , A.REGIST_DT          AS registDt
+             , A.UPDT_ID            AS updtId
+             , A.UPDT_DT            AS updtDt
+             , A.MNGR_ID            AS mngrId
+             , A.BBSCTT_EVL_SCORE   AS bbscttEvlScore
+             , A.MNGR_DELETE_AT     AS mngrDeleteAt
+             , A.CMT_ORDR_NO        AS cmtOrdrNo
+             , A.REFRN_CMT_SEQ      AS refrnCmtSeq
+             , A.CMT_DP             AS cmtDp
+             , A.USER_DELETE_AT     AS userDeleteAt
+          FROM    OP_NTT_CMT A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND  A.BBSCTT_SEQ = #{bbscttSeq}
+           AND A.CMT_SEQ = COALESCE(#{refrnCmtSeq}, #{cmtSeq})
+    </select>
+
+	<!-- 게시물 댓글 수정 -->
+	<update id="commentUpdate" parameterType="boardCmtVO">
+    /*_board : board-sqlmap.xml : commentUpdate */
+        UPDATE OP_NTT_CMT
+           SET MNGR_ID          = #{mngrId}
+             , REGIST_PASSWORD  = #{registPassword}
+             , ICON_KEY         = #{iconKey}
+             , NTT_CMT_CN       = #{nttCmtCn}
+             , BBSCTT_EVL_SCORE = #{bbscttEvlScore}
+             , UPDT_DT          = #{updtDt}
+             , UPDT_ID          = #{updtId}
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND CMT_SEQ = #{cmtSeq}
+    </update>
+ 
+    <!-- 게시물 삭제시 하위 댓글 삭제 -->
+    <update id="commentDeleteAll" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : commentDeleteAll */
+        DELETE FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </update>
+
+	<!-- 게시물 목록에서 여러개 삭제시 -->
+    <select id="deleteCommentList" parameterType="boardCmtVO" resultType="boardCmtVO">
+    /*_board : board-sqlmap.xml : deleteCommentList */
+        SELECT A.DOMAIN_CD       AS domainCd
+             , A.BBS_CD          AS bbsCd
+             , A.BBSCTT_SEQ      AS bbscttSeq
+             , A.CMT_SEQ         AS cmtSeq
+             , A.REFRN_CMT_SEQ   AS refrnCmtSeq
+             , A.NTT_CMT_CN      AS nttCmtCn
+             , A.CMT_ORDR_NO     AS cmtOrdrNo
+             , A.CMT_DP          AS cmtDp
+          FROM OP_NTT_CMT A 
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ &gt;= #{bbscttSeq}
+           AND A.CMT_SEQ = #{cmtSeq}
+           <if test="refrnCmtSeq == null and refrnCmtSeq == ''" >
+           AND REFRN_CMT_SEQ = #{cmtSeq}
+           </if>
+           <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+           AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+           </if>
+           AND A.CMT_ORDR_NO &gt;= #{cmtOrdrNo}
+           AND A.CMT_ORDR_NO &lt;= #{cmtDp}
+    </select>
+    
+    <!--  게시물 댓글 삭제 (하위가 있을때, 없을때)  -->
+    <delete id="commentDelete" parameterType="boardCmtVO"  >
+    /*_board : board-sqlmap.xml : commentDelete */
+         DELETE FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           <if test="refrnCmtSeq == null or refrnCmtSeq == ''" >
+           AND CMT_SEQ = #{cmtSeq}
+           </if>
+           <if test="refrnCmtSeq != null and refrnCmtSeq != ''" >
+           AND REFRN_CMT_SEQ = #{refrnCmtSeq}
+           </if>
+    </delete>
+
+	<!-- 댓글 관리자 플래그삭제 저장 -->
+    <update id="updateCmtMngrDelAt" parameterType="boardCmtVO">
+    /*_board : board-sqlmap.xml : updateCmtMngrDelAt    */   
+    UPDATE OP_NTT_CMT
+           SET MNGR_DELETE_AT = 'Y'
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND CMT_SEQ = #{cmtSeq}
+           AND REFRN_CMT_SEQ = COALESCE(#{refrnCmtSeq}, #{cmtSeq})
+    </update>
+
+    <!-- 삭제 데이터 보관 -->
+    <insert id="trashBoardInsert" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : trashBoardInsert */
+        INSERT INTO OP_BOARD_TRASH (
+                DOMAIN_CD
+	          , BBS_CD
+	          , BBSCTT_SEQ
+	          , REFRN_SEQ
+	          , BBSCTT_ORDR_NO
+	          , BBSCTT_DP
+	          , CTG_CD
+	          , NOTICE_BBSCTT_AT
+	          , BBSCTT_SJ
+	          , BBSCTT_CN
+	          , CN_SUMRY
+	          , REPLY_CN
+	          , REPLY_DT
+	          , REPLY_ID
+	          , MNGR_NM
+	          , MNGR_ID
+	          , MNGR_DELETE_AT
+	          , DEPT_CODE
+	          , DEPT_NM
+	          , FILE_SEQ
+	          , RDCNT
+	          , ACCUSE_CNT
+	          , RECOMEND_CNT
+	          , IP_ADRES
+	          , BRWSR_AGENT
+	          , OTHBC_AT
+	          , BANNED_WRD_AT
+	          , USER_KEY
+	          , REGIST_PASSWORD
+	          , REGISTER_NM
+	          , REGIST_ID
+	          , REGIST_DT
+	          , UPDT_ID
+	          , UPDT_DT
+	          , ESTN_COLUMN1
+	          , ESTN_COLUMN2
+	          , ESTN_COLUMN3
+	          , ESTN_COLUMN4
+	          , ESTN_COLUMN5
+	          , ESTN_COLUMN6
+	          , ESTN_COLUMN7
+	          , ESTN_COLUMN8
+	          , ESTN_COLUMN9
+	          , ESTN_COLUMN10
+              , STDR_YM
+        )
+        SELECT 
+	            DOMAIN_CD
+	          , BBS_CD
+	          , BBSCTT_SEQ
+	          , REFRN_SEQ
+	          , BBSCTT_ORDR_NO
+	          , BBSCTT_DP
+	          , CTG_CD
+	          , NOTICE_BBSCTT_AT
+	          , BBSCTT_SJ
+	          , BBSCTT_CN
+	          , CN_SUMRY
+	          , REPLY_CN
+	          , REPLY_DT
+	          , REPLY_ID
+	          , MNGR_NM
+	          , MNGR_ID
+	          , MNGR_DELETE_AT
+	          , DEPT_CODE
+	          , DEPT_NM
+	          , FILE_SEQ
+	          , RDCNT
+	          , ACCUSE_CNT
+	          , RECOMEND_CNT
+	          , IP_ADRES
+	          , BRWSR_AGENT
+	          , OTHBC_AT
+	          , BANNED_WRD_AT
+	          , USER_KEY
+	          , REGIST_PASSWORD
+	          , REGISTER_NM
+	          , REGIST_ID
+	          , REGIST_DT
+	          , UPDT_ID
+	          , UPDT_DT
+	          , ESTN_COLUMN1
+	          , ESTN_COLUMN2
+	          , ESTN_COLUMN3
+	          , ESTN_COLUMN4
+	          , ESTN_COLUMN5
+	          , ESTN_COLUMN6
+	          , ESTN_COLUMN7
+	          , ESTN_COLUMN8
+	          , ESTN_COLUMN9
+	          , ESTN_COLUMN10
+	          , TO_CHAR(SYS_DATE,'YYYYMM')
+        FROM OP_BOARD
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+        AND BBSCTT_SEQ = #{bbscttSeq}
+    </insert>
+
+	<!-- 삭제 태그 보관 -->
+    <insert id="trashTagInsert" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : trashTagInsert */
+        INSERT INTO OP_NTT_TAG_TRASH (
+               DOMAIN_CD
+             , BBS_CD
+             , BBSCTT_SEQ
+             , TAG_NM
+             , STDR_YM
+        )
+        SELECT DOMAIN_CD
+             , BBS_CD
+             , BBSCTT_SEQ
+             , TAG_NM
+             , TO_CHAR(SYS_DATE,'YYYYMM')
+        FROM OP_NTT_TAG
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+        AND BBSCTT_SEQ = #{bbscttSeq}
+    </insert>
+
+    <!-- 삭제 댓글 보관 -->
+    <insert id="trashCommentInsert" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : trashCommentInsert */
+        INSERT INTO OP_NTT_CMT_TRASH (
+                DOMAIN_CD
+	          , BBS_CD
+	          , BBSCTT_SEQ
+	          , CMT_SEQ
+	          , REFRN_CMT_SEQ
+	          , CMT_DP
+	          , CMT_ORDR_NO
+	          , ICON_KEY
+	          , NTT_CMT_CN
+	          , IP_ADRES
+	          , USER_KEY
+	          , USER_DELETE_AT
+	          , REGIST_PASSWORD
+	          , REGISTER_NM
+	          , REGIST_ID
+	          , REGIST_DT
+	          , UPDT_ID
+	          , UPDT_DT
+	          , BBSCTT_EVL_SCORE
+	          , MNGR_ID
+	          , MNGR_DELETE_AT
+	          , BIZ_MATCHING_OTHBC_AT
+	          , BIZ_MATCHING_CMPNY_NM
+	          , BIZ_MATCHING_CTTPC
+	          , BIZ_MATCHING_EMAIL
+	          , STDR_YM
+        ) 
+        SELECT
+                DOMAIN_CD
+	          , BBS_CD
+	          , BBSCTT_SEQ
+	          , CMT_SEQ
+	          , REFRN_CMT_SEQ
+	          , CMT_DP
+	          , CMT_ORDR_NO
+	          , ICON_KEY
+	          , NTT_CMT_CN
+	          , IP_ADRES
+	          , USER_KEY
+	          , USER_DELETE_AT
+	          , REGIST_PASSWORD
+	          , REGISTER_NM
+	          , REGIST_ID
+	          , REGIST_DT
+	          , UPDT_ID
+	          , UPDT_DT
+	          , BBSCTT_EVL_SCORE
+	          , MNGR_ID
+	          , MNGR_DELETE_AT
+	          , BIZ_MATCHING_OTHBC_AT
+			  ,	BIZ_MATCHING_CMPNY_NM
+			  ,	BIZ_MATCHING_CTTPC
+			  , BIZ_MATCHING_EMAIL
+	          , TO_CHAR(SYS_DATE,'YYYYMM')
+        FROM OP_NTT_CMT
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+        AND BBSCTT_SEQ = #{bbscttSeq}
+            AND CMT_SEQ = #{cmtSeq}
+        <if test="refrnCmtSeq != null">
+            AND REFRN_CMT_SEQ = #{refrnCmtSeq} 
+        </if>
+    </insert>
+
+	<!-- 태그이름별 전체갯수 -->
+    <select id="boardTagCount" parameterType="boardTagVO" resultType="int">
+    /*_board : board-sqlmap.xml : boardTagCount */
+        SELECT COUNT(A.BBSCTT_SEQ) AS totalCount
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+           AND A.TAG_NM = #{tagNm}
+    </select>
+
+    <!-- 태그이름별 평균갯수 -->
+    <select id="boardTagAvgCount" parameterType="int" resultType="int">
+    /*_board : board-sqlmap.xml : boardTagAvgCount */
+        SELECT FLOOR(AVG(COUNT(A.BBSCTT_SEQ))) AS tagCntAvg
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         GROUP BY A.TAG_NM
+         
+    </select>
+
+    <!-- 태그이름별 최대갯수 -->
+    <select id="boardTagMaxCount" parameterType="int" resultType="int">
+    /*_board : board-sqlmap.xml : boardTagMaxCount */
+        SELECT MAX(COUNT(A.BBSCTT_SEQ)) AS tagCntMax
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         GROUP BY A.TAG_NM
+    </select>
+
+    <!-- 태그이름별 최소갯수 -->
+    <select id="boardTagMinCount" parameterType="int" resultType="int">
+    /*_board : board-sqlmap.xml : boardTagMinCount */
+        SELECT MIN(COUNT(A.BBSCTT_SEQ)) AS tagCntMin
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         GROUP BY A.TAG_NM
+    </select>
+
+	<!-- 게시물별 태그 목록 -->
+    <select id="boardTagList" parameterType="boardVO" resultType="String">
+    /*_board : board-sqlmap.xml : boardTagList */
+        SELECT A.TAG_NM AS tagNm
+          FROM OP_NTT_TAG A 
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+    </select>
+
+    <!-- 게시물별 태그 목록 -->
+    <select id="boardTagListAll" parameterType="boardVO" resultType="boardTagVO">
+    /*_board : board-sqlmap.xml : boardTagListAll */
+        SELECT 
+               A.DOMAIN_CD    AS domainCd, 
+               A.BBS_CD AS bbsCd,
+               A.BBSCTT_SEQ    AS bbscttSeq,
+               A.TAG_NM AS tagNm
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.BBSCTT_SEQ = #{bbscttSeq}
+    </select>
+
+    <!-- 태그 이름별 갯수 -->
+    <select id="boardTagAllList" parameterType="int" resultType="boardTagVO">
+    /*_board : board-sqlmap.xml : boardTagAllList */
+        SELECT A.TAG_NM    AS tagNm,
+               COUNT(A.TAG_NM) AS tagCnt
+          FROM OP_NTT_TAG A
+         WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+         GROUP BY A.TAG_NM
+         ORDER BY A.TAG_NM
+    </select>
+
+	<!-- 태그 등록 -->
+    <insert id="boardTagInsert" parameterType="boardTagVO">
+    /*_board : board-sqlmap.xml : boardTagInsert */
+        INSERT INTO OP_NTT_TAG (
+               DOMAIN_CD
+             , BBS_CD    
+             , BBSCTT_SEQ
+             , TAG_NM
+        ) 
+        VALUES (
+               #{domainCd}
+             , #{bbsCd}   
+             , #{bbscttSeq}
+             , #{tagNm}    
+        )
+    </insert>
+
+    <!-- 태그 삭제 -->
+    <delete id="boardTagDelete" parameterType="boardTagVO">
+    /*_board : board-sqlmap.xml : boardTagDelete */
+        DELETE FROM OP_NTT_TAG
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+           AND TAG_NM = #{tagNm}
+    </delete>
+
+    <!-- 게시물 모든 태그 삭제 -->
+    <delete id="boardTagDeleteAll" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : boardTagDeleteAll */
+        DELETE FROM OP_NTT_TAG
+         WHERE DOMAIN_CD = #{domainCd} 
+           AND BBS_CD = #{bbsCd}
+           AND BBSCTT_SEQ = #{bbscttSeq}
+    </delete>
+
+
+	<!--  ============ 게시판 로그에서 사용  ============ -->	
+
+	<!-- 게시판 게시물 전체 시작, 종료일 얻기 -->
+	<select id="getTotalTerm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		/* _board.getTotalTerm */
+		SELECT TO_CHAR(MAX(REGIST_DT), 'YYYYMMDD') AS END_DD,
+			   TO_CHAR(MIN(REGIST_DT), 'YYYYMMDD') AS START_DD
+		  FROM OP_BOARD
+		 WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           <if test="ctgCd != null  and ctgCd != ''">
+                AND CTG_CD &lt;= #{ctgCd}
+            </if>
+	</select>
+
+	<!-- 게시물 전체 총계 -->
+	<select id="totalLog" parameterType="java.util.HashMap" resultType="string">
+		/* _board.totalLog */
+		SELECT COUNT(BBSCTT_SEQ) AS total
+		  FROM OP_BOARD
+		 WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+         <trim>
+            <if test="q_startDt != null  and q_startDt != ''">
+                AND REGIST_DT &gt;= #{q_startDt}
+            </if>
+            <if test="q_endDt != null  and q_endDt != ''">
+                AND REGIST_DT &lt;= #{q_endDt}
+            </if>
+            <if test="ctgCd != null  and ctgCd != ''">
+                AND CTG_CD = #{ctgCd}
+            </if>
+        </trim>
+    </select>
+
+	<!-- 오늘 게시물 총계 -->
+	<select id="todayLog" parameterType="java.util.HashMap" resultType="string">
+		/* _board.todayLog */
+		SELECT COUNT(BBSCTT_SEQ) AS todayIdx
+		  FROM OP_BOARD
+		 WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+		   AND TO_CHAR(REGIST_DT, 'YYYYMMDD') = TO_CHAR(SYS_DATE, 'YYYYMMDD')
+	</select>
+
+	<!-- 어제 게시물 총계 -->
+	<select id="yesterdayLog" parameterType="java.util.HashMap" resultType="string">
+		/* _board.yesterdayLog */
+		SELECT COUNT(BBSCTT_SEQ) AS yesterdayIdx
+		  FROM OP_BOARD
+		  WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+		   AND TO_CHAR(REGIST_DT, 'YYYYMMDD') &lt; TO_CHAR(SYS_DATE, 'YYYYMMDD')
+		   AND TO_CHAR(REGIST_DT, 'YYYYMMDD') &gt;= TO_CHAR(SYS_DATE - 1, 'YYYYMMDD')
+	</select>
+
+	<!-- 삭제 게시물 총계 -->
+	<select id="deleteTotalLog" parameterType="java.util.HashMap" resultType="string">
+		/* _board.deleteTotalLog */
+		SELECT COUNT(BBSCTT_SEQ) AS deleteTotalCount
+		  FROM OP_BOARD_TRASH 
+		 WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           <if test="ctgCd != null  and ctgCd != ''">
+                AND CTG_CD = #{ctgCd}
+            </if>
+	</select>
+
+	<!-- 첨부 파일 총계 -->
+	<select id="totalFileCnt" parameterType="java.util.HashMap" resultType="string">
+		/* _board.totalFileCnt */
+		SELECT NVL(COUNT(B.FILE_ID), 0) AS fileCnt
+		  FROM OP_BOARD A, OP_FILE B
+		 WHERE A.DOMAIN_CD = #{domainCd}
+           AND A.BBS_CD = #{bbsCd}
+           AND A.FILE_SEQ = B.FILE_SEQ
+           <if test="ctgCd != null  and ctgCd != ''">
+                AND A.CTG_CD = #{ctgCd}
+            </if>
+	</select>
+
+	<!-- 첨부 파일 다운로드 총횟수 -->
+	<select id="totalFileDownCnt" parameterType="java.util.HashMap" resultType="string">
+		/* _board.totalFileDownCnt */
+		SELECT COUNT(B.FILE_SEQ) AS downCnt
+		  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+		 WHERE C.DOMAIN_CD = #{domainCd}
+           AND C.BBS_CD = #{bbsCd}
+           AND C.FILE_SEQ = A.FILE_SEQ
+           AND A.FILE_SEQ = B.FILE_SEQ
+           <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD &lt;= #{ctgCd}
+            </if>
+    </select>
+
+	<!-- 첨부 파일 업로드 총용량-->
+	<select id="totalFileUploadSize" parameterType="java.util.HashMap" resultType="string">
+		/* _board.totalFileUploadSize */
+		SELECT NVL(SUM(A.FILE_BYTE_SIZE), 0) AS totalFileSize
+		  FROM OP_FILE A, OP_BOARD C
+		 WHERE C.DOMAIN_CD = #{domainCd}
+           AND C.BBS_CD = #{bbsCd}
+           AND C.FILE_SEQ = A.FILE_SEQ
+	</select>
+
+	<!-- 첨부 파일 다운로드 총용량-->
+	<select id="totalFileDownSize" parameterType="java.util.HashMap" resultType="string">
+		/* _board.totalFileDownSize */
+		SELECT NVL(SUM(CAST(A.FILE_BYTE_SIZE AS BIGINT)), 0) AS totalFileSize
+		  FROM OP_FILE A, OP_FILE_LOG B, OP_BOARD C
+		WHERE C.DOMAIN_CD = #{domainCd} 
+           AND C.BBS_CD = #{bbsCd}
+           AND C.FILE_SEQ = A.FILE_SEQ
+		   AND A.FILE_SEQ = B.FILE_SEQ
+		   <if test="ctgCd != null  and ctgCd != ''">
+                AND C.CTG_CD &lt;= #{ctgCd}
+            </if>
+	</select>
+	
+	<!-- 부류코드 2Depth 조회 -->
+    <select id="AditCtgList" parameterType="boardConfVO" resultType="boardConfVO">
+    /*_board : board-sqlmap.xml : AditCtgList */
+        SELECT 
+             CTG_NM       AS aditCtgNm
+           , ADIT_CTG_CD  AS aditCtgCd
+            FROM OP_BOARD_ADIT_CTG
+            WHERE DOMAIN_CD = #{domainCd} 
+              AND BBS_CD = #{bbsCd} 
+              AND CTG_CD = #{ctgCd}
+            ORDER BY CTG_ORDR_NO ASC
+    </select>
+    
+    <!-- 부류코드 2Depth 수정 -->
+    <update id="othbcAtUpdateAction" parameterType="boardVO">
+    /*_board : board-sqlmap.xml : othbcAtUpdateAction */
+        UPDATE OP_BOARD
+           SET OTHBC_AT         = #{othbcAt}  
+         WHERE DOMAIN_CD        = #{domainCd}
+           AND BBS_CD           = #{bbsCd}
+           AND BBSCTT_SEQ       = #{bbscttSeq}
+    </update>
+    
+    <!-- 비즈매칭 댓글 선정 -->
+    <update id="selectionUpdate" parameterType="boardVO" >
+    /*_board : board-sqlmap.xml : selectionUpdate */
+        UPDATE OP_BOARD
+           SET ESTN_COLUMN5      = #{estnColumn5}
+         WHERE DOMAIN_CD         = #{domainCd}
+           AND BBS_CD            = #{bbsCd}
+           AND BBSCTT_SEQ        = #{bbscttSeq}
+    </update>
+
+    <!-- 게시물 등록자 정보조회 -->
+    <select id="userBoardSelect" parameterType="boardVO" resultType="registerUserVO">
+    /*_boardWeb : board-sqlmap.xml : userBoardSelect */
+        SELECT  
+              USER_NM    AS userNm 
+            , DECRYPT(EMAIL,'P008') AS email
+            , USER_TY_CD AS userTyCd 
+            , DECRYPT(TELNO,'P008') AS mbtlnum 
+        FROM OP_USER 
+        WHERE 1=1
+        <if test="cmtSeq == null or cmtSeq == '' ">
+         AND USER_KEY IN (
+                    SELECT USER_KEY 
+                    FROM OP_BOARD
+                    WHERE DOMAIN_CD = #{domainCd}
+                      AND BBS_CD = #{bbsCd}
+                      AND BBSCTT_SEQ = #{bbscttSeq})
+        </if>
+    </select>
+</mapper>

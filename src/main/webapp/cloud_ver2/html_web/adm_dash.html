@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+    <title>오픈마켓플레이스 통합관리자</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="ko" />
+
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/jnotify/jquery.jnotify.min.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/extjs/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/theme/default/css/openworks_all.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/theme/default/css/openworks_all_print.css" media="print"/>
+</head>
+
+<body class="ext-webkit ext-chrome x-border-layout-ct" id="ext-gen5">
+<div id="ext-comp-1002" class=" x-panel x-panel-noborder x-border-panel" style="width:100%;left: 0px; top: 0px;"><div class="x-panel-bwrap" id="ext-gen7"><div class="x-panel-body x-panel-body-noheader x-panel-body-noborder" id="ext-gen8" style="height: 110px;">
+	<div id="top_part" style="width: height: 110px;">
+        <div id="wrapper">
+            <!-- 상단부분 -->
+            <div id="header">
+                <!-- 로고및접속정보 -->
+                <div id="t_smenu">
+                    <h1>
+                        <a href="/intra/explorer/ND_index.do" target="_top">[대구개발]<img src="/resources/openworks/theme/default/images/layout/bi_kor.png" alt="씨앗클라우드로고" /></a>
+                    </h1>
+                    <div class="t_ing">
+                        <p style="width:180px" title="">고도화팀 / [<span>고도화팀개발자</span>]님 접속중</p>
+                        <ul style="width:700px;">
+                        	<li><a href="javascript:void()" onclick="jsGoMyInfo()" id="myinfoSys"><img src="/resources/openworks/theme/default/images/btn/btn_admin_change.png" alt="정보변경" /></a></li>
+                        	<li><a href="javascript:void(0)" onclick="jsGoSearch()" id="searchSys"><img src="/resources/openworks/theme/default/images/btn/btn_searchsys.gif" alt="검색엔진관리" /></a></li>
+                        	<!-- 웹로그 링크 추가로 jsGoWeblog 함수 수정 시작 -->
+                        	<li><a href="javascript:void(0)" onclick="jsGoWeblog(1)" id="weblogSys"><img src="/resources/openworks/theme/default/images/btn/btn_weblog.gif" alt="웹로그모니터링" /></a>
+                        	    <a href="javascript:void(0)" onclick="jsGoWeblog(2)" id="weblogSys"><img src="/resources/openworks/theme/default/images/btn/btn_weblog.gif" alt="웹로그모니터링 테스트" /></a>
+                        	</li>
+                        	<!-- 웹로그 링크 추가로 jsGoWeblog 함수 수정 끝 -->
+                        	<li><a href="javascript:void(0)" onclick="jsGoMail()" id="mailSys"><img src="/resources/openworks/theme/default/images/btn/btn_mail.gif" alt="메일시스템" /></a></li>
+                            <li><a href="javascript:void(0)" onclick="jsGoReport()" id="reportSys"><img src="/resources/openworks/theme/default/images/btn/btn_reporting.gif" alt="레포팅툴관리" /></a></li>
+                           <!-- 잠시 주석처리 보기 않좋아서 -->
+                           
+                            <li><a href="#" id="ql-logout"><img src="/resources/openworks/theme/default/images/btn/btn_logout.gif" alt="로그아웃" /></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- //로고및접속정보 -->
+                <hr />
+                <!-- 주메뉴 -->
+                <h2 class="dpn">주메뉴</h2>
+                <div id="gnb">
+                    <ul class="s_icon">
+                        <li class="m_close"><a href="#" onclick="jsToggleCollapse();" class="yellow">메뉴닫기</a></li>
+                        <!-- <li class="i_list"><a href="#" onclick="jsGetMyList();" class="yellow">즐겨찾기</a></li>
+                        <li class="m_view"><a href="#" onclick="jsGetMyMenu();" class="yellow">내메뉴보기</a></li> -->
+                    </ul>
+                    <ul class="menu">
+                        <li><a href="#" id="m26" onclick="jsMenuClick(this.id);" class="on"><img src="/resources/openworks/theme/default/images/layout/gnb_m_01.png" alt="마이페이지" /></a></li>
+                        <li><a href="#" id="m168" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_11.png" alt="상품관리" /></a></li>
+                        <li><a href="#" id="m169" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_12.png" alt="주문관리" /></a></li>
+                        <li><a href="#" id="m68" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_04.png" alt="게시판관리" /></a></li>
+                        <li><a href="#" id="m170" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_13.png" alt="커뮤니티관리" /></a></li>
+                        <li><a href="#" id="m27" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_05.png" alt="운영관리" /></a></li>
+                        <li><a href="#" id="m70" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_06.png" alt="회원관리" /></a></li>
+                        <li><a href="#" id="m29" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_07.png" alt="통계관리" /></a></li>
+                        
+                        
+                        <li><a href="#" id="m105" onclick="jsMenuClick(this.id);"><img src="/resources/openworks/theme/default/images/layout/gnb_m_08.png" alt="시스템관리" /></a></li>
+                        
+                    </ul>
+                </div>
+                <!-- //주메뉴 -->
+            </div>
+            <!-- //상단부분 -->
+        </div>
+
+    </div></div></div></div>
+    
+     <div id="leftPanel" class=" x-panel x-border-panel" style="width: 214px; left: 5px; top: 115px;">
+    	<div class="x-panel-bwrap" id="ext-gen14">
+    		<div class="x-panel-body ux-mif-mask-target x-panel-body-noheader" id="ext-gen15" style="width: 214px; height: 615px;">
+    			<div name="leftPanel" id="ext-gen43" class="ux-mif" style="overflow: auto; width: 214px; height: 615px;">
+    			<div>
+				
+				    <!-- 왼쪽메뉴 -->
+				    <div id="left_menu">
+				        <h2><img src="/resources/openworks/theme/default/images/layout/left_title_01.png" alt="마이페이지"/></h2>
+				
+				        <div class="snb">
+				            <ul>
+				            	<li><a href="#" id="M_182" onclick="changeStyleMenu('M_182');makeTab('정보변경','/intra/changeMyInfo/BD_changeMyInfo.do?menuCd=182','182','ADD')">정보변경</a></li>
+					        </ul>
+				            <p><img src="/resources/openworks/theme/default/images/layout/left_m_bgB.gif" alt="" /></p>
+				        </div>
+				    </div>
+				    <!-- //왼쪽메뉴 -->
+				    
+				</div></div>
+    			<noframes id="ext-gen44">Inline frames are NOT enabled/supported by your browser.</noframes>
+    		</div>
+    	</div>
+    </div>
+ 
+    <div id="ext-comp-1007" class=" x-panel x-panel-noborder x-border-panel" style="left: 224px; top: 110px; width: 1312px;">
+    	<div class="x-panel-bwrap" id="ext-gen18"  style="overflow:visible">
+    		<div class="x-panel-body x-panel-body-noheader x-panel-body-noborder x-border-layout-ct" id="ext-gen19" style="width: 1312px;overflow:visible">
+    		<div id="mTabPanel" class=" x-tab-panel x-border-panel" style="left: 0px; top: 5px; width: 1307px;overflow:visible">
+ 
+	    			<div class="x-tab-panel-header x-unselectable" id="ext-gen21" style="width: 1307px;">
+	    				<div class="x-tab-strip-wrap" id="ext-gen24" style="width: 1307px;">
+	    					<ul class="x-tab-strip x-tab-strip-top" id="ext-gen26">
+	    						<li class="x-tab-with-icon x-tab-strip-active" id="mTabPanel__docs-1">
+	    							<a class="x-tab-strip-close" id="ext-gen29"></a>
+	    							<a class="x-tab-right" href="#" id="ext-gen30">
+	    								<em class="x-tab-left">
+	    									<span class="x-tab-strip-inner">
+	    										<span class="x-tab-strip-text icon_tab_title_on" id="ext-gen39">대시보드</span>
+	    									</span>
+	    								</em>
+	    							</a>
+	    						</li>
+	    						<li class="x-tab-edge" id="ext-gen27">
+	    							<span class="x-tab-strip-text">&nbsp;</span>
+	    						</li>	    						
+	    					</ul>
+	    				</div>
+	    				<div class="x-tab-strip-spacer" id="ext-gen25"></div>
+	    			</div>
+
+ 
+ 
+	    			<div class="x-tab-panel-bwrap" id="ext-gen22" style="overflow:visible">
+	    				<div class="x-tab-panel-body x-tab-panel-body-top" id="ext-gen23" style="width: 1307px;overflow:visible">
+	    					<div id="docs-1" class=" x-panel x-panel-noborder" style="width: 1307px;">
+	    						<div class="x-panel-tl">
+	    							<div class="x-panel-tr">
+	    								<div class="x-panel-tc"></div>
+	    							</div>
+	    						</div>
+	    						<div class="x-panel-bwrap" id="ext-gen31" style="overflow:visible">
+	    							<div class="x-panel-ml">
+	    								<div class="x-panel-mr">
+	    									<div class="x-panel-mc" id="ext-gen34">
+	    										<div class="x-panel-body ux-mif-mask-target x-panel-body-noborder" id="ext-gen32" style="width: 1295px; overflow:visible">
+	    											<div name="docs-1" frameborder="0" id="ext-gen36" class=" ux-mif" style="overflow: auto; width: 1295px;background:#fff">
+<!-- dashboard -->
+<div class="dash">
+	<!--  좌측 영역 -->
+	<div class="dash_lef">
+		<!-- 오늘의 할 일  -->
+ 		<h3>오늘의 할 일</h3>
+		<div class="todayDo">
+			<dl>
+				<dt>답변대기 <b>게시물</b></dt>
+				<dd>2</dd>
+			</dl>
+			<dl>
+				<dt>승인대기 <b>게시물</b></dt>
+				<dd>2</dd>
+			</dl>
+			<dl>
+				<dt>체결대기 <b>협약</b></dt>
+				<dd>2</dd>
+			</dl>
+		</div>
+		<!--// 오늘의 할 일  -->
+		
+		<!-- 오늘의 서비스변동  -->
+		<h3>
+			<i>전시(비전시)</i>
+			오늘의 서비스변동(전일대비)
+		</h3>
+		<div>
+			<dl>
+				<dt>SaaS</dt>
+				<dd>-1(-2)</dd>
+			</dl>
+			<dl>
+				<dt>PaaS</dt>
+				<dd>0(-1)</dd>
+			</dl>
+			<dl>
+				<dt>IaaS</dt>
+				<dd>1(1)</dd>
+			</dl>		
+		</div>
+		<!--// 오늘의 서비스변동  -->		
+	
+		<!-- 비전시 서비스현황  -->
+		<h3>비전시 서비스현황(총12)</h3>
+		<div>
+			<dl>
+				<dt>SaaS</dt>
+				<dd>8</dd>
+			</dl>
+			<dl>
+				<dt>PaaS</dt>
+				<dd>1</dd>
+			</dl>
+			<dl>
+				<dt>IaaS</dt>
+				<dd>3</dd>
+			</dl>
+		</div>
+		<!--// 비전시 서비스현황  -->
+
+		<!-- 회원현황  -->			
+		<h3>
+			<i>금일가입/총회원</i>
+			회원현황
+		</h3>
+		<div>
+			<dl>
+				<dt>일반</dt>
+				<dd>0 / 343</dd>
+			</dl>
+			<dl>
+				<dt>공공</dt>
+				<dd>1 / 984</dd>
+			</dl>
+			<dl>
+				<dt>공급자</dt>
+				<dd>1 / 152</dd>
+			</dl>		
+		</div>
+		<!--// 회원현황  -->			
+		
+ 	</div>
+	<!--//  좌측 영역 -->
+	
+	<!-- 우측 영역 -->
+	<div class="dash_rig">
+		<h3>
+			<span>
+				<i class="fc_b">상세정보(견적)</i>  
+				<i class="fc_y">입찰공고</i>  
+				<i class="fc_g">종합쇼핑몰</i>  
+				<i class="fc_p">계약체결향</i>
+			</span>
+			구매활동 일동향
+		</h3>
+		
+		<table class="buy">
+			<tr>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td>
+					<!-- 높이 = 개수 / 총개수 -->
+					<span>10<i style="height:52px"></i></span>
+					<span>5<i style="height:26px"></i></span>
+					<span>2<i style="height:10px"></i></span>
+					<span>2<i style="height:10px"></i></span>
+				</td>
+			</tr>
+			<tr>
+				<th class="noData">12.21(수)</th>
+				<th class="noData">12.22(목)</th>
+				<th class="noData">12.23(금)</th>
+				<th class="noData">12.24(토)</th>
+				<th class="noData">12.25(일)</th>
+				<th class="noData">12.26(월)</th>
+				<th class="today">12.27(화)</th>			
+			</tr>
+		</table>
+	
+		<h3>
+			<span>
+ 				<i class="fc_b">SaaS</i>
+				<i class="fc_g">Paas</i>
+				<i class="fc_y">IaaS</i>  
+			</span>
+			서비스전시 총동향(117건)
+		</h3>
+		
+		<table class="display">
+			<tr>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td>
+					<!-- 높이 = 개수 /* 2 -->
+					<span>71<i style="height:142px"></i></span>
+					<span>4<i style="height:8px"></i></span>
+					<span>42<i style="height:84px"></i></span>									
+				</td>
+			</tr>
+			<tr>
+				<th class="noData">12.21(수)</th>
+				<th class="noData">12.22(목)</th>
+				<th class="noData">12.23(금)</th>
+				<th class="noData">12.24(토)</th>
+				<th class="noData">12.25(일)</th>
+				<th class="noData">12.26(월)</th>
+				<th class="today">12.27(화)</th>			
+			</tr>
+		</table>
+	
+		<h3>
+			<i>계약건수/금액(천원)</i>		
+			계약 일동향(총 86건/1,075,000천원)
+		</h3>
+		
+		<table class="contract">
+			<tr>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td class="noData">&nbsp;</td>
+				<td><em>1</em>/1,000</td>
+			</tr>
+			<tr>
+				<th class="noData">12.21(수)</th>
+				<th class="noData">12.22(목)</th>
+				<th class="noData">12.23(금)</th>
+				<th class="noData">12.24(토)</th>
+				<th class="noData">12.25(일)</th>
+				<th class="noData">12.26(월)</th>
+				<th class="today">12.27(화)</th>			
+			</tr>
+		</table>		
+	</div>
+	<!--// 우측 영역 -->	
+</div>
+<!-- dashboard -->									
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    							</div>
+	    							<div class="x-panel-bl x-panel-nofooter" id="ext-gen33">
+	    								<div class="x-panel-br">
+	    									<div class="x-panel-bc"></div>
+	    								</div>
+	    							</div>
+	    						</div>
+	    					</div>
+	    				</div>
+	    			</div>
+
+    		</div>
+    	</div>
+    </div>
+  </div>
+    	
+
+</body>
+</html>

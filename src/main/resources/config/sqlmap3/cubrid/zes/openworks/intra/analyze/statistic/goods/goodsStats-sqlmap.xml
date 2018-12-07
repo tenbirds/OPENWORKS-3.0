@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_goodsStatic">
+ 
+     
+     <sql id="groubByGoodsPppSelect">
+        <!--서비스별/공급자별 통계 -->
+          <choose>
+              <when test="q_gtwobChk == '1002'" >  <!-- 공급자별 -->
+                    , T.MANU_NAME    ctgryClNm
+		      </when>
+              <otherwise>
+                    , T.GOODS_NAME	  ctgryClNm		<!-- 서비스별 -->
+		      </otherwise>
+          </choose>
+    </sql>   
+    
+     <sql id="groubByGoodsPpp">
+        <!-- 서비스별/공급자별 통계  -->
+          <choose>
+              <when test="q_gtwobChk == '1002'" >  <!-- 공급자별 -->
+                    GROUP BY T.MANU_NAME
+                    ORDER BY T.MANU_NAME
+		      </when>
+              <otherwise>							<!-- 서비스별 -->
+                    GROUP BY T.GOODS_NAME
+                    ORDER BY T.GOODS_NAME
+		      </otherwise>
+          </choose>
+    </sql>       
+   
+   
+    <select id="purchStatList" parameterType="ResultVO" resultType="ResultVO">
+        /* _goodsStatic.purchCntList */
+        SELECT  B.LANG_CODE AS langCode,
+                (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = B.LANG_CODE) AS langNm,
+                A.GOODS_CODE AS textValue, B.GOODS_NM AS textValue2,
+                COUNT(A.GOODS_CODE) AS value1,
+				SUM(CASE WHEN C.USER_TY_CD BETWEEN 1001 AND 1002 THEN 1 ELSE 0 end) AS value2,
+				SUM(CASE WHEN C.USER_TY_CD BETWEEN 2001 AND 2002 THEN 1 ELSE 0 end) AS value3,
+				SUM(CASE WHEN C.USER_TY_CD BETWEEN 3001 AND 3002 THEN 1 ELSE 0 end) AS value4
+		 FROM   TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B, OP_USER C
+		WHERE   A.GOODS_CODE = B.GOODS_CODE
+		  AND   A.ORDRR_ID = C.USER_ID
+		  <!-- 서비스 언어 -->
+	        <if test="q_langCodes == null  and q_langCodes == ''">
+	            AND   B.LANG_CODE LIKE '%'
+	        </if>
+	        <if test="q_langCodes != null  and q_langCodes != ''">
+	            AND   B.LANG_CODE = #{q_langCodes}
+	        </if>
+		  <!-- 등록일 -->
+          <if test="q_beginDate != null and q_beginDate != ''">
+                AND A.ORDER_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+          </if>
+	 GROUP BY   B.LANG_CODE, A.GOODS_CODE
+	 ORDER BY   B.LANG_CODE, A.ORDER_DT DESC
+    </select>
+    
+    <select id="intrStatList" parameterType="ResultVO" resultType="ResultVO">
+        /* _goodsStatic.intrCntList */
+		SELECT B.LANG_CODE AS langCode,
+		       (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = B.LANG_CODE) AS langNm,
+		       A.GOODS_CODE AS textValue, B.GOODS_NM AS textValue2,
+		       COUNT(A.GOODS_CODE) AS value1,
+		       SUM(CASE WHEN C.USER_TY_CD BETWEEN 1001 AND 1002 THEN 1 ELSE 0 end) AS value2,
+		       SUM(CASE WHEN C.USER_TY_CD BETWEEN 2001 AND 2002 THEN 1 ELSE 0 end) AS value3,
+		       SUM(CASE WHEN C.USER_TY_CD BETWEEN 3001 AND 3002 THEN 1 ELSE 0 end) AS value4
+		 FROM  TUM_ITST_GOOD_I A, TST_GOOD_INFO_I B, OP_USER C
+		WHERE  A.GOODS_CODE = B.GOODS_CODE
+		  AND  A.USER_ID = C.USER_ID
+		  <!-- 서비스 언어 -->
+	        <if test="q_langCodes == null  and q_langCodes == ''">
+	            AND   B.LANG_CODE LIKE '%'
+	        </if>
+	        <if test="q_langCodes != null  and q_langCodes != ''">
+	            AND   B.LANG_CODE = #{q_langCodes}
+	        </if>
+		  <!-- 등록일 -->
+          <if test="q_beginDate != null and q_beginDate != ''">
+                AND INTRST_SETUP_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+          </if>
+		GROUP BY B.LANG_CODE, A.GOODS_CODE
+		ORDER BY B.LANG_CODE, A.INTRST_SETUP_DT DESC
+    </select>
+
+    <select id="registStatList" parameterType="ResultVO" resultType="ResultVO">
+        /* _goodsStatic.registCntList */
+		SELECT AA.LANG_CODE AS langCode
+		     , (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = AA.LANG_CODE) AS langNm
+		     , AA.CTGRY_CL_CD AS ctgryClCd
+		     , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 1005 AND LANG_CODE = AA.LANG_CODE AND INDVDLZ_CD = AA.CTGRY_CL_CD) AS ctgryClNm
+		     , COUNT(1) OVER(PARTITION BY AA.LANG_CODE, AA.CTGRY_CL_CD) AS depthCnt0
+		     
+		     , SUBSTRING_INDEX(AA.CTGRYNM,',',1) AS depthCd1
+		     , (SELECT LANG_CTGRY_NM FROM TST_CATE_MGMT_M WHERE CTGRY_CODE = SUBSTRING_INDEX(AA.CTGRYNM,',',1)) AS depthNm1
+		     , COUNT(1) OVER (PARTITION BY SUBSTRING_INDEX(AA.CTGRYNM,',',1)) AS depthCnt1
+		     
+		     /* , SUBSTRING_INDEX(REPLACE(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',1)||',', ''), SUBSTRING_INDEX(AA.CTGRYNM,',',1)     ,''), ',', 1) AS depthCd2 */
+		     , SUBSTRING_INDEX(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',1)||',', ''), ',', 1) AS depthCd2
+		     , (SELECT LANG_CTGRY_NM FROM TST_CATE_MGMT_M WHERE CTGRY_CODE = SUBSTRING_INDEX(REPLACE(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',1)||',', ''), SUBSTRING_INDEX(AA.CTGRYNM,',',1),''), ',', 1)) AS depthNm2
+		     /* , COUNT(1) OVER (PARTITION BY SUBSTRING_INDEX(REPLACE(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',1)||',', ''), SUBSTRING_INDEX(AA.CTGRYNM,',',1)     ,''), ',', 1)) AS depthCnt2 */
+		     , COUNT(1) OVER (PARTITION BY SUBSTRING_INDEX(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',1)||',', ''), ',', 1)) AS depthCnt2
+		     
+		     , SUBSTRING_INDEX(REPLACE(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',2)||',', ''), SUBSTRING_INDEX(AA.CTGRYNM,',',1)     ,''), ',', 1) AS depthCd3
+		     , NVL((SELECT LANG_CTGRY_NM FROM TST_CATE_MGMT_M WHERE CTGRY_CODE = SUBSTRING_INDEX(REPLACE(REPLACE(AA.CTGRYNM, SUBSTRING_INDEX(AA.CTGRYNM,',',2)||',', ''), SUBSTRING_INDEX(AA.CTGRYNM,',',1)     ,''), ',', 1)), '') AS depthNm3
+		     
+		     , NVL(BB.totCnt,0) AS tCnt
+		     , NVL(BB.pCnt,0) AS pCnt
+		     , NVL(BB.cCnt,0) AS cCnt
+		     , NVL(BB.gCnt,0) AS gCnt
+		FROM (
+		    SELECT  LANG_CODE, CTGRY_CODE, CTGRY_CL_CD,
+		            SUBSTRB(SYS_CONNECT_BY_PATH(CTGRY_CODE, ','),2) AS CTGRYNM,
+		            SORT_ORDR, CONNECT_BY_ISLEAF AS LEAF
+		      FROM  TST_CATE_MGMT_M
+		     WHERE  CTGRY_DELETE_AT = 'N'
+		     		AND CTGRY_USE_YN = 'Y'
+					AND CTGRY_DELETE_AT = 'N'
+		     START WITH PARNTS_CTGRY_CODE = '0'
+		     CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE
+		     ORDER SIBLINGS BY SORT_ORDR
+		       ) AA,
+		     (
+				SELECT 
+					C.CTGRY_CODE, --카테고리 코드
+					COUNT(b.goods_code) AS totCnt,
+					SUM(CASE WHEN D.USER_TY_CD BETWEEN 1001 AND 1002 THEN 1 ELSE 0 END) AS pCnt,
+					SUM(CASE WHEN D.USER_TY_CD BETWEEN 2001 AND 2002 THEN 1 ELSE 0 END) AS cCnt,
+					SUM(CASE WHEN D.USER_TY_CD BETWEEN 3001 AND 3002 THEN 1 ELSE 0 END) AS gCnt
+				FROM 
+					TST_GOOD_INFO_I B, TST_GOOD_CATE_I C, OP_USER D
+				WHERE 
+					B.GOODS_CODE = C.GOODS_CODE
+					AND B.USER_ID = D.USER_ID
+		     <!-- 등록일 -->
+		     <if test="q_beginDate != null and q_beginDate != ''">
+		       AND B.CONFM_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+		     </if>
+		     <if test="q_beginDate == null or q_beginDate == ''">
+		       AND B.CONFM_DT IS NOT NULL
+		     </if>
+				AND b.mngr_delete_at = 'N' --관리자삭제
+				AND b.goods_actvty_at = 'Y' --상품활성여부
+				AND b.goods_regist_sttus = 1006 --상품등록상태
+				AND b.lang_code = '00' --언어코드
+				AND b.goods_code IN (
+					SELECT
+						A.GOODS_CODE --상품코드
+					FROM
+						TST_GOOD_CATE_I A, --상품별카테고리정보
+						TST_CATE_MGMT_M B --카테고리관리
+					WHERE
+						A.CTGRY_CODE = B.CTGRY_CODE --카테고리코드
+						AND B.LANG_CODE = '00' --언어코드"C:/Users/sung/Downloads/포트폴리오_신호석.pdf"
+						--AND B.CTGRY_CL_CD = 1001 --카테고리분류코드
+					GROUP BY
+						A.GOODS_CODE --상품코드
+				)
+			GROUP BY C.CTGRY_CODE
+		     ) BB
+		WHERE AA.CTGRY_CODE = BB.CTGRY_CODE(+) AND AA.LEAF = 1
+        <!-- 서비스 언어 -->
+        <if test="q_langCodes == null  and q_langCodes == ''">
+            AND   AA.LANG_CODE LIKE '%'
+        </if>
+        <if test="q_langCodes != null  and q_langCodes != ''">
+            AND   AA.LANG_CODE = #{q_langCodes}
+        </if>
+        <!-- 카테고리 -->
+        <if test="q_goodsTyCd != null  and  q_goodsTyCd != ''"> 
+            AND   AA.CTGRY_CL_CD = #{q_goodsTyCd}
+        </if>
+	</select>
+
+    <select id="goodsPpsStatList" parameterType="ResultVO" resultType="ResultVO">
+        /* _goodsStatic.goodsPpsStatList */
+   
+   SELECT	SUM(T.ITEM_QUANTITY)  value1  <!-- 수량합계 -->
+   		  , SUM(T.ITEM_AMOUNT)    value2  <!-- 금액합계 -->
+	<include refid="groubByGoodsPppSelect"/>
+     FROM
+		  (SELECT	  A.ITEM_QUANTITY         ITEM_QUANTITY
+		   			, A.ITEM_AMOUNT  		  ITEM_AMOUNT
+		   			, A.ITEM_CLASS_IDENTIFIER ITEM_CLASS_IDENTIFIER
+		  			, A.ITEM_IDENTIFIER    	  ITEM_IDENTIFIER
+		  			, A.DELIVERY_DATE 		  DELIVERY_DATE
+		   			, B.MANU_NAME             MANU_NAME
+		   			, B.GOODS_CODE    		  GOODS_CODE
+		   			, (SELECT	GOODS_NM FROM TST_GOOD_INFO_I WHERE GOODS_CODE = B.GOODS_CODE) AS GOODS_NAME
+		 	 
+		 	  FROM  (   SELECT    ITEM_CLASS_IDENTIFIER 
+							    , ITEM_IDENTIFIER 
+							    , MIN(DELIVERY_DATE) DELIVERY_DATE  
+							    , SUM(ITEM_QUANTITY) ITEM_QUANTITY 
+							    , SUM(ITEM_AMOUNT) ITEM_AMOUNT 
+							    , MAX(UNIT_PRICE)
+						  FROM  TCN_DVYFG_INFO_L 
+				   	  GROUP BY  ITEM_CLASS_IDENTIFIER, 
+							    ITEM_IDENTIFIER)  A 
+		    		, ( SELECT	ITEM_CLASS_IDENTIFIER 
+		        			   	, ITEM_IDENTIFIER
+		        			   	, MAX(GOODS_CODE) GOODS_CODE
+		        			  	, MAX(MANU_NAME) MANU_NAME
+		     		      FROM 	TCN_PPS_GOOD_INFO_L 
+		    			 WHERE 	ifnull(GOODS_CODE, '') != ''    		    			 
+					  GROUP BY	ITEM_CLASS_IDENTIFIER
+					          , ITEM_IDENTIFIER) B
+				         
+	WHERE 	A.ITEM_CLASS_IDENTIFIER = B.ITEM_CLASS_IDENTIFIER
+      AND 	A.ITEM_IDENTIFIER = B.ITEM_IDENTIFIER
+		  	<!-- 납품요구일자 -->
+           <if test="q_beginDate != null and q_beginDate != ''">
+      AND 	A.DELIVERY_DATE BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+          </if>    
+   ) T
+	<include refid="groubByGoodsPpp"/>	 
+	
+    </select>
+ 
+    
+</mapper>

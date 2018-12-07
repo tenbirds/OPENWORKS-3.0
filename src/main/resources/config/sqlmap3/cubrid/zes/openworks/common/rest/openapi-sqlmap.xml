@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_openapi">
+
+
+  <!-- ## 샘플 ## -->
+
+  <sql id="sampleWhere">
+    <where>
+        <if test="id != null  and id != ''">
+            AND [id] LIKE '%' || #{id} || '%'
+        </if>
+        <if test="name != null  and name != ''">
+            AND [name] LIKE '%' || #{name} || '%'
+        </if>
+    </where>
+  </sql>
+
+  <resultMap type="map" id="getSample" >
+        <result property="resultCode" column="resultCode" />
+        <result property="totalCount" column="totalCount" />
+        <collection property="list" column="{totalCount=totalCount,id=id,name=name}" ofType ="map"  select="sampleList"  />
+  </resultMap>
+  
+  <select id="sample" resultMap="getSample">
+     SELECT
+            #{id} AS [id]
+          , #{name} AS [name]
+          , '00' AS [resultCode]
+          , 10 AS [totalCount]
+  </select>
+  
+  <select id="sampleList" resultType="map">
+      SELECT * FROM (
+          SELECT 'id1' AS [id] ,'name1' AS [name]
+          UNION SELECT 'id2'  ,'name2'
+          UNION SELECT 'id3'  ,'name3'
+          UNION SELECT 'id4'  ,'name4'
+          UNION SELECT 'id5'  ,'name5'
+          UNION SELECT 'id6'  ,'name6'
+          UNION SELECT 'id7'  ,'name7'
+      ) 
+         <include refid="sampleWhere"/>
+  </select>
+
+ 
+  <!-- ## 서비스 정보 요청 ## -->
+  
+  <sql id="goodsInfoWhere">
+     
+        <if test="goodsNm != null  and goodsNm != ''">
+            AND GOODS_NM LIKE '%' || #{goodsNm} || '%'
+        </if>
+        <if test="goodsTyCd != null  and goodsTyCd != ''">
+            AND A.GOODS_CODE IN
+                    ( SELECT  XX.GOODS_CODE
+                        FROM  TST_GOOD_CATE_I XX, TST_CATE_MGMT_M YY
+                       WHERE  XX.CTGRY_CODE = YY.CTGRY_CODE
+                         AND  YY.LANG_CODE = #{langCode}
+                         AND  YY.CTGRY_CL_CD = #{goodsTyCd}
+                    GROUP BY  XX.GOODS_CODE )
+        </if>
+        <if test="sDate != null  and sDate != ''">
+            AND TO_CHAR(REGIST_DT,'YYYY-MM-DD') <![CDATA[>=]]> #{sDate}
+        </if>
+        <if test="eDate != null  and eDate != ''">
+            AND TO_CHAR(REGIST_DT,'YYYY-MM-DD') <![CDATA[<=]]> #{eDate}
+        </if>
+        
+  </sql>
+  
+  <resultMap type="map" id="getGoodsInfo">
+    <result property="resultCode" column="resultCode" />
+    <result property="totalCount" column="totalCount" />
+    <collection property="list" column="{totalCount=totalCount
+                                        ,goodsNm=goodsNm
+                                        ,goodsTyCd=goodsTyCd
+                                        ,sDate=sDate
+                                        ,eDate=eDate
+                                        ,langCode=langCode}" ofType ="map"  select="goodsInfoList"  />
+  </resultMap>
+  
+  <select id="goodsInfo" resultMap="getGoodsInfo">
+    SELECT
+       #{goodsNm} AS [goodsNm]
+     , #{goodsTyCd} AS [goodsTyCd]
+     , #{sDate} AS [sDate]
+     , #{eDate} AS [eDate]
+     , #{langCode} AS [langCode]
+     , '00' AS [resultCode]
+     , (
+          SELECT 
+          COUNT(1)
+          FROM TST_GOOD_INFO_I A, TUM_SVC_STOR_I B
+         WHERE A.REGIST_ID = B.USER_ID
+           AND A.LANG_CODE = B.LANG_CODE
+           AND A.MNGR_DELETE_AT='N' AND A.GOODS_ACTVTY_AT='Y'
+           AND A.GOODS_REGIST_STTUS = 1006
+          <include refid="goodsInfoWhere"/>
+        ) AS [totalCount]
+  </select>
+  
+  <select id="goodsInfoList" resultType="map">
+    SELECT
+          NVL((SELECT GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD_NM ORDER BY BB.INDVDLZ_CD_NM DESC ) 
+                 FROM TST_CATE_MGMT_M AA, OP_CODE_INDVDLZ BB
+             WHERE CTGRY_CL_CD = BB.INDVDLZ_CD
+               AND BB.GROUP_CD = '1005'
+               AND CTGRY_CODE IN ( SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = A.GOODS_CODE)
+               AND BB.LANG_CODE = A.LANG_CODE
+           ),'') ctgryclNm /*카테고리*/ 
+         , NVL(A.GOODS_NM,'') AS goodsNm /*서비스명*/ 
+         , NVL(B.LANG_STORE_NM,'') AS langStoreNm /*회사명*/ 
+         , NVL(A.GOODS_MAKR,'') AS goodsMakr /*제조사*/
+         , NVL(A.GOODS_VER_INFO,'') AS goodsVerInfo /*버전정보*/
+         , NVL(B.STORE_CHARGER_NM,'') storeChargerNm /*담당자*/
+         , NVL(DECRYPT(B.REPRSNT_EMAIL,'P008'),'') reprsntEmail /*담당자 이메일*/
+         , NVL(DECRYPT(B.REPRSNT_TELNO,'P007'),'') reprsntTelno /*담당자 연락처*/
+         , NVL((SELECT TO_CHAR(AVG(EVL_SCORE),'9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE),'Not rated') evlScore /*평점*/
+         , NVL(TO_CHAR(A.CONFM_DT,'YYYY-MM-DD HH24:MI'),'') AS registDt /*등록일*/
+         , DECODE(NVL(A.COMOU_DE,''),'','',TO_CHAR(TO_DATE(A.comou_de,'YYYYMMDD'),'YYYY-MM-DD')) AS comouDe /*출시일*/
+         <!-- , NVL(TRIM(TO_CHAR(A.GOODS_PC,'9,999,999,999,999')),'Contact us') AS goodsPc /*가격*/ -->
+         , NVL(A.GOODS_PC,'') AS goodsPc /*가격*/
+         , NVL((SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 1015 AND indvdlz_cd = A.goods_licence_cd AND lang_code=A.lang_code),'') AS goodsLicenceNm /*라이센스 코드 명*/
+         , NVL(GOODS_LICENCE_CN,'') AS goodsLicenceCn /*라이센스 코드 내용*/
+         , NVL((SELECT GROUP_CONCAT(BB.INDVDLZ_CD_NM) FROM TST_GOOD_META_I AA, OP_CODE_INDVDLZ BB
+             WHERE AA.GROUP_CD = BB.GROUP_CD AND AA.INDVDLZ_CD = BB.INDVDLZ_CD AND AA.GOODS_CODE = A.GOODS_CODE AND AA.GROUP_CD = 1019 AND BB.LANG_CODE = A.LANG_CODE),'') AS metaLang
+         , NVL((SELECT GROUP_CONCAT(DISTINCT INDVDLZ_CD_NM) FROM TST_CTFC_ATCH_I AA, (SELECT INDVDLZ_CD, INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 1011 AND lang_code=a.lang_code) BB
+                 WHERE AA.CRTFC_SE_CD = BB.INDVDLZ_CD AND GOODS_CODE = A.GOODS_CODE),'') AS ctfcAtch  /*인증정보*/
+         , NVL(CASE WHEN  ARCHTC_SE = 0 THEN 'UNSELECTED'
+                    WHEN  ARCHTC_SE = 1 THEN '32BIT'
+                    WHEN  ARCHTC_SE = 2 THEN '64BIT'
+                    WHEN  ARCHTC_SE = 3 THEN '32/64BIT'
+                    ELSE '' END,'') AS archtcSe /* 아키텍처구분(0:미선택,1:32BIT,2:64BIT,3:32/64BIT) */
+         , NVL((SELECT GROUP_CONCAT(BB.INDVDLZ_CD_NM) FROM TST_GOOD_META_I AA, OP_CODE_INDVDLZ BB
+             WHERE AA.GROUP_CD = BB.GROUP_CD AND AA.INDVDLZ_CD = BB.INDVDLZ_CD AND AA.GOODS_CODE = A.GOODS_CODE AND AA.GROUP_CD = 1021 AND BB.LANG_CODE = A.LANG_CODE),'') AS metaAS
+         , NVL((SELECT GROUP_CONCAT(BB.INDVDLZ_CD_NM) FROM TST_GOOD_META_I AA, OP_CODE_INDVDLZ BB
+             WHERE AA.GROUP_CD = BB.GROUP_CD AND AA.INDVDLZ_CD = BB.INDVDLZ_CD AND AA.GOODS_CODE = A.GOODS_CODE AND AA.GROUP_CD = 1020 AND BB.LANG_CODE = A.LANG_CODE),'') AS metaOS
+         , NVL(A.spclty_realm, '') AS spcltyRealm
+         , NVL(TRIM(TO_CHAR(A.cnstnt_co,'9,999,999,999,999')),'') AS cnstntCo
+         , NVL((SELECT GROUP_CONCAT(BB.INDVDLZ_CD_NM) FROM TST_GOOD_META_I AA, OP_CODE_INDVDLZ BB
+             WHERE AA.GROUP_CD = BB.GROUP_CD AND AA.INDVDLZ_CD = BB.INDVDLZ_CD AND AA.GOODS_CODE = A.GOODS_CODE AND AA.GROUP_CD = 1022 AND BB.LANG_CODE = A.LANG_CODE),'') AS metaTech
+	  FROM TST_GOOD_INFO_I A, TUM_SVC_STOR_I B
+	 WHERE A.REGIST_ID = B.USER_ID
+	   AND A.LANG_CODE = B.LANG_CODE
+	   AND A.MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+	   AND A.GOODS_REGIST_STTUS = 1006
+       <include refid="goodsInfoWhere"/>
+  ORDER BY A.CONFM_DT DESC
+  </select>
+</mapper>

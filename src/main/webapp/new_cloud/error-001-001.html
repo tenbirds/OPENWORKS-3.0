@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container">
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- section -->
+				<div class="section min-h650 ac">
+					<div class="error-page">
+						<img src="/new_cloud/images/sub/img-error.png" alt="" />
+						<h2>죄송합니다.</h2>
+						<strong>페이지 주소가 잘못 입력되었거나 요청하신 페이지 주소가<br />변경 또는 삭제되어 찾을 수 없습니다.</strong>
+					</div>
+
+					<!-- btn-area -->
+					<div class="btn-area ac mt20 mb70">
+						<a href="#" class="b-btn type2"><strong><span class="ml5 mr5">이전 페이지로</span></strong></a>
+						<a href="#" class="b-btn ml20 type2"><strong><span class="ml5 mr5">메인 페이지로</span></strong></a>
+						<a href="#" class="b-btn ml20 type2"><strong><span class="ml10 mr10">고객센터</span></strong></a>
+					</div>
+					<!-- //btn-area -->
+
+					<p>© 씨앗클라우드</p>
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		
+	</div>
+
+</body>
+</html>

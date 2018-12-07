@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>고객센터</h2>
+					<ul>
+					<li class="on"><a href="#">자주찾는 질문</a>
+						<ul>
+						<li><a href="#">- 구매 문의내역</a></li>
+						<li><a href="#">- 구매 문의내역</a></li>
+						</ul>					
+					</li>
+					<li><a href="#">묻고 답하기</a></li>
+					<li><a href="#">이벤트</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>자주찾는 질문</h2>
+					<!-- sorting -->
+					<div class="sech_form">
+						<div class="cont_wrap">
+							<div class="selected">
+							</div>
+							
+							<div class="selected">
+								<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>-- 검색선택 --</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+									<option value="">-- 검색선택 --</option>
+									<option value="BBSCTT_SJ_BBSCTT_CN">제목+내용</option>
+								</select>
+							</div>
+							<div class="search">
+								<input type="hidden" name="q_searchKey" value="">
+								<input type="text" name="q_searchVal" id="q_searchVal" value="" maxlength="50" class="input" title="검색하실 단어 입력">
+
+								<!-- <input type="image" alt="검색옵션" src="/resources/web/theme/default/images/btn/btn_g_searchoption.gif" onclick="jsToggleSearchOption(this); return false;" /> -->
+								<input type="button" class="btn" title="검색" onclick="jsSearch(); return false;">
+							</div>
+						</div>
+					</div>
+					<!-- //sorting -->
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section">
+					
+					<!-- tab -->
+					<div class="tab-area">
+						<ul class="full">
+						<li class="on"><a href="#">전체</a></li><!-- 선택되었을때 클래스 on 적용 -->
+						<li><a href="#">회원정보</a>
+							<ul>
+							<li class="on"><a href="#">회원정보 변경</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							<li><a href="#">로그인 불가</a></li>
+							<li><a href="#">회원탈퇴</a></li>
+							<li><a href="#">판매자 회원전환</a></li>
+							<li><a href="#">회원가입</a></li>
+							</ul>
+						</li>
+						<li><a href="#">상품</a>
+							<ul>
+							<li class="on"><a href="#">인증정보</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							<li><a href="#">상품평</a></li>
+							</ul>						
+						</li>
+						<li><a href="#">커뮤니티</a>
+							<ul>
+							<li class="on"><a href="#">커뮤니티 개설</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							<li><a href="#">커뮤니티 가입</a></li>
+							<li><a href="#">커뮤니티 탈퇴</a></li>
+							<li><a href="#">커뮤니티 운영</a></li>
+							</ul>						
+						</li>
+						<li><a href="#">전문가상담</a>
+							<ul>
+							<li class="on"><a href="#">전문가상담 서비스</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							<li><a href="#">전문가상담 선정</a></li>
+							</ul>						
+						</li>
+						<li><a href="#">판매하기</a>
+							<ul>
+							<li class="on"><a href="#">상품등록 절차</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							<li><a href="#">상품등록 정보</a></li>
+							</ul>						
+						</li>
+						<li><a href="#">마이페이지</a>
+							<ul>
+							<li class="on"><a href="#">나의 활동</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							</ul>						
+						</li>
+						<li><a href="#">기타</a>
+							<ul>
+							<li class="on"><a href="#">기타</a></li><!-- 선택되었을때 클래스 on 적용 -->
+							</ul>						
+						</li>
+						</ul>						
+					</div>
+					<!-- //tab -->
+
+				</div>
+				<!-- //section -->
+				
+				<!-- section -->
+				<div class="section">
+					<p class="total-count">총 <strong>5</strong>개</p>
+					<!-- list -->
+					<div class="type-list">
+						<table>
+							<caption>자주찾는 질문</caption>
+							<colgroup>
+							<col style="width:90px;"/>
+							<col style="width:*;"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>제목</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+								<tr>
+									<td>40</td>
+									<td class="title"><a href="#">외부에 알려줄 커뮤니티 주소가 너무 깁니다. 줄일 수 있나요?</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- //list -->
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

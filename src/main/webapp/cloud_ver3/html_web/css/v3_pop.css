@@ -1,0 +1,27 @@
+@charset "utf-8";
+@import url(/cloud_ver3/html_web/css/v3_cmm.css);
+
+.popup {position:relative; padding:18px 22px 25px; border:4px solid #03aeed; background-color:#fff; z-index: 101;}
+.popup h2 {font-size:21px; font-weight:800; border-bottom:1px solid #d1d0ce; margin:0 0 10px; padding-bottom:15px;}
+.popup h3 {margin:28px 0 10px; font-size:18px; font-weight:bold;}
+.popup .btn_area {margin:25px 0 0;}
+
+.pop_wrap .txt_01 {margin-top:25px;}
+.pop_wrap .tit_area {height:43px; margin-top:13px; line-height:43px; text-indent:18px; background-color:#f3f4f6;}
+.pop_wrap .tit_area strong {font-size:19px; margin-right:10px;}
+
+.list_addwish {margin-top:17px;}
+.list_addwish li {overflow:hidden; margin-top:13px;}
+.list_addwish .tit {float:left; width:22%; line-height:33px;}
+.list_addwish .con_addwish {float:left; width:78%;}
+.list_addwish .con_addwish input[type=text] {width:calc(100% - 92px); height:33px; vertical-align:top;}
+.list_addwish .con_addwish a {float:right;}
+.list_addwish ul {overflow-x:hidden; overflow-y:auto; float:left; width:78%; height:203px; padding-bottom:2px; border:1px solid #c2c0c0;}
+.list_addwish ul li {position:relative; margin:2px 2px 0; padding:7px 20px 7px 12px; color:#666;}
+.list_addwish ul li .icon_delete {display:none;}
+.list_addwish ul li:hover {background-color:#e7f5fe;}
+.list_addwish ul li:hover .icon_delete {display:block; position:absolute; top:10px; right:11px;}
+
+.list_search_history .tit {margin:24px 0 9px; font-size:15px;}
+.list_search_history li:first-child .tit {margin-top:15px;}
+.list_search_history input[type=text] {height:33px;}

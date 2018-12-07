@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_ordermanage">
+
+
+   <sql id="dynamicWhere">
+        
+            <if test="q_registId != null  and q_registId != ''">
+                AND A.GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_INFO_I WHERE USER_ID = #{q_registId})
+            </if>
+        
+            <if test="q_goodsTyCd != null  and q_goodsTyCd != ''">
+                 AND B.GOODS_CODE IN (
+                    SELECT GOODS_CODE  FROM TST_GOOD_CATE_I WHERE CTGRY_CODE IN (
+                    SELECT CTGRY_CODE FROM TST_CATE_MGMT_M WHERE CTGRY_CL_CD = #{q_goodsTyCd})
+                )
+            </if>
+            <if test="q_goodsTyCd == null  or q_goodsTyCd == ''">
+                AND B.GOODS_CODE IN (
+                    SELECT GOODS_CODE  FROM TST_GOOD_CATE_I WHERE CTGRY_CODE IN (
+                    SELECT CTGRY_CODE FROM TST_CATE_MGMT_M WHERE CTGRY_CL_CD IN (1001,1002,1003))
+                )
+            </if>
+            <if test="q_sleMthdCd != null  and q_sleMthdCd != ''">
+                AND B.SLE_MTHD_CD = #{q_sleMthdCd}
+            </if>
+            <if test="q_langCodes != null  and q_langCodes != ''">
+                 AND B.LANG_CODE
+                <foreach collection="q_langCodes" item="item" index="index" separator="," open="IN (" close=") ">
+                    TRIM(#{item})
+                </foreach>
+            </if>
+            <if test="q_beginDate != null  and q_beginDate != ''">
+                AND TO_CHAR(ORDER_DT,'YYYYMMDD') BETWEEN REPLACE(#{q_beginDate},'-','') AND REPLACE(#{q_endDate},'-','')
+            </if>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                    AND GOODS_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            
+             <choose>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != '' and q_ctgryCd2 != null  and q_ctgryCd2 != '' and q_ctgryCd3 != null  and q_ctgryCd3 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd3}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != '' and q_ctgryCd2 != null  and q_ctgryCd2 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd2}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+                <when test="q_ctgryCd1 != null  and q_ctgryCd1 != ''">
+                     AND B.GOODS_CODE  IN (
+                        SELECT  GOODS_CODE FROM TST_GOOD_CATE_I WHERE  CTGRY_CODE IN (
+                        SELECT CTGRY_CODE     
+                        FROM TST_CATE_MGMT_M
+                        START WITH CTGRY_CODE =#{q_ctgryCd1}
+                        CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE 
+                        )
+                    )
+                </when>
+            </choose>
+            
+            AND MNGR_DELETE_AT = 'N'
+            
+    </sql>
+    
+    <sql id="dynaminLangCode">
+        <choose>
+            <when test="langCd != null and langCd != ''"> #{langCd}</when>
+            <when test="q_langCd != null and q_langCd != ''"> #{q_langCd}</when>
+            <otherwise>'00'</otherwise>
+        </choose>
+    </sql>
+    
+    <select id="orderList" parameterType="map" resultType="orderManageVO">
+         SELECT
+               A.PURCHS_NO purchsNo
+             , A.ORDR_OX AS ordrOx					<!-- 구매신청O,다운로드X 여부 -->
+             , TO_CHAR(A.ORDER_DT,'YYYY-MM-DD HH24:MI') AS orderDt
+             , A.GOODS_CODE    AS goodsCd
+             , A.GOODS_NM    AS goodsNm
+             , A.LANG_CODE   AS langCode
+             , (SELECT  LANG_NM  FROM  TCO_SVC_LANG_C WHERE LANG_CODE =  A.LANG_CODE) langNm
+             , (SELECT  LANG_ENG_NM  FROM  TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) langEngNm
+             <!-- , TRIM(TO_CHAR(GOODS_PC,'9,999,999,999,999')) goodsPc -->
+             , GOODS_PC AS goodsPc
+             , A.SLE_MTHD_CD AS sleMthdCd
+             , (SELECT   INDVDLZ_CD_NM  FROM  OP_CODE_INDVDLZ  WHERE  GROUP_CD = '1007'  AND INDVDLZ_CD =  A.SLE_MTHD_CD AND  LANG_CODE = <include refid="dynaminLangCode"/>)  sleMthdNm
+             , A.ORDRR_ID    AS ordrrId
+             , (SELECT USER_NM FROM OP_USER WHERE USER_ID =  A.ORDRR_ID) ordrrNm
+             , A.USER_ID AS userId
+             , (SELECT  LANG_STORE_NM  FROM  TUM_SVC_STOR_I  WHERE USER_ID =  A.USER_ID AND LANG_CODE = <include refid="dynaminLangCode"/> ) storeNm
+             , ORDER_CNFIRM_AT AS orderCnfirmAt
+             , A.GOODS_DWLD_URL AS  goodsDwldUrl
+             , SUBSTR (A.GOODS_DWLD_URL, INSTR (goods_dwld_url, '/', -1) + 1) AS goodsDwldNm
+             ,(
+                
+                    SELECT 
+                        GROUP_CONCAT(DISTINCT BB.INDVDLZ_CD_NM ORDER BY BB.INDVDLZ_CD_NM DESC  SEPARATOR ' <![CDATA[<br/>]]>  '  )
+                    FROM TST_CATE_MGMT_M AA, OP_CODE_INDVDLZ BB
+                    WHERE CTGRY_CL_CD = BB.INDVDLZ_CD
+                    AND BB.LANG_CODE = <include refid="dynaminLangCode"/>
+                    AND BB.GROUP_CD = '1005'
+                    AND CTGRY_CODE IN ( SELECT CTGRY_CODE FROM TST_GOOD_CATE_I WHERE GOODS_CODE = A.GOODS_CODE)
+                
+                ) AS ctgryClNm
+         FROM (         
+         
+           SELECT Y.* FROM (
+                SELECT ROWNUM NUM, X.* FROM (
+         
+         
+                /* 서비스 정보, 서비스주문정보 */
+                SELECT
+                        B.USER_ID
+                      , B.LANG_CODE
+                      , A.GOODS_CODE
+                      , A.PURCHS_NO
+                      , A.ORDRR_ID
+                      , A.ORDER_DT
+                      , A.ORDER_CNFIRM_AT
+                      , B.GOODS_NM
+                      , B.SLE_MTHD_CD
+                      , B.GOODS_DWLD_URL
+                      , B.GOODS_PC
+                      , CASE WHEN A.DLIV_MSSAGE IS NULL OR A.DLIV_MSSAGE = '' 
+                             THEN 'X' 
+                             ELSE 'O' 
+                         END 						AS ORDR_OX
+                   FROM TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+                  WHERE A.GOODS_CODE = B.GOODS_CODE
+                  <include refid="dynamicWhere"/>
+                  ORDER BY A.ORDER_DT DESC
+                   
+                   ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                ) Y WHERE NUM &gt;= #{pagingStartNum}
+            
+            )A
+    </select>
+    
+    <select id="orderCount" parameterType="map" resultType="int">
+         SELECT
+                COUNT(1) AS totalCount
+           FROM TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+          WHERE A.GOODS_CODE = B.GOODS_CODE
+            <include refid="dynamicWhere"/>
+    </select>
+    
+    <select id="langList" parameterType="orderManageVO" resultType="orderManageVO">
+         SELECT
+                LANG_CODE AS langCode
+              , LANG_NM    AS langNm
+              , LANG_ENG_NM    AS langEngNm
+              , DOMAIN_CD  AS domainCd
+              , LANG_ENG_ABRV AS  langEngAbrv
+              , LANG_ENG_NM   AS  langEngNm
+           FROM tco_svc_lang_c
+          WHERE DOMAIN_CD IS NOT NULL
+    </select>
+
+    <select id="ctgryList"  parameterType="orderManageVO" resultType="orderManageVO">   
+         SELECT 
+               PARNTS_CTGRY_CODE AS parntsCtgryCd
+             , CTGRY_CODE AS ctgryCd
+             , LANG_CTGRY_NM AS ctgryNm
+          FROM TST_CATE_MGMT_M
+         WHERE CTGRY_CL_CD = #{goodsTyCd}
+           AND CTGRY_DP = #{ctgryDp}
+           <if test="ctgryCd != null and ctgryCd != '' and ctgryCd != 'null'">
+                AND PARNTS_CTGRY_CODE = #{ctgryCd}
+           </if>
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_DELETE_AT = 'N'
+           AND LANG_CODE = <include refid="dynaminLangCode"/>
+         ORDER BY SORT_ORDR
+         
+    </select>
+    
+
+</mapper>

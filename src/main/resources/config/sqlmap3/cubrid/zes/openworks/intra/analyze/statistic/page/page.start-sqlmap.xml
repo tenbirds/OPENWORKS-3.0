@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_analyzePage.start">
+
+    <sql id="getListWhere">
+        WHERE ANALS_DOMAIN = #{domain}
+          AND CONECT_DE BETWEEN #{startDate} AND #{endDate}
+        <if test="searchText != null  and searchText != ''">
+          AND CONECT_PGE_TITLE LIKE '%' || #{searchText} || '%'
+        </if>
+    </sql>
+
+    <select id="getStatisticPageList" parameterType="resultVO" resultType="resultVO">
+        /* _analyzePage.favorite.getStatisticPageList */
+        SELECT CONECT_PGE_TITLE 								AS title,
+               SUM(PGE_VIEW_CNT) 								AS [value],
+               CAST(ROUND(((CAST(SUM(PGE_VIEW_CNT) AS NUMERIC) / #{value}) * 100),2) AS NUMERIC(10,2)) 	AS rateValue
+          FROM OP_BEGIN_PGE_ANALS_S A
+        <include refid="getListWhere"/>
+         GROUP BY CONECT_PGE_TITLE
+        <if test="q_sortName != null  and q_sortName != ''">
+         ORDER BY ${q_sortName} ${q_sortOrder}
+        </if>
+        <if test="q_sortName == null or q_sortName == ''">
+         ORDER BY SUM(PGE_VIEW_CNT) DESC
+        </if>
+           FOR ORDERBY_NUM() BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+    </select>
+    
+    <select id="getStatisticPageListCount" parameterType="resultVO" resultType="int">
+        /* _analyzePage.favorite.getStatisticPageListCount */
+        SELECT COUNT(1)
+          FROM (SELECT CONECT_PGE_TITLE
+                     , SUM(PGE_VIEW_CNT)
+                  FROM OP_BEGIN_PGE_ANALS_S A
+            <include refid="getListWhere"/>
+                 GROUP BY CONECT_PGE_TITLE
+               )
+    </select>
+    
+    <select id="getStatisticSum" parameterType="resultVO" resultType="resultVO">
+        /* _analyzePage.favorite.getStatisticSum */
+        SELECT SUM(PGE_VIEW_CNT) 		AS [value]
+          FROM OP_BEGIN_PGE_ANALS_S A
+        <include refid="getListWhere"/>
+    </select>
+
+    <select id="getTopStatisticList" parameterType="resultVO" resultType="resultVO">
+    	/* _analyzePage.favorite.getTopStatisticList */
+    	SELECT ROWNUM NUM, X.* 
+    	  FROM (SELECT CONECT_PGE_TITLE 								AS title
+                     , SUM(PGE_VIEW_CNT) 								AS [value]
+                     , CAST(ROUND(((CAST(SUM(PGE_VIEW_CNT) AS NUMERIC) / #{value}) * 100),2) AS NUMERIC(10,2)) AS rateValue
+                  FROM OP_BEGIN_PGE_ANALS_S A
+                <include refid="getListWhere"/>
+                 GROUP BY CONECT_PGE_TITLE
+                <if test="q_sortName != null  and q_sortName != ''">
+                 ORDER BY ${q_sortName} ${q_sortOrder}
+                </if>
+                <if test="q_sortName == null or q_sortName == ''">
+                 ORDER BY SUM(PGE_VIEW_CNT) DESC
+                </if>
+            ) X
+            WHERE ROWNUM &lt;= 8
+    </select>
+</mapper>

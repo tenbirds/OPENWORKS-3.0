@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="lazyLoadingEnabled" value="true" />
+        <setting name="cacheEnabled" value="true" />
+        <setting name="multipleResultSetsEnabled" value="true" />
+        <setting name="useColumnLabel" value="true" />
+        <setting name="useGeneratedKeys" value="false" />
+        <setting name="defaultExecutorType" value="SIMPLE" />
+        <setting name="defaultStatementTimeout" value="30" />
+        <setting name="safeRowBoundsEnabled" value="false" />
+        <setting name="mapUnderscoreToCamelCase" value="false" />
+        <setting name="localCacheScope" value="SESSION" />
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+
+    <typeAliases>
+
+        <!-- common alias -->
+        <typeAlias alias="hmap" type="java.util.HashMap" />
+        <typeAlias alias="treeVO" type="zes.base.vo.TreeVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/boardconf/boardconf-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/common/cache/cache-sqlmap.xml -->
+        <typeAlias alias="boardConfVO" type="zes.openworks.intra.boardconf.BoardConfVO" />
+        <typeAlias alias="boardConfYnVO" type="zes.openworks.intra.boardconf.BoardConfYnVO" />
+        <typeAlias alias="boardCtgVO" type="zes.openworks.intra.boardconf.BoardCtgVO" />
+        <typeAlias alias="boardArrangeVO" type="zes.openworks.intra.boardconf.BoardArrangeVO" />
+        <typeAlias alias="boardExtensionVO" type="zes.openworks.intra.boardconf.BoardExtensionVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/boardtemp/boardtemp-sqlmap.xml -->
+        <typeAlias alias="boardTempVO" type="zes.openworks.intra.boardtemp.BoardTempVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/component/domain/domain-sqlmap.xml -->
+        <typeAlias alias="domainVO" type="zes.openworks.component.domain.DomainVO" />
+        <typeAlias alias="domainGroupVO" type="zes.openworks.component.domain.DomainGroupVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/component/file/file-sqlmap.xml -->
+        <typeAlias alias="fileVO" type="zes.base.vo.FileVO" />
+        <typeAlias alias="filesLogVO" type="zes.openworks.component.file.FileLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/analyze/statistic/**/*-sqlmap.xml -->
+        <typeAlias alias="searchVO" type="zes.openworks.intra.analyze.statistic.common.SearchVO" />
+        <typeAlias alias="resultVO" type="zes.openworks.intra.analyze.statistic.common.ResultVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/analyze/tracking/tracking-sqlmap.xml -->
+        <typeAlias alias="trackingVO" type="zes.openworks.intra.analyze.tracking.TrackingVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/auth/auth-sqlmap.xml -->
+        <typeAlias alias="authVO" type="zes.openworks.intra.auth.AuthVO" />
+        <typeAlias alias="authMgrVO" type="zes.openworks.intra.auth.AuthMgrVO" />
+        <typeAlias alias="authMenuVO" type="zes.openworks.intra.auth.AuthMenuVO" />
+
+        <!--/config/sqlmap3/zes/openworks/intra/authMgrAdd/addApplication-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/intra/authMgrDel/delApplication-sqlmap.xml -->
+        <typeAlias alias="AddApplicationVO" type="zes.openworks.intra.authMgrAdd.AddApplicationVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/authMgrAdd/additional-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/intra/authMgrDel/deletion-sqlmap.xml -->
+        <typeAlias alias="AddtionalVO" type="zes.openworks.intra.authMgrAdd.AdditionalVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/authMgrTrs/authTransferApplication-sqlmap.xml -->
+        <typeAlias alias="authTransferAppVO" type="zes.openworks.intra.authMgrTrs.AuthTransferApplicationVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/authMgrTrs/authTransfer-sqlmap.xml -->
+        <typeAlias alias="authTransferVO" type="zes.openworks.intra.authMgrTrs.AuthTransferVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/banner/banner-sqlmap.xml -->
+        <typeAlias alias="bannerVO" type="zes.openworks.intra.banner.BannerVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/board/board-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/web/board/board-sqlmap.xml -->
+        <typeAlias alias="boardVO" type="zes.openworks.intra.board.BoardVO" />
+        <typeAlias alias="boardCmtVO" type="zes.openworks.intra.board.BoardCmtVO" />
+        <typeAlias alias="boardTagVO" type="zes.openworks.intra.board.BoardTagVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/boardlog/boardlog-sqlmap.xml -->
+        <typeAlias alias="boardLogVO" type="zes.openworks.intra.boardlog.BoardLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/cms/content/content-sqlmap.xml -->
+        <typeAlias alias="contentVO" type="zes.openworks.intra.cms.content.ContentVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/cms/layout/layout-sqlmap.xml -->
+        <typeAlias alias="layoutVO" type="zes.openworks.intra.cms.layout.LayoutVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/cms/manage/content-manage-sqlmap.xml -->
+        <typeAlias alias="contentManageVO" type="zes.openworks.intra.cms.manage.ContentManageVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/cms/satisfy/satisfy-sqlmap.xml -->
+        <typeAlias alias="satisfyVO" type="zes.openworks.intra.cms.satisfy.SatisfyVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/cms/cms-sqlmap.xml -->
+        <typeAlias alias="cmsVO" type="zes.openworks.intra.cms.CmsVO" />
+        <typeAlias alias="cmsAuthVO" type="zes.openworks.intra.cms.CmsMgrAuthVO" />
+        <typeAlias alias="cmsUserGrade" type="zes.openworks.intra.cms.CmsUserGradeVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/code/code-sqlmap.xml -->
+        <typeAlias alias="codeVO" type="zes.openworks.intra.code.CodeVO" />
+        <typeAlias alias="codeCtgVO" type="zes.openworks.intra.code.CodeCtgVO" />
+        <typeAlias alias="loggingCodeVO" type="zes.openworks.intra.code.LoggingCodeVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/dept/dept-sqlmap.xml -->
+        <typeAlias alias="deptVO" type="zes.openworks.intra.dept.DeptVO" />
+        <typeAlias alias="dutVO" type="zes.openworks.intra.dept.DeptUserTreeVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/help/help-sqlmap.xml -->
+        <typeAlias alias="helpVO" type="zes.openworks.intra.help.HelpVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/interestlink/interestlink-sqlmap.xml -->
+        <typeAlias alias="interestLinkVO" type="zes.openworks.intra.interestlink.InterestLinkVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/login/login-sqlmap.xml -->
+        <typeAlias alias="loginVO" type="zes.openworks.intra.login.LoginVO" />
+        <typeAlias alias="logVO" type="zes.openworks.intra.login.LoggingWebLoginVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/menu/menu-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/intra/menugrp/menuGrp-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/intra/myMenu/mymenu-sqlmap.xml -->
+        <typeAlias alias="menuVO" type="zes.openworks.intra.menu.MenuVO" />
+        <typeAlias alias="menuItemVO" type="zes.openworks.intra.menugrp.MenuItemVO" />
+        <typeAlias alias="menuGrpVO" type="zes.openworks.intra.menugrp.MenuGrpVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/mgr/mgr-sqlmap.xml -->
+        <typeAlias alias="mgrVO" type="zes.openworks.intra.mgr.MgrVO" />
+        <typeAlias alias="loggingMgrVO" type="zes.openworks.intra.mgr.LoggingMgrVO" />
+        <typeAlias alias="loggingWebLoginVO" type="zes.openworks.intra.login.LoggingWebLoginVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/note/note-sqlmap.xml -->
+        <typeAlias alias="noteVO" type="zes.openworks.intra.note.NoteVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/plan/Plan-sqlmap.xml -->
+        <typeAlias alias="PlanVO" type="zes.openworks.intra.plan.PlanVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/popup/popup-sqlmap.xml -->
+        <typeAlias alias="PopupVO" type="zes.openworks.intra.popup.PopupVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/schedule/schedule-sqlmap.xml -->
+        <typeAlias alias="ScheduleVO" type="zes.openworks.intra.schedule.ScheduleVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/stickyNote/stickynote-sqlmap.xml -->
+        <typeAlias alias="stickyNoteVO" type="zes.openworks.intra.stickyNote.StickyNoteVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/user/user-sqlmap.xml -->
+        <!-- /config/sqlmap3/zes/openworks/intra/userSet/userInfo-sqlmap.xml -->
+        <typeAlias alias="userVO" type="zes.openworks.intra.user.UserVO" />
+        <typeAlias alias="userLVO" type="zes.openworks.intra.user.coLog.UserLogVO" />
+        <typeAlias alias="userInfoVO" type="zes.openworks.intra.userSet.UserInfoVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/user/coLog/userLog-sqlmap.xml -->
+        <typeAlias alias="userLogVO" type="zes.openworks.intra.user.coLog.UserLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/user/grade/user-grade-sqlmap.xml -->
+        <typeAlias alias="userGradeVo" type="zes.openworks.intra.user.grade.UserGradeVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/user/webLog/userweblog-sqlmap.xml -->
+        <typeAlias alias="userWebLogVO" type="zes.openworks.intra.user.webLog.UserWebLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/intra/user/webLog/userweblogstate-sqlmap.xml -->
+        <typeAlias alias="userWebLogVO" type="zes.openworks.intra.user.webLog.UserWebLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/samples/crud/crud-reply-sqlmap.xml -->
+        <typeAlias alias="crudReplyVO" type="zes.openworks.samples.crud.CrudReplyVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/samples/crud/crud-sqlmap.xml -->
+        <typeAlias alias="crudVO" type="zes.openworks.samples.crud.CrudVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/boardCount/boardcount-sqlmap.xml -->
+        <typeAlias alias="boardCountVO" type="zes.openworks.web.boardCount.BoardCountVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/issue/issue-sqlmap.xml -->
+        <typeAlias alias="issueVO" type="zes.openworks.web.issue.IssueVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/login/login-sqlmap.xml -->
+        <typeAlias alias="userLoginVO" type="zes.openworks.web.login.UserLoginVO" />
+	  	<typeAlias alias="webUserLoginVO" type="zes.openworks.web.login.LoggingWebUserLoginVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/login/log-sqlmap.xml -->
+        <typeAlias alias="userLogAccessVO" type="zes.openworks.web.login.UserLogVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/myboard/myboard-sqlmap.xml -->
+        <typeAlias alias="myboardVO" type="zes.openworks.intra.board.BoardVO" />
+
+        <!-- /config/sqlmap3/zes/openworks/web/register/register-sqlmap.xml -->
+        <typeAlias alias="registerVO" type="zes.openworks.web.register.RegisterVO" />
+        <typeAlias alias="registerUserVO" type="zes.openworks.web.register.RegisterUserVO" />        
+        <typeAlias alias="organPagerVo" type="zes.openworks.web.register.OrganPagerVo" />        
+
+        <!-- 설문조사 관리 /config/sqlmap3/DB명/zes/openworks/intra/poll/poll-sqlmap.xml -->
+        <typeAlias alias="pollDomainVo" type="zes.openworks.intra.poll.PollDomainVO" />
+        <typeAlias alias="pollVo" type="zes.openworks.intra.poll.PollVO" />
+        <typeAlias alias="pollGroupVo" type="zes.openworks.intra.poll.PollGroupVO" />
+        <typeAlias alias="pollCommentVo" type="zes.openworks.intra.poll.PollCommentVO" />
+        <typeAlias alias="pollResponseVo" type="zes.openworks.intra.poll.PollResponseVO" />
+
+        <!-- 설문조사 /config/sqlmap3/DB명/zes/openworks/web/poll/web-poll-sqlmap.xml -->
+        <typeAlias alias="webPolldomainVo" type="zes.openworks.web.poll.WebPollDomainVO" />
+        <typeAlias alias="webPollVo" type="zes.openworks.web.poll.WebPollVO" />
+        <typeAlias alias="webPollGroupVo" type="zes.openworks.web.poll.WebPollGroupVO" />
+        <typeAlias alias="webPollCommentVo" type="zes.openworks.web.poll.WebPollCommentVO" />
+        <typeAlias alias="webPollResponseVo" type="zes.openworks.web.poll.WebPollResponseVO" />
+
+        <!-- SNS 서비스 사용자  /config/sqlmap3/DB명/zes/openworks/component/sns/consumer/consumer-sqlmap.xml-->
+        <typeAlias alias="consumerVo" type="zes.openworks.component.sns.consumer.ConsumerVO" />
+        
+        <!-- SNS 서비스 제공자  /config/sqlmap3/DB명/zes/openworks/component/sns/provider/provider-sqlmap.xml-->
+        <typeAlias alias="providerVo" type="zes.openworks.component.sns.provider.ProviderVO" />
+		
+		<!-- /config/sqlmap3/zes/openworks/intra/sns/Sns-sqlmap.xml -->
+<!--         <typeAlias alias="SnsVO" type="zes.openworks.intra.sns.SnsVO" /> -->
+
+        <!-- /config/sqlmap3/zes/openworks/intra/sns/report/SnsReport-sqlmap.xml -->
+<!--         <typeAlias alias="SnsRVO" type="zes.openworks.intra.sns.report.SnsReportVO" /> -->
+        
+           <!-- /config/sqlmap3/zes/openworks/web/SnsOpinion/SnsOpinion-sqlmap.xml -->
+<!--         <typeAlias alias="SnsOPVO" type="zes.openworks.web.SnsOpinion.SnsOpinionVO" /> -->
+        
+         <!-- /config/sqlmap3/zes/openworks/intra/analyze/statistic/snsCnt/SnsCnt-sqlmap.xml -->
+<!--         <typeAlias alias="snsCntVO" type="zes.openworks.intra.analyze.statistic.snsCnt.snsCntVO" /> -->
+<!--         <typeAlias alias="snsKindCntVO" type="zes.openworks.intra.analyze.statistic.snsCnt.SnsKindCntVO" /> -->
+
+		<!-- /config/sqlmap3/zes/openworks/intra/advertisement/advertisement-sqlmap.xml 광고주관리 -->
+		<typeAlias alias="AdvrtsVO" type="zes.openworks.intra.advertisement.AdvrtsVO" />
+
+		<!--  커뮤니티 관리 /config/sqlmap3/cubrid/zes/openworks/intra/cmMgmt/cmManage/cmManage-sqlmap.xml -->
+		<typeAlias alias="cmManageVO" type="zes.openworks.intra.cmMgmt.cmManage.CmManageVO" />
+		<!--  커뮤니티 게시판 관리 /config/sqlmap3/cubrid/zes/openworks/intra/cmMgmt/cmManageBoard/cmManageBoard-sqlmap.xml -->
+        <typeAlias alias="cmManageBoardVO" type="zes.openworks.intra.cmMgmt.cmManageBoard.CmManageBoardVO"/>
+        <!--  커뮤니티 운영자 사이드 메뉴 /config/sqlmap3/cubrid/zes/openworks/web/webCommunity/admin/cmOptAdminMenu/cmOptAdminMenu-sqlmap.xml -->
+        <typeAlias alias="cmOptAdminMenuVO" type="zes.openworks.web.webCommunity.admin.cmOptAdminMenu.CmOptAdminMenuVO"/>
+         <!--  커뮤니티 사용자 메뉴 관리 /config/sqlmap3/cubrid/zes/openworks/web/webCommunity/admin/cmOptBoardMenu/cmOptBoardMenu-sqlmap.xml -->
+        <typeAlias alias="cmOptBoardMenuVO" type="zes.openworks.web.webCommunity.admin.cmOptBoardMenu.CmOptBoardMenuVO"/>
+        <!--  커뮤니티 사용자 일정  /config/sqlmap3/cubrid/zes/openworks/web/webCommunity/user/cmUserPlan/cmUserPlan-sqlmap.xml -->
+        <typeAlias alias="cmUserPlanVO" type="zes.openworks.web.webCommunity.user.cmUserPlan.CmUserPlanVO"/>
+        <!--  커뮤니티 통계  /config/sqlmap3/cubrid/zes/openworks/web/webCommunity/admin/cmSiteStat/CmSiteStat-sqlmap.xml -->
+        <typeAlias alias="cmSiteStatVO" type="zes.openworks.web.webCommunity.admin.cmSiteStat.CmSiteStatVO"/>
+        <!-- Event Manage -->
+        <typeAlias alias="eventVo" type="zes.openworks.intra.event.EventVO" />
+        <typeAlias alias="webEventVo" type="zes.openworks.web.webevent.WebEventVO" />
+
+        <!-- 스토어 카테고리 /config/sqlmap3/zes/openworks/intra/store/category-sqlmap.xml -->
+        <typeAlias alias="categoryVO" type="zes.openworks.intra.store.category.CategoryVO" />
+        
+        <!-- Order Manage -->
+        <typeAlias alias="consultOrderVO" type="zes.openworks.intra.orderManage.consult.ConsultOrderVO" />
+        <typeAlias alias="purchsOrderVO" type="zes.openworks.intra.orderManage.purchs.PurchsOrderVO" />
+        <typeAlias alias="goodsQnAVO" type="zes.openworks.intra.goods.qna.GoodsQnAVO" />
+        <typeAlias alias="goodsEvlVO" type="zes.openworks.intra.goods.evl.GoodsEvlVO" />
+         <!-- BH -->
+        <typeAlias alias="wishListVO" type="zes.openworks.intra.orderManage.wish.WishListVO" />
+        
+        <!-- intra dashboard-->
+		<!--  /config/sqlmap3/oracle/zes/openworks/intra/explorer/explorer-sqlmap.xml -->
+		<typeAlias alias="ExplorerVO" type="zes.openworks.intra.explorer.ExplorerVO" />
+        
+		<!-- 전체서비스 목록/관리 /config/sqlmap3/zes/openworks/intra/store/goodsManage-sqlmap.xml -->
+        <typeAlias alias="goodsVO" type="zes.openworks.intra.store.goods.GoodsManageVO" />        
+        
+        <!-- 스토어 카테고리 /config/sqlmap3/zes/openworks/intra/store/markmgmt-sqlmap.xml -->
+        <typeAlias alias="markVO" type="zes.openworks.intra.store.markMgmt.MarkVO" />
+        
+        <!-- 스토어 프리미엄 서비스 /config/sqlmap3/zes/openworks/web/store/premium-sqlmap.xml -->
+        <typeAlias alias="premiumVO" type="zes.openworks.web.store.premium.PremiumVO" />
+        
+        <!-- 표준프레임워크 > 호환성 신청및 확인 -->
+        <typeAlias alias="atibilityEgovVO"  type="zes.openworks.web.intrcn.atibilityegov.AtibilityEgovVO"/>
+        
+        <!-- 스토어 INC -->
+        <typeAlias alias="storeincVO"  type="zes.openworks.web.store.StoreincVO"/>        
+        
+        <!-- Web 구매/신청 관리 -->
+        <typeAlias alias="orderManageVO" type="zes.openworks.web.sale.orderManage.OrderManageVO"/>
+        <typeAlias alias="goodsManageVO" type="zes.openworks.web.sale.goods.WebGoodsManageVO"/>
+        
+        <!-- 공급자씨앗 답변 관리 -->
+        <typeAlias alias="ApplyManageVO" type="zes.openworks.web.apply.ApplyManageVO"/>
+     
+        
+        <!-- 공급자씨앗 공급자 정보 관리 -->
+        <typeAlias alias="SupplierInfoVO" type="zes.openworks.web.register.SupplierInfoVO"/>
+     
+        <!-- Web 고객지원 관리 -->
+        <typeAlias alias="webGoodsEvlVO" type="zes.openworks.web.sale.suppost.evl.WebGoodsEvlVO"/>
+        <typeAlias alias="webGoodsQnAVO" type="zes.openworks.web.sale.suppost.qna.WebGoodsQnAVO"/>
+        
+        <!-- 업무공통  /config/sqlmap3/oracle/zes/openworks/intra/commonDuty/commonduty-sqlmap.xml -->
+		<typeAlias alias="DutycbVO" type="zes.openworks.web.common.CommonDutyVO" />
+		<typeAlias alias="autoMailVO" type="zes.openworks.common.transmit.sender.email.AutoMailVO" />
+		<typeAlias alias="smsTransHistVO" type="zes.openworks.common.transmit.sender.sms.SmsTransHistVO" />
+        <typeAlias alias="popVO" type="zes.openworks.web.pop.PopVO" />
+     
+		
+        <!-- 마이페이지 쇼핑내역 & 관심목록 -->
+        <typeAlias alias="myGoodsVO" type="zes.openworks.web.myGoods.MyGoodsVO"/>
+                
+        <!-- 추천서비스 관리 -->
+        <typeAlias alias="recomGoodsVO" type="zes.openworks.intra.store.recomgoods.RecomGoodsVO"/>
+        
+        <!-- 판매하기 대시보드 -->
+        <typeAlias alias="sleVO" type="zes.openworks.web.sale.SleVO"/>
+        
+        <!-- 20150824 뉴스레터 -->
+        <typeAlias alias="newsLetterVO" type="zes.openworks.web.newsLetter.NewsLetterVO"/>
+        
+        <!-- 나라장터 표준연계 정보 추가=========================================================== -->
+        <!-- 나라장터 입찰정보 -->
+        <typeAlias alias="bidInfoVO" type="zes.openworks.web.g2b.bidInfo.BidInfoVO" />
+        <!-- 나라장터 계약정보 -->
+        <typeAlias alias="cntrctInfoVO" type="zes.openworks.web.g2b.cntrctInfo.CntrctInfoVO" />
+        <!-- 나라장터 계약물품 -->
+        <typeAlias alias="cntrctItemVO" type="zes.openworks.web.g2b.cntrctInfo.CntrctItemVO" />
+        <!-- 나라장터 서비스정보 -->
+        <!-- <typeAlias alias="goodsInfoVO" type="zes.openworks.web.g2b.goodsInfo.goodsInfoVO" /> -->
+        <!-- 나라장터 납품정보 -->
+        <typeAlias alias="dvyfgInfoVO" type="zes.openworks.web.g2b.dvyfgInfo.DvyfgInfoVO" />
+         
+        <!-- 나라장터 쇼핑몰서비스정보 -->
+        <typeAlias alias="goodsPPSVo" type="zes.openworks.intra.store.goods.GoodsPPSVO" />
+        
+        <!-- 구매희망관리 -->
+        <typeAlias alias="WishOrderVO" type="zes.openworks.web.wish.WishOrderVO" />
+        <typeAlias alias="MyWishVO" type="zes.openworks.web.wish.myWish.MyWishVO" />
+        <typeAlias alias="WishViewVO" type="zes.openworks.web.wish.myWish.WishViewVO" />
+
+        <!-- 계약관리 -->
+        <typeAlias alias="CntrctManageVO" type="zes.openworks.intra.orderManage.cntrctManage.CntrctManageVO" />
+        
+        <!-- 실적증명관리 -->
+        <typeAlias alias="ProofIssueledgerVO" type="zes.openworks.intra.proofIssueledger.ProofIssueledgerVO" />
+        
+        <!-- =========================================================================================================== -->
+        <!-- 수요조사 ST -->
+        <!-- =========================================================================================================== -->
+        <typeAlias alias="pblinsttVO" 				type="zes.openworks.web.register.PblinsttVO" />							<!-- 수요조사 기관목록 -->
+        <typeAlias alias="dcPartcptReqstVO" 		type="zes.openworks.web.register.DcPartcptReqstVO" />					<!-- 수요조사 설명회사전신청 -->
+        <typeAlias alias="dmandExaminDcVO" 			type="zes.openworks.intra.dmandExaminDc.DmandExaminDcVO" />				<!-- 수요조사 설명회신청목록 -->
+        <typeAlias alias="dmandExaminVO" 			type="zes.openworks.web.dmandExamin.DmandExaminVO" />					<!-- 수요조사 -->
+        
+        <typeAlias alias="dmandManageVO" 			type="zes.openworks.intra.dmandManage.DmandManageVO" />							<!-- 관리자:수요조사관리 -->
+        <typeAlias alias="dmandExaminRegistMngrVO" 	type="zes.openworks.intra.dmandExaminDtls.DmandExaminRegistMngrVO" />	<!-- 관리자:수요조사 작성관리 -->
+        <typeAlias alias="dmandExaminDtlsVO" 		type="zes.openworks.intra.dmandExaminDtls.DmandExaminDtlsVO" />			<!-- 관리자:수요정보조사내역 -->
+        <typeAlias alias="dmandExaminDetailDtlsVO" 	type="zes.openworks.intra.dmandExaminDtls.DmandExaminDetailDtlsVO" />	<!-- 관리자:수요정보조사상세내역 -->
+        <!-- =========================================================================================================== -->
+        <!-- 수요조사 ED -->
+        <!-- =========================================================================================================== -->
+        
+        <!-- 기본협약관리 -->
+        <typeAlias alias="bassAgremManageVO" type="zes.openworks.intra.bassAgremManage.BassAgremManageVO" />
+        <typeAlias alias="bassAgremVO" type="zes.openworks.web.register.BassAgremVO" />
+        <typeAlias alias="bassAgremSummaryVO" type="zes.openworks.intra.bassAgremManage.BassAgremSummaryVO" />
+         	
+        <!-- 기본협약차수관리 -->
+        <typeAlias alias="BassDegreeManageVO" type="zes.openworks.intra.bassDegreeManage.BassDegreeManageVO" />
+        
+        <!-- 서비스(서비스) 규격 --> 
+        <typeAlias alias="GoodsSpecVO" type="zes.openworks.intra.store.goods.GoodsSpecVO"/>       
+        <typeAlias alias="GoodsSpecDescribeVO" type="zes.openworks.intra.store.goods.GoodsSpecDescribeVO"/>       
+        
+        <!-- 해외 클라우드 정보 --> 
+        <typeAlias alias="GoodsFornVO" type="zes.openworks.web.forn.GoodsFornVO"/>       
+
+        <!-- 마스터/서브관리 --> 
+        <typeAlias alias="masterSubVO" type="zes.openworks.web.masub.MasterSubVO"/>  
+
+        <!-- 상세 입찰공고 -->
+        <typeAlias alias="TcnBidNotifyVO"   type="zes.openworks.web.bid.TcnBidNotifyVO" />
+        <typeAlias alias="BidSaasInfoVO"    type="zes.openworks.web.bid.BidSaasInfoVO" />
+        <typeAlias alias="BidIaasInfoVO"    type="zes.openworks.web.bid.BidIaasInfoVO" />
+        <typeAlias alias="BidPaasInfoVO"    type="zes.openworks.web.bid.BidPaasInfoVO" />
+        <typeAlias alias="BidSuplerListVO"  type="zes.openworks.web.bid.BidSuplerListVO" />
+        <typeAlias alias="BidSaas2InfoVO"   type="zes.openworks.web.bid.BidSaas2InfoVO" />
+        <typeAlias alias="BidIaas2InfoVO"   type="zes.openworks.web.bid.BidIaas2InfoVO" />
+        <typeAlias alias="BidPaas2InfoVO"   type="zes.openworks.web.bid.BidPaas2InfoVO" />
+        
+        <!-- 사전견적 -->
+        <typeAlias alias="TcnBeforeNotifyVO"   type="zes.openworks.web.before.TcnBeforeNotifyVO" />
+        <typeAlias alias="BeforeSaasInfoVO"    type="zes.openworks.web.before.BeforeSaasInfoVO" />
+        <typeAlias alias="BeforeIaasInfoVO"    type="zes.openworks.web.before.BeforeIaasInfoVO" />
+        <typeAlias alias="BeforePaasInfoVO"    type="zes.openworks.web.before.BeforePaasInfoVO" />
+        <typeAlias alias="BeforeSuplerListVO"  type="zes.openworks.web.before.BeforeSuplerListVO" />
+        <typeAlias alias="BeforeSaas2InfoVO"   type="zes.openworks.web.before.BeforeSaas2InfoVO" />
+        <typeAlias alias="BeforeIaas2InfoVO"   type="zes.openworks.web.before.BeforeIaas2InfoVO" />
+        <typeAlias alias="BeforePaas2InfoVO"   type="zes.openworks.web.before.BeforePaas2InfoVO" />        
+        <typeAlias alias="BeforeScs2InfoVO"    type="zes.openworks.web.before.BeforeScs2InfoVO" /> <!-- 20180713 추가 -->
+        
+        <!-- 마이씨앗 -->
+        <typeAlias alias="MyCeartVO"           type="zes.openworks.web.myCeart.MyCeartVO" />
+        <typeAlias alias="MyCeartBidNotifyVO"  type="zes.openworks.web.myCeart.vo.MyCeartBidNotifyVO" />  <!-- 입찰공고정보 -->
+        <typeAlias alias="MyCeartNotifySplyVO" type="zes.openworks.web.myCeart.vo.MyCeartNotifySplyVO" /> <!-- 입찰공고 공급자 확인정보 -->
+        <typeAlias alias="MyCeartSaasIVO"      type="zes.openworks.web.myCeart.vo.MyCeartSaasIVO" />      <!-- SaaS 정보 -->
+        <typeAlias alias="MyCeartSaasDVO"      type="zes.openworks.web.myCeart.vo.MyCeartSaasDVO" />      <!-- SaaS 상세 정보 -->
+        <typeAlias alias="MyCeartPaasVO"       type="zes.openworks.web.myCeart.vo.MyCeartPaasVO" />       <!-- PaaS 정보 -->
+        <typeAlias alias="MyCeartIaasIVO"      type="zes.openworks.web.myCeart.vo.MyCeartIaasIVO" />      <!-- IaaS 정보 -->
+        <typeAlias alias="MyCeartIaasDsVO"     type="zes.openworks.web.myCeart.vo.MyCeartIaasDsVO" />     <!-- IaaS Server 정보 -->
+        <typeAlias alias="MyCeartIaasDdVO"     type="zes.openworks.web.myCeart.vo.MyCeartIaasDdVO" />     <!-- IaaS DB 정보 -->
+        <typeAlias alias="MyCeartGoodsVO"      type="zes.openworks.web.myCeart.vo.MyCeartGoodsVO" />      <!-- 견적의 서비스정보 -->
+        <typeAlias alias="MyCeartTenderVO"     type="zes.openworks.web.myCeart.vo.MyCeartTenderVO" />     <!-- 공고 응찰자 정보 조회 -->
+        <typeAlias alias="MyCeartPurchsDtlsVO" type="zes.openworks.web.myCeart.vo.MyCeartPurchsDtlsVO" /> <!-- 구매내역관리 -->
+        <typeAlias alias="MyCeartBeforeNofyVO" type="zes.openworks.web.myCeart.vo.MyCeartBeforeNofyVO" /> <!-- 사전견적관리 -->
+        <typeAlias alias="MyCeartBeforeNotifySplyVO" type="zes.openworks.web.myCeart.vo.MyCeartBeforeNotifySplyVO" /> <!-- 사전견적 공급자 정보 -->
+		<typeAlias alias="MyCertifApplyVO"     type="zes.openworks.web.myCertif.MyCertifApplyVO" />		  <!-- 이용실적증명서 발급 신청 -->
+		<typeAlias alias="MyCertifGoodsVO"     type="zes.openworks.web.myCertif.MyCertifGoodsVO" />	  <!-- 이용실적증명서 서비스 발급 신청 -->
+        <typeAlias alias="MyCeartSaas2IVO"     type="zes.openworks.web.myCeart.vo.MyCeartSaas2IVO" />    <!-- SaaS2 정보 -->
+        <typeAlias alias="MyCeartSaas2DnVO"    type="zes.openworks.web.myCeart.vo.MyCeartSaas2DnVO" />   <!-- SaaS2 상세Need 정보 -->
+        <typeAlias alias="MyCeartSaas2DoVO"    type="zes.openworks.web.myCeart.vo.MyCeartSaas2DoVO" />   <!-- SaaS2 상세Option 정보 -->
+        <typeAlias alias="MyCeartPaas2VO"      type="zes.openworks.web.myCeart.vo.MyCeartPaas2VO" />      <!-- PaaS2 정보 -->
+        <typeAlias alias="MyCeartIaas2IVO"     type="zes.openworks.web.myCeart.vo.MyCeartIaas2IVO" />     <!-- IaaS2 정보 -->
+        <typeAlias alias="MyCeartIaas2DsVO"    type="zes.openworks.web.myCeart.vo.MyCeartIaas2DsVO" />    <!-- IaaS2 상세Server 정보 -->
+        <typeAlias alias="MyCeartIaas2DdVO"    type="zes.openworks.web.myCeart.vo.MyCeartIaas2DdVO" />    <!-- IaaS2 상세DB 정보 -->
+        <typeAlias alias="MyCeartScs2VO"       type="zes.openworks.web.myCeart.vo.MyCeartScs2VO" />      <!-- PaaS2 정보 -->
+        
+        <typeAlias alias="HistoryGoodsSearchVO" type="zes.openworks.web.myCeart.vo.HistoryGoodsSearchVO" />    <!-- 검색이력 정보 -->
+		
+		<!-- 알람 -->
+        <typeAlias alias="alarmVO"      type="zes.openworks.web.alarm.AlarmVO" /> 
+
+        <!-- 공급자 씨앗 -->
+        <typeAlias alias="SuplerCeartVO"            type="zes.openworks.web.suplerCeart.SuplerCeartVO" />              <!-- 공급자씨앗 기본 -->
+        <typeAlias alias="SuplerCeartBidNotifyVO"   type="zes.openworks.web.suplerCeart.vo.SuplerCeartBidNotifyVO" />  <!-- 공급자씨앗 공고기본 -->
+        <typeAlias alias="SuplerCeartNotifySplyVO"  type="zes.openworks.web.suplerCeart.vo.SuplerCeartNotifySplyVO" /> <!-- 공급자씨앗 공급자 확인정보 -->
+        <typeAlias alias="SuplerCeartPaasVO"        type="zes.openworks.web.suplerCeart.vo.SuplerCeartPaasVO" />  <!-- 공급자씨앗 PaaS 정보 -->
+        <typeAlias alias="SuplerCeartSaasIVO"       type="zes.openworks.web.suplerCeart.vo.SuplerCeartSaasIVO" /> <!-- 공급자씨앗 SaaS 정보 -->
+        <typeAlias alias="SuplerCeartSaasDVO"       type="zes.openworks.web.suplerCeart.vo.SuplerCeartSaasDVO" /> <!-- 공급자씨앗 SaaS 상세 정보 -->
+        <typeAlias alias="SuplerCeartIaasIVO"       type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaasIVO" />  <!-- 공급자씨앗 IaaS 마스터 정보 -->
+        <typeAlias alias="SuplerCeartIaasDsVO"      type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaasDsVO" /> <!-- 공급자씨앗 IaaS 서버 정보 -->
+        <typeAlias alias="SuplerCeartIaasDdVO"      type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaasDdVO" /> <!-- 공급자씨앗 IaaS DB 정보 -->
+        <typeAlias alias="SuplerCntrctVO"           type="zes.openworks.web.suplerCeart.vo.SuplerCntrctVO" />     <!-- 공급자씨앗 계약관리정보 -->
+        <typeAlias alias="SuplerCntrctGoodsVO"      type="zes.openworks.web.suplerCeart.vo.SuplerCntrctGoodsVO" />     <!-- 공급자씨앗 계약관리-서비스계약체결정보 -->
+        <typeAlias alias="SuplerCeartBidPartcptnVO" type="zes.openworks.web.suplerCeart.vo.SuplerCeartBidPartcptnVO" /> <!-- 공급자씨앗 입찰참여현황 -->
+        <typeAlias alias="SuplerCeartSuplySttusVO"  type="zes.openworks.web.suplerCeart.vo.SuplerCeartSuplySttusVO" />  <!-- 공급자씨앗 공급현황 -->
+        <typeAlias alias="SuplySttusEndsUserVO"     type="zes.openworks.web.suplerCeart.vo.SuplySttusEndsUserVO" />     <!-- 공급 수요자 정보 -->
+        <typeAlias alias="SuplerCeartPaas2VO"       type="zes.openworks.web.suplerCeart.vo.SuplerCeartPaas2VO" />  <!-- 공급자씨앗 PaaS2 정보 -->
+        <typeAlias alias="SuplerCeartSaas2IVO"      type="zes.openworks.web.suplerCeart.vo.SuplerCeartSaas2IVO" /> <!-- 공급자씨앗 SaaS2 정보 -->
+        <typeAlias alias="SuplerCeartSaas2DnVO"     type="zes.openworks.web.suplerCeart.vo.SuplerCeartSaas2DnVO" /> <!-- 공급자씨앗 SaaS2 상세Need 정보 -->
+        <typeAlias alias="SuplerCeartSaas2DoVO"     type="zes.openworks.web.suplerCeart.vo.SuplerCeartSaas2DoVO" /> <!-- 공급자씨앗 SaaS2 상세Option 정보 -->        
+        <typeAlias alias="SuplerCeartIaas2IVO"      type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaas2IVO" />  <!-- 공급자씨앗 Iaa2S 정보 -->
+        <typeAlias alias="SuplerCeartIaas2DsVO"     type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaas2DsVO" /> <!-- 공급자씨앗 Iaa2S 상세Server 정보 -->
+        <typeAlias alias="SuplerCeartIaas2DdVO"     type="zes.openworks.web.suplerCeart.vo.SuplerCeartIaas2DdVO" /> <!-- 공급자씨앗 Iaa2S 상세DB 정보 -->
+        <typeAlias alias="SuplerCeartScs2VO"        type="zes.openworks.web.suplerCeart.vo.SuplerCeartScs2VO" />  <!-- 공급자씨앗 Scs2 정보 -->  <!-- 20180713 추가 -->
+
+        <!-- 입찰공고 -->
+        <typeAlias alias="BidSttusListVO"          type="zes.openworks.web.bidSttus.vo.BidSttusListVO" />        <!-- 입찰공고 기본 -->
+        <typeAlias alias="SuplerServiceVO"         type="zes.openworks.web.bidSttus.vo.SuplerServiceVO" />       <!-- 공급자 서비스조회 -->
+        
+        <!-- voc 관리 -->
+        <typeAlias alias="vocManageVO" 			type="zes.openworks.intra.vocManage.VocManageVO" /> 		<!-- 관리자 : voc관리 -->
+        
+        <!-- 협약기업정보 -->
+        <typeAlias alias="agremManageVO"         type="zes.openworks.web.introduction.AgremManageVO" />       <!-- 협약기업정보 2018.03.08 -->
+        <typeAlias alias="agremManageServiceVO"  type="zes.openworks.web.introduction.AgremManageServiceVO" />       <!-- 서비스정보 2018.03.08 -->
+        
+        <!-- <typeAlias alias="CntrctSttusVO"  type="zes.openworks.intra.analyze.statistic.cntrct.CntrctSttusVO" /> -->       <!-- 통계정보 2018.04.03-->
+        
+        <!-- 사용자 화면에 나타낼 통계데이터 -->
+        <typeAlias alias="FrontInfoVO"         type="zes.openworks.intra.popup.FrontInfoVO" />       <!-- 사용자 화면에 나타낼 통계데이터 2018.07.03 -->
+        
+    </typeAliases>
+
+</configuration>

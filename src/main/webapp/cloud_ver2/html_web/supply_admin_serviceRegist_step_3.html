@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="ko">
+ <head>  
+  <meta charset="UTF-8" />
+  <title>서비스 규격서 확인 - 공급서비스 관리</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body>
+	<!-- header -->
+	<header id="gnb">
+		<div class="conWrap">
+			<h1><a href="#"><img src="/cloud_ver2/new_cloud/images/logo.png" alt="클라우드 스토어 씨앗" /></a></h1>
+
+			<!-- 상단 메뉴 -->
+			<aside>
+				<div>
+					<!-- 구굴 사이트 번역 API -->
+					<div id="google_translate_element"></div>
+					<script type="text/javascript">
+						function googleTranslateElementInit() {
+						    new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+						    }
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!--// 구굴 사이트 번역 API -->
+	
+					<ul>
+						<li><a href="http://www.ceart.kr:8080/korean/pt/login/user/BD_index.do">로그인</a></li>
+						<li><a href="#">회원가입</a></li>
+						<li><a href="#">커뮤니티</a></li>
+					</ul>
+				</div>
+
+				<!-- 전체 검색 -->
+				<form>
+					<input type="text" placeholder="service search" />
+					<input type="image" src="/cloud_ver2/new_cloud/images/gnb_btn_search.png" alt="검색" />
+				</form>
+				<!--// 전체 검색 -->
+			</aside>
+			<!-- 상단 메뉴 -->
+		</div>
+
+		<!-- gnb -->
+		<nav>
+			<div class="conWrap">
+				<a href="#" class="view_allmenu"><img src="/cloud_ver2/new_cloud/images/gnb_allmenu.png" alt="전체메뉴" /></a>
+				<ul>
+					<li>
+						<a href="#">씨앗소개</a>
+						<ul>
+							<li><a href="#">스토어소개</a></li>
+							<li><a href="#">공급자 협약체결</a></li>
+							<li><a href="#">서비스 판매절차</a></li>
+							<li><a href="#">기타 공급자가이드</a></li>
+							<li><a href="#">표준계약서</a></li>
+							<li><a href="#">서비스 구매절차</a></li>
+							<li><a href="#">기타 수요자가이드</a></li>
+							<li><a href="#">공공기관 클라우드 이용가이드</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">SaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">IT서비스</a></li>
+							<li><a href="#">비즈니스</a></li>
+							<li><a href="#">마케팅</a></li>
+							<li><a href="#">산업</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+							<li><a href="#">기타</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">PaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">시스템보안</a></li>
+							<li><a href="#">DBMS</a></li>
+							<li><a href="#">기타 개발도구</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">IaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">컴퓨팅</a></li>
+							<li><a href="#">스토리지</a></li>
+							<li><a href="#">네트워킹</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">입찰공고</a>
+						<ul>
+							<li><a href="#">신규공고</a></li>
+							<li><a href="#">수의계약공고</a></li>
+							<li><a href="#">예비공고</a></li>
+							<li><a href="#">마감공고</a></li>
+							<li><a href="#">공고등록</a></li>
+							<li><a href="#">나라장터 입찰공고</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">지식허브</a>
+						<ul>
+							<li><a href="#">전문가상담</a></li>
+							<li><a href="#">지식맵</a></li>
+							<li><a href="#">지식나눔</a></li>
+							<li><a href="#">행사 및 이벤트</a></li>
+							<li><a href="#">성공스토리</a></li>
+							<li><a href="#">뉴스레터</a></li>
+							<li><a href="#">씨앗워키</a></li>
+							<li><a href="#">해외 클라우드마켓 동향</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<!-- allmenu -->
+			<div class="all_menu">
+				<div class="conWrap">
+					<table>
+						<tr>
+							<th>씨앗소개</th>
+							<th>SaaS</th>
+							<th>PaaS</th>
+							<th>IaaS</th>
+							<th>입찰공고</th>
+							<th>지식허브</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">스토어소개</a></li>
+									<li><a href="#">공급자 협약체결</a></li>
+									<li><a href="#">서비스 판매절차</a></li>
+									<li><a href="#">기타 공급자가이드</a></li>
+									<li><a href="#">표준계약서</a></li>
+									<li><a href="#">서비스 구매절차</a></li>
+									<li><a href="#">기타 수요자가이드</a></li>
+									<li><a href="#">공공기관 클라우드 이용가이드</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li>IT서비스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 데이터 관리</a></li>
+											<li><a href="#">- IT 관리</a></li>
+											<li><a href="#">- 프로젝트 관리</a></li>
+											<li><a href="#">- 소프트웨어 개발 도구</a></li>
+											<li><a href="#">- 전자문서/기록관리(EDRM)</a></li>
+											<li><a href="#">- 협업도구</a></li>
+											<li><a href="#">- 크리에이티브&디자인</a></li>
+											<li><a href="#">- 보안</a></li>
+										</ul>
+									</li>
+									<li>비즈니스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 의사결정지원/분석</a></li>
+											<li><a href="#">- 생산관리</a></li>
+											<li><a href="#">- 회계/금융</a></li>
+											<li><a href="#">- 인적 자원 관리</a></li>
+										</ul>
+									</li>
+									<li>마케팅
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 세일즈</a></li>
+											<li><a href="#">- 마케팅</a></li>
+											<li><a href="#">- 고객 관계 관리(CRM)</a></li>
+										</ul>
+									</li>
+									<li>산업
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 교육</a></li>
+											<li><a href="#">- 운송/물류</a></li>
+											<li><a href="#">- 에너지/환경</a></li>
+											<li><a href="#">- 도서</a></li>
+											<li><a href="#">- 법률</a></li>
+											<li><a href="#">- 문화</a></li>
+										</ul>
+									</li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">시스템 보안</a></li>
+									<li><a href="#">DBMS</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타 개발도구</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">컴퓨팅</a></li>
+									<li><a href="#">스토리지</a></li>
+									<li><a href="#">네트워킹</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">신규공고</a></li>
+									<li><a href="#">수의계약공고</a></li>
+									<li><a href="#">예비공고</a></li>
+									<li><a href="#">마감공고</a></li>
+									<li><a href="#">공고등록</a></li>
+									<li><a href="#">나라장터 입찰공고</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전문가상담</a></li>
+									<li><a href="#">지식맵</a></li>
+									<li><a href="#">지식나눔</a></li>
+									<li><a href="#">행사 및 이벤트</a></li>
+									<li><a href="#">기타 입찰정보</a></li>
+									<li><a href="#">성공스토리</a></li>
+									<li><a href="#">뉴스레터</a></li>
+									<li><a href="#">씨앗워키</a></li>
+									<li><a href="#">해외 클라우드마켓 동향</a></li>
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<th>로그인</th>
+							<th>회원가입</th>
+							<th>마이씨앗</th>
+							<th>공급자씨앗</th>
+							<th>커뮤니티</th>
+							<th>고객센터</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">아이디 찾기</a></li>
+									<li><a href="#">비밀번호 찾기</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">일반회원가입</a></li>
+									<li><a href="#">공급자권한가입</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">구매내역 관리</a></li>
+									<li><a href="#">상세정보(견적)요청서 관리</a></li>
+									<li><a href="#">입찰공고 관리</a></li>
+									<li><a href="#">구매희망목록</a></li>
+									<li>관심목록
+										<ul>
+											<li><a href="#">- 관심서비스</a></li>
+											<li><a href="#">- 최근 본 서비스</a></li>
+										</ul>
+									</li>
+									<li><a href="#">전문가상담</a></li>
+									<li>나의게시물
+										<ul>
+											<li><a href="#">- 공급자문의</a></li>
+											<li><a href="#">- 운영자문의</a></li>
+											<li><a href="#">- 내가쓴 글</a></li>
+											<li><a href="#">- 응모이벤트</a></li>
+										</ul>
+									</li>
+									<li>커뮤니티
+										<ul>
+											<li><a href="#">- 가입 커뮤니티</a></li>
+											<li><a href="#">- 개설 커뮤니티</a></li>
+										</ul>
+									</li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">회원정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">데시보드</a></li>
+									<li><a href="#">씨앗공지</a></li>
+									<li><a href="#">구매요청 답변서관리</a></li>
+									<li><a href="#">입찰참여 현황</a></li>
+									<li><a href="#">판매현황</a></li>
+									<li>공급서비스 관리
+										<ul>
+											<li><a href="#">- 서비스목록</a></li>
+											<li><a href="#">- 서비스등록대기</a></li>
+											<li><a href="#">- 서비스등록</a></li>
+											<li><a href="#">- 서비스삭제목록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">Q &amp; A 관리</a></li>
+									<li><a href="#">전문가상담 관리</a></li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">공급자정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">커뮤니티</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">고객센터</a></li>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!--// allmenu -->
+		</nav>
+		<!--// gnb -->
+	</header>
+	<!--// header -->
+
+	<!-- content -->
+	<section class="listTit">
+		<!-- 타이틀 영역 -->
+		<div class="conWrap">
+			<h2>공급자 씨앗</h2>
+			<div>공급서비스 관리</div>
+		</div>
+		<!--// 타이틀 영역 -->
+	</section>
+
+			
+	<section class="lay_lnb">
+		<div class="conWrap">
+			<nav>
+				<!-- 좌측 카테고리 -->
+				<ul>
+					<li>
+						<a href="#">공급자 홈</a>
+					</li>
+					<li>
+						<a href="#">씨앗공지</a>
+					</li>
+					<li>
+						<a href="#">구매요청 답변서관리</a>
+					</li>
+					<li>
+						<a href="#">입찰참여현황</a>
+					</li>
+					<li>
+						<a href="#">공급현황</a>
+					</li>
+					<li>
+						<a href="#">공급서비스 관리</a>
+						<ul>						
+							<li><a href="#">서비스 목록</a></li>
+							<li><a href="#">승인대기 서비스</a></li>
+							<li><a href="#" class="on">서비스 등록</a></li>
+							<li><a href="#">삭제서비스</a></li>					
+						</ul>
+					</li>
+					<li>
+						<a href="#">Q&A 관리</a>
+					</li>
+					<li>
+						<a href="#">전문가상담 관리</a>
+					</li>
+					<li>
+						<a href="#">마스터/서브 관리</a>
+					</li>
+					<li>
+						<a href="#">공급자정보 관리</a>
+					</li>
+				</ul>
+				<!--// 좌측 카테고리 -->
+			</nav>
+			
+			<div class="supAdm register">
+				<img src="/cloud_ver2/new_cloud/images/srvRgst_step_3.png" alt="등록된 규격서 확인" />
+				<h3>등록된 규격서 등록</h3>
+
+				<div class="btnArea rig">
+					<a href="#" class="f_l btns st1 icn icnXlx">엑셀 다시 등록</a>
+					
+					<a href="#" class="btns st1 icn icnSave">임시저장</a>
+					<a href="#" class="btns st1 icn icnWrite">등록신청</a>
+				</div>				
+
+				<table class="tbl_st4">
+					<tr>
+						<th>공급사</th>
+						<td>(주)더존비즈온</td>
+						<th>조달등록번호</th>
+						<td>조달 등록상품 번호</td>
+					</tr>
+					<tr>
+						<th>사업자등록번호</th>
+						<td>134-81-08473</td>
+						<th>대표전화</th>
+						<td>02-6233-3000</td>
+					</tr>
+					<tr>
+						<th>담당자</th>
+						<td>김호덕</td>
+						<th>대표 이메일</th>
+						<td>abcd@naver.com</td>
+					</tr>
+					<tr>
+						<th>서비스명</th>
+						<td>iCUBE Cloud Edition</td>
+						<th>마켓 등록일</th>
+						<td></td>
+					</tr>
+					<tr>
+						<th>서비스구분</th>
+						<td>SaaS</td>
+						<th>서비스종류</th>
+						<td>클라우드 ERP</td>
+					</tr>
+				</table>				
+			
+				<h3>직접 등록 정보</h3>
+			
+				<table class="tbl_st5">
+					<thead>
+						<tr>
+							<th>No</th>
+							<th>대항목</th>
+							<th>세부항목</th>
+							<th>내용</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>서비스개요</td>
+							<td></td>
+							<td>인터넷을 통해 로그인하여 사용하는 방식으로 프로그램 설치가 필요 없고, 기타 스마트폰, 태블릿 등에서도 사용 가능 </td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>가격</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>2.1</td>
+							<td rowspan="3"></td>
+							<td>VAT 포함여부</td>
+							<td>부가세 별도</td>
+						</tr>
+						<tr>
+							<td>2.2</td>
+							<td>최소계약기간</td>
+							<td>1개월 </td>
+						</tr>
+						<tr>
+							<td>2.3</td>
+							<td>평가판 사용여부</td>
+							<td>평가판 사용여부</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>첨부문서</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>3.1</td>
+							<td rowspan="4"></td>
+							<td>가격 테이블</td>
+							<td>별도 첨부</td>
+						</tr>
+						<tr>
+							<td>3.2</td>
+							<td>기술평가표</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>3.3</td>
+							<td>서비스 항목 정의</td>
+							<td>회계관리, 인사ㆍ급여관리, 영업관리, 무역관리(수출/입), 구매ㆍ자재 관리, 생산관리, 외주관리, 서비스 관리, 경영정보 관리, 공사현장 관리 등</td>
+						</tr>
+						<tr>
+							<td>3.4</td>
+							<td>기간 및 조건</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td>연락처</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>4.1</td>
+							<td rowspan="3"></td>
+							<td>담당자</td>
+							<td>김호덕</td>
+						</tr>
+						<tr>
+							<td>4.2</td>
+							<td>전화번호</td>
+							<td>02-6233-4019</td>
+						</tr>
+						<tr>
+							<td>4.3</td>
+							<td>e-mail</td>
+							<td>kim486@duzon.com</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td>서비스 특징</td>
+							<td></td>
+							<td>ERP 솔루션을 변경하지 않고 iCUBE를 클라우드 환경으로 운영하는 방식</td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td>도입 기대효과</td>
+							<td></td>
+							<td>상기의 특징을 통해 프로그램 교체로 인한 혼란은 발생하지 않으면서 iCUBE 클라우드 에디션을 사용하는 것만으로 기업의 중요한 업무기반인 전산환경을 혁신적으로 개선할 수 있음.</td>
+						</tr>					
+						<tr>
+							<td>7</td>
+							<td>기술지원</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>7.1</td>
+							<td rowspan="5"></td>
+							<td>지원 서비스 종류</td>
+							<td>이메일, 전환, 원격지원</td>
+						</tr>					
+						<tr>
+							<td>7.2</td>
+							<td>제3의 공급자에 접근 지원</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>7.3</td>
+							<td>기술지원 시간<br />
+								(시간/주간/옵션)
+							</td>
+							<td>주간 대응</td>
+						</tr>					
+						<tr>
+							<td>7.4</td>
+							<td>지원대기 시간</td>
+							<td>계약에 따른 대응</td>
+						</tr>					
+						<tr>
+							<td>7.5</td>
+							<td>서비스의 단계적 확장</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>8</td>
+							<td>공개표준지원</td>
+							<td>공개표준 지원 및 문서</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>9</td>
+							<td>서비스 개시/종료절차</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>9.1</td>
+							<td></td>
+							<td>서비스 개시 절차 포함</td>
+							<td>
+								컨설팅<br />
+								스펙산정<br />
+								가입신청<br />
+								IaaS 구성<br />
+								SaaS 설정	<br />			
+							</td>
+						</tr>					
+						<tr>
+							<td>9.2</td>
+							<td>서비스 종료</td>
+							<td>절차 포함</td>
+							<td>서비스 종료 관련 공문 전달</td>
+						</tr>					
+						<tr>
+							<td>10</td>
+							<td>분석</td>
+							<td>실시간 관리 정보 제공 </td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>11</td>
+							<td>클라우드 특성</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>11.1</td>
+							<td rowspan="3"></td>
+							<td>탄력적 클라우드 지원</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>11.2</td>
+							<td>정의된 자원 보장</td>
+							<td>불가</td>
+						</tr>					
+						<tr>
+							<td>11.3</td>
+							<td>영구 저장소 지원</td>
+							<td>불가</td>
+						</tr>					
+						<tr>
+							<td>12</td>
+							<td>프로비저닝</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>12.1</td>
+							<td rowspan="3"></td>
+							<td>셀프서비스 프로비저닝 지원</td>
+							<td>팩스 송/수신 관련 기능에 대한 설정 가능</td>
+						</tr>					
+						<tr>
+							<td>12.2</td>
+							<td>서비스 프로비저닝 시간</td>
+							<td>즉시</td>
+						</tr>					
+						<tr>
+							<td>12.3</td>
+							<td>서비스 프로비저닝 해제 시간</td>
+							<td>즉시</td>
+						</tr>					
+						<tr>
+							<td>13</td>
+							<td>오픈소스</td>
+							<td>오픈소스 S/W 사용 및 지원</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>14</td>
+							<td>Code libraries</td>
+							<td>Code libraries 작성 언어</td>
+							<td>ASP, VB, C#.net</td>
+						</tr>					
+						<tr>
+							<td>15</td>
+							<td>API access</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>15.1</td>
+							<td rowspan="2"></td>
+							<td>API 접근가능 여부 및 지원</td>
+							<td>미지원</td>
+						</tr>					
+						<tr>
+							<td>15.2</td>
+							<td>API type</td>					
+							<td>해당없음</td>
+						</tr>					
+						<tr>
+							<td>16</td>
+							<td>네트워크와 연결</td>
+							<td>서비스에 직접 연결하는 네트워크</td>
+							<td>인터넷</td>
+						</tr>					
+						<tr>
+							<td>17</td>
+							<td>접근지원</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>17.1</td>
+							<td rowspan="3"></td>
+							<td>지원 웹브라우저 목록</td>
+							<td>IE, Chrome, FireFox</td>
+						</tr>					
+						<tr>
+							<td>17.2</td>
+							<td>오프라인작업및동기화지원여부</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>17.3</td>
+							<td>지원 장비 목록</td>
+							<td>PC</td>
+						</tr>					
+						<tr>
+							<td>18</td>
+							<td>데이터 저장소</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>18.1</td>
+							<td rowspan="4"></td>
+							<td>데이터 저장소 정보 및 인증정보</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>18.2</td>
+							<td>사용자가 저장소 위치 지정 가능여부</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>18.3</td>
+							<td>백업, 재해복구, 복구계획</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>18.4</td>
+							<td>데이터추출 및 삭제계획</td>
+							<td>가능</td>
+						</tr>					
+						<tr>
+							<td>19</td>
+							<td>데이터 전송 보호</td>
+							<td>사용자 장비와 서비스간 데이터 보호 방식</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20</td>
+							<td>자산보호 및 복구</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.1</td>
+							<td rowspan="6"></td>
+							<td>데이터센터 위치</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.2</td>
+							<td>데이터 관리 위치</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.3</td>
+							<td>데이터센터 보호</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.4</td>
+							<td>미사용 데이터 보호</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.5</td>
+							<td>안전한 데이터 삭제</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>20.6</td>
+							<td>서비스 가용성</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>21</td>
+							<td>분리정책</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>21.1</td>
+							<td rowspan="4"></td>
+							<td>클라우드 배포 모델</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>21.2</td>
+							<td>소비자 유형</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>21.3</td>
+							<td>서비스 분리</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>21.4</td>
+							<td>서비스 관리 분리</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>22</td>
+							<td>구성 및 변경관리</td>
+							<td>변경영향 평가</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>23</td>
+							<td>사건 관리</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>23.1</td>
+							<td rowspan="3"></td>
+							<td>사건 관리 절차</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>23.2</td>
+							<td>보안사건 고객 보고</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>23.3</td>
+							<td>보안사건 정의 공표</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>24</td>
+							<td>취약점 관리</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>24.1</td>
+							<td rowspan="5"></td>
+							<td>취약점 평가</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>24.2</td>
+							<td>취약점 모니터링</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>24.3</td>
+							<td>취약점 완화 우선순위</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>24.4</td>
+							<td>취약점 추적</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>24.5</td>
+							<td>취약점 추적</td>
+							<td></td>
+						</tr>							
+						<tr>
+							<td>25</td>
+							<td>이벤트 모니터링</td>
+							<td>이벤트 모니터링</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>26</td>
+							<td>Secure 개발</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>26.1</td>
+							<td rowspan="3"></td>
+							<td>Secure 개발</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>26.2</td>
+							<td>Secure design, coding, testing 및 배포</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>26.3</td>
+							<td>소프트웨어 구성 관리</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>27</td>
+							<td>공급망 보안</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>27.1</td>
+							<td rowspan="2"></td>
+							<td>타 공급업체와의 데이터 공유</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>27.2</td>
+							<td>타 공급업체 보안 요구사항</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>27.3</td>
+							<td rowspan="2"></td>
+							<td>타 공급업체의</td>
+							<td>위험 평가</td>
+						</tr>					
+						<tr>
+							<td>27.4</td>
+							<td>타 공급업체 이행여부 모니터링</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>28</td>
+							<td>고객 인증</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>28.1</td>
+							<td rowspan="2"></td>
+							<td>사용자 인증 및 엑세스 관리</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>28.2</td>
+							<td>지원 채널을 통한 사용자 접근 관리*</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>29</td>
+							<td>관리 인터페이스 분리 및 접근 제어</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>29.1</td>
+							<td rowspan="2"></td>
+							<td>관리 인터페이스 사용자 접근 제어</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>29.2</td>
+							<td>관리자 권한</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>30</td>
+							<td>ID 및 인증</td>
+							<td>ID 및 인증제어</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>31</td>
+							<td>보안서비스 관리</td>
+							<td>서비스 관리 모델</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>32</td>
+							<td>사용자에게 감사정보 제공*</td>
+							<td>감사정보 제공</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>33</td>
+							<td>사용자의 이용 안정성</td>
+							<td></td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>33.1</td>
+							<td rowspan="2"></td>
+							<td>디바이스 접근 방법</td>
+							<td></td>
+						</tr>					
+						<tr>
+							<td>33.2</td>
+							<td>사용자 교육</td>
+							<td>사용자 교육 제공, 매뉴얼 제공</td>
+						</tr>					
+					</tbody>
+				</table>			
+						
+				
+				<div class="btnArea rig">
+					<a href="#" class="f_l btns st1 icn icnXlx">엑셀 다시 등록</a>
+					
+					<a href="#" class="btns st2 icn icnBck2">이전</a>
+					<a href="#" class="btns st1 icn icnSave">임시저장</a>
+					<a href="#" class="btns st1 icn icnWrite">등록신청</a>
+				</div>				
+			</div>
+		</div>
+
+		<!-- popup 유효성 검사 -->
+		<article class="popup proSel">
+		<!--  on 추가시 팝업창 노출 --
+		<article class="popup proSel on">
+		<!--//  on 추가시 팝업창 노출 -->
+			<h2>유효성 검사<a href="#">닫기</a></h2>
+			<div>
+				<p>
+					유효성 검증 결과 아래의 컬럼(항목)에 문제가 있습니다.<br /> 
+					엑셀 파일을 보완하여 다시 등록하세요.
+				</p>
+				
+				<ul>
+					<li>VAT 포함여부</li>
+					<li>최소계약기간</li>
+					<li>평사판 사용여부</li>
+				</ul>
+		
+				<div class="btnArea">
+					<a href="#" class="btns st1 alert">확인</a>
+				</div>				
+			</div>
+		</article>
+		<!--// popup 유효성 검사 -->
+	</section>
+	<!--// content -->
+
+	<!-- 배너링크 -->
+	<div class="bnrArea">
+		<div class="conWrap">
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_nia.png" alt="한국정보화진흥원"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_cpcp.png" alt="공공클라우드지원센터"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_msip.png" alt="미래창조과학부"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_g2b.png" alt="나라장터 종합쇼핑몰"></a>
+		</div>
+	</div>
+	<!--// 배너링크 -->
+
+	<!-- footer -->
+	<footer>
+		<div class="conWrap">
+			<img src="/cloud_ver2/new_cloud/images/logo_footer.png" alt="클라우드 스토어 씨앗" />
+			<span>
+				<a href="#">고객센터</a>
+				<a href="#">공지사항</a>
+				<a href="#">서비스 이용약관</a>
+				<a href="#">개인정보 보호정책</a>
+				<a href="#">이메일 수집거부</a>
+				<a href="#">기본협약</a>
+				<a href="#">오시는 길</a>
+			</span>
+
+			<address>
+				<span>
+					<b>대표전화 : 053-230-1787</b>
+					<b>이메일 : ceart@ceart.kr</b>
+					<b>개인정보보호 책임자 : 경영기획실장</b>
+				</span>
+				대구광역시 동구 첨단로 53 (41068) | 서울사무소 : 서울특별시 중구 청계천로 14 (04520)<br />
+				Copyright 2015 한국정보화진흥원 All Rights Reserved
+			</address>
+		</div>
+	</footer>
+	<!--// footer -->
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+
+    
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+     
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+   
+  <script type="text/javascript" src="/resources/web/analyze/tracking/js/detector.js"></script>
+
+  <!-- datepicker -->
+  <link rel="stylesheet" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+  <script src="/resources/openworks/spi/openworks/openworks.ui.js"></script>
+  <script>
+	$(document).ready(function() {
+	  $("#dPicker_1, #dPicker_2").datepicker({
+	          showOn: "both", 
+	          buttonImage: "/cloud_ver2/new_cloud/images/icn_calen.png", 
+	          buttonImageOnly: false,
+	          buttonText: "달력"
+	    });
+	});
+  </script>
+  <!--// datepicker -->
+
+
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>
+ </body>
+</html>

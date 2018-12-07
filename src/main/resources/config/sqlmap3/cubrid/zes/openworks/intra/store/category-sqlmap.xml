@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_category">
+    <select id="clNm" parameterType="categoryVO" resultType="String">
+		SELECT INDVDLZ_CD_NM AS ctgryClNm
+		  FROM OP_CODE_INDVDLZ
+         WHERE LANG_CODE = #{langCd}
+           AND GROUP_CD = 1005
+           AND INDVDLZ_CD = #{ctgryClCd}
+    </select>
+    
+    <select id="langList" parameterType="categoryVO" resultType="categoryVO">
+        SELECT LANG_CODE AS langCd,
+               LANG_NM AS langNm
+          FROM TCO_SVC_LANG_C
+        WHERE DOMAIN_CD IS NOT NULL
+    </select>
+    
+    <sql id="selectColumn">
+        A.PARNTS_CTGRY_CODE AS upperMenuCd,
+        A.CTGRY_CODE  AS menuCd,
+        A.LANG_CTGRY_NM  AS mngrMenuNm,
+        '' AS menuUrl,
+        '' AS controllerNm,
+    </sql>
+
+    <select id="list" parameterType="categoryVO" resultType="categoryVO">
+/*        SELECT <include refid="selectColumn"/>
+               A.CTGRY_USE_YN   AS useYn,
+               DECODE(
+                  (SELECT COUNT(CTGRY_CODE)
+                     FROM TST_CATE_MGMT_M
+                    WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE
+                      AND CTGRY_DELETE_AT = 'N'), 0, '1', '0') AS leaf,
+             ( SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ
+		        WHERE GROUP_CD = 1005
+		          AND INDVDLZ_CD = #{ctgryClCd} )                    
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_CODE &gt; '0'
+           AND A.PARNTS_CTGRY_CODE = #{upperMenuCd}
+         ORDER BY A.SORT_ORDR ASC
+         */
+    </select>
+
+    <select id="treeList" parameterType="categoryVO" resultType="treeVO">
+        SELECT id, text, href, cls, leaf               
+        FROM      
+        ( 
+          SELECT
+               A.CTGRY_CODE  AS id,
+               A.LANG_CTGRY_NM  AS text,
+               '' AS href,
+               DECODE(A.CTGRY_USE_YN, 'Y', '', 'no-use') AS cls,
+               DECODE(
+                  (SELECT COUNT(CTGRY_CODE)
+                     FROM TST_CATE_MGMT_M
+                    WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE
+                      AND CTGRY_DELETE_AT = 'N'), 0, '1', '0') AS leaf
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_CODE &gt; '0'
+           AND A.PARNTS_CTGRY_CODE = #{upperMenuCd}
+           AND A.CTGRY_CL_CD = #{ctgryClCd}
+           AND A.LANG_CODE = #{langCd}
+           AND A.CTGRY_DELETE_AT = 'N'
+         ORDER BY A.SORT_ORDR ASC
+       )
+    </select>
+
+    <resultMap id="menuMap" type="categoryVO">
+        <result property="upperMenuCd" column="upperMenuCd"/>
+        <result property="menuCd" column="menuCd"/>
+        <result property="mngrMenuNm" column="mngrMenuNm"/>
+        <result property="menuUrl" column="menuUrl"/>
+        <result property="controllerNm" column="controllerNm"/>
+        <result property="menuOrdrNo" column="menuOrdrNo"/>
+        <result property="useYn" column="useYn"/>
+        <result property="registDt" column="registDt"/>
+        <result property="updtDt" column="updtDt"/>
+    </resultMap>
+    <select id="view" parameterType="categoryVO" resultMap="menuMap">
+        SELECT <include refid="selectColumn"/>
+               A.SORT_ORDR    AS menuOrdrNo,
+               A.CTGRY_USE_YN       AS useYn,
+               TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD HH24:MI:SS') AS registDt,
+               TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS updtDt,
+               A.CTGRY_CL_CD AS ctgryClCd,
+               A.LANG_CODE AS langCode,
+               DECODE((SELECT COUNT(CTGRY_CODE)
+                     FROM TST_CATE_MGMT_M
+                    WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE
+                      AND CTGRY_DELETE_AT = 'N'), 0, true, false) AS leaf,
+               A.MAPNG_CTGRY_CODE AS mapngCtgryCode,
+               (SELECT SUBSTRB(SYS_CONNECT_BY_PATH(LANG_CTGRY_NM, ' > '),4)
+                  FROM  TST_CATE_MGMT_M 
+                  WHERE CTGRY_CODE = A.MAPNG_CTGRY_CODE
+             START WITH PARNTS_CTGRY_CODE = '0'
+         CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE ) AS mapngCtgryPath 
+          FROM TST_CATE_MGMT_M A
+         WHERE A.CTGRY_CODE = #{menuCd}
+    </select>
+
+    <insert id="insert" parameterType="categoryVO">
+        <selectKey order="BEFORE" keyProperty="menuCd" resultType="string">
+            SELECT '6202_' || GOODS_CTGRY_SEQ.NEXTVAL
+        </selectKey>
+        INSERT INTO TST_CATE_MGMT_M (
+            LANG_CODE,  CTGRY_CODE,  PARNTS_CTGRY_CODE,  CTGRY_CL_CD,  LANG_CTGRY_NM,             
+            CTGRY_DP,  SORT_ORDR,   REGIST_DT, REGIST_ID, MAPNG_CTGRY_CODE
+            
+        ) VALUES (
+            #{langCd},  #{menuCd},  #{upperMenuCd},  #{ctgryClCd},  #{mngrMenuNm},
+            (SELECT NVL(MAX(CTGRY_DP), 0) + 1
+              FROM TST_CATE_MGMT_M
+             WHERE CTGRY_CODE = #{upperMenuCd}),            
+            (SELECT NVL(MAX(SORT_ORDR), 0) + 1
+              FROM TST_CATE_MGMT_M
+             WHERE PARNTS_CTGRY_CODE = #{upperMenuCd}
+               AND CTGRY_DELETE_AT = 'N'),
+             SYSDATETIME,
+             #{mngrId},
+             #{mapngCtgryCode}
+        )
+    </insert>
+
+    <update id="infoUpdate" parameterType="categoryVO">
+        UPDATE TST_CATE_MGMT_M
+           <set>
+               <if test="mngrMenuNm != null  and mngrMenuNm != ''">
+               LANG_CTGRY_NM     = #{mngrMenuNm},
+               </if>
+               <if test="useYn != null  and useYn != ''">
+               CTGRY_USE_YN      = #{useYn},
+               </if>
+               UPDT_DT     = SYSDATETIME, 
+               UPDT_ID   = #{mngrId},
+               MAPNG_CTGRY_CODE = #{mapngCtgryCode}
+           </set>
+         WHERE CTGRY_CODE     = #{menuCd}
+    </update>
+
+    <update id="orderUpdate" parameterType="categoryVO">
+        UPDATE TST_CATE_MGMT_M SET
+               SORT_ORDR     = #{menuOrdrNo},
+               PARNTS_CTGRY_CODE = #{upperMenuCd},
+               CTGRY_DP = (SELECT NVL(MAX(CTGRY_DP), 0) + 1
+                                 FROM TST_CATE_MGMT_M
+                                WHERE CTGRY_CODE = #{upperMenuCd})
+         WHERE CTGRY_CODE      = #{menuCd}
+    </update>
+
+    <select id="sameLevelList" parameterType="categoryVO" resultType="categoryVO">
+        SELECT CTGRY_CODE      AS menuCd,
+               PARNTS_CTGRY_CODE AS upperMenuCd,
+               SORT_ORDR     AS menuOrdrNo
+          FROM TST_CATE_MGMT_M
+         WHERE CTGRY_CODE   &gt; '0'
+           AND CTGRY_CODE     != #{menuCd}
+           AND PARNTS_CTGRY_CODE = #{upperMenuCd}
+           AND CTGRY_DELETE_AT = 'N'
+         ORDER BY SORT_ORDR ASC
+    </select>
+
+    <select id="leafChk" parameterType="categoryVO" resultType="string">                    
+        SELECT DECODE(COUNT(CTGRY_CODE), 0, '1', '0') as leafChk FROM TST_CATE_MGMT_M
+        WHERE PARNTS_CTGRY_CODE = #{menuCd}
+          AND CTGRY_DELETE_AT = 'N'
+    </select>
+    
+    <select id="goodsChkCount" parameterType="categoryVO" resultType="int">
+        SELECT COUNT(GOODS_CODE) FROM
+        (                   
+	        SELECT A.GOODS_CODE
+	          FROM TST_GOOD_CATE_I A,
+	          (SELECT GOODS_CODE FROM TST_GOOD_CATE_I
+	        WHERE CTGRY_CODE = #{menuCd}) B
+	        WHERE A.GOODS_CODE = B.GOODS_CODE
+	        GROUP BY A.GOODS_CODE
+	        HAVING COUNT(CTGRY_CODE) &lt;= 1
+        )
+    </select>
+    
+    <select id="goodsChk" parameterType="categoryVO" resultType="map">                    
+        SELECT A.GOODS_CODE, A.GOODS_NM
+          FROM TST_GOOD_CATE_I A,
+          (SELECT GOODS_CODE FROM TST_GOOD_CATE_I
+        WHERE CTGRY_CODE = #{menuCd}) B
+        WHERE A.GOODS_CODE = B.GOODS_CODE
+        GROUP BY A.GOODS_CODE
+        HAVING COUNT(CTGRY_CODE) &lt;= 1
+    </select>
+        
+    <update id="delete" parameterType="categoryVO">
+        UPDATE TST_CATE_MGMT_M SET
+            CTGRY_DELETE_AT = 'Y'
+         WHERE CTGRY_CODE = #{menuCd}                  
+    </update>
+</mapper>

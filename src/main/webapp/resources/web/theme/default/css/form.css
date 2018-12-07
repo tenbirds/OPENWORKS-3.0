@@ -1,0 +1,145 @@
+@charset "utf-8";
+/*--------------------------------------------------------------------------
+ * FORM Element Tag Definition
+ *-------------------------------------------------------------------------*/
+
+form {
+	margin: 0px;
+	padding: 0px;
+}
+input {
+	color: #555;
+	font-size: 12px;
+	vertical-align: middle;
+	line-height:1.5em;
+}
+select {
+	border: 1px solid #c3c3c3;
+	color: #555;
+	font-size: 12px;
+	letter-spacing: 0;
+	height:20px;
+	vertical-align: middle;
+}
+/* IE 7 */
+*:first-child+html select { margin-top: -1px; }
+textarea {
+	padding:2px 3px;
+	border:1px solid #d6d6d6;
+	color:#555;
+}
+input.button, input.submit, input.image, button { cursor:pointer; }
+textarea, pre { overflow:auto; }
+fieldset { border: 0 none; }
+legend, label.skip {
+	width:0;
+	height:0;
+	line-height:0;
+	overflow:hidden;
+	visibility:hidden;
+	font-size:0;
+	display:none;
+}
+/* ----- input ----- */
+
+input[type='image'] { vertical-align:middle; }
+input[type='text'], input[type='file'], input[type='password'] {
+	border:1px solid #ccc;
+	padding: 2px 2px 1px;
+}
+input[type='text']:hover, input[type='file']:hover, input[type='password']:hover, textarea:hover {
+	border: 1px solid #6956cb;
+	background-color:#fff;
+}
+input[type='text']:focus, input[type='file']:focus, input[type='password']:focus, textarea:focus {
+	border: 1px solid #6956cb;
+	background-color:#f4f4f4;
+}
+input[type='checkbox'], input[type='radio'] {
+	border: none;
+	vertical-align: middle;
+}
+input.radio { cursor: pointer; }
+/* ------------input type button------------*/
+
+input.blue {
+	background-color:#313a5b;
+	border: 1px solid #1f294c;
+	color: #FFFFFF;
+	text-align: center;
+	font-weight:bold;
+	font-size:12px;
+	padding:3px 7px;
+	vertical-align:middle;
+	overflow:visible;
+}
+input.blue:hover {
+	background-color:#c65742;
+	border: 1px solid #b44e3b;
+}
+input.gray_s {
+	background-color:#979797;
+	border: 1px solid #7e7e7e;
+	color: #FFFFFF;
+	text-align: center;
+	font-weight:normal;
+	font-size:12px;
+	padding:2px 3px 1px;
+	vertical-align:middle;
+	overflow:visible;
+}
+input.gray_s:hover {
+	border: 1px solid #6956cb;
+	background-color:#f4f4f4;
+	color:#6956cb;
+}
+input.w_blue {
+	background-color:#4d5ab6;
+	border: 1px solid #444f9b;
+	color: #FFFFFF;
+	text-align: center;
+	font-size:12px;
+	padding:3px 7px;
+	vertical-align:middle;
+	overflow:visible;
+	font-weight:bold;
+}
+/* --- ���콺 ������ ����ȭ --- */
+input.over, textarea.over, select.over {
+	border: 1px solid #3399ff;
+	background-color:#fff;
+}
+/* --- ���콺 Ŭ���� ����ȭ --- */
+input.just, textarea.just, select.just {
+	border:1px solid #3399ff;
+	background-color:#fefef1;
+}
+/* input ���̰�*/
+input.w30 { width:30px; }
+input.w55 { width:55px; }
+input.w80 { width:80px; }
+input.w120 { width:120px; }
+input.w180 { width:180px; }
+input.w215 { width:215px; }
+input.w40_p { width:40%; }
+input.w60_p { width:60%; }
+input.w85_p { width:85%; }
+textarea.w85_p { width:85%; }
+textarea.w92_p { width:92%; }
+textarea.w98_p { width:98%; }
+textarea.w99_p { width:99%; }
+/*����Է�*/
+textarea.comment_in {
+	float: left;
+	height: 45px;
+	line-height: 20px;
+	margin: 0 6px;
+	padding: 4px 6px;
+	width:92%;
+}
+textarea.comm_modify {
+	height: 30px;
+	line-height: 20px;	
+	padding: 4px 6px;
+	width:98%;
+}

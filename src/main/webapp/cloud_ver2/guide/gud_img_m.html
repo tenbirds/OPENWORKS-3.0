@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>이미지 Guide</title>
+	<link rel='stylesheet' href='/cloud_ver2/guide/gud.css' />
+ </head>
+
+ <body>
+<h1>이미지 Guide</h1>
+<h2>Icon</h2>
+	<table class="tbl_gid">
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_gnb_mycom.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_gnb_logout.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_gnb_login.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/btn_gnb_sch.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_link_arr.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bul_main_law_1.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bul_main_trait.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bg_quot_rig.png" alt="" /></th>
+		</tr>	
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bg_quot_lef.png" alt="" /></th>
+		</tr>
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_arr_up.png" alt="" /></th>
+		</tr>
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_arr_down.png" alt="" /></th>
+		</tr>
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_share.png" alt="" /></th>
+		</tr>
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_input_id.png" alt="" /></th>
+		</tr>		
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_input_pw.png" alt="" /></th>
+		</tr>
+	</table>
+
+
+	<h3>투명 or white 이미지</h3>
+	<table class="tbl_gid trans">
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_list.png" alt="" /></th>
+		</tr>
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/icn_login.png" alt="" /></th>
+		</tr>		
+		
+	</table>
+
+	<h3>bg</h3>
+	<table class="tbl_gid">
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bg_bodyTop.png" alt="" /></th>
+		</tr>	
+	</table>
+
+	<h3>bg - repeat</h3>
+	<table class="tbl_gid bg">
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/bg_tit.png" alt="" />title</th>
+		</tr>	
+	</table>
+
+
+	<h3>이미지</h3>
+	<table class="tbl_gid">
+		<tr>
+			<th><img src="/cloud_ver2/new_cloud_m/imgs/img_main_ceartFeature.png" alt="" /></th>
+		</tr>	
+	</table>
+	
+
+	<script src="/resources/web/theme/common/js/jquery-1.11.1.min.js" /></script>
+	<script>
+		$(document).ready(function() {			
+			var imgs = $('th img');
+			var bg_imgs = $('.bg th img');
+
+			for(var i=0; i< imgs.length; i++){
+				var img_n = imgs[i];
+				var img_src = $(img_n).attr('src');
+ 				var imgWidth = imgs[i].naturalWidth;
+ 				var imgHeight = imgs[i].naturalHeight;
+
+				$(img_n).parent().after('<td></td>').next().text(img_src).after('<td></td>').next().text(imgWidth+" X "+imgHeight);
+
+				var bg_img_n = bg_imgs[i];
+				var bg_img_src = $(bg_img_n).attr('src');
+				$(bg_img_n).parent().css('background','url(' + bg_img_src + ') repeat-x');
+			}
+
+
+			$("tr:nth-child(10n) th").css('background','#efefef');
+			$("tr:nth-child(10n) td").css('background','#efefef');
+
+		});
+	</script>
+
+ </body>
+</html>

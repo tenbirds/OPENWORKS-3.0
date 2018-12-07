@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dmandManage">
+	<!-- 
+		- 2017-09-07 손은국 신규생성
+		- 관리자 페이지 - 수요조사관리
+	 -->
+	<sql id="dmandManageListWhere">
+		<if test="q_searchVal != null  and q_searchVal != ''">
+            AND E.ORGN_NM_ST LIKE '%' || #{q_searchVal} || '%'
+		</if>
+		<!-- 수요조사 관리 기간 검색 통합 -->
+		<if test="q_beginDate != null  and q_beginDate != ''">
+        	AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+        </if>
+    </sql>
+	
+	<sql id="dmandNsttWhere">
+		<if test="q_searchKey != null  and q_searchKey != ''"> 
+        	AND D.STATS_TY_CODE = #{q_searchKey}
+        </if>
+		<!-- 수요조사 관리 기간 검색 통합 -->
+		<if test="q_beginDate != null  and q_beginDate != ''">
+        	AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+        </if>
+    </sql>
+	<!-- 수요조사 목록 리스트 -->    
+	<select id="dmandManageList" parameterType="map" resultType="dmandManageVO">
+	/*dmandManage.dmandManageList*/
+		SELECT  Y.* 
+		  FROM  ( SELECT  ROWNUM NUM
+		                , X.* 
+		            FROM  ( SELECT  E.ORGN_NM																					AS orgnNm 
+		                          , E.ORGN_NM_ST	    																AS orgnNmSt
+		                          , B.USER_NM																					AS userNm
+		                          , B.USER_ID																					AS userId
+		                          , sysCnt																						AS sumCount
+		                          , DATE_FORMAT(A.PRESENTN_DATE,'%Y-%m-%d %H:%i:%s')	AS presentnDate
+		                      FROM  OP_DMAND_EXAMIN_INFO A
+		                      LEFT  JOIN OP_USER B 		    					ON A.USER_ID = B.USER_ID
+		                      LEFT  JOIN OP_USER_PBLINSTT_OPTION C	ON A.USER_ID = C.USER_ID
+		                      LEFT  JOIN ( SELECT  USER_ID
+		                                         , COUNT(USER_ID) AS sysCnt 
+		                                         , DMAND_EXAMIN_OPRTN_YEAR
+		                                     FROM  OP_DMAND_EXAMIN_DETAIL_2018 
+		                                    WHERE  1=1  
+		                                     <!-- AND DMAND_EXAMIN_OPRTN_YEAR = ${Year} --> 
+		                                    GROUP  BY USER_ID ) D	 
+				 			              ON  A.USER_ID = D.USER_ID
+				 			             AND  A.DMAND_EXAMIN_OPRTN_YEAR = D.DMAND_EXAMIN_OPRTN_YEAR
+				 			            LEFT  JOIN TCN_ORGN_INFO_D E 	ON C.ORGN_CODE = E.ORGN_CODE	
+				 								   AND  C.BUSEO_CODE = E.BUSEO_CODE
+				                 WHERE  1=1
+					<!-- AND A.DMAND_EXAMIN_OPRTN_YEAR = ${Year} -->
+				  AND	A.PRESENTN_DATE IS NOT NULL
+				  <include refid="dmandManageListWhere"/>
+				  GROUP BY A.USER_ID
+				  ORDER BY A.PRESENTN_DATE DESC
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+	    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+	<!-- 수요조사 목록 리스트 -->    
+	<select id="dmandManageList2018" parameterType="map" resultType="dmandManageVO">
+	/*dmandManage.dmandManageList2018*/
+	
+		SELECT  Y.* 
+		  FROM  ( SELECT  ROWNUM NUM
+		                , X.* 
+		            FROM  ( 
+							SELECT 
+							        (SELECT ORGN_NM FROM TCN_ORGN_INFO_D WHERE E.BEST_ORGN_CODE = BUSEO_CODE) AS bestOrgnCodeNm
+									, E.ORGN_NM																					AS orgnNm 
+							        , B.USER_NM																					AS userNm
+							        , B.USER_ID																					AS userId
+							        , D.sysCnt																					AS sumCount
+							        , D.dmand_survey_phone																		AS dmandsurveyphone
+							        , DATE_FORMAT(A.PRESENTN_DATE,'%Y-%m-%d %H:%i:%s')	AS presentnDate
+							FROM  OP_DMAND_EXAMIN_INFO A
+							           LEFT  JOIN OP_USER B 		    					ON A.USER_ID = B.USER_ID
+							           LEFT  JOIN OP_USER_PBLINSTT_OPTION C	ON A.USER_ID = C.USER_ID
+							           LEFT  JOIN ( SELECT  USER_ID, dmand_survey_phone
+							                                         , COUNT(USER_ID) AS sysCnt 
+							                                         , DMAND_EXAMIN_OPRTN_YEAR
+							                                     FROM  OP_DMAND_EXAMIN_DETAIL_2018 
+							                                    WHERE  1=1  
+							                                      
+							                                    GROUP  BY USER_ID ) D	 
+							 			              ON  A.USER_ID = D.USER_ID
+							 			             AND  A.DMAND_EXAMIN_OPRTN_YEAR = D.DMAND_EXAMIN_OPRTN_YEAR
+								         LEFT  JOIN TCN_ORGN_INFO_D E 	ON  C.BUSEO_CODE = E.BUSEO_CODE
+							 WHERE  1=1
+							  AND	A.PRESENTN_DATE IS NOT NULL
+							  AND	A.dmand_examin_oprtn_year = to_char(sysdate,'YYYY')
+								<include refid="dmandManageListWhere"/>							  
+							  GROUP BY A.USER_ID
+							  ORDER BY A.PRESENTN_DATE DESC
+
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+	    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+	
+	<!-- 수요조사 목록 카운트 -->
+	<select id="dmandManageCount" parameterType="map" resultType="int">
+    /*dmandManage.dmandManageCount*/
+    	SELECT COUNT(TMP.COUNTS) AS totalCount
+    	  FROM (SELECT COUNT(1) AS COUNTS
+						  	FROM OP_DMAND_EXAMIN_INFO A
+						    LEFT JOIN OP_USER B ON A.USER_ID = B.USER_ID
+						    LEFT JOIN OP_USER_PBLINSTT_OPTION C ON A.USER_ID = C.USER_ID
+						 <!-- LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 D		ON A.USER_ID = D.USER_ID 
+						 											   AND A.DMAND_EXAMIN_OPRTN_YEAR = D.DMAND_EXAMIN_OPRTN_YEAR -->
+						 LEFT JOIN TCN_ORGN_INFO_D E 					ON C.ORGN_CODE = E.ORGN_CODE	
+						 									  		   AND C.BUSEO_CODE = E.BUSEO_CODE
+						  WHERE 1=1 
+						  	<!-- AND A.DMAND_EXAMIN_OPRTN_YEAR = ${Year} -->
+						  	AND	A.PRESENTN_DATE IS NOT NULL
+				  		<include refid="dmandManageListWhere"/>
+						GROUP BY A.USER_ID
+					)TMP
+    </select> 
+	<!-- 수요조사 목록 카운트 -->
+	<select id="dmandManageCount2018" parameterType="map" resultType="int">
+    /*dmandManage.dmandManageCount2018*/
+    	SELECT COUNT(TMP.COUNTS) AS totalCount
+    	  FROM (SELECT COUNT(1) AS COUNTS
+						  	FROM OP_DMAND_EXAMIN_INFO A
+						    LEFT JOIN OP_USER B ON A.USER_ID = B.USER_ID
+						    LEFT JOIN OP_USER_PBLINSTT_OPTION C ON A.USER_ID = C.USER_ID
+						 <!-- LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 D		ON A.USER_ID = D.USER_ID 
+						 											   AND A.DMAND_EXAMIN_OPRTN_YEAR = D.DMAND_EXAMIN_OPRTN_YEAR -->
+						 LEFT JOIN TCN_ORGN_INFO_D E 					ON C.BUSEO_CODE = E.BUSEO_CODE
+						  WHERE 1=1 
+						  	<!-- AND A.DMAND_EXAMIN_OPRTN_YEAR = ${Year} -->
+						  	AND	A.PRESENTN_DATE IS NOT NULL
+						  	AND	A.dmand_examin_oprtn_year = to_char(sysdate,'YYYY')
+				  		<include refid="dmandManageListWhere"/>
+						GROUP BY A.USER_ID
+					)TMP
+    </select> 
+    
+    <!-- 제출현황 미제출 엑셀 다운로드 -->
+	<select id="dmandPresentnUnsubMission" parameterType="map" resultType="dmandManageVO">
+	/*dmandManage.dmandPresentnUnsubMission*/
+		SELECT  @ROWNUMB := @ROWNUMB + 1 AS rowNumb
+					, TMP.orgnNm
+					, TMP.buseoCode
+					, TMP.statsTyNm
+			FROM  (SELECT  B.ORGN_NM			AS orgnNm
+							     , B.BUSEO_CODE		AS buseoCode
+							     , C.STATS_TY_NM	AS statsTyNm
+						   FROM  OP_DMAND_EXAMIN_TRGET_INST A
+				      INNER  JOIN TCN_ORGN_INFO_D B ON B.BUSEO_CODE = A.BUSEO_CODE
+				       LEFT  JOIN OP_DMAND_EXAMIN_MAPPING_INFO C ON C.TY_CL_LGRE_CODE = B.TY_CL_LRGE 
+				        AND  IFNULL(C.TY_CL_MIDDL_CODE,'N') = IFNULL(B.TY_CL_MIDDL,'N')
+					    WHERE  A.BUSEO_CODE NOT IN( SELECT B.BUSEO_CODE 
+					                                  FROM OP_DMAND_EXAMIN_INFO A
+					                                 INNER JOIN OP_USER_PBLINSTT_OPTION B	 ON B.USER_ID = A.USER_ID
+					                                 WHERE 1=1
+					                                   <!-- AND A.DMAND_EXAMIN_OPRTN_YEAR = ${Year} -->
+					                                   AND A.PRESENTN_DATE IS NOT NULL
+					                              ) 
+						 AND B.MNTNAB_DATE = 0 
+					  ORDER BY C.STATS_TY_NM,B.ORGN_NM
+					  ) TMP,  (SELECT @ROWNUMB := 0) AS R
+    </select>
+    <!-- 제출현황 미제출 엑셀 다운로드 -->
+	<select id="dmandPresentnUnsubMission2018" parameterType="map" resultType="dmandManageVO">
+	/*dmandManage.dmandPresentnUnsubMission2018*/
+SELECT  @ROWNUMB := @ROWNUMB + 1 AS rowNumb
+					, TMP.orgnNm
+					, TMP.buseoCode
+					, TMP.statsTyNm			  
+			FROM  (					
+SELECT 
+		orgn_Nm AS orgnNm
+		,buseo_code  AS buseoCode
+		,stats_ty_nm AS statsTyNm
+FROM 
+		OP_DMAND_EXAMIN_TRGET_INST
+WHERE 
+		dmand_examin_oprtn_year = '2018' 
+AND buseo_code NOT IN (
+										SELECT b.buseo_code FROM 
+	OP_DMAND_EXAMIN_INFO a,
+	OP_USER_PBLINSTT_OPTION b
+WHERE 	1=1
+AND a.dmand_examin_oprtn_year = '2018'
+AND a.user_id = b.user_id
+AND a.PRESENTN_DATE IS NOT NULL
+)		
+ ) TMP,  (SELECT @ROWNUMB := 0) AS R	
+
+	
+
+    </select>
+    
+     <!-- 제출현황 수요조사 -->
+    <select id="dmandPresentnList" parameterType="map" resultType="dmandManageVO">
+     	/*dmandManage.dmandPresentnList*/
+						   SELECT  
+							 		TMP.statsTyNm 						AS statsTyNm
+									,TMP.orgnCount 						AS orgnCount
+									,IFNULL(TMP2.subMission,0) 			AS subMission
+									,IFNULL(TMP2.planCount2,0)			AS planCount2
+									,IFNULL(TMP2.subMissionRate,0)		AS subMissionRate
+									,IFNULL(TMP2.subMissionRate2,0)		AS subMissionRate2
+							FROM  (	SELECT 	D.STATS_TY_NM  														AS statsTyNm 
+												, COUNT(A.PRESENTN_DATE)											AS subMission
+												, COUNT(E.USER_ID)  AS planCount2
+												, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(${orgnCount} AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate
+												, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(${subMissionCount} AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate2
+										 FROM OP_DMAND_EXAMIN_INFO A
+										LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+										LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+										LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+											LEFT JOIN (SELECT 	USER_ID FROM 	OP_DMAND_EXAMIN_DETAIL_2018 WHERE  DMAND_EXAMIN_OPRTN_YEAR = ${Year} AND DMAND_SURVEY_CNVRS_PLAN  IN ('예정없음')
+														GROUP BY USER_ID		) E				ON E.USER_ID = A.USER_ID 
+											WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											<if test="q_beginDate != null  and q_beginDate != ''">
+						        				AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+						        		   </if>
+											    AND A.PRESENTN_DATE IS NOT NULL
+									  GROUP BY D.STATS_TY_NM
+			 						 ) TMP2 
+			 						 LEFT JOIN
+			 						 (SELECT
+												TMP.statsTyNm 			AS statsTyNm
+												,SUM(TMP.CNT) 			AS orgnCount
+									 	FROM(
+												SELECT 
+															D.STATS_TY_NM  				AS statsTyNm 
+															 ,1 						AS CNT
+												  FROM OP_DMAND_EXAMIN_TRGET_INST A
+											LEFT JOIN TCN_ORGN_INFO_D C					ON A.BUSEO_CODE = C.BUSEO_CODE
+											LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D 	ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+												WHERE DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+												  AND C.MNTNAB_DATE = 0
+												  AND D.STATS_TY_NM IS NOT NULL
+											GROUP BY A.BUSEO_CODE
+											)TMP
+										GROUP BY TMP.statsTyNm
+									)TMP ON TMP.statsTyNm = TMP2.statsTyNm
+			 						UNION ALL
+					 				SELECT  
+									 		TMP.statsTyNm 						AS statsTyNm
+											,TMP.orgnCount 						AS orgnCount
+											,IFNULL(TMP2.subMission,0) 			AS subMission
+											,IFNULL(TMP2.planCount2,0)			AS planCount2
+											,IFNULL(TMP2.subMissionRate,0)		AS subMissionRate
+											,IFNULL(TMP2.subMissionRate2,0)		AS subMissionRate2
+									FROM (	
+											SELECT 	'합계' 								AS statsTyNm 
+													, COUNT(A.PRESENTN_DATE)			AS subMission
+													, COUNT(E.USER_ID)  AS planCount2
+													, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(${orgnCount} AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate
+													, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(${subMissionCount} AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate2
+											 FROM	OP_DMAND_EXAMIN_INFO A
+													LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+													LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+													LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+													LEFT JOIN (SELECT USER_ID FROM 	OP_DMAND_EXAMIN_DETAIL_2018 
+																WHERE DMAND_EXAMIN_OPRTN_YEAR = ${Year} 
+																	  AND DMAND_SURVEY_CNVRS_PLAN  IN ('예정없음')
+																GROUP BY USER_ID) E				ON E.USER_ID = A.USER_ID 
+												WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+												<if test="q_beginDate != null  and q_beginDate != ''">
+													AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+											   </if>
+											   		AND A.PRESENTN_DATE IS NOT NULL
+						 				 ) TMP2 LEFT JOIN
+											(	SELECT
+														'합계' 		 			AS statsTyNm
+														,SUM(TMP.CNT) 			AS orgnCount
+												 FROM(
+													SELECT 1 						AS CNT
+														  FROM OP_DMAND_EXAMIN_TRGET_INST A
+													LEFT JOIN TCN_ORGN_INFO_D C					ON A.BUSEO_CODE = C.BUSEO_CODE
+													LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D 	ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+														WHERE DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+														  AND C.MNTNAB_DATE = 0
+														  AND D.STATS_TY_NM IS NOT NULL
+													GROUP BY A.BUSEO_CODE
+												 )TMP
+											)TMP
+												  ON TMP.statsTyNm = TMP2.statsTyNm
+    </select>
+     <!-- 제출현황 수요조사 -->
+    <select id="dmandPresentnList2018" parameterType="map" resultType="dmandManageVO">
+     	/*dmandManage.dmandPresentnList2018*/
+						   SELECT  
+							 		TMP.statsTyNm 						AS statsTyNm
+									,TMP.orgnCount 						AS orgnCount
+									,IFNULL(TMP2.subMission,0) 			AS subMission
+									,IFNULL(TMP2.planCount2,0)			AS planCount2
+									,IFNULL(TMP2.subMissionRate,0)		AS subMissionRate
+									,IFNULL(TMP2.subMissionRate2,0)		AS subMissionRate2
+							FROM  (	SELECT 	D.STATS_TY_NM  														AS statsTyNm 
+												, COUNT(A.PRESENTN_DATE)											AS subMission
+												, COUNT(E.USER_ID)  AS planCount2
+												, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(1115 AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate
+												, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(1 AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate2
+										 FROM 
+										 			OP_DMAND_EXAMIN_INFO A
+													LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+													LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+													LEFT JOIN OP_DMAND_EXAMIN_TRGET_INST D  ON D.DMAND_EXAMIN_OPRTN_YEAR = ${Year} AND B.BUSEO_CODE = D.BUSEO_CODE
+													LEFT JOIN (
+																		SELECT 	USER_ID 
+																		FROM 	OP_DMAND_EXAMIN_DETAIL_2018 
+																		WHERE  DMAND_EXAMIN_OPRTN_YEAR = ${Year} 
+																		AND DMAND_SURVEY_CNVRS_PLAN  IN ('예정없음')
+																		GROUP BY USER_ID		
+																	) E				ON E.USER_ID = A.USER_ID 
+											WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											<if test="q_beginDate != null  and q_beginDate != ''">
+						        				AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+						        		   </if>
+											    AND A.PRESENTN_DATE IS NOT NULL
+									 		GROUP BY D.STATS_TY_NM
+			 						 ) TMP2 
+			 						 LEFT JOIN
+			 						 (SELECT
+												TMP.statsTyNm 			AS statsTyNm
+												,SUM(TMP.CNT) 			AS orgnCount
+									 	FROM(
+												SELECT 
+															A.STATS_TY_NM  				AS statsTyNm 
+															 ,1 						AS CNT
+												  FROM OP_DMAND_EXAMIN_TRGET_INST A
+												WHERE A.DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+												  AND A.STATS_TY_NM IS NOT NULL
+											GROUP BY A.BUSEO_CODE
+											)TMP
+										GROUP BY TMP.statsTyNm
+									)TMP ON TMP.statsTyNm = TMP2.statsTyNm
+			 						UNION ALL
+					 				SELECT  
+									 		TMP.statsTyNm 						AS statsTyNm
+											,TMP.orgnCount 						AS orgnCount
+											,IFNULL(TMP2.subMission,0) 			AS subMission
+											,IFNULL(TMP2.planCount2,0)			AS planCount2
+											,IFNULL(TMP2.subMissionRate,0)		AS subMissionRate
+											,IFNULL(TMP2.subMissionRate2,0)		AS subMissionRate2
+									FROM (	
+											SELECT 	'합계' 								AS statsTyNm 
+													, COUNT(A.PRESENTN_DATE)			AS subMission
+													, COUNT(E.USER_ID)  AS planCount2
+													, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(1115 AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate
+													, CAST(CAST(COUNT(A.PRESENTN_DATE)AS NUMERIC)/  CAST(1 AS NUMERIC)*  100 AS NUMERIC(10, 1)) AS subMissionRate2
+											 FROM	OP_DMAND_EXAMIN_INFO A
+													LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+													LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+													LEFT JOIN OP_DMAND_EXAMIN_TRGET_INST D  ON D.DMAND_EXAMIN_OPRTN_YEAR = ${Year} AND B.BUSEO_CODE = D.BUSEO_CODE													
+													LEFT JOIN (SELECT USER_ID FROM 	OP_DMAND_EXAMIN_DETAIL_2018 
+																WHERE DMAND_EXAMIN_OPRTN_YEAR = ${Year} 
+																	  AND DMAND_SURVEY_CNVRS_PLAN  IN ('예정없음')
+																GROUP BY USER_ID) E				ON E.USER_ID = A.USER_ID 
+												WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+												<if test="q_beginDate != null  and q_beginDate != ''">
+													AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+											   </if>
+											   		AND A.PRESENTN_DATE IS NOT NULL
+						 				 ) TMP2 LEFT JOIN
+											(	SELECT
+														'합계' 		 			AS statsTyNm
+														,SUM(TMP.CNT) 			AS orgnCount
+												 FROM(
+													SELECT 1 						AS CNT
+														  FROM OP_DMAND_EXAMIN_TRGET_INST A
+														WHERE A.DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+														  AND A.STATS_TY_NM IS NOT NULL
+													GROUP BY A.BUSEO_CODE
+												 )TMP
+											)TMP
+												  ON TMP.statsTyNm = TMP2.statsTyNm
+
+
+    </select>
+    
+    <!-- 수요조사 통계(요약) 리스트 -->    
+	<select id="dmandStatsList" parameterType="map" resultType="dmandManageVO">
+	    /*dmandManage.dmandStatsList*/
+							SELECT 
+								TMP.statsTyNm 									AS statsTyNm
+								,IFNULL(TMP2.totalCount,0)						AS totalCount
+								,IFNULL(TMP2.totalSys,0)						AS totalSys
+								,IFNULL(TMP2.clouduseCount,0)					AS clouduseCount
+								,IFNULL(TMP2.planCount1,0)						AS planCount1
+								,IFNULL(TMP2.separaCount1,0)					AS separaCount1
+								,IFNULL(TMP2.separaCount2,0)					AS separaCount2
+								,IFNULL(TMP2.separaCount3,0)					AS separaCount3
+								,IFNULL(TMP2.separaCount4,0)					AS separaCount4
+								,IFNULL(TMP2.separatCount1,0)					AS separatCount1
+								,IFNULL(TMP2.separatCount2,0)					AS separatCount2
+								,IFNULL(TMP2.separatCount3,0)					AS separatCount3
+								,IFNULL(TMP2.separatCount4,0)					AS separatCount4
+								,IFNULL(TMP2.separatCount5,0)					AS separatCount5
+								,IFNULL(TMP2.separatCount6,0)					AS separatCount6
+								,IFNULL(TMP2.separatCount7,0)					AS separatCount7
+								,IFNULL(TMP2.planCount2,0)						AS planCount2
+								,IFNULL(TMP2.dmandSurveyBudget,0)				AS dmandSurveyBudget
+						 FROM (
+										SELECT 
+												TMP.statsTyNm 							AS statsTyNm
+												,COUNT(TMP.totalSys) 					AS totalCount
+												,SUM(TMP.totalSys)						AS totalSys
+												,SUM(TMP.clouduseCount)					AS clouduseCount
+												,SUM(TMP.planCount1)					AS planCount1
+												,SUM(TMP.separaCount1)					AS separaCount1
+												,SUM(TMP.separaCount2)					AS separaCount2
+												,SUM(TMP.separaCount3)					AS separaCount3
+												,SUM(TMP.separaCount4)					AS separaCount4
+												,SUM(TMP.separatCount1)					AS separatCount1
+												,SUM(TMP.separatCount2)					AS separatCount2
+												,SUM(TMP.separatCount3)					AS separatCount3
+												,SUM(TMP.separatCount4)					AS separatCount4
+												,SUM(TMP.separatCount5)					AS separatCount5
+												,SUM(TMP.separatCount6)					AS separatCount6
+												,SUM(TMP.separatCount7)					AS separatCount7
+												,SUM(TMP.planCount2)					AS planCount2
+												,format(SUM(TMP.dmandSurveyBudget),0)	AS dmandSurveyBudget
+										 FROM(
+												SELECT 
+														 D.STATS_TY_NM 																						AS statsTyNm
+														,D.STATS_TY_CODE  																					AS statsTyCode
+														,COUNT(E.USER_ID) 																					AS totalSys
+														
+														,SUM(CASE WHEN E.DMAND_SURVEY_CLOUDUSE = 'Y' THEN 1 ELSE 0 END) 									AS clouduseCount		
+														,SUM(CASE WHEN E.DMAND_SURVEY_CNVRS_PLAN IN ('2018년','2019년부터') THEN 1 ELSE 0 END) 				AS planCount1	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '민간' THEN 1 ELSE 0 END)							AS separaCount1	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '자체' THEN 1 ELSE 0 END)							AS separaCount2	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = 'G-클라우드' THEN 1 ELSE 0 END)						AS separaCount3	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '하이브리드' THEN 1 ELSE 0 END)						AS separaCount4	
+																								
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'SaaS' THEN 1 ELSE 0 END)							AS separatCount1
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS' THEN 1 ELSE 0 END)							AS separatCount2
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS' THEN 1 ELSE 0 END)							AS separatCount3
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+SaaS' THEN 1 ELSE 0 END)					AS separatCount4  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS' THEN 1 ELSE 0 END)					AS separatCount5  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS+SaaS' THEN 1 ELSE 0 END)					AS separatCount6  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS+SaaS' THEN 1 ELSE 0 END)				AS separatCount7
+														,SUM(CASE WHEN E.DMAND_SURVEY_CNVRS_PLAN = '예정없음' THEN 1 ELSE 0 END)								AS planCount2   
+														,TO_NUMBER(SUM(IF(E.DMAND_SURVEY_BUDGET = '',0,REPLACE(IFNULL(E.DMAND_SURVEY_BUDGET,0),',',''))))	AS dmandSurveyBudget
+												   FROM OP_DMAND_EXAMIN_INFO A
+											  LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+											  LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+											  LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+											  LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 E			ON E.USER_ID = A.USER_ID AND E.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											      WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											        <if test="q_beginDate != null  and q_beginDate != ''">
+										        	AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+										            </if>
+											        AND A.PRESENTN_DATE IS NOT NULL
+											   GROUP BY A.USER_ID
+												) TMP
+									    <!-- WHERE TMP.statsTyNm IS NOT NULL -->
+								  	 GROUP BY TMP.statsTyNm
+									)TMP2  LEFT JOIN (
+									 SELECT
+												TMP.statsTyNm 			AS statsTyNm
+									 FROM(
+												SELECT D.STATS_TY_NM  				AS statsTyNm 
+												  FROM OP_DMAND_EXAMIN_TRGET_INST A
+											LEFT JOIN TCN_ORGN_INFO_D C					ON A.BUSEO_CODE = C.BUSEO_CODE
+											LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D 	ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+												WHERE DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+												  AND D.STATS_TY_NM IS NOT NULL
+											GROUP BY A.BUSEO_CODE
+											)TMP
+										GROUP BY TMP.statsTyNm
+						 			) TMP
+						 ON TMP.statsTyNm = TMP2.statsTyNm
+				  	 GROUP BY TMP.statsTyNm
+				  	 
+				  	 UNION ALL
+				  	 
+				  	 	SELECT 
+								TMP.statsTyNm 									AS statsTyNm
+								,IFNULL(TMP2.totalCount,0)						AS totalCount
+								,IFNULL(TMP2.totalSys,0)						AS totalSys
+								,IFNULL(TMP2.clouduseCount,0)					AS clouduseCount
+								,IFNULL(TMP2.planCount1,0)						AS planCount1
+								,IFNULL(TMP2.separaCount1,0)					AS separaCount1
+								,IFNULL(TMP2.separaCount2,0)					AS separaCount2
+								,IFNULL(TMP2.separaCount3,0)					AS separaCount3
+								,IFNULL(TMP2.separaCount4,0)					AS separaCount4
+								,IFNULL(TMP2.separatCount1,0)					AS separatCount1
+								,IFNULL(TMP2.separatCount2,0)					AS separatCount2
+								,IFNULL(TMP2.separatCount3,0)					AS separatCount3
+								,IFNULL(TMP2.separatCount4,0)					AS separatCount4
+								,IFNULL(TMP2.separatCount5,0)					AS separatCount5
+								,IFNULL(TMP2.separatCount6,0)					AS separatCount6
+								,IFNULL(TMP2.separatCount7,0)					AS separatCount7
+								,IFNULL(TMP2.planCount2,0)						AS planCount2
+								,IFNULL(TMP2.dmandSurveyBudget,0)				AS dmandSurveyBudget
+						 FROM (
+									 SELECT
+												'합계' 			AS statsTyNm
+									 FROM(
+												SELECT 
+															D.STATS_TY_NM  				AS statsTyNm 
+												  FROM OP_DMAND_EXAMIN_TRGET_INST A
+											LEFT JOIN TCN_ORGN_INFO_D C					ON A.BUSEO_CODE = C.BUSEO_CODE
+											LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D 	ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+												WHERE DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+												  AND D.STATS_TY_NM IS NOT NULL
+											GROUP BY A.BUSEO_CODE
+											)TMP
+										GROUP BY TMP.statsTyNm
+						 			) TMP
+						 LEFT JOIN(
+										SELECT 
+												TMP.statsTyNm 							AS statsTyNm
+												,COUNT(TMP.totalSys) 					AS totalCount
+												,SUM(TMP.totalSys)						AS totalSys
+												,SUM(TMP.clouduseCount)					AS clouduseCount
+												,SUM(TMP.planCount1)					AS planCount1
+												,SUM(TMP.separaCount1)					AS separaCount1
+												,SUM(TMP.separaCount2)					AS separaCount2
+												,SUM(TMP.separaCount3)					AS separaCount3
+												,SUM(TMP.separaCount4)					AS separaCount4
+												,SUM(TMP.separatCount1)					AS separatCount1
+												,SUM(TMP.separatCount2)					AS separatCount2
+												,SUM(TMP.separatCount3)					AS separatCount3
+												,SUM(TMP.separatCount4)					AS separatCount4
+												,SUM(TMP.separatCount5)					AS separatCount5
+												,SUM(TMP.separatCount6)					AS separatCount6
+												,SUM(TMP.separatCount7)					AS separatCount7
+												,SUM(TMP.planCount2)					AS planCount2
+												,format(SUM(TMP.dmandSurveyBudget),0)	AS dmandSurveyBudget
+										 FROM(
+												SELECT 
+														 '합계' 																								AS statsTyNm
+														,D.STATS_TY_CODE  																					AS statsTyCode
+														,COUNT(E.USER_ID) 																					AS totalSys
+														
+														,SUM(CASE WHEN E.DMAND_SURVEY_CLOUDUSE = 'Y' THEN 1 ELSE 0 END) 									AS clouduseCount		
+														,SUM(CASE WHEN IF(E.DMAND_SURVEY_CNVRS_PLAN = '','예정없음',IFNULL(E.DMAND_SURVEY_CNVRS_PLAN,'예정없음'))!= '예정없음' THEN 1 ELSE 0 END) 					AS planCount1	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '민간' THEN 1 ELSE 0 END)							AS separaCount1	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '자체' THEN 1 ELSE 0 END)							AS separaCount2	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = 'G-클라우드' THEN 1 ELSE 0 END)						AS separaCount3	
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '하이브리드' THEN 1 ELSE 0 END)						AS separaCount4
+																							
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'SaaS' THEN 1 ELSE 0 END)							AS separatCount1
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS' THEN 1 ELSE 0 END)							AS separatCount2
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS' THEN 1 ELSE 0 END)							AS separatCount3
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+SaaS' THEN 1 ELSE 0 END)					AS separatCount4  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS' THEN 1 ELSE 0 END)					AS separatCount5  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS+SaaS' THEN 1 ELSE 0 END)					AS separatCount6  
+														,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS+SaaS' THEN 1 ELSE 0 END)				AS separatCount7  
+														,SUM(CASE WHEN E.DMAND_SURVEY_CNVRS_PLAN = '예정없음' THEN 1 ELSE 0 END)								AS planCount2   
+														,TO_NUMBER(SUM(IF(E.DMAND_SURVEY_BUDGET = '',0,REPLACE(IFNULL(E.DMAND_SURVEY_BUDGET,0),',',''))))	AS dmandSurveyBudget
+												   FROM OP_DMAND_EXAMIN_INFO A
+											  LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+											  LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+											  LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+											  LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 E			ON E.USER_ID = A.USER_ID AND E.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											      WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+											      	<if test="q_beginDate != null  and q_beginDate != ''">
+											        AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+											        </if>
+											    	AND A.PRESENTN_DATE IS NOT NULL
+											   GROUP BY A.USER_ID
+												) TMP
+									    WHERE TMP.statsTyNm IS NOT NULL
+								  	 GROUP BY TMP.statsTyNm
+									)TMP2 ON TMP.statsTyNm = TMP2.statsTyNm
+				  	 GROUP BY TMP.statsTyNm
+    </select>
+	
+	<!-- 수요조사 통계(요약) 카운트 -->
+    <select id="dmandStatsCount" parameterType="map" resultType="int">
+    	    /*dmandManage.dmandStatsCount*/
+   				SELECT 
+							COUNT(TMP.statsTyNm) AS totalCount
+		 		 FROM(
+						SELECT 
+								D.STATS_TY_NM						AS statsTyNm
+					      FROM OP_DMAND_EXAMIN_INFO A
+				     LEFT JOIN OP_USER_PBLINSTT_OPTION B			ON B.USER_ID = A.USER_ID
+				     LEFT JOIN TCN_ORGN_INFO_D C					ON C.BUSEO_CODE = B.BUSEO_CODE
+				     LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+				     LEFT JOIN (SELECT USER_ID FROM OP_DMAND_EXAMIN_DETAIL_2018 WHERE DMAND_EXAMIN_OPRTN_YEAR = ${Year} GROUP BY USER_ID)E		ON E.USER_ID = A.USER_ID
+				         WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+		    			   <if test="q_beginDate != null  and q_beginDate != ''">
+						   AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+						  </if>
+				           AND A.PRESENTN_DATE IS NOT NULL
+				      GROUP BY  D.STATS_TY_NM 
+					 ) TMP
+    </select>  
+    
+    <!-- 수요조사 통계(기관유형) 리스트 -->    
+	<select id="dmandNsttList" parameterType="map" resultType="dmandManageVO">
+	    /*dmandManage.dmandNsttList*/
+							SELECT 
+		    					 		D.STATS_TY_NM																								AS statsTyNm
+										,C.ORGN_NM 																									AS orgnNm
+										,COUNT(E.USER_ID) 																							AS totalSys
+										,SUM(CASE WHEN E.DMAND_SURVEY_CLOUDUSE = 'Y' THEN 1 ELSE 0 END) 											AS clouduseCount		
+										,SUM(CASE WHEN SUBSTRING(E.DMAND_SURVEY_CNVRS_PLAN,0,4) = '2018' THEN 1 ELSE 0 END) 						AS planCount1		
+										,SUM(CASE WHEN SUBSTRING(IF(E.DMAND_SURVEY_CNVRS_PLAN = '',0,E.DMAND_SURVEY_CNVRS_PLAN),0,4) BETWEEN  '2019'  AND '2022' THEN 1 ELSE 0 END) AS planCount2		
+										,SUM(CASE WHEN E.DMAND_SURVEY_CNVRS_PLAN = '예정없음' THEN 1 ELSE 0 END) 		AS planCount3		
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '민간' THEN 1 ELSE 0 END)									AS separaCount1	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '자체' THEN 1 ELSE 0 END)									AS separaCount2	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = 'G-클라우드' THEN 1 ELSE 0 END)								AS separaCount3	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '하이브리드' THEN 1 ELSE 0 END)								AS separaCount4
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'SaaS' THEN 1 ELSE 0 END)									AS separatCount1
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS' THEN 1 ELSE 0 END)									AS separatCount2
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS' THEN 1 ELSE 0 END)									AS separatCount3
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+SaaS' THEN 1 ELSE 0 END)							AS separatCount4  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS' THEN 1 ELSE 0 END)							AS separatCount5  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS+SaaS' THEN 1 ELSE 0 END)							AS separatCount6  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS+SaaS' THEN 1 ELSE 0 END)						AS separatCount7  
+										,FORMAT(TO_NUMBER(SUM(IF(E.DMAND_SURVEY_BUDGET = '',0,REPLACE(IFNULL(E.DMAND_SURVEY_BUDGET,0),',','')))),0)	AS dmandSurveyBudget
+								   FROM OP_DMAND_EXAMIN_INFO A
+							  LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+							  LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+							  LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+							  LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 E			ON E.USER_ID = A.USER_ID AND E.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+							      WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+			    					<include refid="dmandNsttWhere"/>
+							        AND A.PRESENTN_DATE IS NOT NULL
+							   GROUP BY A.USER_ID				  	 
+				  	 UNION ALL
+				  	 SELECT 
+				  	 			 TMP.statsTyNm							AS statsTyNm
+								,TMP.orgnNm 							AS orgnNm
+								,SUM(TMP.totalSys)						AS totalSys
+								,SUM(TMP.clouduseCount)					AS clouduseCount
+								,SUM(TMP.planCount1)					AS planCount1
+								,SUM(TMP.planCount2)					AS planCount2
+								,SUM(TMP.planCount3)					AS planCount3
+								,SUM(TMP.separaCount1)					AS separaCount1
+								,SUM(TMP.separaCount2)					AS separaCount2
+								,SUM(TMP.separaCount3)					AS separaCount3
+								,SUM(TMP.separaCount4)					AS separaCount4
+								,SUM(TMP.separatCount1)					AS separatCount1
+								,SUM(TMP.separatCount2)					AS separatCount2
+								,SUM(TMP.separatCount3)					AS separatCount3
+								,SUM(TMP.separatCount4)					AS separatCount4
+								,SUM(TMP.separatCount5)					AS separatCount5
+								,SUM(TMP.separatCount6)					AS separatCount6
+								,SUM(TMP.separatCount7)					AS separatCount7
+								,FORMAT(SUM(TMP.dmandSurveyBudget),0)	AS dmandSurveyBudget
+						 FROM(
+								SELECT 
+										 '합계'																				AS statsTyNm
+										,'합계' 																				AS orgnNm
+										,COUNT(E.USER_ID) 																	AS totalSys
+										
+										,SUM(CASE WHEN E.DMAND_SURVEY_CLOUDUSE = 'Y' THEN 1 ELSE 0 END) 					AS clouduseCount		
+										,SUM(CASE WHEN SUBSTRING(E.DMAND_SURVEY_CNVRS_PLAN,0,4) = '2018' THEN 1 ELSE 0 END) AS planCount1		
+										,SUM(CASE WHEN SUBSTRING(IF(E.DMAND_SURVEY_CNVRS_PLAN = '',0,E.DMAND_SURVEY_CNVRS_PLAN),0,4) BETWEEN  '2019'  AND '2022' THEN 1 ELSE 0 END) 			AS planCount2		
+										,SUM(CASE WHEN E.DMAND_SURVEY_CNVRS_PLAN = '예정없음' THEN 1 ELSE 0 END) 				AS planCount3			
+																				
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '민간' THEN 1 ELSE 0 END)			AS separaCount1	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '자체' THEN 1 ELSE 0 END)			AS separaCount2	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = 'G-클라우드' THEN 1 ELSE 0 END)		AS separaCount3	
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_CLOUD_SEPARA = '하이브리드' THEN 1 ELSE 0 END)		AS separaCount4
+																			
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'SaaS' THEN 1 ELSE 0 END)			AS separatCount1
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS' THEN 1 ELSE 0 END)			AS separatCount2
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS' THEN 1 ELSE 0 END)			AS separatCount3
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+SaaS' THEN 1 ELSE 0 END)	AS separatCount4  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS' THEN 1 ELSE 0 END)	AS separatCount5  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'PaaS+SaaS' THEN 1 ELSE 0 END)	AS separatCount6  
+										,SUM(CASE WHEN E.DMAND_SURVEY_PLAN_SERV_SEPARAT = 'IaaS+PaaS+SaaS' THEN 1 ELSE 0 END)	AS separatCount7  
+										,TO_NUMBER(SUM(IF(E.DMAND_SURVEY_BUDGET = '',0,REPLACE(IFNULL(E.DMAND_SURVEY_BUDGET,0),',',''))))	AS dmandSurveyBudget
+							  FROM OP_DMAND_EXAMIN_INFO A
+							  LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+							  LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+							  LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+							  LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 E			ON E.USER_ID = A.USER_ID AND E.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+							      WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+			    					<include refid="dmandNsttWhere"/>
+							        AND A.PRESENTN_DATE IS NOT NULL
+							   GROUP BY A.USER_ID				  	
+								) TMP
+					    WHERE TMP.orgnNm IS NOT NULL
+				  	 GROUP BY TMP.orgnNm
+    </select>
+	
+	<!-- 수요조사 통계(기관유형) 카운트 -->
+    <select id="dmandNsttCount" parameterType="map" resultType="int">
+    	    /*dmandManage.dmandNsttCount*/
+			 SELECT 
+						COUNT(A.USER_ID) 							AS totalCount
+		     FROM OP_DMAND_EXAMIN_INFO A
+			  LEFT JOIN OP_USER_PBLINSTT_OPTION B				ON B.USER_ID = A.USER_ID
+			  LEFT JOIN TCN_ORGN_INFO_D C						ON C.BUSEO_CODE = B.BUSEO_CODE
+			  LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  		ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE AND IFNULL(D.TY_CL_MIDDL_CODE,'N') = IFNULL(C.TY_CL_MIDDL,'N')
+			  LEFT JOIN (SELECT USER_ID FROM OP_DMAND_EXAMIN_DETAIL_2018 WHERE DMAND_EXAMIN_OPRTN_YEAR =2017  GROUP BY USER_ID  )E			ON E.USER_ID = A.USER_ID
+			  <!-- LEFT JOIN OP_DMAND_EXAMIN_TRGET_INST F 			ON F.BUSEO_CODE = C.BUSEO_CODE AND F.DMAND_EXAMIN_OPRTN_YEAR = ${Year} -->
+			  WHERE A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+			      <include refid="dmandNsttWhere"/>
+			        AND A.PRESENTN_DATE IS NOT NULL
+    </select>
+    
+    <!-- 수요조사 제출현황 상단 전체 갯수 -->
+    <select id="presentnTotalCount" parameterType="map" resultType="dmandManageVO">
+    	    /*dmandManage.presentnTotalCount*/
+   				  				SELECT 
+						(SELECT 
+								COUNT(USER_ID) 
+						   FROM OP_DMAND_EXAMIN_INFO
+						   WHERE DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+						     AND PRESENTN_DATE IS NOT NULL
+						 ) AS presentnCount 
+						,(SELECT 
+									COUNT(C.BUSEO_CODE) AS cnt
+							FROM 
+									OP_DMAND_EXAMIN_TRGET_INST A
+									LEFT JOIN TCN_ORGN_INFO_D C ON A.BUSEO_CODE = C.BUSEO_CODE
+							WHERE 
+								A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+							AND C.MNTNAB_DATE = 0
+						  ) AS orgnCount
+						  ,(SELECT
+									SUM(TMP2.subMission) 								AS subMission
+					    	  FROM (
+					    			SELECT 
+										  IF(A.PRESENTN_DATE IS NOT NULL ,1, 0)	 		AS subMission
+									 FROM OP_DMAND_EXAMIN_INFO A
+								LEFT JOIN OP_USER_PBLINSTT_OPTION B						ON B.USER_ID = A.USER_ID
+								LEFT JOIN TCN_ORGN_INFO_D C								ON C.BUSEO_CODE = B.BUSEO_CODE
+								LEFT JOIN OP_DMAND_EXAMIN_MAPPING_INFO D  				ON D.TY_CL_LGRE_CODE = C.TY_CL_LRGE 
+																			   		   AND CASE WHEN C.TY_CL_MIDDL = '' THEN 1=1 
+																								ELSE D.TY_CL_MIDDL_CODE = C.TY_CL_MIDDL 
+																						END
+								LEFT JOIN OP_DMAND_EXAMIN_DETAIL_2018 E					ON E.USER_ID = A.USER_ID 
+																			  		   AND E.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+									WHERE A.DMAND_EXAMIN_OPRTN_YEAR =  ${Year}
+									<if test="q_beginDate != null  and q_beginDate != ''">
+								   		AND TO_CHAR(A.PRESENTN_DATE,'YYYYMMDD') BETWEEN REPLACE (#{q_beginDate},'-','') AND REPLACE (#{q_endDate},'-','')
+									</if>
+								      AND A.PRESENTN_DATE IS NOT NULL
+								 GROUP BY A.USER_ID
+								 ) TMP2
+							) AS subMissionCount
+
+    </select> 
+     <!-- 수요조사 제출현황 상단 전체 갯수 -->
+    <select id="presentnTotalCount2018" parameterType="map" resultType="dmandManageVO">
+    	    /*dmandManage.presentnTotalCount2018*/
+   				  				SELECT 
+						(SELECT 
+								COUNT(USER_ID) 
+						   FROM OP_DMAND_EXAMIN_INFO
+						   WHERE DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+						     AND PRESENTN_DATE IS NOT NULL
+						 ) AS presentnCount 
+						,(SELECT 
+									COUNT(A.*) AS cnt
+							FROM 
+									OP_DMAND_EXAMIN_TRGET_INST A
+							WHERE 
+								A.DMAND_EXAMIN_OPRTN_YEAR = ${Year}
+						  ) AS orgnCount
+						  ,(
+						  SELECT COUNT(*) FROM OP_DMAND_EXAMIN_INFO
+							WHERE 1=1
+							AND dmand_examin_oprtn_year = ${Year}
+							AND PRESENTN_DATE IS NOT NULL						  
+							) AS subMissionCount
+
+    </select> 
+    
+    <!-- 수요조사 날짜(기준 날짜) -->
+    <select id="dmandRegustMngr" parameterType="map" resultType="dmandManageVO">
+    	    /*dmandManage.dmandRegustMngr*/
+   				SELECT 
+						DMAND_EXAMIN_OPRTN_YEAR 		AS dmandExaminOprtnYear
+						,REGIST_BEGIN_DATE 				AS registBeginDate 
+						,REGIST_END_DATE  				AS registEndDate 
+				  FROM OP_DMAND_EXAMIN_REGIST_MNGR
+			  	 WHERE USE_YN = 'Y'
+			  	 ORDER BY DMAND_EXAMIN_OPRTN_YEAR DESC
+			  	 LIMIT 1
+    </select>    
+</mapper>

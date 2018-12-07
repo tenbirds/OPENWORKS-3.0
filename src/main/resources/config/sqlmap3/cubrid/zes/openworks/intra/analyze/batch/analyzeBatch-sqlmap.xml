@@ -1,0 +1,922 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_analyzeBatch">
+
+    <!-- 접속로그 플래그 UPDATE -->
+    <update id="updateAnlzStatisticFlag">
+        UPDATE OP_PGE_ANALS_LOG
+           SET ANLZ_STATISTIC_FLAG = DECODE(ANLZ_STATISTIC_FLAG, 'A', 'B'
+                                                               , 'B', 'C'
+                                                               , 'C', 'D') 
+         WHERE ANLZ_STATISTIC_FLAG IN ('A', 'B', 'C')    
+    </update>
+
+    <!-- 클라이언트 로그 플래그 UPDATE -->
+    <update id="updateAnlzStatisticFlag2">
+        UPDATE OP_ANALYZE_CLIENT_PLATFORM
+           SET ANLZ_STATISTIC_FLAG = DECODE(ANLZ_STATISTIC_FLAG, 'A', 'B'
+                                                               , 'B', 'C'
+                                                               , 'C', 'D') 
+         WHERE ANLZ_STATISTIC_FLAG IN ('A', 'B', 'C')    
+    </update>
+
+    <!-- 클라이언트 로그 플래그 UPDATE -->
+    <update id="updateAnlzStatisticFlag3">
+        UPDATE OP_ANALYZE_REFERRER
+           SET ANLZ_STATISTIC_FLAG = DECODE(ANLZ_STATISTIC_FLAG, 'A', 'B'
+                                                               , 'B', 'C'
+                                                               , 'C', 'D') 
+         WHERE ANLZ_STATISTIC_FLAG IN ('A', 'B', 'C')    
+    </update>
+    
+    <!-- 페이지뷰 집계 MERGE -->
+    <update id="mergeAnalyzePageView">
+        MERGE INTO   OP_ANALYZE_PAGE_VIEW A
+             USING   (SELECT   DOMAIN_NM,
+                               SUBSTR (ANLZ_TIME, 1, 8) AS CONN_YMD,
+                               SUBSTR (ANLZ_TIME, 9, 2) AS CONN_TIME,
+                               SUBSTR (ANLZ_TIME, 1, 6) AS CONN_YM,
+                               SUBSTR (ANLZ_TIME, 7, 2) AS CONN_DD,
+                               WEEK     (TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'),0) AS CONN_WW,
+                               DAYOFWEEK(TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'))   AS CONN_D,
+                               ALL_CNT,
+                               MOBILE_CNT
+                        FROM   (  SELECT   ANLZ_DOMAIN_NM                           AS DOMAIN_NM,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24')      AS ANLZ_TIME,<!-- 년,월,일,시간 -->
+                                           COUNT (1)                                AS ALL_CNT,
+                                           SUM (DECODE (ANLZ_MOBILE_YN, 'Y', 1, 0)) AS MOBILE_CNT
+                                    FROM   OP_PGE_ANALS_LOG
+                                   WHERE   ANLZ_STATISTIC_FLAG = 'B'
+                                GROUP BY   ANLZ_DOMAIN_NM,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24'))
+                     ) B
+                ON   (    A.DOMAIN_NM   = B.DOMAIN_NM
+                      AND A.CONN_YMD    = B.CONN_YMD
+                      AND A.CONN_TIME   = B.CONN_TIME)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.ALL_CNT        = (A.ALL_CNT    + B.ALL_CNT),
+              A.MOBILE_CNT     = (A.MOBILE_CNT + B.MOBILE_CNT),
+              A.STATISTIC_TIME = SYS_DATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.CONN_TIME,
+                                A.CONN_YM,
+                                A.CONN_DD,
+                                A.CONN_WW,
+                                A.CONN_D,
+                                A.ALL_CNT,
+                                A.MOBILE_CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.CONN_TIME,
+                         B.CONN_YM,
+                         B.CONN_DD,
+                         B.CONN_WW,
+                         B.CONN_D,
+                         B.ALL_CNT,
+                         B.MOBILE_CNT,
+                         SYS_DATETIME) 
+    </update>
+    
+    <!-- 방문자 집계 MERGE -->
+    <update id="mergeAnalyzeVisit">
+        MERGE INTO   OP_ANALYZE_VISIT A
+             USING   (  SELECT   DOMAIN_NM,
+                                 SUBSTR (ANLZ_TIME, 1, 8) AS CONN_YMD,
+                                 SUBSTR (ANLZ_TIME, 9, 2) AS CONN_TIME,
+                                 SUBSTR (ANLZ_TIME, 1, 6) AS CONN_YM,
+                                 SUBSTR (ANLZ_TIME, 7, 2) AS CONN_DD,
+                                 WEEK     (TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'),0) AS CONN_WW,
+                                 DAYOFWEEK(TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'))   AS CONN_D,
+                                 ALL_CNT,
+                                 ALL_FIRST_VISIT,
+                                 ALL_RETURN_VISIT,
+                                 MOBILE_VISIT,
+                                 MOBILE_FIRST_VISIT,
+                                 MOBILE_RETURN_VISIT,
+                                 SYS_DATETIME AS STATISTIC_TIME
+                          FROM   (  SELECT   ANLZ_DOMAIN_NM                                AS DOMAIN_NM,
+                                             TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24')           AS ANLZ_TIME,
+                                             COUNT (1)                                     AS ALL_CNT,
+                                             SUM (DECODE (ANLZ_FIRST_VISIT_YN, 'Y', 1, 0)) AS ALL_FIRST_VISIT,
+                                             SUM (DECODE (ANLZ_FIRST_VISIT_YN, 'Y', 0, 1)) AS ALL_RETURN_VISIT,
+                                             SUM (DECODE (ANLZ_MOBILE_YN, 'Y', 1, 0))      AS MOBILE_VISIT,
+                                             SUM (DECODE (ANLZ_MOBILE_YN, 'Y',
+                                                            (DECODE(ANLZ_FIRST_VISIT_YN, 'Y', 1, 0)), 0
+                                                         ))
+                                                AS MOBILE_FIRST_VISIT,
+                                             SUM (DECODE (ANLZ_MOBILE_YN, 'Y',
+                                                            (DECODE(ANLZ_FIRST_VISIT_YN, 'Y', 0, 1)), 0
+                                                         ))
+                                                AS MOBILE_RETURN_VISIT
+                                      FROM   OP_PGE_ANALS_LOG
+                                     WHERE   ANLZ_STATISTIC_FLAG    = 'B'
+                                             AND ANLZ_PAGE_VIEW_CNT = 1
+                                  GROUP BY   ANLZ_DOMAIN_NM,
+                                             TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24'))
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM   = B.DOMAIN_NM
+                      AND A.CONN_YMD    = B.CONN_YMD
+                      AND A.CONN_TIME   = B.CONN_TIME)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.ALL_CNT             = (A.ALL_CNT             + B.ALL_CNT),
+              A.ALL_FIRST_VISIT     = (A.ALL_FIRST_VISIT     + B.ALL_FIRST_VISIT),
+              A.ALL_RETURN_VISIT    = (A.ALL_RETURN_VISIT    + B.ALL_RETURN_VISIT),
+              A.MOBILE_VISIT        = (A.MOBILE_VISIT        + B.MOBILE_VISIT),
+              A.MOBILE_FIRST_VISIT  = (A.MOBILE_FIRST_VISIT  + B.MOBILE_FIRST_VISIT),
+              A.MOBILE_RETURN_VISIT = (A.MOBILE_RETURN_VISIT + B.MOBILE_RETURN_VISIT),
+              A.STATISTIC_TIME      = SYS_DATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.CONN_TIME,
+                                A.CONN_YM,
+                                A.CONN_DD,
+                                A.CONN_WW,
+                                A.CONN_D,
+                                A.ALL_CNT,
+                                A.ALL_FIRST_VISIT,
+                                A.ALL_RETURN_VISIT,
+                                A.MOBILE_VISIT,
+                                A.MOBILE_FIRST_VISIT,
+                                A.MOBILE_RETURN_VISIT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.CONN_TIME,
+                         B.CONN_YM,
+                         B.CONN_DD,
+                         B.CONN_WW,
+                         B.CONN_D,
+                         B.ALL_CNT,
+                         B.ALL_FIRST_VISIT,
+                         B.ALL_RETURN_VISIT,
+                         B.MOBILE_VISIT,
+                         B.MOBILE_FIRST_VISIT,
+                         B.MOBILE_RETURN_VISIT,
+                         SYS_DATETIME)
+    </update>
+    
+    <!-- 순방문자 집계 MERGE -->
+    <update id="mergeAnalyzeOriginalVisit">
+        MERGE INTO   OP_ANALYZE_ORIGINAL_VISIT A
+             USING   (     SELECT   DOMAIN_NM,
+                                    SUBSTR (ANLZ_TIME, 1, 8) AS CONN_YMD,
+                                    SUBSTR (ANLZ_TIME, 9, 2) AS CONN_TIME,
+                                    SUBSTR (ANLZ_TIME, 1, 6) AS CONN_YM,
+                                    SUBSTR (ANLZ_TIME, 7, 2) AS CONN_DD,
+<!--                                     TO_CHAR (TO_DATE (SUBSTR (ANLZ_TIME, 1, 8), 'YYYYMMDD'), 'WW') AS CONN_WW, -->
+<!--                                     TO_CHAR (TO_DATE (SUBSTR (ANLZ_TIME, 1, 8), 'YYYYMMDD'), 'D') AS CONN_D, -->
+                                    WEEK     (TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'),0) AS CONN_WW,
+                                    DAYOFWEEK(TO_DATE(SUBSTR(ANLZ_TIME, 1, 8), 'YYYYMMDD'))   AS CONN_D,
+                                    ALL_CNT,
+                                    ALL_FIRST_VISIT_H,
+                                    ALL_RETURN_VISIT_H,
+                                    ALL_FIRST_VISIT_D,
+                                    ALL_RETURN_VISIT_D,
+                                    ALL_FIRST_VISIT_W,
+                                    ALL_RETURN_VISIT_W,
+                                    ALL_FIRST_VISIT_M,
+                                    ALL_RETURN_VISIT_M,
+                                    MOBILE_VISIT,
+                                    MOBILE_FIRST_VISIT_H,
+                                    MOBILE_RETURN_VISIT_H,
+                                    MOBILE_FIRST_VISIT_D,
+                                    MOBILE_RETURN_VISIT_D,
+                                    MOBILE_FIRST_VISIT_W,
+                                    MOBILE_RETURN_VISIT_W,
+                                    MOBILE_FIRST_VISIT_M,
+                                    MOBILE_RETURN_VISIT_M
+       FROM   (  SELECT   ANLZ_DOMAIN_NM AS DOMAIN_NM,
+                          TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24') AS ANLZ_TIME,
+                          COUNT (1) AS ALL_CNT,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_HOUR_YN, 'Y', 1, 0)) AS ALL_FIRST_VISIT_H,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_HOUR_YN, 'Y', 0, 1)) AS ALL_RETURN_VISIT_H,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_DATE_YN, 'Y', 1, 0)) AS ALL_FIRST_VISIT_D,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_DATE_YN, 'Y', 0, 1)) AS ALL_RETURN_VISIT_D,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_WEEK_YN, 'Y', 1, 0)) AS ALL_FIRST_VISIT_W,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_WEEK_YN, 'Y', 0, 1)) AS ALL_RETURN_VISIT_W,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_MONTH_YN, 'Y', 1, 0)) AS ALL_FIRST_VISIT_M,
+                          SUM (DECODE (ANLZ_FIRST_VISIT_MONTH_YN, 'Y', 0, 1)) AS ALL_RETURN_VISIT_M,                                                                              
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', 1, 0)) AS MOBILE_VISIT,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_HOUR_YN, 'Y', 1, 0)), 0)) AS MOBILE_FIRST_VISIT_H,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_HOUR_YN, 'Y', 0, 1)), 0)) AS MOBILE_RETURN_VISIT_H,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_DATE_YN, 'Y', 1, 0)), 0)) AS MOBILE_FIRST_VISIT_D,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_DATE_YN, 'Y', 0, 1)), 0)) AS MOBILE_RETURN_VISIT_D,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_WEEK_YN, 'Y', 1, 0)), 0)) AS MOBILE_FIRST_VISIT_W,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_WEEK_YN, 'Y', 0, 1)), 0)) AS MOBILE_RETURN_VISIT_W,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_MONTH_YN, 'Y', 1, 0)), 0)) AS MOBILE_FIRST_VISIT_M,
+                          SUM (DECODE (ANLZ_MOBILE_YN, 'Y', (DECODE (ANLZ_FIRST_VISIT_MONTH_YN, 'Y', 0, 1)), 0)) AS MOBILE_RETURN_VISIT_M
+                   FROM   OP_PGE_ANALS_LOG
+                  WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                    AND   ANLZ_PAGE_VIEW_CNT  = 1
+               GROUP BY   ANLZ_DOMAIN_NM
+                        , TO_CHAR (ANLZ_TIME, 'YYYYMMDDHH24'))
+   ORDER BY   1, 2
+                     ) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD  = B.CONN_YMD
+                      AND A.CONN_TIME = B.CONN_TIME)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.ALL_CNT               = A.ALL_CNT               + B.ALL_CNT,
+              A.ALL_FIRST_VISIT_H     = A.ALL_FIRST_VISIT_H     + B.ALL_FIRST_VISIT_H,
+              A.ALL_RETURN_VISIT_H    = A.ALL_RETURN_VISIT_H    + B.ALL_RETURN_VISIT_H,
+              A.ALL_FIRST_VISIT_D     = A.ALL_FIRST_VISIT_D     + B.ALL_FIRST_VISIT_D,
+              A.ALL_RETURN_VISIT_D    = A.ALL_RETURN_VISIT_D    + B.ALL_RETURN_VISIT_D,
+              A.ALL_FIRST_VISIT_W     = A.ALL_FIRST_VISIT_W     + B.ALL_FIRST_VISIT_W,
+              A.ALL_RETURN_VISIT_W    = A.ALL_RETURN_VISIT_W    + B.ALL_RETURN_VISIT_W,
+              A.ALL_FIRST_VISIT_M     = A.ALL_FIRST_VISIT_M     + B.ALL_FIRST_VISIT_M,
+              A.ALL_RETURN_VISIT_M    = A.ALL_RETURN_VISIT_M    + B.ALL_RETURN_VISIT_M,
+              A.MOBILE_VISIT          = A.MOBILE_VISIT          + B.MOBILE_VISIT,
+              A.MOBILE_FIRST_VISIT_H  = A.MOBILE_FIRST_VISIT_H  + B.MOBILE_FIRST_VISIT_H,
+              A.MOBILE_RETURN_VISIT_H = A.MOBILE_RETURN_VISIT_H + B.MOBILE_RETURN_VISIT_H,
+              A.MOBILE_FIRST_VISIT_D  = A.MOBILE_FIRST_VISIT_D  + B.MOBILE_FIRST_VISIT_D,
+              A.MOBILE_RETURN_VISIT_D = A.MOBILE_RETURN_VISIT_D + B.MOBILE_RETURN_VISIT_D,
+              A.MOBILE_FIRST_VISIT_W  = A.MOBILE_FIRST_VISIT_W  + B.MOBILE_FIRST_VISIT_W,
+              A.MOBILE_RETURN_VISIT_W = A.MOBILE_RETURN_VISIT_W + B.MOBILE_RETURN_VISIT_W,
+              A.MOBILE_FIRST_VISIT_M  = A.MOBILE_FIRST_VISIT_M  + B.MOBILE_FIRST_VISIT_M,
+              A.MOBILE_RETURN_VISIT_M = A.MOBILE_RETURN_VISIT_M + B.MOBILE_RETURN_VISIT_M,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD, 
+                                A.CONN_TIME, 
+                                A.CONN_YM, 
+                                A.CONN_DD, 
+                                A.CONN_WW, 
+                                A.CONN_D, 
+                                A.ALL_CNT, 
+                                A.ALL_FIRST_VISIT_H, 
+                                A.ALL_RETURN_VISIT_H, 
+                                A.ALL_FIRST_VISIT_D, 
+                                A.ALL_RETURN_VISIT_D, 
+                                A.ALL_FIRST_VISIT_W, 
+                                A.ALL_RETURN_VISIT_W, 
+                                A.ALL_FIRST_VISIT_M, 
+                                A.ALL_RETURN_VISIT_M, 
+                                A.MOBILE_VISIT, 
+                                A.MOBILE_FIRST_VISIT_H, 
+                                A.MOBILE_RETURN_VISIT_H, 
+                                A.MOBILE_FIRST_VISIT_D, 
+                                A.MOBILE_RETURN_VISIT_D, 
+                                A.MOBILE_FIRST_VISIT_W, 
+                                A.MOBILE_RETURN_VISIT_W, 
+                                A.MOBILE_FIRST_VISIT_M, 
+                                A.MOBILE_RETURN_VISIT_M,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD, 
+                         B.CONN_TIME, 
+                         B.CONN_YM, 
+                         B.CONN_DD, 
+                         B.CONN_WW, 
+                         B.CONN_D, 
+                         B.ALL_CNT, 
+                         B.ALL_FIRST_VISIT_H, 
+                         B.ALL_RETURN_VISIT_H, 
+                         B.ALL_FIRST_VISIT_D, 
+                         B.ALL_RETURN_VISIT_D, 
+                         B.ALL_FIRST_VISIT_W, 
+                         B.ALL_RETURN_VISIT_W, 
+                         B.ALL_FIRST_VISIT_M, 
+                         B.ALL_RETURN_VISIT_M, 
+                         B.MOBILE_VISIT, 
+                         B.MOBILE_FIRST_VISIT_H, 
+                         B.MOBILE_RETURN_VISIT_H, 
+                         B.MOBILE_FIRST_VISIT_D, 
+                         B.MOBILE_RETURN_VISIT_D, 
+                         B.MOBILE_FIRST_VISIT_W, 
+                         B.MOBILE_RETURN_VISIT_W, 
+                         B.MOBILE_FIRST_VISIT_M, 
+                         B.MOBILE_RETURN_VISIT_M,
+                         SYSDATETIME)
+    </update>
+    
+    <!-- 많이찾는 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeFavoritePage">
+        MERGE INTO   OP_FAVORITE_PGE_ANALS_LOG A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd') AS CONN_YMD,
+                                 ANLZ_PAGE_TITLE                 AS CONN_PAGE_TITLE,
+                                 COUNT (1)                       AS PAGE_VIEW_CNT,
+                                 SUM (DECODE (ANLZ_PAGE_VIEW_CNT, 1, 1, 0)) AS START_PAGE_CNT
+                          FROM   OP_PGE_ANALS_LOG
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B'
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd'),
+                                 ANLZ_PAGE_TITLE
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD  = B.CONN_YMD
+                      AND A.CONN_PAGE_TITLE = B.CONN_PAGE_TITLE)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.PAGE_VIEW_CNT  = A.PAGE_VIEW_CNT  + B.PAGE_VIEW_CNT,
+              A.START_PAGE_CNT = A.START_PAGE_CNT + B.START_PAGE_CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.CONN_PAGE_TITLE,
+                                A.PAGE_VIEW_CNT,
+                                A.START_PAGE_CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.CONN_PAGE_TITLE,
+                         B.PAGE_VIEW_CNT,
+                         B.START_PAGE_CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <!-- 시작 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeStartPage">
+        MERGE INTO   OP_BEGIN_PGE_ANALS_LOG A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 ANLZ_PAGE_TITLE                 AS CONN_PAGE_TITLE,
+                                 COUNT (1)                       AS PAGE_VIEW_CNT,
+                                 SYSDATETIME                     AS STATISTIC_TIME
+                          FROM   OP_PGE_ANALS_LOG
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                           AND   ANLZ_PAGE_VIEW_CNT = 1
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD'),
+                                 ANLZ_PAGE_TITLE
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD = B.CONN_YMD
+                      AND A.CONN_PAGE_TITLE = B.CONN_PAGE_TITLE)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.PAGE_VIEW_CNT = A.PAGE_VIEW_CNT + B.PAGE_VIEW_CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.CONN_PAGE_TITLE,
+                                A.PAGE_VIEW_CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.CONN_PAGE_TITLE,
+                         B.PAGE_VIEW_CNT,
+                         SYSDATETIME)    
+    </update>    
+
+    <!-- 종료 페이지 집계 MERGE -->
+    <update id="mergeAnalyzeEndPage">
+        MERGE INTO   OP_END_PGE_ANALS_LOG A
+             USING   (  SELECT   ANLZ_DOMAIN_NM AS DOMAIN_NM,
+                                 CONN_YMD,
+                                 CONN_PAGE_TITLE,
+                                 COUNT (1)      AS PAGE_VIEW_CNT,
+                                 SYSDATETIME    AS STATISTIC_TIME
+                          FROM   (SELECT   ANLZ_DOMAIN_NM,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                           ANLZ_PAGE_TITLE                 AS CONN_PAGE_TITLE,
+                                           ROW_NUMBER ()
+                                              OVER ( PARTITION BY ANLZ_DOMAIN_NM, ANLZ_SESSION_ID
+                                                     ORDER BY ANLZ_PAGE_VIEW_CNT DESC )     AS RK
+                                    FROM   OP_PGE_ANALS_LOG
+                                   WHERE   ANLZ_STATISTIC_FLAG = 'B')
+                         WHERE   RK = 1
+                      GROUP BY   ANLZ_DOMAIN_NM, CONN_YMD, CONN_PAGE_TITLE
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM       = B.DOMAIN_NM
+                      AND A.CONN_YMD        = B.CONN_YMD
+                      AND A.CONN_PAGE_TITLE = B.CONN_PAGE_TITLE)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.PAGE_VIEW_CNT  = A.PAGE_VIEW_CNT + B.PAGE_VIEW_CNT
+            , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.CONN_PAGE_TITLE,
+                                A.PAGE_VIEW_CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.CONN_PAGE_TITLE,
+                         B.PAGE_VIEW_CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <!-- 클라이언트 OS 집계 MERGE -->
+    <update id="mergeAnalyzeOS">
+        MERGE INTO   OP_ANALYZE_OS A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 ANLZ_OS_NAME,
+                                 COUNT (1)                       AS CNT,
+                                 SYSDATETIME                     AS STATISTIC_TIME
+                          FROM   OP_ANALYZE_CLIENT_PLATFORM
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD'),
+                                 ANLZ_OS_NAME
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD  = B.CONN_YMD
+                      AND A.OS_NAME   = B.ANLZ_OS_NAME)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.CNT = A.CNT + B.CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.OS_NAME,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.ANLZ_OS_NAME,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+
+    <!-- 클라이언트 Browser 집계 MERGE -->
+    <update id="mergeAnalyzeBrowser">
+        MERGE INTO   OP_ANALYZE_BROWSER A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 ANLZ_BROWSER_NAME,
+                                 ANLZ_BROWSER_VERSION,
+                                 COUNT (1)                       AS CNT,
+                                 SYSDATETIME                     AS STATISTIC_TIME
+                          FROM   OP_ANALYZE_CLIENT_PLATFORM
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD'),
+                                 ANLZ_BROWSER_NAME,
+                                 ANLZ_BROWSER_VERSION
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM       = B.DOMAIN_NM
+                      AND A.CONN_YMD        = B.CONN_YMD
+                      AND A.BROWSER_NAME    = B.ANLZ_BROWSER_NAME
+                      AND A.BROWSER_VERSION = B.ANLZ_BROWSER_VERSION
+                      )
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.CNT = A.CNT + B.CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.BROWSER_NAME,
+                                A.BROWSER_VERSION,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.ANLZ_BROWSER_NAME,
+                         B.ANLZ_BROWSER_VERSION,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <!-- 클라이언트 해상도 집계 MERGE -->
+    <update id="mergeAnalyzeResolution">
+        MERGE INTO   OP_ANALYZE_RESOLUTION A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 ANLZ_SCREEN_WIDTH,
+                                 ANLZ_SCREEN_HEIGHT,
+                                 COUNT (1)                       AS CNT,
+                                 SYSDATETIME                     AS STATISTIC_TIME
+                          FROM   OP_ANALYZE_CLIENT_PLATFORM
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD'),
+                                 ANLZ_SCREEN_WIDTH,
+                                 ANLZ_SCREEN_HEIGHT
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM     = B.DOMAIN_NM
+                      AND A.CONN_YMD      = B.CONN_YMD
+                      AND A.SCREEN_WIDTH  = B.ANLZ_SCREEN_WIDTH
+                      AND A.SCREEN_HEIGHT = B.ANLZ_SCREEN_HEIGHT
+                      )
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.CNT = A.CNT + B.CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.SCREEN_WIDTH,
+                                A.SCREEN_HEIGHT,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.ANLZ_SCREEN_WIDTH,
+                         B.ANLZ_SCREEN_HEIGHT,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <!-- 클라이언트 색상수(bit) 집계 MERGE -->
+    <update id="mergeAnalyzeColorDepth">
+        MERGE INTO   OP_ANALYZE_COLOR_DEPTH A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 ANLZ_SCREEN_COLOR_DEPTH,
+                                 COUNT (1)                       AS CNT,
+                                 SYSDATETIME                     AS STATISTIC_TIME
+                          FROM   OP_ANALYZE_CLIENT_PLATFORM
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B' 
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD'),
+                                 ANLZ_SCREEN_COLOR_DEPTH
+                      ORDER BY   1, 2) B
+                ON   (    A.DOMAIN_NM          = B.DOMAIN_NM
+                      AND A.CONN_YMD           = B.CONN_YMD
+                      AND A.SCREEN_COLOR_DEPTH = B.ANLZ_SCREEN_COLOR_DEPTH
+                      )
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.CNT = A.CNT + B.CNT,
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.SCREEN_COLOR_DEPTH,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.ANLZ_SCREEN_COLOR_DEPTH,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <update id="mergeResidensePage">
+        MERGE INTO   OP_ANALYZE_RESIDENSE_PAGE A
+             USING   (  SELECT   DOMAIN_NM,
+                                 CONN_YMD,
+                                 ANLZ_PAGE_TITLE      AS PAGE_TITLE,
+                                 SUM (RESIDENSE_TIME) AS RESIDENSE_TIME,
+                                 COUNT (1)            AS CNT,
+                                 SUM (CASE WHEN RESIDENSE_TIME &lt;    3 THEN 1 ELSE 0 END) AS SEC_3,
+                                 SUM(CASE WHEN RESIDENSE_TIME  &gt;=   3 AND RESIDENSE_TIME &lt; 15 THEN 1 ELSE 0 END) AS SEC_15,
+                                 SUM(CASE WHEN RESIDENSE_TIME  &gt;=  15 AND RESIDENSE_TIME &lt; 30 THEN 1 ELSE 0 END) AS SEC_30,
+                                 SUM(CASE WHEN RESIDENSE_TIME  &gt;=  30 AND RESIDENSE_TIME &lt; 60 THEN 1 ELSE 0 END) AS SEC_60,
+                                 SUM(CASE WHEN RESIDENSE_TIME  &gt;=  60 AND RESIDENSE_TIME &lt; (60 * 5) THEN 1 ELSE 0 END) AS SEC_300,
+                                 SUM(CASE WHEN RESIDENSE_TIME  &gt;= (60 * 5) THEN 1 ELSE 0 END) AS SEC_ETC
+                          FROM   (SELECT   A.*,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                           NVL ( ((ANLZ_TIME2 - ANLZ_TIME) * 24 * 60 * 60), 2 ) AS RESIDENSE_TIME
+                                    FROM   (SELECT   ANLZ_DOMAIN_NM AS DOMAIN_NM,
+                                                     ANLZ_TIME,
+                                                     (SELECT   ANLZ_TIME
+                                                        FROM   OP_PGE_ANALS_LOG X
+                                                       WHERE   X.ANLZ_SESSION_ID    = A.ANLZ_SESSION_ID
+                                                         AND   X.ANLZ_PAGE_VIEW_CNT = (A.ANLZ_PAGE_VIEW_CNT + 1)
+                                                         AND   ROWNUM = 1) AS ANLZ_TIME2,
+                                                     ANLZ_PAGE_VIEW_CNT,
+                                                     ANLZ_PAGE_TITLE
+                                              FROM   OP_PGE_ANALS_LOG A
+                                             WHERE   ANLZ_STATISTIC_FLAG = 'B') A)
+                      GROUP BY   DOMAIN_NM,
+                                 CONN_YMD,
+                                 ANLZ_PAGE_TITLE) B
+                ON   (    A.DOMAIN_NM  = B.DOMAIN_NM
+                      AND A.CONN_YMD   = B.CONN_YMD
+                      AND A.PAGE_TITLE = B.PAGE_TITLE)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.RESIDENSE_TIME = (A.RESIDENSE_TIME + B.RESIDENSE_TIME),
+              A.CNT     = (A.CNT + B.CNT),
+              A.SEC_3   = (A.SEC_3 + B.SEC_3),
+              A.SEC_15  = (A.SEC_15 + B.SEC_15),
+              A.SEC_30  = (A.SEC_30 + B.SEC_30),
+              A.SEC_60  = (A.SEC_60 + B.SEC_60),
+              A.SEC_300 = (A.SEC_300 + B.SEC_300),
+              A.SEC_ETC = (A.SEC_ETC + B.SEC_ETC),
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM, 
+                                A.CONN_YMD, 
+                                A.PAGE_TITLE, 
+                                A.RESIDENSE_TIME, 
+                                A.CNT, 
+                                A.SEC_3, 
+                                A.SEC_15, 
+                                A.SEC_30, 
+                                A.SEC_60, 
+                                A.SEC_300, 
+                                A.SEC_ETC, 
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM, 
+                         B.CONN_YMD, 
+                         B.PAGE_TITLE, 
+                         B.RESIDENSE_TIME, 
+                         B.CNT, 
+                         B.SEC_3, 
+                         B.SEC_15, 
+                         B.SEC_30, 
+                         B.SEC_60, 
+                         B.SEC_300, 
+                         B.SEC_ETC, 
+                         SYSDATETIME)
+    </update>
+
+    <update id="mergeResidenseSite">
+        MERGE INTO   OP_ANALYZE_RESIDENSE_SITE A
+             USING   (  SELECT   DOMAIN_NM,
+                                 CONN_YMD,
+                                 SUM (RESIDENSE_TIME) AS RESIDENSE_TIME,
+                                 COUNT (1)            AS CNT,
+                                 SUM(VISIT_CNT)       AS VISIT_CNT,
+                                 SUM(CASE WHEN RESIDENSE_TIME &lt; 60 THEN 1 ELSE 0 END)                                           AS MIN_1,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 *  1) AND RESIDENSE_TIME &lt; (60 *  3) THEN 1 ELSE 0 END) AS MIN_3,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 *  3) AND RESIDENSE_TIME &lt; (60 *  7) THEN 1 ELSE 0 END) AS MIN_7,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 *  7) AND RESIDENSE_TIME &lt; (60 * 15) THEN 1 ELSE 0 END) AS MIN_15,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 * 15) AND RESIDENSE_TIME &lt; (60 * 20) THEN 1 ELSE 0 END) AS MIN_20,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 * 20) AND RESIDENSE_TIME &lt; (60 * 30) THEN 1 ELSE 0 END) AS MIN_30,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 * 30) AND RESIDENSE_TIME &lt; (60 * 60) THEN 1 ELSE 0 END) AS MIN_60,
+                                 SUM(CASE WHEN RESIDENSE_TIME &gt;= (60 * 60) THEN 1 ELSE 0 END)                                   AS MIN_ETC
+                          FROM   (SELECT   A.*,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDD')                      AS CONN_YMD,
+                                           NVL ( ((ANLZ_TIME2 - ANLZ_TIME) * 24 * 60 * 60), 2 ) AS RESIDENSE_TIME,
+                                           DECODE(ANLZ_PAGE_VIEW_CNT, 1, 1, 0)                  AS VISIT_CNT
+                                    FROM   (SELECT   ANLZ_DOMAIN_NM AS DOMAIN_NM,
+                                                     ANLZ_TIME,
+                                                     (SELECT   ANLZ_TIME
+                                                        FROM   OP_PGE_ANALS_LOG X
+                                                       WHERE   X.ANLZ_SESSION_ID        = A.ANLZ_SESSION_ID
+                                                               AND X.ANLZ_PAGE_VIEW_CNT = (A.ANLZ_PAGE_VIEW_CNT + 1)
+                                                               AND ROWNUM = 1) AS ANLZ_TIME2,
+                                                     ANLZ_PAGE_VIEW_CNT
+                                              FROM   OP_PGE_ANALS_LOG A
+                                             WHERE   ANLZ_STATISTIC_FLAG = 'B') A)
+                      GROUP BY   DOMAIN_NM,
+                                 CONN_YMD) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD  = B.CONN_YMD)
+        WHEN MATCHED
+        THEN
+           UPDATE SET
+              A.RESIDENSE_TIME = (A.RESIDENSE_TIME + B.RESIDENSE_TIME),
+              A.CNT       = (A.CNT + B.CNT),
+              A.VISIT_CNT = (A.VISIT_CNT + B.VISIT_CNT),
+              A.MIN_1     = (A.MIN_1 + B.MIN_1),
+              A.MIN_3     = (A.MIN_3 + B.MIN_3),
+              A.MIN_7     = (A.MIN_7 + B.MIN_7),
+              A.MIN_15    = (A.MIN_15 + B.MIN_15),
+              A.MIN_20    = (A.MIN_20 + B.MIN_20),
+              A.MIN_60    = (A.MIN_60 + B.MIN_60),
+              A.MIN_ETC   = (A.MIN_ETC + B.MIN_ETC),      
+              A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM, 
+                                A.CONN_YMD, 
+                                A.RESIDENSE_TIME, 
+                                A.CNT, 
+                                A.VISIT_CNT,
+                                A.MIN_1, 
+                                A.MIN_3, 
+                                A.MIN_7, 
+                                A.MIN_15, 
+                                A.MIN_20, 
+                                A.MIN_30,
+                                A.MIN_60,
+                                A.MIN_ETC, 
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM, 
+                         B.CONN_YMD, 
+                         B.RESIDENSE_TIME, 
+                         B.CNT, 
+                         B.VISIT_CNT,
+                         B.MIN_1, 
+                         B.MIN_3, 
+                         B.MIN_7, 
+                         B.MIN_15, 
+                         B.MIN_20, 
+                         B.MIN_30,
+                         B.MIN_60,
+                         B.MIN_ETC, 
+                         SYSDATETIME)
+    </update>
+    
+    <update id="mergeSearchEngine">
+        MERGE INTO   OP_ANALYZE_SEARCH_ENGINE A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                 MAX (ANLZ_REFERRER)             AS REFERRER,
+                                 ANLZ_SEARCH_NAME                AS SEARCH_NAME,
+                                 ANLZ_SEARCH_WORD                AS SEARCH_WORD,
+                                 COUNT (1)                       AS CNT
+                          FROM   OP_ANALYZE_REFERRER
+                         WHERE   ANLZ_STATISTIC_FLAG       = 'B'
+                                 AND ANLZ_SEARCH_ENGINE_YN = 'Y'
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 ANLZ_TIME,
+                                 ANLZ_SEARCH_NAME,
+                                 ANLZ_SEARCH_WORD) B
+                ON   (    A.DOMAIN_NM   = B.DOMAIN_NM
+                      AND A.CONN_YMD    = B.CONN_YMD
+                      AND A.SEARCH_NAME = B.SEARCH_NAME
+                      AND A.SEARCH_WORD = B.SEARCH_WORD)
+        WHEN MATCHED
+        THEN
+           UPDATE SET A.CNT = (A.CNT + B.CNT)
+                    , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.REFERRER,
+                                A.SEARCH_NAME,
+                                A.SEARCH_WORD,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.REFERRER,
+                         B.SEARCH_NAME,
+                         B.SEARCH_WORD,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+
+    <update id="mergeInflow">
+        MERGE INTO   OP_ANALYZE_INFLOW A
+             USING   (  SELECT   A.*, COUNT (1)                            AS CNT
+                          FROM   (SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                           TO_CHAR (ANLZ_TIME, 'YYYYMMDD') AS CONN_YMD,
+                                           NVL (
+                                                  SUBSTR (
+                                                     ANLZ_REFERRER,
+                                                     INSTR (ANLZ_REFERRER, '//') + 2,
+                                                     INSTR (SUBSTR (ANLZ_REFERRER, INSTR (ANLZ_REFERRER, '//') + 2), '/') - 1 ),
+                                                  'Bookmark'
+                                               ) AS REFERRER_DOMAIN,
+                                           NVL (ANLZ_REFERRER, 'Bookmark') AS REFERRER_URL
+                                    FROM   OP_ANALYZE_REFERRER
+                                   WHERE   ANLZ_SEARCH_ENGINE_YN   = 'N'
+                                           AND ANLZ_STATISTIC_FLAG = 'B') A
+                      GROUP BY   DOMAIN_NM,
+                                 CONN_YMD,
+                                 REFERRER_DOMAIN,
+                                 REFERRER_URL) B
+                ON   (    A.DOMAIN_NM       = B.DOMAIN_NM
+                      AND A.CONN_YMD        = B.CONN_YMD
+                      AND A.REFERRER_DOMAIN = B.REFERRER_DOMAIN
+                      AND A.REFERRER_URL    = B.REFERRER_URL)
+        WHEN MATCHED
+        THEN
+           UPDATE SET A.CNT            = (A.CNT + B.CNT)
+                    , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.REFERRER_DOMAIN,
+                                A.REFERRER_URL,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.REFERRER_DOMAIN,
+                         B.REFERRER_URL,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+
+    <update id="mergeVisitNum">
+        MERGE INTO   OP_ANALYZE_VISIT_NUM A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd') AS CONN_YMD,
+                                 ANLZ_USER_ID                    AS USER_ID,
+                                 COUNT (1)                       AS CNT
+                          FROM   OP_PGE_ANALS_LOG
+                         WHERE   ANLZ_STATISTIC_FLAG = 'B'
+                           AND   ANLZ_PAGE_VIEW_CNT  = 1
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd'),
+                                 ANLZ_USER_ID) B
+                ON   (    A.DOMAIN_NM = B.DOMAIN_NM
+                      AND A.CONN_YMD  = B.CONN_YMD
+                      AND A.USER_ID   = B.USER_ID)
+        WHEN MATCHED
+        THEN
+           UPDATE SET A.CNT            = (A.CNT + B.CNT)
+                    , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.USER_ID,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.USER_ID,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <update id="mergeRevisitPeriod">
+        MERGE INTO   OP_ANALYZE_REVISIT_PERIOD A
+             USING   (  SELECT   ANLZ_DOMAIN_NM                  AS DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd') AS CONN_YMD,
+                                 ANLZ_REVISIT_PERIOD             AS REVISIT_PERIOD,
+                                 COUNT (1)                       AS CNT
+                          FROM   OP_PGE_ANALS_LOG
+                         WHERE   ANLZ_STATISTIC_FLAG    = 'B'
+                                 AND ANLZ_PAGE_VIEW_CNT = 1
+                      GROUP BY   ANLZ_DOMAIN_NM,
+                                 TO_CHAR (ANLZ_TIME, 'yyyymmdd'),
+                                 ANLZ_REVISIT_PERIOD) B
+                ON   (    A.DOMAIN_NM      = B.DOMAIN_NM
+                      AND A.CONN_YMD       = B.CONN_YMD
+                      AND A.REVISIT_PERIOD = B.REVISIT_PERIOD)
+        WHEN MATCHED
+        THEN
+           UPDATE SET A.CNT            = (A.CNT + B.CNT)
+                    , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.REVISIT_PERIOD,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.REVISIT_PERIOD,
+                         B.CNT,
+                         SYSDATETIME)
+    </update>
+    
+    <update id="mergePageViewNum">
+        MERGE INTO   OP_ANALYZE_PAGE_VIEW_NUM A
+             USING   (  SELECT   ANLZ_DOMAIN_NM     AS DOMAIN_NM,
+                                 CONN_YMD,
+                                 ANLZ_PAGE_VIEW_CNT AS PAGE_VIEW_NUM,
+                                 COUNT (1)          AS CNT
+                          FROM   (  SELECT   ANLZ_DOMAIN_NM,
+                                             TO_CHAR (ANLZ_TIME, 'yyyymmdd') AS CONN_YMD,
+                                             ANLZ_SESSION_ID,
+                                             MAX (ANLZ_PAGE_VIEW_CNT)        AS ANLZ_PAGE_VIEW_CNT
+                                      FROM   OP_PGE_ANALS_LOG
+                                     WHERE   ANLZ_STATISTIC_FLAG = 'D'
+                                  GROUP BY   ANLZ_DOMAIN_NM,
+                                             TO_CHAR (ANLZ_TIME, 'yyyymmdd'),
+                                             ANLZ_SESSION_ID)
+                      GROUP BY   ANLZ_DOMAIN_NM
+                               , CONN_YMD
+                               , ANLZ_PAGE_VIEW_CNT) B
+                ON   (    A.DOMAIN_NM     = B.DOMAIN_NM
+                      AND A.CONN_YMD      = B.CONN_YMD
+                      AND A.PAGE_VIEW_NUM = B.PAGE_VIEW_NUM)
+        WHEN MATCHED
+        THEN
+           UPDATE SET A.CNT            = (A.CNT + B.CNT)
+                    , A.STATISTIC_TIME = SYSDATETIME
+        WHEN NOT MATCHED
+        THEN
+           INSERT              (A.DOMAIN_NM,
+                                A.CONN_YMD,
+                                A.PAGE_VIEW_NUM,
+                                A.CNT,
+                                A.STATISTIC_TIME)
+               VALUES   (B.DOMAIN_NM,
+                         B.CONN_YMD,
+                         B.PAGE_VIEW_NUM,
+                         B.CNT,
+                         SYSDATETIME)        
+    </update>
+</mapper>

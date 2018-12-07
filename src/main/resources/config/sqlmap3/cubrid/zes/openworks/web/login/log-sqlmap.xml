@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_userLogAccess">
+
+	<insert id="logAction" parameterType="userLogAccessVO">
+        /* _userLogAccess.logAction */
+        INSERT INTO OP_USER_CONECT_HIST(
+            USER_ID,CONECT_DT,CONECT_IP,CONECT_RESULT_CO
+        )VALUES(
+            #{userId},SYS_DATETIME,#{loginIp},#{loginResult}
+        )
+	 </insert>
+
+	<select id="logYn" parameterType="userLogAccessVO" resultType="userLogAccessVO">
+		/* _userLogAccess.logYn */
+		SELECT COUNT(*) AS loginCount
+		  FROM OP_USER_CONECT_HIST
+		 WHERE USER_ID = #{userId}
+		   AND CONECT_RESULT_CO = 1
+		   AND TO_CHAR(CONECT_DT, 'YYYYMMDD') = TO_CHAR(SYS_DATE, 'YYYYMMDD')
+	</select>
+
+    <select id="userInfo" parameterType="userLogAccessVO" resultType="userLogAccessVO">
+        /* _userLogAccess.userInfo */
+        SELECT
+               COALESCE(SBSCRB_TY_CD,1001)                                      AS sbscrbTyCd
+              ,COALESCE(TO_CHAR(SYSDATE,'YYYY') - SUBSTR((BRTHDY), 0, 4) + 1,0) AS age
+              ,COALESCE((SEXDSTN_CD),1003)                                      AS sex
+          FROM OP_USER A
+         WHERE A.USER_ID = #{userId}
+     </select>
+
+	<insert id="logStatsCount" parameterType="userLogAccessVO">
+		/* _userLogAccess.logStatsCount */
+		MERGE INTO OP_USER_ACCESS_STATS A
+		USING (SELECT
+			TO_CHAR(SYS_DATE, 'YYYY') AS STAT_YEAR
+		  , TO_CHAR(SYS_DATE, 'MM') AS STAT_MONTH
+		  , TO_CHAR(SYS_DATE, 'DD') AS STAT_DAY
+		) B
+        ON (
+            A.STAT_YEAR = B.STAT_YEAR
+            AND A.STAT_MONTH = B.STAT_MONTH
+            AND A.STAT_DAY = B.STAT_DAY
+        )
+		WHEN MATCHED THEN
+		UPDATE SET LOGIN_USER_COUNT = LOGIN_USER_COUNT + 1
+			<if test="sbscrbTyCd != null and sbscrbTyCd != ''">
+				<if test="sbscrbTyCd == 1001">
+					,GENERAL_USER_COUNT = GENERAL_USER_COUNT + 1
+				</if>
+				<if test="sbscrbTyCd == 1002">
+					,GPIN_USER_COUNT = GPIN_USER_COUNT + 1
+				</if>
+				<if test="sbscrbTyCd == 1003">
+					,CERTIFICATE_USER_COUNT = CERTIFICATE_USER_COUNT + 1
+				</if>
+				<if test="sbscrbTyCd == 1004">
+					,ETC_USER_COUNT = ETC_USER_COUNT + 1
+				</if>
+			</if>
+			<if test="ageType != null and ageType != ''">
+				<if test='ageType == "A"'>
+					,TEENS_COUNT = TEENS_COUNT + 1
+				</if>
+				<if test='ageType == "B"'>
+					,TWENTY_COUNT = TWENTY_COUNT + 1
+				</if>
+				<if test='ageType == "C"'>
+					,THIRTY_COUNT = THIRTY_COUNT + 1
+				</if>
+				<if test='ageType == "D"'>
+					,FORTY_COUNT = FORTY_COUNT + 1
+				</if>
+				<if test='ageType == "E"'>
+					,FIFTY_COUNT = FIFTY_COUNT + 1
+				</if>
+				<if test='ageType == "F"'>
+					,SIXTY_COUNT = SIXTY_COUNT + 1
+				</if>
+				<if test='ageType == "G"'>
+					,SEVENTY_ETC_COUNT = SEVENTY_ETC_COUNT + 1
+				</if>
+				<if test='ageType == "H"'>
+					,SEVENTY_ETC_COUNT = SEVENTY_ETC_COUNT + 1
+				</if>
+			</if>
+			<if test="sex != null and sex != ''">
+				<if test="sex == 1001">
+					,MAN_COUNT = MAN_COUNT + 1
+				</if>
+				<if test="sex == 1002">
+					,WOMAN_COUNT = WOMAN_COUNT + 1
+				</if>
+				<if test="sex == 1003">
+					,ETC_SEX_COUNT = ETC_SEX_COUNT + 1
+				</if>
+			</if>
+		WHEN NOT MATCHED THEN
+		INSERT (
+			STAT_YEAR, STAT_MONTH, STAT_DAY, ENTIRE_USER_COUNT, LOGIN_USER_COUNT
+			<if test="ageType != null and ageType != ''">
+				,TEENS_COUNT, TWENTY_COUNT, THIRTY_COUNT, FORTY_COUNT, FIFTY_COUNT, SIXTY_COUNT, SEVENTY_ETC_COUNT
+			</if>
+			<if test="sex != null and sex != ''">
+				,MAN_COUNT,WOMAN_COUNT,ETC_SEX_COUNT
+			</if>
+			<if test="sbscrbTyCd != null and sbscrbTyCd != ''">
+				,GENERAL_USER_COUNT, GPIN_USER_COUNT, CERTIFICATE_USER_COUNT, ETC_USER_COUNT
+			</if>
+		) VALUES (
+			TO_CHAR(SYS_DATE, 'YYYY'),TO_CHAR(SYS_DATE, 'MM'),TO_CHAR(SYS_DATE,'DD'),#{entireUserCount}, 1
+			<if test="ageType != null and ageType != ''">
+				<if test='ageType == "A"'>
+					,1, 0, 0, 0, 0, 0, 0
+				</if>
+				<if test='ageType == "B"'>
+					,0, 1, 0, 0, 0, 0, 0
+				</if>
+				<if test='ageType == "C"'>
+					,0, 0, 1, 0, 0, 0, 0
+				</if>
+				<if test='ageType == "D"'>
+					,0, 0, 0, 1, 0, 0, 0
+				</if>
+				<if test='ageType == "E"'>
+					,0, 0, 0, 0, 1, 0, 0
+				</if>
+				<if test='ageType == "F"'>
+					,0, 0, 0, 0, 0, 1, 0
+				</if>
+				<if test='ageType == "G"'>
+					,0, 0, 0, 0, 0, 0, 1
+				</if>
+				<if test='ageType == "H"'>
+					,0, 0, 0, 0, 0, 0, 1
+				</if>
+			</if>
+			<if test="sex != null and sex != ''">
+				<if test="sex == 1001">
+					,1, 0, 0
+				</if>
+				<if test="sex == 1002">
+					,0, 1, 0
+				</if>
+				<if test="sex == 1003">
+					,0, 0, 1
+				</if>
+			</if>
+			<if test="sbscrbTyCd != null and sbscrbTyCd != ''">
+				<if test="sbscrbTyCd == 1001">
+					,1, 0, 0, 0
+				</if>
+				<if test="sbscrbTyCd == 1002">
+					,0, 1, 0, 0
+				</if>
+				<if test="sbscrbTyCd == 1003">
+					,0, 0,1 , 0
+				</if>
+				<if test="sbscrbTyCd == 1004">
+					,0, 0, 0, 1
+				</if>
+			</if>
+		)
+	</insert>
+
+	<select id="userAllCount" parameterType="userLogAccessVO" resultType="userLogAccessVO">
+		/* _userLogAccess.userAllCount */
+		SELECT COUNT(*) AS entireUserCount
+		  FROM OP_USER
+	</select>
+
+	<update id="userLog" parameterType="userLogAccessVO">
+		/* _userLogAccess.userLog */
+		UPDATE OP_USER
+		   SET LOGIN_CNT = LOGIN_CNT + 1,
+			   RECENT_LOGIN_DT = SYS_DATETIME
+		 WHERE USER_ID = #{userId}
+	</update>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_introduction">
+
+    <select id="agremManageListCount" parameterType="map" resultType="int">
+    
+        /* _introduction.agremManageListCount */
+        
+        // 협약승인업체 리스트의 갯수 (_main.serviceCnt 참조)
+                            
+        SELECT COUNT(*)
+          FROM (    
+                    SELECT USER_ID
+                          ,CMPNY_NM          
+                      FROM TCM_BASS_AGREM_MANAGE_I
+                     WHERE AGREM_STAT = '1004' // 협약승인되고
+                       AND DELETE_AT = 'N'     // 삭제되지 않으며..
+                       AND AGREM_ORDER = (SELECT MAX(AGREM_ORDER) FROM TCM_BASS_AGREM_MANAGE_I ) // 마지막 차수기준..
+                     <if test="q_companyName != null and q_companyName != ''">
+                       AND CMPNY_NM LIKE '%' || #{q_companyName} || '%'
+                     </if>
+                  GROUP BY USER_ID
+                          ,CMPNY_NM                          
+               )
+        
+    </select>
+
+    <select id="agremManageList" parameterType="map" resultType="agremManageVO">
+    
+        /* _introduction.agremManageList */
+         
+        // 협약승인업체 리스트
+    
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+              
+                 SELECT USER_ID   AS userId 
+                       ,CMPNY_NM  AS cmpnynm
+                   FROM TCM_BASS_AGREM_MANAGE_I
+                  WHERE AGREM_STAT = '1004' // 협약승인되고
+                    AND DELETE_AT = 'N'     // 삭제되지 않으며..
+                    AND AGREM_ORDER = (SELECT MAX(AGREM_ORDER) FROM TCM_BASS_AGREM_MANAGE_I ) // 마지막 차수기준..
+                  <if test="q_companyName != null and q_companyName != ''">
+                    AND CMPNY_NM LIKE '%' || #{q_companyName} || '%'
+                  </if>
+               GROUP BY USER_ID
+                       ,CMPNY_NM
+               ORDER BY CMPNY_NM         
+
+            ) X  WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y  WHERE NUM &gt;= #{pagingStartNum}
+               
+    </select>
+    
+    <select id="serviseTotalCount" parameterType="map" resultType="int">
+    
+        /* _introduction.serviseTotalCount */
+        
+        // 서비스의 총 갯수
+                            
+        SELECT COUNT(*) 
+          FROM TCM_BASS_AGREM_MANAGE_I A     
+              ,TST_GOOD_INFO_I         B    
+         WHERE A.USER_ID = B.USER_ID 
+           AND B.GOODS_REGIST_STTUS = 1006  // 전시 : group_cd = '1008'
+           AND A.AGREM_STAT = 1004          // 협약승인
+           <if test="q_companyName != null and q_companyName != ''">
+           AND A.CMPNY_NM LIKE '%' || #{q_companyName} || '%'
+           </if>
+        
+    </select>
+    
+    
+    <select id="goodsList" parameterType="map" resultType="agremManageServiceVO">
+    
+        /* _introduction.goodsList */
+         
+        // 협약승인업체의 전시목록 리스트    
+        
+        SELECT A.USER_ID      AS userId
+              ,B.GOODS_CODE   AS goodsCode
+              ,B.GOODS_NM     AS goodsNm
+              ,B.GOODS_KND_CD AS goodsKndCd        
+          FROM TCM_BASS_AGREM_MANAGE_I A     
+              ,TST_GOOD_INFO_I         B    
+         WHERE A.USER_ID = B.USER_ID 
+           AND B.GOODS_REGIST_STTUS = 1006
+           AND A.AGREM_STAT = 1004
+		   <if test="q_userId != null and q_userId != ''">
+           AND B.USER_ID = #{q_userId}
+           </if>
+               
+    </select>
+
+    <select id="goodsListCount" resultType="int">
+    
+        /* _introduction.goodsListCount */
+        
+        // 협약승인업체의 전시목록 리스트의 갯수    
+        
+        SELECT COUNT(*)        
+          FROM TCM_BASS_AGREM_MANAGE_I A     
+              ,TST_GOOD_INFO_I         B    
+         WHERE A.USER_ID = B.USER_ID 
+           AND B.GOODS_REGIST_STTUS = 1006
+           AND A.AGREM_STAT = 1004
+		   <if test="q_userId != null and q_userId != ''">
+           AND B.USER_ID = #{q_userId}
+           </if>
+        
+    </select>
+    
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_issue">
+
+    <select id="issueList" parameterType="map" resultType="issueVO">
+        /* 이슈목록을 가져온다 */
+        SELECT IV.BBS_CD                            AS bbsCd
+               , IV.SEQ                             AS bbsSeq
+               , IV.BBS_NM                          AS bbsNm
+               , CASE
+                       WHEN LENGTHB(IV.TITLE) &gt; 35
+                       THEN SUBSTRB(IV.TITLE,1,35)  || '...'
+                       ELSE IV.TITLE
+                  END                               AS issueTitle
+               , IV.READ_CNT                        AS readCnt
+          FROM (
+                SELECT BBS_CD                                            AS BBS_CD
+                       , SEQ                                             AS SEQ
+                       , (SELECT A.BBS_NM FROM OP_BOARD_CONF A
+                           WHERE A.BBS_CD = OB.BBS_CD AND USE_YN = 'Y')   AS BBS_NM
+                       , OB.TITLE                                         AS TITLE
+                       , READ_CNT                                         AS READ_CNT
+                  FROM OP_BOARD OB
+                 WHERE REG_DT &gt;= DATE_SUB(SYSDATETIME, INTERVAL 1 YEAR)
+              <!-- AND DOMAIN_CD = #{domainCd}	현재 사이트의 도메인코드를 가져와야 함 -->
+                   AND OPEN_YN = 'Y'
+                   AND MGR_DEL_YN = 'N'
+              <!-- AND NOTICE_YN = 'N'    공지 미포함 시 주석제거 -->
+                 ORDER BY READ_CNT DESC
+               ) IV
+         WHERE ROWNUM &lt;= #{rowNum}
+    </select>
+    
+    <select id="hotMenuList" parameterType="map" resultType="issueVO">
+        /* 핫메뉴목록을 가져온다 */
+        SELECT V.BBS_CD                AS bbsCd               
+               , CASE
+                       WHEN LENGTHB(V.BBS_NM) &gt; 35
+                       THEN SUBSTRB(V.BBS_NM,1,35)  || '...'
+                       ELSE V.BBS_NM
+                   END                              AS hotMenuName
+          FROM (
+                SELECT BBS_CD                AS BBS_CD
+                       , BBS_NM                AS BBS_NM
+                  FROM OP_BOARD_CONF
+                 WHERE BBS_NM IS NOT NULL
+                   AND USE_YN = 'Y'
+                   AND ACCESS_MOD_DT &gt;= TO_CHAR(ADD_MONTHS(SYS_DATE, -1), 'YYYYMMDD') || TO_CHAR(CURRENT_TIME(), 'HH24MISS')
+                 ORDER BY ACCESS_CNT DESC
+               ) V
+         WHERE ROWNUM &lt;= #{rowNum}
+    </select>
+
+</mapper>

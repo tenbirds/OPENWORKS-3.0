@@ -1,0 +1,4415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_myCeart">
+
+	<!--
+     * SQL 명        : _myCeart.opCodeIndvdlzNames
+     * 기능(설명)    : 그룹코드에 해당하는 코드의 내용을 리스트로 구한다.
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03-20
+    -->
+	<select id="opCodeIndvdlzNames" parameterType="map" resultType="string">
+	
+	/*_myCeart.opCodeIndvdlzNames*/
+	
+	SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ  WHERE GROUP_CD = #{groupCd} AND INDVDLZ_CD IN (${indvdizCds}) AND LANG_CODE = '00'
+ 	
+	</select>
+
+
+	<!--
+     * SQL 명      : _myCeart.buyingRequestListCount
+     * 기능(설명)  : 견적요청서 관리 목록 조회 총 건수
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+	<select id="buyingRequestListCount" parameterType="map" resultType="int"> 
+	    /*_myCeart.buyingRequestListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM TCN_BID_NOTIFY_I A
+               INNER JOIN TCM_WISHORDER_INFO_I B
+                       ON A.USER_ID = B.USER_ID
+                      AND A.GRP_SEQ = B.GRP_SEQ
+               INNER JOIN TCN_NOTIFY_SPLY_I C
+                       ON A.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = C.NOTIFY_SEQ
+                LEFT JOIN TUM_SVC_STOR_I D
+                       ON C.USER_ID = D.USER_ID
+                      AND D.LANG_CODE = '00'
+                LEFT JOIN TST_GOOD_INFO_I E
+                       ON C.GOODS_CODE = E.GOODS_CODE
+                LEFT JOIN OP_CODE_INDVDLZ F
+                       ON F.GROUP_CD = '2043'
+                      AND C.ASK_APPLY_CD = F.INDVDLZ_CD
+         WHERE A.USER_ID = #{userId}
+           AND A.BID_GBN_CD = '1002'
+         <choose>
+             <when test="searchDiv01 == 01">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND D.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+             <when test="searchDiv01 == 02">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND E.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND C.ASK_APPLY_CD = #{searchDiv02}
+         </if>
+    </select>
+
+	<!--
+     * SQL 명      : _myCeart.buyingRequestList
+     * 기능(설명)  : 견적요청서 관리 목록 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <select id="buyingRequestList" parameterType="map" resultType="MyCeartVO">
+    	/*_myCeart.buyingRequestList*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+                        SELECT A.NOTIFY_NUM     as notifyNum
+                             , A.NOTIFY_SEQ     as notifySeq
+                             , A.USER_ID        as userId
+                             , A.GRP_SEQ        as grpSeq
+                             , B.AUDITLOG_NM    as auditlogNm
+                             , C.USER_ID        as langStoreId
+                             , D.LANG_STORE_NM  as langStoreNm
+                             , C.GOODS_CODE     as goodsCode
+                             , E.GOODS_NM       as goodsNm
+                             , TO_CHAR(A.ENTR_DT,'YYYY-MM-DD') as entrDt
+                             , TO_CHAR(A.CLSE_DT,'YYYY-MM-DD') as clseDt /*마감일시*/
+                             , TO_CHAR(A.RPLY_DT,'YYYY-MM-DD') as rplyDt /*응답완료일*/
+                             , CASE WHEN A.RPLY_DT &lt;= SYSDATETIME THEN 'Y'
+                                                                     ELSE 'N'
+                                                                      END rplyDtYn
+                             , C.ASK_APPLY_CD            AS askApplyCd
+                             , F.INDVDLZ_CD_NM           AS askApplyNm
+                             , NVL(C.BID_SUSS_GBN,'N')   AS bidSussGbn
+                             , CASE WHEN NVL(C.BID_SUSS_GBN,'N') = 'Y' THEN '선정'
+                                                                       ELSE '미선정'
+                                                                        END bidSussGbnNm
+                             , A.BID_PGES_STAT                 AS bidPgesStat
+                             , NVL(C.BID_FINISH_GBN,'N')       AS bidFinishGbn /*완료요청여부*/
+                             , TO_CHAR(C.ENTR_DT,'YYYY-MM-DD') AS splyEntrDt
+                             , C.CNTR_GBN                      AS cntrGbn
+                          FROM TCN_BID_NOTIFY_I A
+                    INNER JOIN TCM_WISHORDER_INFO_I B
+                            ON A.USER_ID = B.USER_ID
+                           AND A.GRP_SEQ = B.GRP_SEQ
+                    INNER JOIN TCN_NOTIFY_SPLY_I C
+                            ON A.NOTIFY_NUM = C.NOTIFY_NUM
+                           AND A.NOTIFY_SEQ = C.NOTIFY_SEQ
+                     LEFT JOIN TUM_SVC_STOR_I D
+                            ON C.USER_ID = D.USER_ID
+                           AND D.LANG_CODE = '00'
+                     LEFT JOIN TST_GOOD_INFO_I E
+                            ON C.GOODS_CODE = E.GOODS_CODE
+                     LEFT JOIN OP_CODE_INDVDLZ F
+                            ON F.GROUP_CD = '2043'
+                           AND C.ASK_APPLY_CD = F.INDVDLZ_CD
+                         WHERE A.USER_ID    = #{userId}
+                           AND A.BID_GBN_CD = '1002'
+                         <choose>
+                             <when test="searchDiv01 == 01">
+                             <if test="searchKeyWord != null  and searchKeyWord != ''">
+                             AND D.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+                             </if>
+                             </when>
+                             <when test="searchDiv01 == 02">
+                             <if test="searchKeyWord != null  and searchKeyWord != ''">
+                             AND E.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+                             </if>
+                             </when>
+                         </choose>
+                         <if test="searchDiv02 != null  and searchDiv02 != ''">
+                             AND C.ASK_APPLY_CD = #{searchDiv02}
+                         </if>
+                         ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+	<!--
+     * SQL 명      : _myCeart.buyingRequestListExcel
+     * 기능(설명)  : 견적요청서 관리 목록 조회(엑셀 다운용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <select id="buyingRequestListExcel" parameterType="map" resultType="MyCeartVO">
+    	/*_myCeart.buyingRequestListExcel*/
+        SELECT A.NOTIFY_NUM     as notifyNum
+             , A.NOTIFY_SEQ     as notifySeq
+             , A.USER_ID        as userId
+             , A.GRP_SEQ        as grpSeq
+             , B.AUDITLOG_NM    as auditlogNm
+             , C.USER_ID        as langStoreId
+             , D.LANG_STORE_NM  as langStoreNm
+             , C.GOODS_CODE     as goodsCode
+             , E.GOODS_NM       as goodsNm
+             , TO_CHAR(A.ENTR_DT,'YYYY-MM-DD') as entrDt
+             , TO_CHAR(A.CLSE_DT,'YYYY-MM-DD') as clseDt /*마감일시*/
+             , TO_CHAR(A.RPLY_DT,'YYYY-MM-DD') as rplyDt /*응답완료일*/
+             , CASE WHEN A.RPLY_DT &lt;= SYSDATETIME THEN 'Y'
+                                                     ELSE 'N'
+                                                      END rplyDtYn
+             , C.ASK_APPLY_CD   as askApplyCd
+             , F.INDVDLZ_CD_NM  as askApplyNm
+             , NVL(C.BID_SUSS_GBN,'N')   as bidSussGbn
+             , CASE WHEN NVL(C.BID_SUSS_GBN,'N') = 'Y' THEN '선정'
+                                                       ELSE '미선정'
+                                                        END bidSussGbnNm
+             , A.BID_PGES_STAT  as bidPgesStat
+             , NVL(C.BID_FINISH_GBN,'N') as bidFinishGbn /*완료요청여부*/
+             , TO_CHAR(C.ENTR_DT,'YYYY-MM-DD') as splyEntrDt
+          FROM TCN_BID_NOTIFY_I A
+               INNER JOIN TCM_WISHORDER_INFO_I B
+                       ON A.USER_ID = B.USER_ID
+                      AND A.GRP_SEQ = B.GRP_SEQ
+               INNER JOIN TCN_NOTIFY_SPLY_I C
+                       ON A.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = C.NOTIFY_SEQ
+          LEFT JOIN TUM_SVC_STOR_I D
+              ON C.USER_ID = D.USER_ID
+             AND D.LANG_CODE = '00'
+                LEFT JOIN TST_GOOD_INFO_I E
+                 ON C.GOODS_CODE = E.GOODS_CODE
+                LEFT JOIN OP_CODE_INDVDLZ F
+                       ON F.GROUP_CD = '2043'
+                      AND C.ASK_APPLY_CD = F.INDVDLZ_CD
+         WHERE A.USER_ID = #{userId}
+           AND A.BID_GBN_CD = '1002'
+         <choose>
+             <when test="searchDiv01 == 01">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND D.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+             <when test="searchDiv01 == 02">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND E.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND C.ASK_APPLY_CD = #{searchDiv02}
+         </if>
+         ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+    </select>
+
+    	<!--
+     * SQL 명      : _myCeart.buyingRequestInfo
+     * 기능(설명)  : 견적요청서 관리 상세조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <resultMap id="myCeartMap" type="map">
+        <result property="notifyNum"  column="NOTIFY_NUM"/>
+        <result property="notifySeq"  column="NOTIFY_SEQ"/>
+        <result property="auditlogNm" column="AUDITLOG_NM"/>
+        <result property="clseDt" column="CLSE_DT"/>
+        <result property="clseYn" column="CLSE_YN"/>
+    </resultMap>
+    <select id="buyingRequestInfo" parameterType="map" resultMap="myCeartMap">
+        /*_myCeart.buyingRequestInfo*/
+        SELECT A.NOTIFY_NUM
+             , A.NOTIFY_SEQ
+             , B.AUDITLOG_NM
+             , A.CLSE_DT
+             , CASE WHEN A.CLSE_DT &lt;= SYSDATETIME THEN 'Y'
+                                                     ELSE 'N'
+                                                      END CLSE_YN
+          FROM TCN_BID_NOTIFY_I A
+               INNER JOIN TCM_WISHORDER_INFO_I B
+                       ON A.USER_ID = B.USER_ID
+                      AND A.GRP_SEQ = B.GRP_SEQ
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.buyingRequestDetailList
+     * 기능(설명)  : 견적요청서 관리 상세조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <select id="buyingRequestDetailList" parameterType="map" resultType="MyCeartVO">
+        /*_myCeart.buyingRequestDetailList*/
+        SELECT A.NOTIFY_NUM     as notifyNum
+             , A.NOTIFY_SEQ     as notifySeq
+             , A.USER_ID        as langStoreId
+             , B.LANG_STORE_NM  as langStoreNm
+             , A.GOODS_CODE     as goodsCode
+             , C.GOODS_NM       as goodsNm 
+             , A.ASK_APPLY_CD   as askApplyCd
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TUM_SVC_STOR_I B
+                      ON A.USER_ID = B.USER_ID
+                     AND B.LANG_CODE = '00'
+               LEFT JOIN TST_GOOD_INFO_I C
+                      ON A.GOODS_CODE = C.GOODS_CODE
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq} 
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.updateContractChoiceDtl
+     * 기능(설명)  : 견적요청서 관리 상세정보 완료처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <update id="updateContractChoiceDtl">
+        /*_myCeart.updateContractChoiceDtl*/
+        UPDATE TCN_NOTIFY_SPLY_I SET BID_SUSS_GBN    = 'Y'
+                                   , BID_SUSS_DT     = #{bidSussDt}
+                                   , EVAL_SHEET_FILE = #{evalSheetFile}
+                                   , BID_PGES_STAT   = '1006' /*낙찰 완료*/
+                                   , ENTR_DT         = SYSDATETIME
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{langStoreId}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateContractChoiceMst
+     * 기능(설명)  : 견적요청서 관리 마스터 완료처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <update id="updateContractChoiceMst">
+        /*_myCeart.updateContractChoiceMst*/
+        UPDATE TCN_BID_NOTIFY_I SET BID_PGES_STAT   = '1006' /*낙찰 완료*/
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.buyingRequestChoiceReport
+     * 기능(설명)  : 견적요청서 관리 선정평가서 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <resultMap id="myCeartReportMap" type="map">
+        <result property="notifyNum"     column="NOTIFY_NUM"/>
+        <result property="notifySeq"     column="NOTIFY_SEQ"/>
+        <result property="auditlogNm"    column="AUDITLOG_NM"/>
+        <result property="userId"        column="USER_ID"/>
+        <result property="langStoreNm"   column="LANG_STORE_NM"/>
+        <result property="goodsCode"     column="GOODS_CODE"/>
+        <result property="goodsNm"       column="GOODS_NM"/>
+        <result property="bidSussDt"     column="BID_SUSS_DT"/>
+        <result property="localOrginlNm" column="LOCAL_ORGINL_NM"/>
+        
+        <result property="fileId" column="FILE_ID"/>
+        <result property="fileSize" column="FILE_SIZE"/>
+        <result property="fileTy" column="FILE_TY"/>
+    </resultMap>
+    <select id="buyingRequestChoiceReport" parameterType="map" resultMap="myCeartReportMap">
+        /*_myCeart.buyingRequestChoiceReport*/
+        SELECT A.NOTIFY_NUM
+             , A.NOTIFY_SEQ
+             , B.AUDITLOG_NM
+             , C.USER_ID
+             , D.LANG_STORE_NM
+             , C.GOODS_CODE
+             , E.GOODS_NM
+             , TO_CHAR(C.BID_SUSS_DT,'YYYY-MM-DD') AS BID_SUSS_DT
+             , F.LOCAL_ORGINL_NM
+             , F.FILE_ID
+             , F.FILE_SIZE
+             , F.FILE_TY
+          FROM TCN_BID_NOTIFY_I A
+               INNER JOIN TCM_WISHORDER_INFO_I B
+                       ON A.USER_ID = B.USER_ID
+                      AND A.GRP_SEQ = B.GRP_SEQ
+                LEFT JOIN TCN_NOTIFY_SPLY_I C
+                       ON A.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = C.NOTIFY_SEQ
+                      <if test="bidPgesStat != null  and bidPgesStat != ''">
+                      AND C.BID_PGES_STAT = #{bidPgesStat}
+                      </if>
+                      <if test="bidSussGbn != null  and bidSussGbn != ''">
+                      AND C.BID_SUSS_GBN  = #{bidSussGbn}
+                      </if>
+               LEFT JOIN TUM_SVC_STOR_I D
+                      ON C.USER_ID = D.USER_ID
+                     AND D.LANG_CODE = '00'
+               LEFT JOIN TST_GOOD_INFO_I E
+                      ON C.GOODS_CODE = E.GOODS_CODE
+               LEFT JOIN OP_FILE F
+                      ON C.EVAL_SHEET_FILE = F.FILE_SEQ
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.updateFinishRequest
+     * 기능(설명)  : 계약체결 완료요청
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <update id="updateFinishRequest">
+        /*_myCeart.updateFinishRequest*/
+        UPDATE TCN_NOTIFY_SPLY_I SET BID_FINISH_GBN = 'Y'
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{langStoreId}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBidNotifyInfo
+     * 기능(설명)  : 입찰공고정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-26
+    -->
+    <select id="selectMyCeartBidNotifyInfo" parameterType="map" resultType="MyCeartBidNotifyVO">
+        /*_myCeart.selectMyCeartBidNotifyInfo*/
+        SELECT A.NOTIFY_NUM                     AS notifyNum
+             , A.NOTIFY_SEQ                     AS notifySeq
+             , A.BID_GBN_CD                     AS bidGbnCd
+             , B.INDVDLZ_CD_NM                  AS bidGbnNm
+             , A.GOOD_KND_CD                    AS goodKndCd
+             , C.INDVDLZ_CD_NM                  AS goodKndNm
+             , A.USER_ID                        AS userId
+             , A.GRP_SEQ                        AS grpSeq
+             , A.BID_KND_CD                     AS bidKndCd
+             , D.INDVDLZ_CD_NM                  AS bidKndNm
+             , A.BID_CLASS_CD                   AS bidClassCd
+             , E.INDVDLZ_CD_NM                  AS bidClassNm
+             , A.CNTR_MOTHOD                    AS cntrMothod
+             , F.INDVDLZ_CD_NM                  AS cntrMothodNm
+             , A.OPTL_CNTR_FILE                 AS optlCntrFile
+             , G.LOCAL_ORGINL_NM                AS optlCntrFileOrgNm
+             , G.FILE_ID                        AS optlCntrFileId
+             , G.FILE_SIZE                      AS optlCntrFileSize
+             , G.FILE_TY                        AS optlCntrFileTy
+             , A.REAL_DMND_ORGN                 AS realDmndOrgn
+             , A.GOODS_CHARGER_NM               AS goodsChargerNm
+             , A.GOODS_CHARGER_CTTPC            AS goodsChargerCttpc
+             , A.USER_POSITION                  AS userPosition
+             , A.LINK_ORGN_URL                  AS linkOrgnUrl
+             , A.BID_NOTIFY_NM                  AS bidNotifyNm
+             , TO_CHAR(A.STRT_DT, 'YYYY-MM-DD') AS strtDt
+             , TO_CHAR(A.STRT_DT, 'HH24')       AS strtTime
+             , TO_CHAR(A.CLSE_DT, 'YYYY-MM-DD') AS clseDt
+             , TO_CHAR(A.CLSE_DT, 'HH24')       AS clseTime
+             , TO_CHAR(A.OPEN_DT, 'YYYY-MM-DD') AS openDt
+             , TO_CHAR(A.OPEN_DT, 'HH24')       AS openTime
+             , A.AREA_LIMIT1                    AS areaLimit1
+             , H.INDVDLZ_CD_NM                  AS areaLimit1Nm
+             , A.AREA_LIMIT2                    AS areaLimit2
+             , I.INDVDLZ_CD_NM                  AS areaLimit2Nm
+             , A.AREA_LIMIT3                    AS areaLimit3
+             , J.INDVDLZ_CD_NM                  AS areaLimit3Nm
+             , A.CATY_LIMIT_ENTR                AS catyLimitEntr
+             , A.CATY_LIMIT_VNTR                AS catyLimitVntr
+             , A.CATY_LIMIT_SOC                 AS catyLimitSoc
+             , A.CATY_LIMIT_WOMN                AS catyLimitWomn
+             , A.CATY_LIMIT_DIAD                AS catyLimitDiad
+             , A.CATY_LIMIT_ETC                 AS catyLimitEtc
+             , A.CATY_LIMIT_ETC_COMT            AS catyLimitEtcComt
+             , A.HOPE_PUCH_AMT                  AS hopePuchAmt
+             , A.VAT_GBN                        AS vatGbn
+             , TO_CHAR(A.DELY_DT, 'YYYY-MM-DD') AS delyDt
+             , TO_CHAR(A.DELY_DT, 'HH24')       AS delyTime
+             , A.TALK_GBN                       AS talkGbn
+             , TO_CHAR(A.RPLY_DT, 'YYYY-MM-DD') AS rplyDt
+             , TO_CHAR(A.RPLY_DT, 'HH24')       AS rplyTime
+             , A.DELY_PLAC                      AS delyPlac
+             , A.DELY_FILE                      AS delyFile
+             , K.LOCAL_ORGINL_NM                AS delyFileOrgNm
+             , K.FILE_ID                        AS delyFileId
+             , K.FILE_SIZE                      AS delyFileSize
+             , K.FILE_TY                        AS delyFileTy
+             , A.NOTIFY_CONT                    AS notifyCont
+             , A.BID_PGES_STAT                  AS bidPgesStat
+             , L.INDVDLZ_CD_NM                  AS bidPgesStatNm
+             , A.BID_CHNG_CAUSE                 AS bidChngCause
+             , A.ENTR_DT                        AS entrDt
+             , A.UPDT_DT                        AS updtDt
+             , TO_CHAR(A.CNCL_DT,'YYYY-MM-DD')  AS cnclDt
+             , A.BAFF_NM                        AS baffNm
+             , TO_DATE(A.REAL_OPEN_DT,'YYYYMMDD') AS realOpenDt
+             , A.REAL_OPEN_TM                     AS realOpenTm
+             , M.EVAL_CAUSE                       AS evalCause
+             , M.EVAL_SHEET_FILE                  AS evalSheetFile
+             , N.LOCAL_ORGINL_NM                  AS evalSheetFileOrgNm
+             , N.FILE_ID                          AS evalSheetFileId
+             , N.FILE_SIZE                        AS evalSheetFileSize
+             , N.FILE_TY                          AS evalSheetFileTy
+          FROM TCN_BID_NOTIFY_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                      ON B.LANG_CODE  = '00'
+                     AND B.GROUP_CD   = '2037'
+                     AND A.BID_GBN_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.LANG_CODE   = '00'
+                     AND C.GROUP_CD    = '1005'
+                     AND A.GOOD_KND_CD = C.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.LANG_CODE  = '00'
+                     AND D.GROUP_CD   = '2038'
+                     AND A.BID_KND_CD = D.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ E
+                      ON E.LANG_CODE    = '00'
+                     AND E.GROUP_CD     = '2039'
+                     AND A.BID_CLASS_CD = E.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ F
+                      ON F.LANG_CODE   = '00'
+                     AND F.GROUP_CD    = '2040'
+                     AND A.CNTR_MOTHOD = F.INDVDLZ_CD
+               LEFT JOIN OP_FILE G
+                      ON A.OPTL_CNTR_FILE = G.FILE_SEQ
+               LEFT JOIN OP_CODE_INDVDLZ H
+                      ON H.LANG_CODE   = '00'
+                     AND H.GROUP_CD    = '2036'
+                     AND A.AREA_LIMIT1 = H.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ I
+                      ON I.LANG_CODE   = '00'
+                     AND I.GROUP_CD    = '2036'
+                     AND A.AREA_LIMIT2 = I.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ J
+                      ON J.LANG_CODE   = '00'
+                     AND J.GROUP_CD    = '2036'
+                     AND A.AREA_LIMIT3 = J.INDVDLZ_CD
+               LEFT JOIN OP_FILE K
+                      ON A.DELY_FILE = K.FILE_SEQ
+               LEFT JOIN OP_CODE_INDVDLZ L
+                      ON L.LANG_CODE     = '00'
+                     AND L.GROUP_CD      = '2044'
+                     AND A.BID_PGES_STAT = L.INDVDLZ_CD
+               LEFT JOIN TCN_NOTIFY_SPLY_I M
+                      ON A.NOTIFY_NUM = M.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = M.NOTIFY_SEQ
+                     AND NVL(M.BID_SUSS_GBN, 'N') = 'Y'
+               LEFT JOIN OP_FILE N
+                      ON M.EVAL_SHEET_FILE = N.FILE_SEQ
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartNotifySplyInfo
+     * 기능(설명)  : 입찰공고 공급자 확인정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartNotifySplyInfo" parameterType="map" resultType="MyCeartNotifySplyVO">
+        /*_myCeart.selectMyCeartNotifySplyInfo*/
+        SELECT A.NOTIFY_NUM                    AS notifyNum
+             , A.NOTIFY_SEQ                    AS notifySeq
+             , A.USER_ID                       AS userId
+             , G.LANG_STORE_NM                 AS langStoreNm
+             , A.GOODS_CODE                    AS goodsCode
+             , B.GOODS_NM                      AS goodsName
+             , A.CONFM_GBN                     AS confmGbn
+             , A.ASK_APPLY_CD                  AS askApplyCd
+             , C.INDVDLZ_CD_NM                 AS askApplyNm
+             , A.BID_PGES_STAT                 AS bidPgesStat
+             , D.INDVDLZ_CD_NM                 AS bidPgesStatNm
+             , A.BID_SUSS_GBN                  AS bidSussGbn
+             , A.BID_SUSS_DT                   AS bidSussDt
+             , A.EVAL_SHEET_FILE               AS evalSheetFile
+             , E.LOCAL_ORGINL_NM               AS evalSheetFileOrgNm
+             , A.CNTR_GBN                      AS cntrGbn
+             , A.SPLY_AMT                      AS splyAmt
+             , A.VAT_GBN                       AS vatGbn
+             , A.ADD_ANSWER                    AS addAnswer
+             , A.SPLY_NOTE                     AS splyNote
+             , A.SPLY_FILE                     AS splyFile
+             , F.LOCAL_ORGINL_NM               AS splyFileOrgNm
+             , F.FILE_ID                       AS splyFileId
+             , F.FILE_SIZE                     AS splyFileSize
+             , F.FILE_TY                       AS splyFileTy
+             , TO_CHAR(A.ENTR_DT,'YYYY-MM-DD') AS entrDt
+             , G.STORE_CHARGER_NM              AS storeChargerNm
+             , DECRYPT(H.EMAIL,'P008')         AS reprsntEmail
+             , G.REPRSNT_TELNO                 AS reprsntTelno
+             , DECRYPT(H.MBTLNUM ,'P007')      AS mbtlnum
+             , I.BIZRNO                        AS bizrno
+          FROM TCN_NOTIFY_SPLY_I A
+               INNER JOIN TST_GOOD_INFO_I B
+                       ON A.GOODS_CODE = B.GOODS_CODE
+                LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD     = '2043'
+                     AND A.ASK_APPLY_CD = C.INDVDLZ_CD
+                LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.GROUP_CD      = '2044'
+                     AND A.BID_PGES_STAT = D.INDVDLZ_CD
+                LEFT JOIN OP_FILE E
+                       ON A.EVAL_SHEET_FILE = E.FILE_SEQ
+                LEFT JOIN OP_FILE F
+                       ON A.SPLY_FILE = F.FILE_SEQ
+                LEFT JOIN TUM_SVC_STOR_I G
+                       ON A.USER_ID = G.USER_ID
+                      AND G.LANG_CODE = '00'
+                LEFT JOIN OP_USER H
+                       ON A.USER_ID = H.USER_ID
+                LEFT JOIN OP_USER_ENTRPRS_OPTION I
+                       ON G.USER_ID = I.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           <if test="userId != null  and userId != ''">
+               AND A.USER_ID    = #{userId}
+           </if>
+           <if test="goodsCodeList != null  and goodsCodeList != ''">
+               AND A.GOODS_CODE IN (<foreach collection="goodsCodeList" item="item" separator=", ">#{item}</foreach>)
+           </if>
+         ORDER BY A.ENTR_DT
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoBySassI
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoBySassI" parameterType="map" resultType="MyCeartSaasIVO">
+        /*_myCeart.selectMyCeartInfoBySassI*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , #{langStoreId}  AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_GBN     AS applyGbn
+             , A.UNIT_SYS      AS unitSys
+             , B.INDVDLZ_CD_NM AS unitSysNm
+             , A.ETC_UNIT_SYS  AS etcUnitSys
+             , A.CAPTY_SYS     AS captySys
+             , A.AMOUNT_SYS    AS amountSys
+             , A.SPLY_MOTH_SYS AS splyMothSys
+             , C.INDVDLZ_CD_NM AS splyMothSysNm
+          FROM TCN_BID_SAAS_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                      ON B.GROUP_CD = '2041'
+                     AND A.UNIT_SYS = B.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD      = '2042'
+                     AND A.SPLY_MOTH_SYS = C.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , B.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , B.APPLY_GBN     AS applyGbn
+             , B.UNIT_SYS      AS unitSys
+             , C.INDVDLZ_CD_NM AS unitSysNm
+             , B.ETC_UNIT_SYS  AS etcUnitSys
+             , B.CAPTY_SYS     AS captySys
+             , B.AMOUNT_SYS    AS amountSys
+             , B.SPLY_MOTH_SYS AS splyMothSys
+             , D.INDVDLZ_CD_NM AS splyMothSysNm
+          FROM TCN_BID_SAAS_I A
+               LEFT JOIN TCN_BID_SAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD = '2041'
+                     AND B.UNIT_SYS = C.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.GROUP_CD      = '2042'
+                     AND B.SPLY_MOTH_SYS = D.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoBySass2I
+     * 기능(설명)    : 상세정보(견적)요청서 SaaS2 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoBySass2I" parameterType="map" resultType="MyCeartSaas2IVO">
+        
+        /*_myCeart.selectMyCeartInfoBySass2I*/
+        
+        SELECT A.NOTIFY_NUM            AS notifyNum
+              ,A.NOTIFY_SEQ            AS notifySeq
+              ,A.USER_ID               AS userId
+              ,#{langStoreId}          AS langStoreId
+              ,'Y'                     AS consumerYn
+              ,A.APPLY_GBN             AS applyGbn
+              
+              ,A.SUPPORT_METHOD        AS supportMethod /** 제공방법 C */
+              ,C.INDVDLZ_CD_NM         AS supportMethodNm
+              ,A.USER_MANAGER_SEPARATE AS userManagerSeparate /** 사용자/관리자 분리 D */
+              ,D.INDVDLZ_CD_NM         AS userManagerSeparateNm
+              ,A.SERVICE_SUPPLY_METHOD AS serviceSupplyMethod /** 서비스제공방식 */
+              ,A.ENCRYPTION            AS encryption          /** 암호화 */
+              ,A.MULTIPLATFORM         AS multiPlatform       /** 다중플랫폼지원 */
+          FROM TCN_BID_SAAS2_I A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD   = '2042'
+           AND C.INDVDLZ_CD = A.SUPPORT_METHOD
+     LEFT JOIN OP_CODE_INDVDLZ D
+            ON D.GROUP_CD   = '2061'
+           AND D.INDVDLZ_CD = A.USER_MANAGER_SEPARATE 
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,B.APPLY_GBN     AS applyGbn
+              
+              ,B.SUPPORT_METHOD        AS supportMethod /** 제공방법 C */
+              ,C.INDVDLZ_CD_NM         AS supportMethodNm
+              ,B.USER_MANAGER_SEPARATE AS userManagerSeparate /** 사용자/관리자 분리 D */
+              ,D.INDVDLZ_CD_NM         AS userManagerSeparateNm
+              ,B.SERVICE_SUPPLY_METHOD AS serviceSupplyMethod /** 서비스제공방식 */
+              ,B.ENCRYPTION            AS encryption          /** 암호화 */
+              ,B.MULTIPLATFORM         AS multiPlatform       /** 다중플랫폼지원 */
+          FROM TCN_BID_SAAS2_I A
+     LEFT JOIN TCN_BID_SAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD   = '2042'
+           AND C.INDVDLZ_CD = B.SUPPORT_METHOD
+     LEFT JOIN OP_CODE_INDVDLZ D
+            ON D.GROUP_CD   = '2061'
+           AND D.INDVDLZ_CD = B.USER_MANAGER_SEPARATE 
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoBySassD
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 상세 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoBySassD" parameterType="map" resultType="MyCeartSaasDVO">
+        /*_myCeart.selectMyCeartInfoBySassD*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , #{langStoreId}  AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_SEQ     AS applySeq
+             , A.OPTION_NM     AS optionNm
+             , A.UNIT_ITEM     AS unitItem
+             , A.CAPTY_ITEM    AS captyItem
+             , A.AMOUNT_ITEM   AS amountItem
+             , A.CMNT_ITEM     AS cmntItem
+          FROM TCN_BID_SAAS_D A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , B.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , A.APPLY_SEQ     AS applySeq
+             , B.OPTION_NM     AS optionNm
+             , B.UNIT_ITEM     AS unitItem
+             , B.CAPTY_ITEM    AS captyItem
+             , B.AMOUNT_ITEM   AS amountItem
+             , B.CMNT_ITEM     AS cmntItem
+          FROM TCN_BID_SAAS_D A
+               LEFT JOIN TCN_BID_SAAS_D B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND A.APPLY_SEQ  = B.APPLY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoBySass2Dn
+     * 기능(설명)    : 상세정보(견적)요청서 SaaS2 상세Need 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03     
+    -->
+    <select id="selectMyCeartInfoBySass2Dn" parameterType="map" resultType="MyCeartSaas2DnVO">
+        
+        /*_myCeart.selectMyCeartInfoBySass2Dn*/
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,#{langStoreId}  AS langStoreId
+              ,'Y'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq
+              
+              ,A.FUNCTIONNAME  AS functionName
+              ,A.AMOUNT        AS amount
+              ,A.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BID_SAAS2_DN A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(A.UNITCODE)
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq
+              
+              ,B.FUNCTIONNAME  AS functionName
+              ,B.AMOUNT        AS amount
+              ,B.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BID_SAAS2_DN A
+     LEFT JOIN TCN_BID_SAAS2_DN B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.NEED_SEQ   = B.NEED_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2041'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(B.UNITCODE)       
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.NEED_SEQ
+              
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoBySass2Do
+     * 기능(설명)    : 상세정보(견적)요청서 SaaS2 상세Option 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoBySass2Do" parameterType="map" resultType="MyCeartSaas2DoVO">
+        
+        /*_myCeart.selectMyCeartInfoBySass2Do*/
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,#{langStoreId}  AS langStoreId
+              ,'Y'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq              
+              ,A.OPTION_SEQ    AS optionSeq
+                           
+              ,A.FUNCTIONNAME  AS functionName
+              ,A.AMOUNT        AS amount
+              ,A.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BID_SAAS2_DO A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2041'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(A.UNITCODE)
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq              
+              ,A.OPTION_SEQ    AS optionSeq
+              
+              ,B.FUNCTIONNAME  AS functionName
+              ,B.AMOUNT        AS amount
+              ,B.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BID_SAAS2_DO A
+     LEFT JOIN TCN_BID_SAAS2_DO B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.NEED_SEQ   = B.NEED_SEQ
+           AND A.OPTION_SEQ = B.OPTION_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2041'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(B.UNITCODE)       
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.NEED_SEQ              
+              ,A.OPTION_SEQ
+              
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoByPass
+     * 기능(설명)  : 상세정보(견적)요청서 PaaS 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoByPass" parameterType="map" resultType="MyCeartPaasVO">
+        /*_myCeart.selectMyCeartInfoByPass*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.LANG_SYS        AS langSys
+             , A.FRAMEWORK_SYS   AS frameworkSys
+             , A.CACHE_SYS       AS cacheSys
+             , A.DBMS_SYS        AS dbmsSys
+             , A.FAST_DEPLOY_SYS AS fastDeploySys
+             , A.ETC_SYS         AS etcSys
+          FROM TCN_BID_PAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.LANG_SYS        AS langSys
+             , B.FRAMEWORK_SYS   AS frameworkSys
+             , B.CACHE_SYS       AS cacheSys
+             , B.DBMS_SYS        AS dbmsSys
+             , B.FAST_DEPLOY_SYS AS fastDeploySys
+             , B.ETC_SYS         AS etcSys
+          FROM TCN_BID_PAAS_I A
+               LEFT JOIN TCN_BID_PAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoByPass
+     * 기능(설명)    : 상세정보(견적)요청서 Paa2S 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoByPass2" parameterType="map" resultType="MyCeartPaas2VO">
+        
+        /*_myCeart.selectMyCeartInfoByPass2*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.APPLY_GBN       AS applyGbn
+             
+              ,A.HOSTINGMETHOD   AS hostingmethod               
+              ,A.SCALING         AS scaling         
+              ,A.PLATFORM        AS platform          
+              ,A.RUNTIMES        AS runtimes          
+              ,A.MIDDLEWARE      AS middleware            
+              ,A.FRAMEWORKS      AS frameworks            
+              ,A.SERVICES        AS services          
+              ,A.ADDONS          AS addons        
+              ,A.EXTENDFUNCTION  AS extendfunction                
+              ,A.GEOLOCATIONS    AS geolocations                
+          FROM TCN_BID_PAAS2_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,B.APPLY_GBN       AS applyGbn
+             
+              ,B.HOSTINGMETHOD   AS hostingmethod               
+              ,B.SCALING         AS scaling         
+              ,B.PLATFORM        AS platform          
+              ,B.RUNTIMES        AS runtimes          
+              ,B.MIDDLEWARE      AS middleware            
+              ,B.FRAMEWORKS      AS frameworks            
+              ,B.SERVICES        AS services          
+              ,B.ADDONS          AS addons        
+              ,B.EXTENDFUNCTION  AS extendfunction                
+              ,B.GEOLOCATIONS    AS geolocations                
+          FROM TCN_BID_PAAS2_I A
+     LEFT JOIN TCN_BID_PAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoByIassI
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS I 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoByIassI" parameterType="map" resultType="MyCeartIaasIVO">
+        /*_myCeart.selectMyCeartInfoByIassI*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , A.CDN_REQU_CNT    AS cdnRequCnt
+             , A.WEB_GOODS_KIND  AS webGoodsKind
+             , A.WEB_ACCESS      AS webAccess
+             , A.MNTING_VM       AS mntingVm
+             , A.MNTING_ID_CNT   AS mntingIdCnt
+             , A.BAKUP_CNT       AS bakupCnt
+             , A.BAKUP_STORG     AS bakupStorg
+             , A.MANG_FUNC       AS mangFunc
+             , A.SECTY_VPN       AS sectyVpn
+             , A.SECTY_SSLVPN    AS sectySslvpn
+             , A.TECH_SUPT       AS techSupt
+             , A.FUNC_DMND1      AS funcDmnd1
+             , A.FUNC_DMND2      AS funcDmnd2
+             , A.FUNC_DMND3      AS funcDmnd3
+             , A.FUNC_DMND4      AS funcDmnd4
+             , A.INTERFACE_DMND  AS interfaceDmnd
+             , A.SECTY_DMND1     AS sectyDmnd1
+             , A.SECTY_DMND2     AS sectyDmnd2
+             , A.SECTY_DMND3     AS sectyDmnd3
+             , A.SECTY_DMND4     AS sectyDmnd4
+             , A.SECTY_DMND5     AS sectyDmnd5
+             , A.QUTY_DMND1      AS qutyDmnd1
+             , A.QUTY_DMND2      AS qutyDmnd2
+             , A.OPTN_DMND1      AS optnDmnd1
+             , A.OPTN_DMND2      AS optnDmnd2
+             , A.PRJT_DMND1      AS prjtDmnd1
+             , A.PRJT_DMND2      AS prjtDmnd2
+             , A.PRJT_DMND3      AS prjtDmnd3
+             , A.ETC_DMND        AS etcDmnd
+          FROM TCN_BID_IAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , B.CDN_REQU_CNT    AS cdnRequCnt
+             , B.WEB_GOODS_KIND  AS webGoodsKind
+             , B.WEB_ACCESS      AS webAccess
+             , B.MNTING_VM       AS mntingVm
+             , B.MNTING_ID_CNT   AS mntingIdCnt
+             , B.BAKUP_CNT       AS bakupCnt
+             , B.BAKUP_STORG     AS bakupStorg
+             , B.MANG_FUNC       AS mangFunc
+             , B.SECTY_VPN       AS sectyVpn
+             , B.SECTY_SSLVPN    AS sectySslvpn
+             , B.TECH_SUPT       AS techSupt
+             , B.FUNC_DMND1      AS funcDmnd1
+             , B.FUNC_DMND2      AS funcDmnd2
+             , B.FUNC_DMND3      AS funcDmnd3
+             , B.FUNC_DMND4      AS funcDmnd4
+             , B.INTERFACE_DMND  AS interfaceDmnd
+             , B.SECTY_DMND1     AS sectyDmnd1
+             , B.SECTY_DMND2     AS sectyDmnd2
+             , B.SECTY_DMND3     AS sectyDmnd3
+             , B.SECTY_DMND4     AS sectyDmnd4
+             , B.SECTY_DMND5     AS sectyDmnd5
+             , B.QUTY_DMND1      AS qutyDmnd1
+             , B.QUTY_DMND2      AS qutyDmnd2
+             , B.OPTN_DMND1      AS optnDmnd1
+             , B.OPTN_DMND2      AS optnDmnd2
+             , B.PRJT_DMND1      AS prjtDmnd1
+             , B.PRJT_DMND2      AS prjtDmnd2
+             , B.PRJT_DMND3      AS prjtDmnd3
+             , B.ETC_DMND        AS etcDmnd
+          FROM TCN_BID_IAAS_I A
+               LEFT JOIN TCN_BID_IAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+    
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoByIassI
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 I 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoByIass2I" parameterType="map" resultType="MyCeartIaas2IVO">
+        
+        /*_myCeart.selectMyCeartInfoByIass2I*/
+        
+        SELECT A.NOTIFY_NUM        AS notifyNum
+             ,A.NOTIFY_SEQ        AS notifySeq
+             ,A.USER_ID           AS userId
+             ,#{langStoreId}      AS langStoreId
+             ,'Y'                 AS consumerYn
+             ,A.APPLY_GBN         AS applyGbn
+             
+             ,A.SERVER_IP         AS serverIp                      
+			 ,A.SERVER_NETWORK    AS serverNetwork                           
+			 ,A.SERVER_GSLB       AS serverGslb                        
+			 ,A.SERVER_LDBL       AS serverLdbl                        
+			 ,A.SERVER_SNAP       AS serverSnap                        
+			 ,A.SERVER_IMG        AS serverImg                       
+			 ,A.DB_IP             AS dbIp                  
+			 ,A.DB_NETWORK        AS dbNetwork                       
+			 ,A.DB_ADDDISK        AS dbAddDisk                       
+			 ,A.DB_BACKSTORG      AS dbBackStorg                         
+			 ,A.DB_STORG_SPACE    AS dbStorgSpace                           
+			 ,A.DB_TRANS_VLMN     AS dbTransVlmn                          
+			 ,A.CDN_TRANS_VLMN    AS cdnTransVlmn                           
+			 ,A.CDN_REQU_CNT      AS cdnRequCnt                         
+			 ,A.WEB_GOODS_KIND    AS webGoodsKind                           
+			 ,A.WEB_ACCESS        AS webAccess                       
+			 ,A.MNTING_VM         AS mntingVm                      
+			 ,A.MNTING_ID_CNT     AS mntingIdCnt                          
+			 ,A.BAKUP_CNT         AS bakupCnt                      
+			 ,A.BAKUP_STORG       AS bakupStorg                        
+			 ,A.MANG_FUNC         AS mangFunc                      
+			 ,A.SECTY_VPN         AS sectyVpn                      
+			 ,A.SECTY_SSLVPN      AS sectySslvpn                         
+			 ,A.ADDED_ETC         AS addedEtc                           
+         FROM TCN_BID_IAAS2_I A
+        WHERE A.NOTIFY_NUM = #{notifyNum}
+          AND A.NOTIFY_SEQ = #{notifySeq}
+          AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM       AS notifyNum
+              ,A.NOTIFY_SEQ       AS notifySeq
+              ,A.USER_ID          AS userId
+              ,B.USER_ID          AS langStoreId
+              ,'N'                AS consumerYn
+              ,B.APPLY_GBN        AS applyGbn
+             
+              ,B.SERVER_IP         AS serverIp                      
+		 	  ,B.SERVER_NETWORK    AS serverNetwork                           
+		 	  ,B.SERVER_GSLB       AS serverGslb                        
+		 	  ,B.SERVER_LDBL       AS serverLdbl                        
+			  ,B.SERVER_SNAP       AS serverSnap                        
+			  ,B.SERVER_IMG        AS serverImg                       
+			  ,B.DB_IP             AS dbIp                  
+			  ,B.DB_NETWORK        AS dbNetwork                       
+			  ,B.DB_ADDDISK        AS dbAddDisk                       
+			  ,B.DB_BACKSTORG      AS dbBackStorg                         
+			  ,B.DB_STORG_SPACE    AS dbStorgSpace                           
+			  ,B.DB_TRANS_VLMN     AS dbTransVlmn                          
+			  ,B.CDN_TRANS_VLMN    AS cdnTransVlmn                           
+			  ,B.CDN_REQU_CNT      AS cdnRequCnt                         
+			  ,B.WEB_GOODS_KIND    AS webGoodsKind                           
+			  ,B.WEB_ACCESS        AS webAccess                       
+			  ,B.MNTING_VM         AS mntingVm                      
+			  ,B.MNTING_ID_CNT     AS mntingIdCnt                          
+			  ,B.BAKUP_CNT         AS bakupCnt                      
+			  ,B.BAKUP_STORG       AS bakupStorg                        
+			  ,B.MANG_FUNC         AS mangFunc                      
+			  ,B.SECTY_VPN         AS sectyVpn                      
+			  ,B.SECTY_SSLVPN      AS sectySslvpn                         
+			  ,B.ADDED_ETC         AS addedEtc			 
+          FROM TCN_BID_IAAS2_I A
+     LEFT JOIN TCN_BID_IAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoByIassDd
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DD
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoByIassDd" parameterType="map" resultType="MyCeartIaasDdVO">
+        /*_myCeart.selectMyCeartInfoByIassDd*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.DB_USE          AS dbUse
+             , A.DB_OS           AS dbOs
+             , A.DB_CPU          AS dbCpu
+             , A.DB_MEMORY       AS dbMemory
+             , A.DB_DISK         AS dbDisk
+             , A.DB_QNTY         AS dbQnty
+             , A.DB_IP           AS dbIp
+             , A.DB_NETWORK      AS dbNetwork
+             , A.DB_ADD_DISK     AS dbAddDisk
+             , A.DB_BACK_STORG   AS dbBackStorg
+             , A.DB_STORG_SPACE  AS dbStorgSpace
+             , A.DB_TRANS_VLMN   AS dbTransVlmn
+          FROM TCN_BID_IAAS_DD A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , B.DB_USE          AS dbUse
+             , B.DB_OS           AS dbOs
+             , B.DB_CPU          AS dbCpu
+             , B.DB_MEMORY       AS dbMemory
+             , B.DB_DISK         AS dbDisk
+             , B.DB_QNTY         AS dbQnty
+             , B.DB_IP           AS dbIp
+             , B.DB_NETWORK      AS dbNetwork
+             , B.DB_ADD_DISK     AS dbAddDisk
+             , B.DB_BACK_STORG   AS dbBackStorg
+             , B.DB_STORG_SPACE  AS dbStorgSpace
+             , B.DB_TRANS_VLMN   AS dbTransVlmn
+          FROM TCN_BID_IAAS_DD A
+               LEFT JOIN TCN_BID_IAAS_DD B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoByIass2Dd
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 DD
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoByIass2Dd" parameterType="map" resultType="MyCeartIaas2DdVO">
+        
+        /*_myCeart.selectMyCeartInfoByIass2Dd*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.DB_SEQ          AS dbSeq
+             
+              ,A.DB_USE          AS dbUse
+              ,A.DB_OS           AS dbOs
+              ,A.DB_CPU          AS dbCpu
+              ,A.DB_MEMORY       AS dbMemory
+              ,A.DB_DISK         AS dbDisk
+              ,A.DB_QNTY         AS dbQnty
+          FROM TCN_BEFORE_IAAS2_DD A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,A.DB_SEQ          AS dbSeq
+              
+              ,B.DB_USE          AS dbUse
+              ,B.DB_OS           AS dbOs
+              ,B.DB_CPU          AS dbCpu
+              ,B.DB_MEMORY       AS dbMemory
+              ,B.DB_DISK         AS dbDisk
+              ,B.DB_QNTY         AS dbQnty
+          FROM TCN_BEFORE_IAAS2_DD A
+     LEFT JOIN TCN_BEFORE_IAAS2_DD B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.DB_SEQ
+              
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartInfoByIassDs
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DS
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartInfoByIassDs" parameterType="map" resultType="MyCeartIaasDsVO">
+        /*_myCeart.selectMyCeartInfoByIassDs*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.SERVER_USE      AS serverUse
+             , A.SERVER_OS       AS serverOs
+             , A.SERVER_CPU      AS serverCpu
+             , A.SERVER_MEMORY   AS serverMemory
+             , A.SERVER_DISK     AS serverDisk
+             , A.SERVER_QNTY     AS serverQnty
+             , A.SERVER_IP       AS serverIp
+             , A.SERVER_NETWORK  AS serverNetwork
+             , A.SERVER_GSLB     AS serverGslb
+             , A.SERVER_LDBL     AS serverLdbl
+             , A.SERVER_SNAP     AS serverSnap
+             , A.SERVER_IMG      AS serverImg
+          FROM TCN_BID_IAAS_DS A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , B.SERVER_USE      AS serverUse
+             , B.SERVER_OS       AS serverOs
+             , B.SERVER_CPU      AS serverCpu
+             , B.SERVER_MEMORY   AS serverMemory
+             , B.SERVER_DISK     AS serverDisk
+             , B.SERVER_QNTY     AS serverQnty
+             , B.SERVER_IP       AS serverIp
+             , B.SERVER_NETWORK  AS serverNetwork
+             , B.SERVER_GSLB     AS serverGslb
+             , B.SERVER_LDBL     AS serverLdbl
+             , B.SERVER_SNAP     AS serverSnap
+             , B.SERVER_IMG      AS serverImg
+          FROM TCN_BID_IAAS_DS A
+               LEFT JOIN TCN_BID_IAAS_DS B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartInfoByIass2Ds
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 DS
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartInfoByIass2Ds" parameterType="map" resultType="MyCeartIaas2DsVO">
+    
+        /*_myCeart.selectMyCeartInfoByIass2Ds*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.SERVER_SEQ      AS serverSeq
+              
+              ,A.SERVER_USE      AS serverUse
+              ,A.SERVER_OS       AS serverOs
+              ,A.SERVER_CPU      AS serverCpu
+              ,A.SERVER_MEMORY   AS serverMemory
+              ,A.SERVER_DISK     AS serverDisk
+              ,A.SERVER_QNTY     AS serverQnty
+          FROM TCN_BID_IAAS2_DS A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,A.SERVER_SEQ      AS serverSeq
+              
+              ,B.SERVER_USE      AS serverUse
+              ,B.SERVER_OS       AS serverOs
+              ,B.SERVER_CPU      AS serverCpu
+              ,B.SERVER_MEMORY   AS serverMemory
+              ,B.SERVER_DISK     AS serverDisk
+              ,B.SERVER_QNTY     AS serverQnty
+          FROM TCN_BID_IAAS2_DS A
+     LEFT JOIN TCN_BID_IAAS2_DS B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.SERVER_SEQ
+              
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartGoodsList
+     * 기능(설명)  : 상세정보(견적)요청서 서비스 상세 정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartGoodsList" parameterType="map" resultType="MyCeartGoodsVO">
+        /*_myCeart.selectMyCeartGoodsList*/
+        SELECT A.NOTIFY_NUM           AS notifyNum
+             , A.NOTIFY_SEQ           AS notifySeq
+             , A.USER_ID              AS langStoreId
+             , B.LANG_STORE_NM        AS langStoreNm
+             , A.GOODS_CODE           AS goodsCode
+             , C.GOODS_NM             AS goodsName
+             , C.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+             , D.FILE_URL             AS goodsFileUrl
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TUM_SVC_STOR_I B
+                      ON A.USER_ID = B.USER_ID
+                     AND B.LANG_CODE = '00'
+               LEFT JOIN TST_GOOD_INFO_I C
+                      ON A.GOODS_CODE = C.GOODS_CODE
+               LEFT JOIN OP_FILE D
+                      ON C.GOODS_IMAGE_FILE_SEQ = D.FILE_SEQ
+                     AND D.FILE_ORDR_NO         = '1'
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoBySassI
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 조회(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoBySassI" parameterType="map" resultType="MyCeartSaasIVO">
+        /*_myCeart.compareMyCeartInfoBySassI*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , ''              AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_GBN     AS applyGbn
+             , A.UNIT_SYS      AS unitSys
+             , B.INDVDLZ_CD_NM AS unitSysNm
+             , A.ETC_UNIT_SYS  AS etcUnitSys
+             , A.CAPTY_SYS     AS captySys
+             , A.AMOUNT_SYS    AS amountSys
+             , A.SPLY_MOTH_SYS AS splyMothSys
+             , C.INDVDLZ_CD_NM AS splyMothSysNm
+             , ''              AS applyYn
+          FROM TCN_BID_SAAS_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                      ON B.GROUP_CD = '2041'
+                     AND A.UNIT_SYS = B.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD      = '2042'
+                     AND A.SPLY_MOTH_SYS = C.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , ''              AS userId
+             , A.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , B.APPLY_GBN     AS applyGbn
+             , B.UNIT_SYS      AS unitSys
+             , C.INDVDLZ_CD_NM AS unitSysNm
+             , B.ETC_UNIT_SYS  AS etcUnitSys
+             , B.CAPTY_SYS     AS captySys
+             , B.AMOUNT_SYS    AS amountSys
+             , B.SPLY_MOTH_SYS AS splyMothSys
+             , D.INDVDLZ_CD_NM AS splyMothSysNm
+             , CASE WHEN B.NOTIFY_NUM IS NULL THEN 'N'
+                                              ELSE 'Y'
+                                               END applyYn
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TCN_BID_SAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND A.USER_ID    = B.USER_ID
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD = '2041'
+                     AND B.UNIT_SYS = C.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.GROUP_CD      = '2042'
+                     AND B.SPLY_MOTH_SYS = D.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+
+    <!--
+     * SQL 명        : _myCeart.compareMyCeartInfoBySass2I
+     * 기능(설명)    : 상세정보(견적)요청서 SaaS2 조회(비교 팝업용)
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="compareMyCeartInfoBySass2I" parameterType="map" resultType="MyCeartSaas2IVO">
+        
+        /*_myCeart.compareMyCeartInfoBySassI*/
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , ''              AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_GBN     AS applyGbn             
+             , A.UNIT_SYS      AS unitSys
+             , B.INDVDLZ_CD_NM AS unitSysNm
+             , A.ETC_UNIT_SYS  AS etcUnitSys
+             , A.CAPTY_SYS     AS captySys
+             , A.AMOUNT_SYS    AS amountSys
+             , A.SPLY_MOTH_SYS AS splyMothSys
+             , C.INDVDLZ_CD_NM AS splyMothSysNm
+             , ''              AS applyYn
+          FROM TCN_BID_SAAS_I A
+     LEFT JOIN OP_CODE_INDVDLZ B
+            ON B.GROUP_CD = '2041'
+           AND A.UNIT_SYS = B.INDVDLZ_CD
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND A.SPLY_MOTH_SYS = C.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , ''              AS userId
+             , A.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , B.APPLY_GBN     AS applyGbn             
+             , B.UNIT_SYS      AS unitSys
+             , C.INDVDLZ_CD_NM AS unitSysNm
+             , B.ETC_UNIT_SYS  AS etcUnitSys
+             , B.CAPTY_SYS     AS captySys
+             , B.AMOUNT_SYS    AS amountSys
+             , B.SPLY_MOTH_SYS AS splyMothSys
+             , D.INDVDLZ_CD_NM AS splyMothSysNm
+             , CASE WHEN B.NOTIFY_NUM IS NULL THEN 'N'
+                                              ELSE 'Y'
+                                               END applyYn
+          FROM TCN_NOTIFY_SPLY_I A
+     LEFT JOIN TCN_BID_SAAS_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.USER_ID    = B.USER_ID
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD = '2041'
+           AND B.UNIT_SYS = C.INDVDLZ_CD
+     LEFT JOIN OP_CODE_INDVDLZ D
+            ON D.GROUP_CD      = '2042'
+           AND B.SPLY_MOTH_SYS = D.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoBySassD
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 상세 조회(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoBySassD" parameterType="map" resultType="MyCeartSaasDVO">
+        /*_myCeart.compareMyCeartInfoBySassD*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , ''              AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_SEQ     AS applySeq
+             , A.OPTION_NM     AS optionNm
+             , A.UNIT_ITEM     AS unitItem
+             , A.CAPTY_ITEM    AS captyItem
+             , A.AMOUNT_ITEM   AS amountItem
+             , A.CMNT_ITEM     AS cmntItem
+             , ''              AS applyYn
+          FROM TCN_BID_SAAS_D A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , ''              AS userId
+             , A.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , B.APPLY_SEQ     AS applySeq
+             , C.OPTION_NM     AS optionNm
+             , C.UNIT_ITEM     AS unitItem
+             , C.CAPTY_ITEM    AS captyItem
+             , C.AMOUNT_ITEM   AS amountItem
+             , C.CMNT_ITEM     AS cmntItem
+             , CASE WHEN C.NOTIFY_NUM IS NULL THEN 'N'
+                                              ELSE 'Y'
+                                               END applyYn
+          FROM TCN_NOTIFY_SPLY_I A
+               INNER JOIN TCN_BID_SAAS_D B
+                       ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                      AND B.USER_ID    = #{userId}
+                LEFT JOIN TCN_BID_SAAS_D C
+                       ON B.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND B.NOTIFY_SEQ = C.NOTIFY_SEQ
+                      AND B.APPLY_SEQ  = C.APPLY_SEQ
+                      AND A.USER_ID = C.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoByPass
+     * 기능(설명)  : 상세정보(견적)요청서 PaaS 조회(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoByPass" parameterType="map" resultType="MyCeartPaasVO">
+        /*_myCeart.compareMyCeartInfoByPass*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , ''                AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.LANG_SYS        AS langSys
+             , A.FRAMEWORK_SYS   AS frameworkSys
+             , A.CACHE_SYS       AS cacheSys
+             , A.DBMS_SYS        AS dbmsSys
+             , A.FAST_DEPLOY_SYS AS fastDeploySys
+             , A.ETC_SYS         AS etcSys
+          FROM TCN_BID_PAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , ''                AS userId
+             , A.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.LANG_SYS        AS langSys
+             , B.FRAMEWORK_SYS   AS frameworkSys
+             , B.CACHE_SYS       AS cacheSys
+             , B.DBMS_SYS        AS dbmsSys
+             , B.FAST_DEPLOY_SYS AS fastDeploySys
+             , B.ETC_SYS         AS etcSys
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TCN_BID_PAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND A.USER_ID = B.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoByIassI
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS I 조회(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoByIassI" parameterType="map" resultType="MyCeartIaasIVO">
+        /*_myCeart.compareMyCeartInfoByIassI*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , ''                AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , A.CDN_REQU_CNT    AS cdnRequCnt
+             , A.WEB_GOODS_KIND  AS webGoodsKind
+             , A.WEB_ACCESS      AS webAccess
+             , A.MNTING_VM       AS mntingVm
+             , A.MNTING_ID_CNT   AS mntingIdCnt
+             , A.BAKUP_CNT       AS bakupCnt
+             , A.BAKUP_STORG     AS bakupStorg
+             , A.MANG_FUNC       AS mangFunc
+             , A.SECTY_VPN       AS sectyVpn
+             , A.SECTY_SSLVPN    AS sectySslvpn
+             , A.TECH_SUPT       AS techSupt
+             , A.FUNC_DMND1      AS funcDmnd1
+             , A.FUNC_DMND2      AS funcDmnd2
+             , A.FUNC_DMND3      AS funcDmnd3
+             , A.FUNC_DMND4      AS funcDmnd4
+             , A.INTERFACE_DMND  AS interfaceDmnd
+             , A.SECTY_DMND1     AS sectyDmnd1
+             , A.SECTY_DMND2     AS sectyDmnd2
+             , A.SECTY_DMND3     AS sectyDmnd3
+             , A.SECTY_DMND4     AS sectyDmnd4
+             , A.SECTY_DMND5     AS sectyDmnd5
+             , A.QUTY_DMND1      AS qutyDmnd1
+             , A.QUTY_DMND2      AS qutyDmnd2
+             , A.OPTN_DMND1      AS optnDmnd1
+             , A.OPTN_DMND2      AS optnDmnd2
+             , A.PRJT_DMND1      AS prjtDmnd1
+             , A.PRJT_DMND2      AS prjtDmnd2
+             , A.PRJT_DMND3      AS prjtDmnd3
+             , A.ETC_DMND        AS etcDmnd
+          FROM TCN_BID_IAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , ''                AS userId
+             , A.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , B.CDN_REQU_CNT    AS cdnRequCnt
+             , B.WEB_GOODS_KIND  AS webGoodsKind
+             , B.WEB_ACCESS      AS webAccess
+             , B.MNTING_VM       AS mntingVm
+             , B.MNTING_ID_CNT   AS mntingIdCnt
+             , B.BAKUP_CNT       AS bakupCnt
+             , B.BAKUP_STORG     AS bakupStorg
+             , B.MANG_FUNC       AS mangFunc
+             , B.SECTY_VPN       AS sectyVpn
+             , B.SECTY_SSLVPN    AS sectySslvpn
+             , B.TECH_SUPT       AS techSupt
+             , B.FUNC_DMND1      AS funcDmnd1
+             , B.FUNC_DMND2      AS funcDmnd2
+             , B.FUNC_DMND3      AS funcDmnd3
+             , B.FUNC_DMND4      AS funcDmnd4
+             , B.INTERFACE_DMND  AS interfaceDmnd
+             , B.SECTY_DMND1     AS sectyDmnd1
+             , B.SECTY_DMND2     AS sectyDmnd2
+             , B.SECTY_DMND3     AS sectyDmnd3
+             , B.SECTY_DMND4     AS sectyDmnd4
+             , B.SECTY_DMND5     AS sectyDmnd5
+             , B.QUTY_DMND1      AS qutyDmnd1
+             , B.QUTY_DMND2      AS qutyDmnd2
+             , B.OPTN_DMND1      AS optnDmnd1
+             , B.OPTN_DMND2      AS optnDmnd2
+             , B.PRJT_DMND1      AS prjtDmnd1
+             , B.PRJT_DMND2      AS prjtDmnd2
+             , B.PRJT_DMND3      AS prjtDmnd3
+             , B.ETC_DMND        AS etcDmnd
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TCN_BID_IAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND A.USER_ID    = B.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoByIassDd
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DD(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoByIassDd" parameterType="map" resultType="MyCeartIaasDdVO">
+        /*_myCeart.compareMyCeartInfoByIassDd*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , ''                AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.DB_USE          AS dbUse
+             , A.DB_OS           AS dbOs
+             , A.DB_CPU          AS dbCpu
+             , A.DB_MEMORY       AS dbMemory
+             , A.DB_DISK         AS dbDisk
+             , A.DB_QNTY         AS dbQnty
+             , A.DB_IP           AS dbIp
+             , A.DB_NETWORK      AS dbNetwork
+             , A.DB_ADD_DISK     AS dbAddDisk
+             , A.DB_BACK_STORG   AS dbBackStorg
+             , A.DB_STORG_SPACE  AS dbStorgSpace
+             , A.DB_TRANS_VLMN   AS dbTransVlmn
+             , ''                AS applyYn
+          FROM TCN_BID_IAAS_DD A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , ''                AS userId
+             , A.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_SEQ       AS applySeq
+             , C.DB_USE          AS dbUse
+             , C.DB_OS           AS dbOs
+             , C.DB_CPU          AS dbCpu
+             , C.DB_MEMORY       AS dbMemory
+             , C.DB_DISK         AS dbDisk
+             , C.DB_QNTY         AS dbQnty
+             , C.DB_IP           AS dbIp
+             , C.DB_NETWORK      AS dbNetwork
+             , C.DB_ADD_DISK     AS dbAddDisk
+             , C.DB_BACK_STORG   AS dbBackStorg
+             , C.DB_STORG_SPACE  AS dbStorgSpace
+             , C.DB_TRANS_VLMN   AS dbTransVlmn
+             , CASE WHEN C.NOTIFY_NUM IS NULL THEN 'N'
+                                              ELSE 'Y'
+                                               END applyYn
+          FROM TCN_NOTIFY_SPLY_I A
+               INNER JOIN TCN_BID_IAAS_DD B
+                       ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                      AND B.USER_ID    = #{userId}
+                LEFT JOIN TCN_BID_IAAS_DD C
+                       ON B.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND B.NOTIFY_SEQ = C.NOTIFY_SEQ
+                      AND B.APPLY_SEQ  = C.APPLY_SEQ
+                      AND A.USER_ID    = C.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+         ORDER BY NOTIFY_NUM, NOTIFY_SEQ, APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.compareMyCeartInfoByIassDs
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DS(비교 팝업용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="compareMyCeartInfoByIassDs" parameterType="map" resultType="MyCeartIaasDsVO">
+        /*_myCeart.compareMyCeartInfoByIassDs*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , ''                AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.SERVER_USE      AS serverUse
+             , A.SERVER_OS       AS serverOs
+             , A.SERVER_CPU      AS serverCpu
+             , A.SERVER_MEMORY   AS serverMemory
+             , A.SERVER_DISK     AS serverDisk
+             , A.SERVER_QNTY     AS serverQnty
+             , A.SERVER_IP       AS serverIp
+             , A.SERVER_NETWORK  AS serverNetwork
+             , A.SERVER_GSLB     AS serverGslb
+             , A.SERVER_LDBL     AS serverLdbl
+             , A.SERVER_SNAP     AS serverSnap
+             , A.SERVER_IMG      AS serverImg
+             , ''                AS applyYn
+          FROM TCN_BID_IAAS_DS A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , ''                AS userId
+             , A.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_SEQ       AS applySeq
+             , C.SERVER_USE      AS serverUse
+             , C.SERVER_OS       AS serverOs
+             , C.SERVER_CPU      AS serverCpu
+             , C.SERVER_MEMORY   AS serverMemory
+             , C.SERVER_DISK     AS serverDisk
+             , C.SERVER_QNTY     AS serverQnty
+             , C.SERVER_IP       AS serverIp
+             , C.SERVER_NETWORK  AS serverNetwork
+             , C.SERVER_GSLB     AS serverGslb
+             , C.SERVER_LDBL     AS serverLdbl
+             , C.SERVER_SNAP     AS serverSnap
+             , C.SERVER_IMG      AS serverImg
+             , CASE WHEN C.NOTIFY_NUM IS NULL THEN 'N'
+                                              ELSE 'Y'
+                                               END applyYn
+          FROM TCN_NOTIFY_SPLY_I A 
+               INNER JOIN TCN_BID_IAAS_DS B
+                       ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                      AND B.USER_ID    = #{userId}
+                LEFT JOIN TCN_BID_IAAS_DS C
+                       ON B.NOTIFY_NUM = C.NOTIFY_NUM
+                      AND B.NOTIFY_SEQ = C.NOTIFY_SEQ
+                      AND B.APPLY_SEQ  = C.APPLY_SEQ
+                      AND A.USER_ID    = C.USER_ID
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+         ORDER BY NOTIFY_NUM, NOTIFY_SEQ, APPLY_SEQ
+    </select>
+
+
+
+	<!--
+     * SQL 명      : _myCeart.myCeartBidListCount
+     * 기능(설명)  : 입찰공고관리 목록 조회 총 건수
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+	<select id="myCeartBidListCount" parameterType="map" resultType="int"> 
+	    /*_myCeart.myCeartBidListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM TCN_BID_NOTIFY_I A
+         WHERE A.BID_GBN_CD IN ('1001', '1003')
+           AND A.USER_ID    = #{userId}
+        <choose>
+            <when test="searchDiv01 == 01">
+                <if test="searchKeyWord != null  and searchKeyWord != ''">
+                    AND A.BID_NOTIFY_NM LIKE '%'||#{searchKeyWord}||'%'
+                </if>
+            </when>
+            <when test="searchDiv01 == 02">
+                <if test="searchKeyWord != null  and searchKeyWord != ''">
+                    AND A.NOTIFY_NUM||A.NOTIFY_SEQ  IN (SELECT B.NOTIFY_NUM||B.NOTIFY_SEQ
+                                                          FROM TCN_NOTIFY_SPLY_I B  
+                                                               LEFT JOIN TUM_SVC_STOR_I C
+                                                                      ON B.USER_ID = C.USER_ID
+                                                                     AND C.LANG_CODE = '00'
+                                                         WHERE B.NOTIFY_NUM = A.NOTIFY_NUM
+                                                           AND B.NOTIFY_SEQ = B.NOTIFY_SEQ
+                                                           AND C.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+                                                       )
+                </if>
+            </when>
+        </choose>
+        <if test="searchDiv02 != null  and searchDiv02 != ''">
+            <choose>
+                <when test="searchDiv01 == 1001">
+                    AND A.BID_PGES_STAT IN ('1001','1002')
+                </when>
+                <otherwise>
+                    AND A.BID_PGES_STAT = #{searchDiv02}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+	<!--
+     * SQL 명      : _myCeart.myCeartBidList
+     * 기능(설명)  : 입찰공고관리 목록 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <select id="myCeartBidList" parameterType="map" resultType="MyCeartBidNotifyVO">
+	    /*_myCeart.myCeartBidList*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+        SELECT A.NOTIFY_NUM                     AS notifyNum
+             , A.NOTIFY_SEQ                     AS notifySeq
+             , A.BID_NOTIFY_NM                  AS bidNotifyNm
+             , A.BID_GBN_CD                     AS bidGbnCd
+             , A.BID_KND_CD                     AS goodKndCd
+             , B.INDVDLZ_CD_NM                  AS goodKndNm
+             , A.CNTR_MOTHOD                    AS cntrMothod
+             , C.INDVDLZ_CD_NM                  AS cntrMothodNm
+             , A.BID_PGES_STAT                  AS bidPgesStat
+             , (CASE WHEN A.CLSE_DT &lt;= SYSDATETIME 
+							THEN (CASE WHEN A.BID_PGES_STAT = 1001 OR A.BID_PGES_STAT = 1002 
+										THEN '마감' 
+										ELSE D.INDVDLZ_CD_NM 
+										 END) 
+				 			ELSE D.INDVDLZ_CD_NM
+				 			 END)              AS bidPgesStatNm
+             <!-- , D.INDVDLZ_CD_NM                 AS bidPgesStatNm 제외-->
+             , TO_CHAR(A.STRT_DT, 'YYYY-MM-DD') AS strtDt
+             , TO_CHAR(A.STRT_DT, 'HH24')       AS strtTime
+             , TO_CHAR(A.CLSE_DT, 'YYYY-MM-DD') AS clseDt
+             , TO_CHAR(A.CLSE_DT, 'HH24')       AS clseTime
+             , A.GRP_SEQ                        AS grpSeq
+          FROM TCN_BID_NOTIFY_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                      ON B.GROUP_CD = '2038'
+                     AND A.BID_KND_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD = '2040'
+                     AND A.CNTR_MOTHOD = C.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.GROUP_CD = '2044'
+                     AND A.BID_PGES_STAT = D.INDVDLZ_CD
+         WHERE A.BID_GBN_CD IN ('1001', '1003')
+           AND A.USER_ID    = #{userId}
+        <choose>
+            <when test="searchDiv01 == 01">
+                <if test="searchKeyWord != null  and searchKeyWord != ''">
+                    AND A.BID_NOTIFY_NM LIKE '%'||#{searchKeyWord}||'%'
+                </if>
+            </when>
+            <when test="searchDiv01 == 02">
+                <if test="searchKeyWord != null  and searchKeyWord != ''">
+                    AND A.NOTIFY_NUM||A.NOTIFY_SEQ  IN (SELECT B.NOTIFY_NUM||B.NOTIFY_SEQ
+                                                          FROM TCN_NOTIFY_SPLY_I B  
+                                                               LEFT JOIN TUM_SVC_STOR_I C
+                                                                      ON B.USER_ID = C.USER_ID
+                                                                     AND C.LANG_CODE = '00'
+                                                         WHERE B.NOTIFY_NUM = A.NOTIFY_NUM
+                                                           AND B.NOTIFY_SEQ = B.NOTIFY_SEQ
+                                                           AND C.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+                                                       )
+                </if>
+            </when>
+        </choose>
+        <if test="searchDiv02 != null  and searchDiv02 != ''">
+            <choose>
+                <when test="searchDiv01 == 1001">
+                    AND A.BID_PGES_STAT IN ('1001','1002')
+                </when>
+                <otherwise>
+                    AND A.BID_PGES_STAT = #{searchDiv02}
+                </otherwise>
+            </choose>
+        </if>
+                         ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.cancleMyCeartBid
+     * 기능(설명)  : 입찰공고 취소처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <update id="cancleMyCeartBid">
+        /*_myCeart.cancleMyCeartBid*/
+        UPDATE TCN_BID_NOTIFY_I SET CNCL_DT        = SYSDATETIME
+                                  , BID_PGES_STAT  = #{bidPgesStat}
+                                  , BID_CHNG_CAUSE = #{bidChngCause}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartBidTerm
+     * 기능(설명)  : 입찰공고 연기처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <update id="updateMyCeartBidTerm">
+        /*_myCeart.updateMyCeartBidTerm*/
+        UPDATE TCN_BID_NOTIFY_I SET UPDT_DT        = SYSDATETIME
+                                  , BID_CHNG_CAUSE = #{bidChngCause}
+		                          <if test='!strtDt.equals("")'>
+                                  , STRT_DT = TO_DATETIME(#{strtDt}||#{strtTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='!clseDt.equals("")'>
+                                  , CLSE_DT = TO_DATETIME(#{clseDt}||#{clseTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='!openDt.equals("")'>
+                                  , OPEN_DT = TO_DATETIME(#{openDt}||#{openTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartBidInfo
+     * 기능(설명)  : 입찰공고 수정처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <update id="updateMyCeartBidInfo">
+        /*_myCeart.updateMyCeartBidInfo*/
+        UPDATE TCN_BID_NOTIFY_I SET UPDT_DT             = SYSDATETIME
+                                  , BID_CHNG_CAUSE      = #{bidChngCause}
+		                          , BID_CLASS_CD        = #{bidClassCd}
+		                          , CNTR_MOTHOD         = #{cntrMothod}
+		                          , OPTL_CNTR_FILE      = #{optlCntrFile}
+		                          , REAL_DMND_ORGN      = #{realDmndOrgn}
+		                          , GOODS_CHARGER_NM    = #{goodsChargerNm}
+		                          , GOODS_CHARGER_CTTPC = #{goodsChargerCttpc}
+		                          , LINK_ORGN_URL       = #{linkOrgnUrl}
+		                          , BID_NOTIFY_NM       = #{bidNotifyNm}
+		                          <if test='!strtDt.equals("")'>
+                                  , STRT_DT             = TO_DATETIME(#{strtDt}||#{strtTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='!clseDt.equals("")'>
+                                  , CLSE_DT             = TO_DATETIME(#{clseDt}||#{clseTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='!openDt.equals("")'>
+                                  , OPEN_DT             = TO_DATETIME(#{openDt}||#{openTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  , AREA_LIMIT1         = #{areaLimit1}
+                                  , AREA_LIMIT2         = #{areaLimit2}
+                                  , AREA_LIMIT3         = #{areaLimit3}
+                                  , CATY_LIMIT_ENTR     = #{catyLimitEntr}
+                                  , CATY_LIMIT_VNTR     = #{catyLimitVntr}
+                                  , CATY_LIMIT_SOC      = #{catyLimitSoc}
+                                  , CATY_LIMIT_WOMN     = #{catyLimitWomn}
+                                  , CATY_LIMIT_DIAD     = #{catyLimitDiad}
+                                  , CATY_LIMIT_ETC      = #{catyLimitEtc}
+                                  , CATY_LIMIT_ETC_COMT = #{catyLimitEtcComt}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+
+	<!--
+     * SQL 명      : _myCeart.myCeartTenderList
+     * 기능(설명)  : 입찰공고관리 응찰현황 목록 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <select id="myCeartTenderList" parameterType="map" resultType="MyCeartTenderVO">
+        /*_myCeart.myCeartTenderList*/
+        SELECT A.NOTIFY_NUM       AS notifyNum
+             , A.NOTIFY_SEQ       AS notifySeq
+             , J.USER_ID          AS endsUserId
+             , A.USER_ID          AS userId
+             , B.LANG_STORE_NM    AS langStoreNm
+             , C.BIZRNO           AS bizrno
+             , A.GOODS_CODE       AS goodsCode
+             , D.GOODS_NM         AS goodsName
+             , A.CONFM_GBN        AS confmGbn
+             , A.ASK_APPLY_CD     AS askApplyCd
+             , E.INDVDLZ_CD_NM    AS askApplyNm
+             , A.BID_PGES_STAT    AS bidPgesStat
+             , F.INDVDLZ_CD_NM    AS bidPgesStatNm
+             , A.BID_SUSS_GBN     AS bidSussGbn
+             , A.BID_SUSS_DT      AS bidSussDt
+             , A.EVAL_SHEET_FILE  AS evalSheetFile
+             , G.LOCAL_ORGINL_NM  AS evalSheetFileOrgNm
+             , G.FILE_ID          AS evalSheetFileId
+             , G.FILE_SIZE        AS evalSheetFileSize
+             , G.FILE_TY          AS evalSheetFileTy
+             , A.CNTR_GBN         AS cntrGbn
+             , A.SPLY_AMT         AS splyAmt
+             , A.VAT_GBN          AS vatGbn
+             , A.ADD_ANSWER       AS addAnswer
+             , A.SPLY_NOTE        AS splyNote
+             , A.SPLY_FILE        AS splyFile
+             , H.LOCAL_ORGINL_NM  AS splytFileOrgNm
+             , H.FILE_ID          AS splyFileId
+             , H.FILE_SIZE        AS splyFileSize
+             , H.FILE_TY          AS splyFileTy
+             , TO_CHAR(A.ENTR_DT,'YYYY-MM-DD') AS bidEntrDt
+             , A.BID_FINISH_GBN   AS bidFinishGbn
+             , A.EVAL_CAUSE       AS evalCause
+             , I.BID_RANK         AS bidRank
+             , I.ENTR_DT          AS sussEntrDt
+          FROM TCN_NOTIFY_SPLY_I A
+               LEFT JOIN TUM_SVC_STOR_I B
+                      ON A.USER_ID = B.USER_ID
+                     AND B.LANG_CODE = '00'
+               LEFT JOIN OP_USER_ENTRPRS_OPTION C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TST_GOOD_INFO_I D
+                      ON A.GOODS_CODE = D.GOODS_CODE
+               LEFT JOIN OP_CODE_INDVDLZ E
+                      ON E.GROUP_CD = '2043'
+                     AND A.ASK_APPLY_CD = E.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ F
+                      ON F.GROUP_CD = '2044'
+                     AND A.BID_PGES_STAT = F.INDVDLZ_CD
+               LEFT JOIN OP_FILE G
+                      ON A.EVAL_SHEET_FILE = G.FILE_SEQ
+               LEFT JOIN OP_FILE H
+                      ON A.SPLY_FILE = H.FILE_SEQ
+               LEFT JOIN TCN_BID_SUSS_I I
+                      ON A.NOTIFY_NUM = I.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = I.NOTIFY_SEQ
+                     AND A.USER_ID    = I.REPLY_USER_ID
+               LEFT JOIN TCN_BID_NOTIFY_I J
+                      ON A.NOTIFY_NUM = J.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = J.NOTIFY_SEQ
+         WHERE A.NOTIFY_NUM    = #{notifyNum}
+           AND A.NOTIFY_SEQ    = #{notifySeq}
+           <if test="askApplyCd != null  and askApplyCd != 0">
+           AND A.ASK_APPLY_CD  = #{askApplyCd}
+           </if>
+           <if test="bidPgesStat != null  and bidPgesStat != 0">
+           AND A.BID_PGES_STAT = #{bidPgesStat}
+           </if>
+   </select>
+
+    <!--
+     * SQL 명      : _myCeart.insertMyCeartOpenSuss
+     * 기능(설명)  : 입찰공고 개찰처리(낙찰여부 정보에 insert)
+     *             -> 답변여부에 답변이면서 입찰상태가 응찰인 데이터만 변경
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <insert id="insertMyCeartOpenSuss">
+        INSERT INTO TCN_BID_SUSS_I(NOTIFY_NUM
+                                 , NOTIFY_SEQ
+                                 , REPLY_USER_ID
+                                 , ENTR_DT)
+        SELECT #{notifyNum}
+             , #{notifySeq}
+             , A.USER_ID
+             , SYSDATE
+          FROM TCN_NOTIFY_SPLY_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.ASK_APPLY_CD  = '1003'
+           AND A.BID_PGES_STAT = '1002'
+    </insert>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartOpenSply
+     * 기능(설명)  : 입찰공고 개찰처리(입찰공고 공급자 정보의 상태 변경)
+     *             -> 답변여부에 답변이면서 입찰상태가 응찰인 데이터만 변경
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <update id="updateMyCeartOpenSply">
+        /*_myCeart.updateMyCeartOpenSply*/
+        UPDATE TCN_NOTIFY_SPLY_I SET BID_PGES_STAT = #{bidPgesStat}
+                                   , EVAL_CAUSE    = #{evalCause} 
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND ASK_APPLY_CD  = '1003'
+           AND BID_PGES_STAT = '1002'
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartOpenMst
+     * 기능(설명)  : 입찰공고 개찰처리(입찰공고 정보에 상태값 변경)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-29
+    -->
+    <update id="updateMyCeartOpenMst">
+        /*_myCeart.updateMyCeartOpenMst*/
+        UPDATE TCN_BID_NOTIFY_I SET BID_PGES_STAT  = #{bidPgesStat}
+                                  , BID_CHNG_CAUSE = #{bidChngCause}
+                                  , UPDT_DT        = SYSDATETIME
+                                  , BAFF_NM        = #{baffNm}
+                                  , REAL_OPEN_DT   = REPLACE(#{realOpenDt}, '-', '')
+                                  , REAL_OPEN_TM   = #{realOpenTm}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateSuccBidderSplyI
+     * 기능(설명)  : 입찰공고 낙찰처리(입찰공고 공급자 확인정보(TCN_NOTIFY_SPLY_I) UPDATE)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-30
+    -->
+    <update id="updateSuccBidderSplyI">
+        /*_myCeart.updateSuccBidderSplyI*/
+        UPDATE TCN_NOTIFY_SPLY_I SET BID_SUSS_GBN   = #{bidSussGbn}
+                                   , BID_PGES_STAT  = '1006'
+                                   <if test='bidSussGbn.equals("Y")'>
+                                   , BID_SUSS_DT    = SYSDATETIME
+                                   </if>
+                                   <if test='!bidSussGbn.equals("Y")'>
+                                   , BID_SUSS_DT    = SYSDATETIME
+                                   </if>
+                                   <if test='bidSussGbn.equals("Y")'>
+                                   , EVAL_SHEET_FILE = #{evalSheetFile}
+                                   </if>
+                                   <if test='!bidSussGbn.equals("Y")'>
+                                   , EVAL_SHEET_FILE = NULL
+                                   </if>
+                                   <if test='bidSussGbn.equals("Y")'>
+                                   , EVAL_CAUSE      = #{evalCause}
+                                   </if>
+                                   <if test='!bidSussGbn.equals("Y")'>
+                                   , EVAL_CAUSE      = NULL
+                                   </if>
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{userId}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateSuccBidderSussI
+     * 기능(설명)  : 입찰공고 낙찰처리(낙찰여부정보(TCN_BID_SUSS_I) UPDATE)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-30
+    -->
+    <update id="updateSuccBidderSussI">
+        /*_myCeart.updateSuccBidderSussI*/
+        UPDATE TCN_BID_SUSS_I SET BID_RANK = #{bidRank}
+                                , ENTR_DT  = SYSDATETIME
+         WHERE NOTIFY_NUM    = #{notifyNum}
+           AND NOTIFY_SEQ    = #{notifySeq}
+           AND REPLY_USER_ID = #{userId}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartSuccBidMst
+     * 기능(설명)  : 입찰공고 낙찰처리(낙찰자 정보 수정에 성공할 경우 공고 마스터에 상태 변경)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-30
+    -->
+    <update id="updateMyCeartSuccBidMst">
+        /*_myCeart.updateMyCeartSuccBidMst*/
+        UPDATE TCN_BID_NOTIFY_I SET UPDT_DT        = SYSDATETIME
+                                  , BID_PGES_STAT  = '1006'
+                                  , BID_CHNG_CAUSE = #{bidChngCause}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartBidCancel
+     * 기능(설명)  : 입찰공고 낙찰취소처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-30
+    -->
+    <update id="updateMyCeartBidCancel">
+        /*_myCeart.updateMyCeartBidCancel*/
+        UPDATE TCN_NOTIFY_SPLY_I SET BID_PGES_STAT   = #{bidPgesStat}
+                                   , BID_SUSS_GBN    = 'N'
+                                   , BID_SUSS_DT     = NULL
+                                   , EVAL_SHEET_FILE = NULL
+                                   , EVAL_CAUSE      = NULL
+                                   , CNTR_GBN        = 'N'
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.updateMyCeartCancelBidMst
+     * 기능(설명)  : 입찰공고 낙찰취소처리(입찰공고 낙찰취소처리에 성공할 경우 공고 마스터에 상태 변경)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-30
+    -->
+    <update id="updateMyCeartCancelBidMst">
+        /*_myCeart.updateMyCeartCancelBidMst*/
+        UPDATE TCN_BID_NOTIFY_I SET UPDT_DT        = SYSDATETIME
+                                  , CNCL_DT        = SYSDATETIME
+                                  , BID_PGES_STAT  = #{bidPgesStat}
+                                  , BID_CHNG_CAUSE = #{bidChngCause}
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+
+
+
+
+
+
+
+
+
+
+	<!--
+     * SQL 명      : _myCeart.purchsDtlsListCount
+     * 기능(설명)  : 구매내역 관리 목록 갯수
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-11
+    -->
+	<select id="purchsDtlsListCount" parameterType="map" resultType="int"> 
+	    /*_myCeart.purchsDtlsListCount*/
+	    SELECT COUNT(1) AS totalCount
+	      FROM TCM_CNTRCT_MANAGE_I A
+	      	   LEFT JOIN TCN_BID_NOTIFY_I B
+                 ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+               LEFT JOIN OP_CODE_INDVDLZ C
+                 ON C.GROUP_CD   = '2037'
+                AND B.BID_GBN_CD = C.INDVDLZ_CD
+               LEFT JOIN TST_GOOD_INFO_I D
+                 ON A.GOODS_CODE = D.GOODS_CODE
+               LEFT JOIN OP_USER E
+                 ON A.USER_ID   = E.USER_ID
+               LEFT JOIN TCN_NOTIFY_SPLY_I F
+                 ON A.NOTIFY_NUM = F.NOTIFY_NUM
+                AND A.NOTIFY_SEQ = F.NOTIFY_SEQ
+                AND A.USER_ID    = F.USER_ID
+               LEFT JOIN OP_FILE G
+                 ON F.EVAL_SHEET_FILE = G.FILE_SEQ
+               LEFT JOIN OP_FILE H
+                 ON A.CTRTC_SN = H.FILE_SEQ
+               LEFT JOIN OP_CODE_INDVDLZ I
+                 ON I.GROUP_CD         = '2045'
+                AND A.CERT_RESULT_CODE = I.INDVDLZ_CD
+               LEFT JOIN TUM_SVC_STOR_I J
+                 ON A.USER_ID = J.USER_ID
+                AND J.LANG_CODE = '00'
+         WHERE 1=1
+         	 AND A.ASIS = 'N'
+         <!-- AND A.DELETE_AT = 'N' -->
+         <choose>
+         	<when test="userTyCd == 3001">
+           	AND A.BUSEO_CODE = #{buseoCode}
+         	</when>
+         	<when test="userTyCd == 3002">
+           	AND A.BUSEO_CODE = #{buseoCode}
+         	</when>
+         	<otherwise>
+         		AND A.COMM_USER_ID = #{endsUserId}
+         	</otherwise>
+         </choose>
+         <choose>
+             <when test="searchDiv01 == 1001">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND E.USER_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND D.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND B.BID_GBN_CD = #{searchDiv02}
+         </if>
+    </select>
+
+
+	<!--
+     * SQL 명      : _myCeart.purchsDtlsUserTyCd
+     * 기능(설명)  : 구매내역 관리 목록 로그인 회원 타입 코드
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-04-04
+    -->
+	<select id="purchsDtlsUserTyCd" parameterType="map" resultType="int"> 
+	    /*_myCeart.purchsDtlsUserTyCd*/
+	    SELECT USER_TY_CD
+		  FROM OP_USER
+         WHERE USER_ID = #{endsUserId}
+    </select>
+	<!--
+     * SQL 명      : _myCeart.purchsDtlsList
+     * 기능(설명)  : 구매내역 관리 목록
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-11
+    -->
+	<select id="purchsDtlsList" parameterType="map" resultType="MyCeartPurchsDtlsVO">
+	/*_myCeart.purchsDtlsList*/
+  	SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+					    SELECT A.CNTRCT_SN                            		AS cntrctSn
+					    	 , A.SLE_INSTT_NM						  									AS sleInsttNm											
+					         , A.NOTIFY_NUM                           		AS notifyNum
+				             , A.NOTIFY_SEQ                           	AS notifySeq
+				             , B.BID_GBN_CD                           	AS bidGbnCd
+				             , A.SPLY_FORM 							  							AS splyForm
+				             , A.CNTRCTAMOUNT 					      					AS cntrctaMount
+				             , A.SVC_NM 							  								AS svcNm
+				             , NVL((CASE WHEN C.INDVDLZ_CD_NM IS NULL  
+				             						THEN K.INDVDLZ_CD_NM
+										              ELSE C.INDVDLZ_CD_NM
+										              END),'') 											AS bidGbnNm
+				             , A.USER_ID                              	AS suplerId
+				             , E.USER_NM                              	AS suplerNm
+				             , A.GOODS_CODE                           	AS goodsCode
+				             /*, D.GOODS_NM                             AS goodsNm*/
+				             , (
+		                           SELECT B.GOODS_NM 
+		                             FROM TCM_CNTRCT_SERVICE_I AA
+		                        LEFT JOIN TST_GOOD_INFO_I B    
+		                               ON AA.GOODS_CODE = B.GOODS_CODE                            
+		                            WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN
+		                         ORDER BY AA.CNTRCT_SVC_SN DESC
+		                            LIMIT 1
+		                       ) 
+		                       + 
+		                       DECODE ((SELECT COUNT(1) FROM TCM_CNTRCT_SERVICE_I AA WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN) 
+		                              ,0,''
+		                              ,1,''
+		                              ,' 외 '+ CAST((SELECT COUNT(1)-1  FROM TCM_CNTRCT_SERVICE_I AA WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN) AS varchar)
+		                       )
+		                       AS  goodsNm						             
+				             , F.EVAL_SHEET_FILE                      AS evalSheetFile
+				             , G.LOCAL_ORGINL_NM                      AS evalSheetFileOrgNm
+				             , G.FILE_ID                              AS evalSheetFileId
+				             , G.FILE_SIZE                            AS evalSheetFileSize
+				             , G.FILE_TY                              AS evalSheetFileTy
+				             , TO_CHAR(A.CNTR_DT, 'YYYY-MM-DD')       AS cntrDt
+				             , TO_DATE(A.CNTRCT_BEGIN_DE, 'YYYYMMDD') AS cntrctBeginDe
+				             , TO_DATE(A.CNTRCT_END_DE, 'YYYYMMDD')   AS cntrctEndDe
+				             , A.CERT_RESULT_CODE                     AS certReultCode
+				             , I.INDVDLZ_CD_NM                        AS certReultNm
+				             , A.CTRTC_SN                             AS ctrtcSn
+				             , H.LOCAL_ORGINL_NM                      AS ctrtcSnOrgNm
+				             , H.FILE_ID                              AS ctrtcSnId
+				             , H.FILE_SIZE                            AS ctrtcSnSize
+				             , H.FILE_TY                              AS ctrtcSnTy
+				             , A.REGIST_MTHD_CODE                     AS registMthdCode
+				             , CASE WHEN A.NOTIFY_NUM IS NULL AND A.NOTIFY_SEQ IS NULL THEN 'Y'
+				                    ELSE 'N' 
+				               END                                    AS myCtrtcYn 			/*계약결과 등록여부(견적/공고 없이 계약등록)*/
+				             , J.LANG_STORE_NM                        AS suplerStoreNm
+					      FROM TCM_CNTRCT_MANAGE_I A
+					            LEFT JOIN TCN_BID_NOTIFY_I B
+					                   ON A.NOTIFY_NUM = B.NOTIFY_NUM
+					                  AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+				                LEFT JOIN OP_CODE_INDVDLZ C
+				                       ON C.GROUP_CD   = '2037'
+				                      AND B.BID_GBN_CD = C.INDVDLZ_CD
+				                /*
+				                LEFT JOIN TST_GOOD_INFO_I D
+					                   ON A.GOODS_CODE = D.GOODS_CODE
+					            */       
+				                LEFT JOIN OP_USER E
+				                       ON A.USER_ID   = E.USER_ID
+					            LEFT JOIN TCN_NOTIFY_SPLY_I F
+					                   ON A.NOTIFY_NUM = F.NOTIFY_NUM
+					                  AND A.NOTIFY_SEQ = F.NOTIFY_SEQ
+					                  AND A.USER_ID    = F.USER_ID
+				                LEFT JOIN OP_FILE G
+				                       ON F.EVAL_SHEET_FILE = G.FILE_SEQ
+				                LEFT JOIN OP_FILE H
+				                       ON A.CTRTC_SN = H.FILE_SEQ
+				                LEFT JOIN OP_CODE_INDVDLZ I
+				                       ON I.GROUP_CD         = '2045'
+				                      AND A.CERT_RESULT_CODE = I.INDVDLZ_CD
+                                LEFT JOIN TUM_SVC_STOR_I J
+                                       ON A.USER_ID = J.USER_ID
+                                      AND J.LANG_CODE = '00'
+                                LEFT JOIN OP_CODE_INDVDLZ K
+				                       ON K.GROUP_CD   = '2046'
+				                      AND A.REGIST_MTHD_CODE = K.INDVDLZ_CD 
+				         WHERE 1=1
+				           AND A.ASIS = 'N' 
+				           <!-- AND A.DELETE_AT = 'N' -->
+				         <choose>
+				         	<when test="userTyCd == 3001">
+				           	AND A.BUSEO_CODE = #{buseoCode}
+				         	</when>
+				         	<when test="userTyCd == 3002">
+				         		AND A.BUSEO_CODE = #{buseoCode}
+				         	</when>
+				         	<otherwise>
+				         		AND A.COMM_USER_ID = #{endsUserId}
+				         	</otherwise>
+				         </choose>
+				         <choose>
+				              <when test="searchDiv01 == 1001">
+				                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+				                     AND E.USER_NM LIKE '%'||#{searchKeyWord}||'%'
+				                 </if>
+				             </when>
+				             <when test="searchDiv01 == 1002">
+				                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+				                     AND D.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+				                 </if>
+				             </when>
+				         </choose>
+				         <if test="searchDiv02 != null  and searchDiv02 != ''">
+				             AND B.BID_GBN_CD = #{searchDiv02}
+				         </if>
+				         ORDER BY A.CNTRCT_SN DESC,  A.CNTR_DT DESC
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+	<!--
+     * SQL 명      : _myCeart.purchsDtlsListExcel
+     * 기능(설명)  : 구매내역 관리 목록 (엑셀다운용)
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-11
+    -->
+	<select id="purchsDtlsListExcel" parameterType="map" resultType="MyCeartPurchsDtlsVO">
+	    /*_myCeart.purchsDtlsListExcel*/
+	    SELECT A.NOTIFY_NUM                           AS notifyNum
+             , A.NOTIFY_SEQ                           AS notifySeq
+             , B.BID_GBN_CD                           AS bidGbnCd
+             , C.INDVDLZ_CD_NM                        AS bidGbnNm
+             , A.USER_ID                              AS suplerId
+             , E.USER_NM                              AS suplerNm
+             , A.GOODS_CODE                           AS goodsCode
+             /*, D.GOODS_NM                             AS goodsNm*/
+             , (
+                   SELECT B.GOODS_NM 
+                     FROM TCM_CNTRCT_SERVICE_I AA
+                LEFT JOIN TST_GOOD_INFO_I B    
+                       ON AA.GOODS_CODE = B.GOODS_CODE                            
+                    WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN
+                 ORDER BY AA.CNTRCT_SVC_SN DESC
+                    LIMIT 1
+               ) 
+               + 
+               DECODE ((SELECT COUNT(1) FROM TCM_CNTRCT_SERVICE_I AA WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN) 
+                      ,0,''
+                      ,1,''
+                      ,' 외 '+ CAST((SELECT COUNT(1)-1  FROM TCM_CNTRCT_SERVICE_I AA WHERE AA.CNTRCT_SN  =  A.CNTRCT_SN) AS varchar)
+               )
+               AS  goodsNm
+             , F.EVAL_SHEET_FILE                      AS evalSheetFile
+             , G.LOCAL_ORGINL_NM                      AS evalSheetFileOrgNm
+             , G.FILE_ID                              AS evalSheetFileId
+             , G.FILE_SIZE                            AS evalSheetFileSize
+             , G.FILE_TY                              AS evalSheetFileTy
+             , TO_CHAR(A.CNTR_DT, 'YYYY-MM-DD')       AS cntrDt
+             , TO_DATE(A.CNTRCT_BEGIN_DE, 'YYYYMMDD') AS cntrctBeginDe
+             , TO_DATE(A.CNTRCT_END_DE, 'YYYYMMDD')   AS cntrctEndDe
+             , A.CERT_RESULT_CODE                     AS certReultCode
+             , I.INDVDLZ_CD_NM                        AS certReultNm
+             , A.CTRTC_SN                             AS ctrtcSn
+             , H.LOCAL_ORGINL_NM                      AS ctrtcSnOrgNm
+             , H.FILE_ID                              AS ctrtcSnId
+             , H.FILE_SIZE                            AS ctrtcSnSize
+             , H.FILE_TY                              AS ctrtcSnTy
+             , J.LANG_STORE_NM                        AS suplerStoreNm
+	      FROM TCM_CNTRCT_MANAGE_I A
+	            LEFT JOIN TCN_BID_NOTIFY_I B
+	                   ON A.NOTIFY_NUM = B.NOTIFY_NUM
+	                  AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                LEFT JOIN OP_CODE_INDVDLZ C
+                       ON C.GROUP_CD   = '2037'
+                      AND B.BID_GBN_CD = C.INDVDLZ_CD
+                /*      
+                LEFT JOIN TST_GOOD_INFO_I D
+	                   ON A.GOODS_CODE = D.GOODS_CODE
+                */
+                LEFT JOIN OP_USER E
+                       ON A.USER_ID   = E.USER_ID
+	            LEFT JOIN TCN_NOTIFY_SPLY_I F
+	                   ON A.NOTIFY_NUM = F.NOTIFY_NUM
+	                  AND A.NOTIFY_SEQ = F.NOTIFY_SEQ
+	                  AND A.USER_ID    = F.USER_ID
+                LEFT JOIN OP_FILE G
+                       ON F.EVAL_SHEET_FILE = G.FILE_SEQ
+                LEFT JOIN OP_FILE H
+                       ON A.CTRTC_SN = H.FILE_SEQ
+                LEFT JOIN OP_CODE_INDVDLZ I
+                       ON I.GROUP_CD         = '2045'
+                      AND A.CERT_RESULT_CODE = I.INDVDLZ_CD
+                LEFT JOIN TUM_SVC_STOR_I J
+                       ON A.USER_ID = J.USER_ID
+         WHERE 1=1
+         	 AND A.ASIS = 'N' 
+         <!-- AND A.DELETE_AT = 'N' -->
+        <choose>
+        	<when test="userTyCd == 3001">
+          	AND A.BUSEO_CODE = #{buseoCode}
+        	</when>
+        	<when test="userTyCd == 3002">
+          	AND A.BUSEO_CODE = #{buseoCode}
+        	</when>
+        	<otherwise>
+        		AND A.COMM_USER_ID = #{endsUserId}
+        	</otherwise>
+        </choose>
+         <choose>
+             <when test="searchDiv01 == 1001">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND E.USER_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+                 <if test="searchKeyWord != null  and searchKeyWord != ''">
+                     AND D.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+                 </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND B.BID_GBN_CD = #{searchDiv02}
+         </if>
+         ORDER BY A.CNTR_DT DESC, A.CNTRCT_SN DESC
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.updateAcmsltCrtfRequst
+     * 기능(설명)  : 구매(실적)증명서 발급요청
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-11
+    -->
+    <update id="updateAcmsltCrtfRequst">
+        /*_myCeart.updateAcmsltCrtfRequst*/
+        UPDATE TCM_CNTRCT_MANAGE_I SET CERT_RESULT_CODE = '1001'
+         WHERE CNTRCT_SN = #{cntrctSn}
+    </update>
+
+    <!--
+     * SQL 명      : _myCeart.insertCntrctCmpl
+     * 기능(설명)  : 계약관리정보 등록
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <insert id="insertCntrctCmpl">
+        <!-- <selectKey order="BEFORE" keyProperty="cntrctSn" resultType="int">
+            SELECT NVL(MAX(CNTRCT_SN), 0) + 1
+              FROM TCM_CNTRCT_MANAGE_I
+        </selectKey> -->
+        /*_myCeart.insertCntrctCmpl*/
+        <!-- INSERT INTO TCM_CNTRCT_MANAGE_I(CNTRCT_SN
+                                      , USER_ID
+                                      , SVC_NM
+                                      , CNTRCT_BEGIN_DE
+                                      , CNTRCT_END_DE
+                                      , CNTRCTAMOUNT
+                                      , PURCHS_INSTT_NM
+                                      , SLE_INSTT_NM
+                                      , CTRTC_SN
+                                      , REGIST_ID
+                                      , REGIST_DT
+                                      , DELETE_AT
+                                      , GOODS_CODE
+                                      , CNTR_NUM
+                                      , SPLY_FORM
+                                      , SPLY_FORM_ETC
+                                      , CNTR_DT
+                                      , COMM_USER_ID
+                                      , CNTR_COUNT
+                                      , REGIST_MTHD_CODE)
+                                 VALUES(#{cntrctSn}
+                                      , #{suplerId}
+                                      , #{svcNm}
+                                      , REPLACE(#{cntrctBeginDe}, '-', '')
+                                      , REPLACE(#{cntrctEndDe}, '-', '')
+                                      , #{cntrctamount}
+                                      , #{purchsInsttNm}
+                                      , #{sleInsttNm}
+                                      , #{ctrtcSn}
+                                      , #{commUserId}
+                                      , SYSDATETIME
+                                      , 'N'
+                                      , #{goodsCode}
+                                      , #{cntrNum}
+                                      , #{splyForm}
+                                      , #{splyFormEtc}
+                                      , #{cntrDt}
+                                      , #{commUserId}
+                                      , #{cntrCount}
+                                      , 1001) -->
+        INSERT INTO TCM_CNTRCT_MANAGE_I(USER_ID
+                                      , SVC_NM
+                                      , CNTRCT_BEGIN_DE
+                                      , CNTRCT_END_DE
+                                      , CNTRCTAMOUNT
+                                      , PURCHS_INSTT_NM
+                                      , SLE_INSTT_NM
+                                      , CTRTC_SN
+                                      , REGIST_ID
+                                      , REGIST_DT
+                                      , DELETE_AT
+                                      , GOODS_CODE
+                                      , CNTR_NUM
+                                      , SPLY_FORM
+                                      , SPLY_FORM_ETC
+                                      , CNTR_DT
+                                      , COMM_USER_ID
+                                      , CNTR_COUNT
+                                      , REGIST_MTHD_CODE)
+                                 VALUES(#{suplerId}
+                                      , #{svcNm}
+                                      , REPLACE(#{cntrctBeginDe}, '-', '')
+                                      , REPLACE(#{cntrctEndDe}, '-', '')
+                                      , #{cntrctamount}
+                                      , #{purchsInsttNm}
+                                      , #{sleInsttNm}
+                                      , #{ctrtcSn}
+                                      , #{commUserId}
+                                      , SYSDATETIME
+                                      , 'N'
+                                      , #{goodsCode}
+                                      , #{cntrNum}
+                                      , #{splyForm}
+                                      , #{splyFormEtc}
+                                      , #{cntrDt}
+                                      , #{commUserId}
+                                      , #{cntrCount}
+                                      , 1001)
+    </insert>
+
+    <!--
+     * SQL 명      : _myCeart.updateCntrctCmpl
+     * 기능(설명)  : 계약관리정보 수정
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <update id="updateCntrctCmpl">
+        /*_myCeart.updateCntrctCmpl*/
+        UPDATE TCM_CNTRCT_MANAGE_I SET USER_ID         = #{suplerId}
+                                     , SVC_NM          = #{svcNm}
+                                     , CNTRCT_BEGIN_DE = REPLACE(#{cntrctBeginDe}, '-', '')
+                                     , CNTRCT_END_DE   = REPLACE(#{cntrctEndDe}, '-', '')
+                                     , CNTRCTAMOUNT    = #{cntrctamount}
+                                     , PURCHS_INSTT_NM = #{purchsInsttNm}
+                                     , SLE_INSTT_NM    = #{sleInsttNm}
+                                     , CTRTC_SN        = #{ctrtcSn}
+                                     , UPDT_ID         = #{commUserId}
+                                     , UPDT_DT         = SYSDATETIME
+                                     , GOODS_CODE      = #{goodsCode}
+                                     , CNTR_NUM        = #{cntrNum}
+                                     , SPLY_FORM       = #{splyForm}
+                                     , SPLY_FORM_ETC   = #{splyFormEtc}
+                                     , CNTR_DT         = #{cntrDt}
+                                     , CNTR_COUNT      = #{cntrCount}
+         WHERE CNTRCT_SN = #{cntrctSn}
+    </update>
+    
+    <!--
+     * SQL 명      : _myCeart.deleteCntrctCmpl
+     * 기능(설명)  : 계약관리정보 삭제
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <delete id="deleteCntrctCmpl">
+        /*_myCeart.deleteCntrctCmpl*/
+        DELETE FROM TCM_CNTRCT_MANAGE_I 
+         WHERE CNTRCT_SN = #{cntrctSn}
+    </delete>
+    
+    <!--
+     * SQL 명      : _myCeart.myPgesStatCheck
+     * 기능(설명)  : 입찰공고 관리 진행상태 
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+
+    <update id = "myPgesStatCheck">
+    	/* myPgesStatCheck*/
+   		UPDATE TCN_BID_NOTIFY_I
+   		   SET BID_PGES_STAT = 1003
+   	 	 WHERE NOTIFY_SEQ = #{notifySeq}
+           AND NOTIFY_NUM = #{notifyNum}
+           AND CLSE_DT &lt;= SYSDATETIME
+    </update>
+    
+    <!--
+     * SQL 명      : _myCeart.wholeServiceListCount
+     * 기능(설명)  : 씨앗 전체 서비스 갯수
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <select id="wholeServiceListCount" parameterType="map" resultType="int">
+        /*_myCeart.wholeServiceListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM TST_GOOD_INFO_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                       ON B.GROUP_CD     = '1005'
+                      AND B.LANG_CODE    = '00'
+                      AND A.GOODS_KND_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_USER C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TUM_SVC_STOR_I D
+                      ON A.USER_ID = D.USER_ID
+         WHERE A.MNGR_DELETE_AT     = 'N'
+           AND A.GOODS_ACTVTY_AT    = 'Y'
+           AND A.GOODS_REGIST_STTUS = '1006'
+           AND A.LANG_CODE          = '00'
+         <choose>
+             <when test="searchDiv01 == 1001">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND D.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND A.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+         </choose>
+         <if test="suplerId != null  and suplerId != ''">
+             AND A.USER_ID = #{suplerId}
+         </if>
+         
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND A.GOODS_KND_CD = #{searchDiv02}
+         </if>
+         <if test="goodsCode != null  and goodsCode != ''">
+             AND A.GOODS_CODE like #{goodsCode}||'%'
+         </if>
+         <if test="goodsNm != null  and goodsNm != ''">
+             AND A.GOODS_NM LIKE  '%'||#{goodsNm}||'%'
+         </if>
+         <if test="immeGubun != null  and immeGubun != ''">
+             AND A.GOODS_CODE like '1111'||'%'
+         </if>
+
+                  
+    </select>
+    <select id="wholeServiceListCount2" parameterType="map" resultType="int">
+        /*_myCeart.wholeServiceListCount2*/
+        SELECT COUNT(1) AS totalCount
+          FROM TST_GOOD_INFO_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                       ON B.GROUP_CD     = '1005'
+                      AND B.LANG_CODE    = '00'
+                      AND A.GOODS_KND_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_USER C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TUM_SVC_STOR_I D
+                      ON A.USER_ID = D.USER_ID
+          where 1=1            
+        <choose>
+             <when test="immeGubun == null">
+			   AND A.MNGR_DELETE_AT     = 'N'
+		          AND A.GOODS_ACTVTY_AT    = 'Y'
+		          AND A.GOODS_REGIST_STTUS = '1006'
+		          AND A.LANG_CODE          = '00'         
+             </when>
+             <when test="immeGubun != null and immeGubun.equals('Y')">
+	           AND A.GOODS_ACTVTY_AT    = 'N'
+	           AND A.GOODS_REGIST_STTUS = '1007'
+	           AND A.LANG_CODE          = '00'
+             AND A.GOODS_CODE like '1111'||'%'
+             </when>
+
+         </choose>
+
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND A.GOODS_KND_CD = #{searchDiv02}
+         </if>
+         <if test="suplerId != null  and suplerId != ''">
+             AND A.USER_ID = #{suplerId}
+         </if>
+         <if test="goodsCode != null  and goodsCode != ''">
+             AND A.GOODS_CODE like #{goodsCode}||'%'
+         </if>
+         <if test="goodsNm != null  and goodsNm != ''">
+             AND A.GOODS_NM LIKE  '%'||#{goodsNm}||'%'
+         </if>
+
+         <if test="immeGubun != null  and immeGubun != ''">
+	           AND A.GOODS_ACTVTY_AT    = 'N'
+	           AND A.GOODS_REGIST_STTUS = '1007'
+	           AND A.LANG_CODE          = '00'
+             AND A.GOODS_CODE like '1111'||'%'
+         </if>
+
+                  
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.wholeServiceList
+     * 기능(설명)  : 씨앗 전체 서비스 찾기 팝업
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <select id="wholeServiceList" parameterType="map" resultType="SuplerServiceVO">
+        /*_myCeart.wholeServiceList*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+        SELECT A.GOODS_CODE    AS goodsCode
+             , A.GOODS_NM      AS goodsNm
+             , A.GOODS_KND_CD  AS goodKndCd
+             , B.INDVDLZ_CD_NM AS goodKndNm
+             , A.USER_ID       AS suplerId
+             , C.USER_NM       AS suplerNm
+             , D.LANG_STORE_NM AS suplerStoreNm
+          FROM TST_GOOD_INFO_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                       ON B.GROUP_CD     = '1005'
+                      AND B.LANG_CODE    = '00'
+                      AND A.GOODS_KND_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_USER C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TUM_SVC_STOR_I D
+                      ON A.USER_ID = D.USER_ID
+         WHERE A.MNGR_DELETE_AT     = 'N'
+           AND A.GOODS_ACTVTY_AT    = 'Y'
+           AND A.GOODS_REGIST_STTUS = '1006'
+           AND A.LANG_CODE          = '00'
+         <choose>
+             <when test="searchDiv01 == 1001">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND D.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+             <when test="searchDiv01 == 1002">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND A.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND A.GOODS_KND_CD = #{searchDiv02}
+         </if>
+         <if test="suplerId != null  and suplerId != ''">
+             AND A.USER_ID = #{suplerId}
+         </if>
+
+         <if test="goodsCode != null  and goodsCode != ''">
+             AND A.GOODS_CODE like #{goodsCode}||'%'
+         </if>
+         <if test="goodsNm != null  and goodsNm != ''">
+             AND A.GOODS_NM LIKE  '%'||#{goodsNm}||'%'
+         </if>
+         <if test="immeGubun != null  and immeGubun != ''">
+             AND A.GOODS_CODE like '1111'||'%'
+         </if>
+         ORDER BY A.GOODS_KND_CD, A.GOODS_CODE
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    <select id="wholeServiceList2" parameterType="map" resultType="SuplerServiceVO">
+        /*_myCeart.wholeServiceList2*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+        SELECT A.GOODS_CODE    AS goodsCode
+             , A.GOODS_NM      AS goodsNm
+             , A.GOODS_KND_CD  AS goodKndCd
+             , B.INDVDLZ_CD_NM AS goodKndNm
+             , A.USER_ID       AS suplerId
+             , C.USER_NM       AS suplerNm
+             , DECODE(D.LANG_STORE_NM,NULL,'관리자',D.LANG_STORE_NM) AS suplerStoreNm
+          FROM TST_GOOD_INFO_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                       ON B.GROUP_CD     = '1005'
+                      AND B.LANG_CODE    = '00'
+                      AND A.GOODS_KND_CD = B.INDVDLZ_CD
+               LEFT JOIN OP_USER C
+                      ON A.USER_ID = C.USER_ID
+               LEFT JOIN TUM_SVC_STOR_I D
+                      ON A.USER_ID = D.USER_ID
+          where 1=1            
+        <choose>
+             <when test="immeGubun == null">
+			   AND A.MNGR_DELETE_AT     = 'N'
+		          AND A.GOODS_ACTVTY_AT    = 'Y'
+		          AND A.GOODS_REGIST_STTUS = '1006'
+		          AND A.LANG_CODE          = '00'         
+             </when>
+             <when test="immeGubun != null and immeGubun.equals('Y')">
+	           AND A.GOODS_ACTVTY_AT    = 'N'
+	           AND A.GOODS_REGIST_STTUS = '1007'
+	           AND A.LANG_CODE          = '00'
+             AND A.GOODS_CODE like '1111'||'%'
+             </when>
+         </choose>
+
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+             AND A.GOODS_KND_CD = #{searchDiv02}
+         </if>
+         <if test="suplerId != null  and suplerId != ''">
+             AND A.USER_ID = #{suplerId}
+         </if>
+         <if test="goodsCode != null  and goodsCode != ''">
+             AND A.GOODS_CODE like #{goodsCode}||'%'
+         </if>
+         <if test="immeGubun != null  and immeGubun != ''">
+	           AND A.GOODS_ACTVTY_AT    = 'N'
+	           AND A.GOODS_REGIST_STTUS = '1007'
+	           AND A.LANG_CODE          = '00'
+             AND A.GOODS_CODE like '1111'||'%'
+         </if>
+         ORDER BY A.GOODS_KND_CD, A.GOODS_CODE
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.cntrctDtlInfo
+     * 기능(설명)  : 계약서 등록 데이터 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-19
+    -->
+    <select id="cntrctDtlInfo" parameterType="map" resultType="SuplerCntrctVO">
+        /*_myCeart.cntrctDtlInfo*/
+        SELECT A.CNTRCT_SN                             AS cntrctSn
+             , A.USER_ID                               AS suplerId
+             , A.SVC_NM                                AS svcNm
+             , TO_DATE(A.CNTRCT_BEGIN_DE, 'YYYYMMDD')  AS cntrctBeginDe
+             , TO_DATE(A.CNTRCT_END_DE, 'YYYYMMDD')    AS cntrctEndDe
+             , A.CNTRCTAMOUNT                          AS cntrctamount
+             , A.CNTR_COUNT                            AS cntrCount
+             , A.PURCHS_INSTT_NM                       AS purchsInsttNm
+             , A.SLE_INSTT_NM                          AS sleInsttNm
+             , A.GOODS_CODE                            AS goodsCode
+             , B.GOODS_NM                              AS goodsNm
+             , A.SPLY_FORM                             AS splyForm
+             , CASE WHEN A.SPLY_FORM = '1' THEN '월단위'
+                    WHEN A.SPLY_FORM = '2' THEN '년단위'
+                    WHEN A.SPLY_FORM = '0' THEN '기타'
+                                            END splyFormNm
+             , A.SPLY_FORM_ETC                         AS splyFormEtc
+             , TO_CHAR(A.CNTR_DT, 'YYYY-MM-DD')        AS cntrDt
+             , A.CTRTC_SN                              AS ctrtcSn
+             , C.LOCAL_ORGINL_NM                       AS ctrtcSnOrgNm
+             , C.FILE_ID                               AS ctrtcSnId
+             , C.FILE_SIZE                             AS ctrtcSnSize
+             , C.FILE_TY                               AS ctrtcSnTy
+             , A.CERT_RESULT_CODE                      AS certResultCode
+             , A.REGIST_MTHD_CODE                      AS registMthdCode
+         FROM TCM_CNTRCT_MANAGE_I A
+              LEFT JOIN TST_GOOD_INFO_I B
+                     ON A.GOODS_CODE = B.GOODS_CODE
+              LEFT JOIN OP_FILE C
+                     ON A.CTRTC_SN = C.FILE_SEQ
+        WHERE A.CNTRCT_SN = #{cntrctSn}
+    </select>
+    
+	<select id="cntrctInitInfo" parameterType="map" resultType="SuplerCntrctVO">
+		SELECT CASE WHEN A.USER_TY_CD in (3001, 3002) then
+					( SELECT ORGN_NM 
+					    FROM TCN_ORGN_INFO_D O 
+				       WHERE B.ORGN_CODE = O.ORGN_CODE AND B.BUSEO_CODE = O.BUSEO_CODE LIMIT 1 )
+				 ELSE
+					C.CMPNY_NM
+			END AS purchsInsttNm
+		FROM
+			OP_USER A
+				LEFT JOIN OP_USER_PBLINSTT_OPTION B ON A.USER_ID =B.USER_ID
+				LEFT JOIN OP_USER_ENTRPRS_OPTION C ON A.USER_ID =C.USER_ID
+		WHERE 	A.USER_ID = #{commUserId} 
+	</select>
+   <!--
+     * SQL 명      : _myCeart.myCeartBeforeRequestListCount
+     * 기능(설명)  : 사전견적관리 카운트
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+	<select id="myCeartBeforeRequestListCount" parameterType="map" resultType="int"> 
+	    /*_myCeart.myCeartBeforeRequestListCount*/
+        SELECT COUNT(1) AS totalCount
+          FROM TCN_BEFORE_ESTE_NOFY A 
+              ,TCM_WISHORDER_INFO_I B
+              ,TCN_BEFORE_ESTE_SPLY C 
+              ,TST_GOOD_INFO_I D
+              ,TUM_SVC_STOR_I E
+         WHERE 1 = 1 
+           AND A.NOTIFY_NUM = C.NOTIFY_NUM 
+           AND A.NOTIFY_SEQ = C.NOTIFY_SEQ 
+           AND A.USER_ID = B.USER_ID 
+           AND A.GRP_SEQ = B.GRP_SEQ 
+           AND C.GOODS_CODE = D.GOODS_CODE
+           AND C.USER_ID = D.USER_ID
+           AND C.USER_ID = E.USER_ID
+           
+           AND A.BID_GBN_CD = '1004' /*사전견적*/
+           AND C.DELETE_AT  ='N'     /*삭제여부*/
+         <choose>
+         	<when test="userTyCd == 3001">
+           	AND A.BUSEO_CODE = #{buseoCode} 
+         	</when>
+         	<when test="userTyCd == 3002">
+           	AND A.BUSEO_CODE = #{buseoCode} 
+         	</when>
+         	<otherwise>
+         		AND A.USER_ID    = #{userId}
+         	</otherwise>
+         </choose>
+           AND E.LANG_CODE='00'
+         <choose>
+             <when test="searchDiv01 == 01">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND E.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+             <when test="searchDiv01 == 02">
+             <if test="searchKeyWord != null  and searchKeyWord != ''">
+             AND D.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+             </if>
+             </when>
+         </choose>
+         <if test="searchDiv02 != null  and searchDiv02 != ''">
+         	AND C.CONFM_GBN = #{searchDiv02}
+       	 </if>
+    </select>
+   <!--
+     * SQL 명      : _myCeart.myCeartBeforeRequestList
+     * 기능(설명)  : 사전견적관리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <select id="myCeartBeforeRequestList" parameterType="map" resultType="MyCeartBeforeNofyVO">
+    	/*_myCeart.myCeartBeforeRequestList*/
+        SELECT Y.* 
+          FROM (SELECT ROWNUM NUM
+                     , X.*
+                  FROM (
+                        SELECT A.NOTIFY_NUM AS notifyNum
+                              ,A.NOTIFY_SEQ AS notifySeq
+                              ,A.USER_ID AS userId
+                              ,A.GRP_SEQ AS grpSeq
+                              ,C.USER_ID AS langStoreId
+                              ,C.GOODS_CODE AS goodsCode
+                              /*
+                              TCM_WISHORDER_INFO_I 에 GOODS_TYCD 이 설정되지않는다.
+                              ,DECODE(B.GOODS_TYCD, '1001','PaaS', '1002','SaaS', '1003','IaaS', '1004','SCS') AS goodsKndCd 
+                              */
+                              ,DECODE(D.GOODS_KND_CD, '1001','PaaS', '1002','SaaS', '1003','IaaS', '1004','SCS') AS goodsKndCd /* 구분*/
+                              ,TO_CHAR(A.NOFY_DT,'YYYY-MM-DD')AS nofyDt /*견적요청일*/
+                              ,DECODE(C.confm_gbn, 'N', '미수신', TO_CHAR(C.ENTR_DT, 'YYYY-MM-DD'))AS splyDt/*견적수신일*/ 
+                              ,D.GOODS_NM AS goodsNm  /*서비스명*/
+                              ,E.LANG_STORE_NM AS langStoreNm
+                            FROM TCN_BEFORE_ESTE_NOFY A 
+                              ,TCM_WISHORDER_INFO_I B
+                              ,TCN_BEFORE_ESTE_SPLY C 
+                              ,TST_GOOD_INFO_I D
+                              ,TUM_SVC_STOR_I E
+                         WHERE 1 = 1 
+                           AND A.NOTIFY_NUM = C.NOTIFY_NUM 
+                           AND A.NOTIFY_SEQ = C.NOTIFY_SEQ 
+                           AND A.USER_ID = B.USER_ID 
+                           AND A.GRP_SEQ = B.GRP_SEQ 
+                           AND C.GOODS_CODE = D.GOODS_CODE
+                           AND C.USER_ID = D.USER_ID
+                           AND C.USER_ID = E.USER_ID
+                           AND A.BID_GBN_CD = '1004' /*사전견적*/
+								         <choose>
+								         	<when test="userTyCd == 3001">
+								           	AND A.BUSEO_CODE = #{buseoCode} 
+								         	</when>
+													<when test="userTyCd == 3002">
+								           	AND A.BUSEO_CODE = #{buseoCode} 
+								         	</when>
+								         	<otherwise>
+								         		AND A.USER_ID    = #{userId}
+								         	</otherwise>
+								         </choose>
+                           AND C.DELETE_AT  ='N'     /*삭제여부*/
+                           AND E.LANG_CODE='00'
+                         <choose>
+                             <when test="searchDiv01 == 01">
+	                             <if test="searchKeyWord != null  and searchKeyWord != ''">
+	                             	AND E.LANG_STORE_NM LIKE '%'||#{searchKeyWord}||'%'
+	                             </if>
+                             </when>
+                             <when test="searchDiv01 == 02">
+	                             <if test="searchKeyWord != null  and searchKeyWord != ''">
+	                             	AND D.GOODS_NM LIKE '%'||#{searchKeyWord}||'%'
+	                             </if>
+                             </when>
+                         </choose>
+                         <if test="searchDiv02 != null  and searchDiv02 != ''">
+			             	 AND C.CONFM_GBN = #{searchDiv02}
+			        	 </if>
+                         
+                         ORDER BY A.NOTIFY_NUM DESC, A.NOTIFY_SEQ DESC
+			           ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    
+     <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeNotifyInfo
+     * 기능(설명)    : 사전견적서 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2016-12-26
+    -->
+    <select id="selectMyCeartBeforeNotifyInfo" parameterType="map" resultType="MyCeartBeforeNofyVO">
+    
+        /*_myCeart.selectMyCeartBeforeNotifyInfo*/
+        
+        SELECT A.NOTIFY_NUM                     AS notifyNum
+              ,A.NOTIFY_SEQ                     AS notifySeq
+              ,A.GOOD_KND_CD                    AS goodKndCd 
+              ,A.USER_ID                        AS userId
+              ,A.GRP_SEQ                        AS grpSeq
+             
+              /*이홍석 추가 20180302*/
+              ,NVL2(A.USE_FROM_DT,TO_CHAR(A.USE_FROM_DT, 'YYYY-MM-DD'),'')  AS useFromDt
+              ,NVL2(A.USE_TO_DT,TO_CHAR(A.USE_TO_DT, 'YYYY-MM-DD'),'')      AS useToDt
+              ,A.PUCH_BUDGET_AMT                AS puchBudgetAmt
+             
+              ,A.HOPE_PUCH_AMT                  AS hopePuchAmt
+              ,A.VAT_GBN                        AS vatGbn
+              ,A.TALK_GBN                       AS talkGbn
+              ,TO_CHAR(A.DELY_DT, 'YYYY-MM-DD') AS delyDt
+              ,TO_CHAR(A.DELY_DT, 'HH24')       AS delyTime
+              ,A.DELY_PLAC                      AS delyPlac
+              ,A.DELY_FILE                      AS delyFile
+              ,K.LOCAL_ORGINL_NM                AS delyFileOrgNm
+              ,K.FILE_ID                        AS delyFileId
+              ,K.FILE_SIZE                      AS delyFileSize
+              ,K.FILE_TY                        AS delyFileTy
+              ,A.ADD_CONT                       AS addCont
+              ,TO_CHAR(A.RPLY_DT, 'YYYY-MM-DD') AS rplyDt
+          FROM TCN_BEFORE_ESTE_NOFY A
+              ,OP_FILE K
+         WHERE 1= 1 
+           AND A.DELY_FILE = K.FILE_SEQ(+) 
+           AND A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           
+    </select>
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeNotifySplyInfo
+     * 기능(설명)  : 입찰공고 공급자 확인정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeNotifySplyInfo" parameterType="map" resultType="MyCeartBeforeNotifySplyVO">
+        
+        /*_myCeart.selectMyCeartBeforeNotifySplyInfo*/
+        
+         SELECT A.NOTIFY_NUM                    AS notifyNum
+               ,A.NOTIFY_SEQ                    AS notifySeq
+               ,A.USER_ID                       AS userId
+               ,G.LANG_STORE_NM                 AS langStoreNm
+               ,A.GOODS_CODE                    AS goodsCode
+               ,B.GOODS_NM                      AS goodsName
+               ,A.ASK_APPLY_CD                  AS askApplyCd
+               ,A.SPLY_AMT                      AS splyAmt
+               ,A.VAT_GBN                       AS vatGbn
+               ,A.ADD_ANSWER                    AS addAnswer
+               ,A.SPLY_NOTE                     AS splyNote
+               ,A.SPLY_FILE                     AS splyFile
+               ,F.LOCAL_ORGINL_NM               AS splyFileOrgNm
+               ,F.FILE_ID                       AS splyFileId
+               ,F.FILE_SIZE                     AS splyFileSize
+               ,F.FILE_TY                       AS splyFileTy
+               ,G.STORE_CHARGER_NM              AS storeChargerNm
+               ,DECRYPT(H.EMAIL,'P008')         AS reprsntEmail
+               ,G.REPRSNT_TELNO                 AS reprsntTelno
+               ,DECRYPT(H.MBTLNUM ,'P007')      AS mbtlnum
+               ,I.BIZRNO                        AS bizrno
+           FROM TCN_BEFORE_ESTE_SPLY A
+               ,TST_GOOD_INFO_I B
+               ,OP_FILE F
+               ,TUM_SVC_STOR_I G
+               ,OP_USER H
+               ,OP_USER_ENTRPRS_OPTION I
+          WHERE 1 = 1
+            AND A.GOODS_CODE = B.GOODS_CODE
+            AND A.SPLY_FILE = F.FILE_SEQ(+)
+            AND A.USER_ID = G.USER_ID
+            AND G.LANG_CODE = '00'
+            AND A.USER_ID = H.USER_ID
+            AND G.USER_ID = I.USER_ID
+            AND A.NOTIFY_NUM = #{notifyNum}
+            AND A.NOTIFY_SEQ = #{notifySeq}
+           <if test="userId != null  and userId != ''">
+            AND A.USER_ID    = #{userId}
+           </if>
+       ORDER BY A.ENTR_DT
+         
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoBySassI
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoBySassI" parameterType="map" resultType="MyCeartSaasIVO">
+        /*_myCeart.selectMyCeartBeforeInfoBySassI*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , #{langStoreId}  AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_GBN     AS applyGbn
+             , A.UNIT_SYS      AS unitSys
+             , B.INDVDLZ_CD_NM AS unitSysNm
+             , A.ETC_UNIT_SYS  AS etcUnitSys
+             , A.CAPTY_SYS     AS captySys
+             , A.AMOUNT_SYS    AS amountSys
+             , A.SPLY_MOTH_SYS AS splyMothSys
+             , C.INDVDLZ_CD_NM AS splyMothSysNm
+          FROM TCN_BEFORE_SAAS_I A
+               LEFT JOIN OP_CODE_INDVDLZ B
+                      ON B.GROUP_CD = '2041'
+                     AND A.UNIT_SYS = B.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD      = '2042'
+                     AND A.SPLY_MOTH_SYS = C.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , B.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , B.APPLY_GBN     AS applyGbn
+             , B.UNIT_SYS      AS unitSys
+             , C.INDVDLZ_CD_NM AS unitSysNm
+             , B.ETC_UNIT_SYS  AS etcUnitSys
+             , B.CAPTY_SYS     AS captySys
+             , B.AMOUNT_SYS    AS amountSys
+             , B.SPLY_MOTH_SYS AS splyMothSys
+             , D.INDVDLZ_CD_NM AS splyMothSysNm
+          FROM TCN_BEFORE_SAAS_I A
+               LEFT JOIN TCN_BEFORE_SAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD = '2041'
+                     AND B.UNIT_SYS = C.INDVDLZ_CD
+               LEFT JOIN OP_CODE_INDVDLZ D
+                      ON D.GROUP_CD      = '2042'
+                     AND B.SPLY_MOTH_SYS = D.INDVDLZ_CD
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+    
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoBySass2I
+     * 기능(설명)    : 상세정보(견적)요청서 SaaS2 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoBySass2I" parameterType="map" resultType="MyCeartSaas2IVO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoBySass2I*/
+        
+        SELECT A.NOTIFY_NUM            AS notifyNum
+              ,A.NOTIFY_SEQ            AS notifySeq
+              ,A.USER_ID               AS userId
+              ,#{langStoreId}          AS langStoreId
+              ,'Y'                     AS consumerYn
+              ,A.APPLY_GBN             AS applyGbn
+              
+              ,A.SUPPORT_METHOD        AS supportMethod /** 제공방법 C */
+              ,C.INDVDLZ_CD_NM         AS supportMethodNm
+              ,A.USER_MANAGER_SEPARATE AS userManagerSeparate /** 사용자/관리자 분리 D */
+              ,D.INDVDLZ_CD_NM         AS userManagerSeparateNm
+              ,A.SERVICE_SUPPLY_METHOD AS serviceSupplyMethod /** 서비스제공방식 */
+              ,A.ENCRYPTION            AS encryption          /** 암호화 */
+              ,A.MULTIPLATFORM         AS multiPlatform       /** 다중플랫폼지원 */
+          FROM TCN_BEFORE_SAAS2_I A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD   = '2042'
+           AND C.INDVDLZ_CD = A.SUPPORT_METHOD
+     LEFT JOIN OP_CODE_INDVDLZ D
+            ON D.GROUP_CD   = '2061'
+           AND D.INDVDLZ_CD = A.USER_MANAGER_SEPARATE 
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,B.APPLY_GBN     AS applyGbn
+              
+              ,B.SUPPORT_METHOD        AS supportMethod /** 제공방법 C */
+              ,C.INDVDLZ_CD_NM         AS supportMethodNm
+              ,B.USER_MANAGER_SEPARATE AS userManagerSeparate /** 사용자/관리자 분리 D */
+              ,D.INDVDLZ_CD_NM         AS userManagerSeparateNm
+              ,B.SERVICE_SUPPLY_METHOD AS serviceSupplyMethod /** 서비스제공방식 */
+              ,B.ENCRYPTION            AS encryption          /** 암호화 */
+              ,B.MULTIPLATFORM         AS multiPlatform       /** 다중플랫폼지원 */
+          FROM TCN_BEFORE_SAAS2_I A
+     LEFT JOIN TCN_BEFORE_SAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD   = '2042'
+           AND C.INDVDLZ_CD = B.SUPPORT_METHOD
+     LEFT JOIN OP_CODE_INDVDLZ D
+            ON D.GROUP_CD   = '2061'
+           AND D.INDVDLZ_CD = B.USER_MANAGER_SEPARATE 
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoBySassD
+     * 기능(설명)  : 상세정보(견적)요청서 SaaS 상세 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoBySassD" parameterType="map" resultType="MyCeartSaasDVO">
+        /*_myCeart.selectMyCeartBeforeInfoBySassD*/
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , #{langStoreId}  AS langStoreId
+             , 'Y'             AS consumerYn
+             , A.APPLY_SEQ     AS applySeq
+             , A.OPTION_NM     AS optionNm
+             , A.UNIT_ITEM     AS unitItem
+             , A.CAPTY_ITEM    AS captyItem
+             , A.AMOUNT_ITEM   AS amountItem
+             , C.INDVDLZ_CD_NM AS cmntItem
+             
+          FROM TCN_BEFORE_SAAS_D A
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD      = '2042'
+                     AND TO_CHAR(A.CMNT_ITEM) = TO_CHAR(C.INDVDLZ_CD)
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM    AS notifyNum
+             , A.NOTIFY_SEQ    AS notifySeq
+             , A.USER_ID       AS userId
+             , B.USER_ID       AS langStoreId
+             , 'N'             AS consumerYn
+             , A.APPLY_SEQ     AS applySeq
+             , B.OPTION_NM     AS optionNm
+             , B.UNIT_ITEM     AS unitItem
+             , B.CAPTY_ITEM    AS captyItem
+             , B.AMOUNT_ITEM   AS amountItem
+             , C.INDVDLZ_CD_NM AS cmntItem
+          FROM TCN_BEFORE_SAAS_D A
+               LEFT JOIN TCN_BEFORE_SAAS_D B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND A.APPLY_SEQ  = B.APPLY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+               LEFT JOIN OP_CODE_INDVDLZ C
+                      ON C.GROUP_CD      = '2042'
+                     AND TO_CHAR(B.CMNT_ITEM) = TO_CHAR(C.INDVDLZ_CD)      
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoBySass2Dn
+     * 기능(설명)    : 상세1정보(견적)요청서 SaaS2 상세Need 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03 
+    -->
+    <select id="selectMyCeartBeforeInfoBySass2Dn" parameterType="map" resultType="MyCeartSaas2DnVO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoBySass2Dn*/
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,#{langStoreId}  AS langStoreId
+              ,'Y'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq
+              ,(
+                SELECT COUNT(*)
+                  FROM TCN_BEFORE_SAAS2_DO
+                 WHERE NOTIFY_NUM = A.NOTIFY_NUM
+                   AND NOTIFY_SEQ = A.NOTIFY_SEQ
+                   AND USER_ID    = A.USER_ID   
+                   AND NEED_SEQ   = A.NEED_SEQ                 
+               ) AS saas2DoCnt
+              
+              ,A.FUNCTIONNAME  AS functionName
+              ,A.AMOUNT        AS amount
+              ,A.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BEFORE_SAAS2_DN A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(A.UNITCODE)
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq
+              ,0               AS saas2DoCnt
+              
+              ,B.FUNCTIONNAME  AS functionName
+              ,B.AMOUNT        AS amount
+              ,B.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BEFORE_SAAS2_DN A
+     LEFT JOIN TCN_BEFORE_SAAS2_DN B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.NEED_SEQ   = B.NEED_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(B.UNITCODE)       
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.NEED_SEQ
+                            
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoBySass2Do
+     * 기능(설명)    : 상세Option 정보(견적)요청서 SaaS2 상세Option 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoBySass2Do" parameterType="map" resultType="MyCeartSaas2DoVO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoBySass2Do*/
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,#{langStoreId}  AS langStoreId
+              ,'Y'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq              
+              ,A.OPTION_SEQ    AS optionSeq
+                           
+              ,A.FUNCTIONNAME  AS functionName
+              ,A.AMOUNT        AS amount
+              ,A.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BEFORE_SAAS2_DO A
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(A.UNITCODE)
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM    AS notifyNum
+              ,A.NOTIFY_SEQ    AS notifySeq
+              ,A.USER_ID       AS userId
+              ,B.USER_ID       AS langStoreId
+              ,'N'             AS consumerYn
+              ,A.NEED_SEQ      AS needSeq              
+              ,A.OPTION_SEQ    AS optionSeq
+              
+              ,B.FUNCTIONNAME  AS functionName
+              ,B.AMOUNT        AS amount
+              ,B.UNITCODE      AS unitCode
+              ,C.INDVDLZ_CD_NM AS unitCodeNm
+          FROM TCN_BEFORE_SAAS2_DO A
+     LEFT JOIN TCN_BEFORE_SAAS2_DO B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.NEED_SEQ   = B.NEED_SEQ
+           AND A.OPTION_SEQ = B.OPTION_SEQ
+           AND B.USER_ID    = #{langStoreId}
+     LEFT JOIN OP_CODE_INDVDLZ C
+            ON C.GROUP_CD      = '2042'
+           AND TO_CHAR(C.INDVDLZ_CD) = TO_CHAR(B.UNITCODE)       
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.NEED_SEQ              
+              ,A.OPTION_SEQ
+              
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoByPass
+     * 기능(설명)  : 상세정보(견적)요청서 PaaS 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoByPass" parameterType="map" resultType="MyCeartPaasVO">
+        /*_myCeart.selectMyCeartBeforeInfoByPass*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.LANG_SYS        AS langSys
+             , A.FRAMEWORK_SYS   AS frameworkSys
+             , A.CACHE_SYS       AS cacheSys
+             , A.DBMS_SYS        AS dbmsSys
+             , A.FAST_DEPLOY_SYS AS fastDeploySys
+             , A.ETC_SYS         AS etcSys
+          FROM TCN_BEFORE_PAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.LANG_SYS        AS langSys
+             , B.FRAMEWORK_SYS   AS frameworkSys
+             , B.CACHE_SYS       AS cacheSys
+             , B.DBMS_SYS        AS dbmsSys
+             , B.FAST_DEPLOY_SYS AS fastDeploySys
+             , B.ETC_SYS         AS etcSys
+          FROM TCN_BEFORE_PAAS_I A
+               LEFT JOIN TCN_BEFORE_PAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+    
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoByPass2
+     * 기능(설명)    : 상세정보(견적)요청서 PaaS2 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoByPass2" parameterType="map" resultType="MyCeartPaas2VO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoByPass2*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.APPLY_GBN       AS applyGbn
+             
+              ,A.HOSTINGMETHOD   AS hostingmethod               
+              ,A.SCALING         AS scaling         
+              ,A.PLATFORM        AS platform          
+              ,A.RUNTIMES        AS runtimes          
+              ,A.MIDDLEWARE      AS middleware            
+              ,A.FRAMEWORKS      AS frameworks            
+              ,A.SERVICES        AS services          
+              ,A.ADDONS          AS addons        
+              ,A.EXTENDFUNCTION  AS extendfunction                
+              ,A.GEOLOCATIONS    AS geolocations                
+          FROM TCN_BEFORE_PAAS2_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,B.APPLY_GBN       AS applyGbn
+             
+              ,B.HOSTINGMETHOD   AS hostingmethod               
+              ,B.SCALING         AS scaling         
+              ,B.PLATFORM        AS platform          
+              ,B.RUNTIMES        AS runtimes          
+              ,B.MIDDLEWARE      AS middleware            
+              ,B.FRAMEWORKS      AS frameworks            
+              ,B.SERVICES        AS services          
+              ,B.ADDONS          AS addons        
+              ,B.EXTENDFUNCTION  AS extendfunction                
+              ,B.GEOLOCATIONS    AS geolocations                
+          FROM TCN_BEFORE_PAAS2_I A
+     LEFT JOIN TCN_BEFORE_PAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoByIassI
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS I 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoByIassI" parameterType="map" resultType="MyCeartIaasIVO">
+        /*_myCeart.selectMyCeartBeforeInfoByIassI*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_GBN       AS applyGbn
+             , A.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , A.CDN_REQU_CNT    AS cdnRequCnt
+             , A.WEB_GOODS_KIND  AS webGoodsKind
+             , A.WEB_ACCESS      AS webAccess
+             , A.MNTING_VM       AS mntingVm
+             , A.MNTING_ID_CNT   AS mntingIdCnt
+             , A.BAKUP_CNT       AS bakupCnt
+             , A.BAKUP_STORG     AS bakupStorg
+             , A.MANG_FUNC       AS mangFunc
+             , A.SECTY_VPN       AS sectyVpn
+             , A.SECTY_SSLVPN    AS sectySslvpn
+             , A.TECH_SUPT       AS techSupt
+             , A.FUNC_DMND1      AS funcDmnd1
+             , A.FUNC_DMND2      AS funcDmnd2
+             , A.FUNC_DMND3      AS funcDmnd3
+             , A.FUNC_DMND4      AS funcDmnd4
+             , A.INTERFACE_DMND  AS interfaceDmnd
+             , A.SECTY_DMND1     AS sectyDmnd1
+             , A.SECTY_DMND2     AS sectyDmnd2
+             , A.SECTY_DMND3     AS sectyDmnd3
+             , A.SECTY_DMND4     AS sectyDmnd4
+             , A.SECTY_DMND5     AS sectyDmnd5
+             , A.QUTY_DMND1      AS qutyDmnd1
+             , A.QUTY_DMND2      AS qutyDmnd2
+             , A.OPTN_DMND1      AS optnDmnd1
+             , A.OPTN_DMND2      AS optnDmnd2
+             , A.PRJT_DMND1      AS prjtDmnd1
+             , A.PRJT_DMND2      AS prjtDmnd2
+             , A.PRJT_DMND3      AS prjtDmnd3
+             , A.ETC_DMND        AS etcDmnd
+          FROM TCN_BEFORE_IAAS_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , B.APPLY_GBN       AS applyGbn
+             , B.CDN_TRANS_VLMN  AS cdnTransVlmn
+             , B.CDN_REQU_CNT    AS cdnRequCnt
+             , B.WEB_GOODS_KIND  AS webGoodsKind
+             , B.WEB_ACCESS      AS webAccess
+             , B.MNTING_VM       AS mntingVm
+             , B.MNTING_ID_CNT   AS mntingIdCnt
+             , B.BAKUP_CNT       AS bakupCnt
+             , B.BAKUP_STORG     AS bakupStorg
+             , B.MANG_FUNC       AS mangFunc
+             , B.SECTY_VPN       AS sectyVpn
+             , B.SECTY_SSLVPN    AS sectySslvpn
+             , B.TECH_SUPT       AS techSupt
+             , B.FUNC_DMND1      AS funcDmnd1
+             , B.FUNC_DMND2      AS funcDmnd2
+             , B.FUNC_DMND3      AS funcDmnd3
+             , B.FUNC_DMND4      AS funcDmnd4
+             , B.INTERFACE_DMND  AS interfaceDmnd
+             , B.SECTY_DMND1     AS sectyDmnd1
+             , B.SECTY_DMND2     AS sectyDmnd2
+             , B.SECTY_DMND3     AS sectyDmnd3
+             , B.SECTY_DMND4     AS sectyDmnd4
+             , B.SECTY_DMND5     AS sectyDmnd5
+             , B.QUTY_DMND1      AS qutyDmnd1
+             , B.QUTY_DMND2      AS qutyDmnd2
+             , B.OPTN_DMND1      AS optnDmnd1
+             , B.OPTN_DMND2      AS optnDmnd2
+             , B.PRJT_DMND1      AS prjtDmnd1
+             , B.PRJT_DMND2      AS prjtDmnd2
+             , B.PRJT_DMND3      AS prjtDmnd3
+             , B.ETC_DMND        AS etcDmnd
+          FROM TCN_BEFORE_IAAS_I A
+               LEFT JOIN TCN_BEFORE_IAAS_I B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+    </select>
+    
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoByIass2I
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 I 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoByIass2I" parameterType="map" resultType="MyCeartIaas2IVO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoByIass2I*/
+        
+       SELECT A.NOTIFY_NUM        AS notifyNum
+             ,A.NOTIFY_SEQ        AS notifySeq
+             ,A.USER_ID           AS userId
+             ,#{langStoreId}      AS langStoreId
+             ,'Y'                 AS consumerYn
+             ,A.APPLY_GBN         AS applyGbn
+             
+             ,A.SERVER_IP         AS serverIp                      
+			 ,A.SERVER_NETWORK    AS serverNetwork                           
+			 ,A.SERVER_GSLB       AS serverGslb                        
+			 ,A.SERVER_LDBL       AS serverLdbl                        
+			 ,A.SERVER_SNAP       AS serverSnap                        
+			 ,A.SERVER_IMG        AS serverImg                       
+			 ,A.DB_IP             AS dbIp                  
+			 ,A.DB_NETWORK        AS dbNetwork                       
+			 ,A.DB_ADDDISK        AS dbAddDisk                       
+			 ,A.DB_BACKSTORG      AS dbBackStorg                         
+			 ,A.DB_STORG_SPACE    AS dbStorgSpace                           
+			 ,A.DB_TRANS_VLMN     AS dbTransVlmn                          
+			 ,A.CDN_TRANS_VLMN    AS cdnTransVlmn                           
+			 ,A.CDN_REQU_CNT      AS cdnRequCnt                         
+			 ,A.WEB_GOODS_KIND    AS webGoodsKind                           
+			 ,A.WEB_ACCESS        AS webAccess                       
+			 ,A.MNTING_VM         AS mntingVm                      
+			 ,A.MNTING_ID_CNT     AS mntingIdCnt                          
+			 ,A.BAKUP_CNT         AS bakupCnt                      
+			 ,A.BAKUP_STORG       AS bakupStorg                        
+			 ,A.MANG_FUNC         AS mangFunc                      
+			 ,A.SECTY_VPN         AS sectyVpn                      
+			 ,A.SECTY_SSLVPN      AS sectySslvpn                         
+			 ,A.ADDED_ETC         AS addedEtc                           
+         FROM TCN_BEFORE_IAAS2_I A
+        WHERE A.NOTIFY_NUM = #{notifyNum}
+          AND A.NOTIFY_SEQ = #{notifySeq}
+          AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM       AS notifyNum
+              ,A.NOTIFY_SEQ       AS notifySeq
+              ,A.USER_ID          AS userId
+              ,B.USER_ID          AS langStoreId
+              ,'N'                AS consumerYn
+              ,B.APPLY_GBN        AS applyGbn
+             
+              ,B.SERVER_IP         AS serverIp                      
+		 	  ,B.SERVER_NETWORK    AS serverNetwork                           
+		 	  ,B.SERVER_GSLB       AS serverGslb                        
+		 	  ,B.SERVER_LDBL       AS serverLdbl                        
+			  ,B.SERVER_SNAP       AS serverSnap                        
+			  ,B.SERVER_IMG        AS serverImg                       
+			  ,B.DB_IP             AS dbIp                  
+			  ,B.DB_NETWORK        AS dbNetwork                       
+			  ,B.DB_ADDDISK        AS dbAddDisk                       
+			  ,B.DB_BACKSTORG      AS dbBackStorg                         
+			  ,B.DB_STORG_SPACE    AS dbStorgSpace                           
+			  ,B.DB_TRANS_VLMN     AS dbTransVlmn                          
+			  ,B.CDN_TRANS_VLMN    AS cdnTransVlmn                           
+			  ,B.CDN_REQU_CNT      AS cdnRequCnt                         
+			  ,B.WEB_GOODS_KIND    AS webGoodsKind                           
+			  ,B.WEB_ACCESS        AS webAccess                       
+			  ,B.MNTING_VM         AS mntingVm                      
+			  ,B.MNTING_ID_CNT     AS mntingIdCnt                          
+			  ,B.BAKUP_CNT         AS bakupCnt                      
+			  ,B.BAKUP_STORG       AS bakupStorg                        
+			  ,B.MANG_FUNC         AS mangFunc                      
+			  ,B.SECTY_VPN         AS sectyVpn                      
+			  ,B.SECTY_SSLVPN      AS sectySslvpn                         
+			  ,B.ADDED_ETC         AS addedEtc			 
+          FROM TCN_BEFORE_IAAS2_I A
+     LEFT JOIN TCN_BEFORE_IAAS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+          
+    </select>
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoByIassDd
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DD
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoByIassDd" parameterType="map" resultType="MyCeartIaasDdVO">
+        /*_myCeart.selectMyCeartBeforeInfoByIassDd*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.DB_USE          AS dbUse
+             , A.DB_OS           AS dbOs
+             , A.DB_CPU          AS dbCpu
+             , A.DB_MEMORY       AS dbMemory
+             , A.DB_DISK         AS dbDisk
+             , A.DB_QNTY         AS dbQnty
+             , A.DB_IP           AS dbIp
+             , A.DB_NETWORK      AS dbNetwork
+             , A.DB_ADD_DISK     AS dbAddDisk
+             , A.DB_BACK_STORG   AS dbBackStorg
+             , A.DB_STORG_SPACE  AS dbStorgSpace
+             , A.DB_TRANS_VLMN   AS dbTransVlmn
+          FROM TCN_BEFORE_IAAS_DD A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , B.DB_USE          AS dbUse
+             , B.DB_OS           AS dbOs
+             , B.DB_CPU          AS dbCpu
+             , B.DB_MEMORY       AS dbMemory
+             , B.DB_DISK         AS dbDisk
+             , B.DB_QNTY         AS dbQnty
+             , B.DB_IP           AS dbIp
+             , B.DB_NETWORK      AS dbNetwork
+             , B.DB_ADD_DISK     AS dbAddDisk
+             , B.DB_BACK_STORG   AS dbBackStorg
+             , B.DB_STORG_SPACE  AS dbStorgSpace
+             , B.DB_TRANS_VLMN   AS dbTransVlmn
+          FROM TCN_BEFORE_IAAS_DD A
+               LEFT JOIN TCN_BEFORE_IAAS_DD B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoByIass2Dd
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 DD
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoByIass2Dd" parameterType="map" resultType="MyCeartIaas2DdVO">
+    
+        /*_myCeart.selectMyCeartBeforeInfoByIass2Dd*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.DB_SEQ          AS dbSeq
+             
+              ,A.DB_USE          AS dbUse
+              ,A.DB_OS           AS dbOs
+              ,A.DB_CPU          AS dbCpu
+              ,A.DB_MEMORY       AS dbMemory
+              ,A.DB_DISK         AS dbDisk
+              ,A.DB_QNTY         AS dbQnty
+          FROM TCN_BEFORE_IAAS2_DD A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,A.DB_SEQ          AS dbSeq
+              
+              ,B.DB_USE          AS dbUse
+              ,B.DB_OS           AS dbOs
+              ,B.DB_CPU          AS dbCpu
+              ,B.DB_MEMORY       AS dbMemory
+              ,B.DB_DISK         AS dbDisk
+              ,B.DB_QNTY         AS dbQnty
+          FROM TCN_BEFORE_IAAS2_DD A
+     LEFT JOIN TCN_BEFORE_IAAS2_DD B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.DB_SEQ
+         
+    </select>
+    
+        
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoByScs2
+     * 기능(설명)    : 상세정보(견적)요청서 PaaS2 조회
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoByScs2" parameterType="map" resultType="MyCeartScs2VO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoByScs2*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.APPLY_GBN       AS applyGbn
+             
+              ,A.CNSL_RELM       AS cnslRelm
+              ,A.CNSL_RELM_ETC   AS cnslRelmEtc
+              ,A.CNSL_SCOPE      AS cnslScope
+              ,A.EXC_AREA        AS excArea
+              ,A.INDC_WHOLE      AS indcWhole
+              ,A.SETUP_MGR       AS setupMgr
+              ,A.OPER            AS oper
+              ,A.QLITY_TEST      AS qlityTest
+              ,A.SCRTY           AS scrty
+              ,A.EDUCATION       AS education                
+          FROM TCN_BEFORE_SCS2_I A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+
+        UNION ALL
+
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,B.APPLY_GBN       AS applyGbn
+             
+              ,B.CNSL_RELM       AS cnslRelm
+              ,B.CNSL_RELM_ETC   AS cnslRelmEtc
+              ,B.CNSL_SCOPE      AS cnslScope
+              ,B.EXC_AREA        AS excArea
+              ,B.INDC_WHOLE      AS indcWhole
+              ,B.SETUP_MGR       AS setupMgr
+              ,B.OPER            AS oper
+              ,B.QLITY_TEST      AS qlityTest
+              ,B.SCRTY           AS scrty
+              ,B.EDUCATION       AS education                
+          FROM TCN_BEFORE_SCS2_I A
+     LEFT JOIN TCN_BEFORE_SCS2_I B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+    </select>
+    
+
+    <!--
+     * SQL 명      : _myCeart.selectMyCeartBeforeInfoByIassDs
+     * 기능(설명)  : 상세정보(견적)요청서 IaaS DS
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-27
+    -->
+    <select id="selectMyCeartBeforeInfoByIassDs" parameterType="map" resultType="MyCeartIaasDsVO">
+        /*_myCeart.selectMyCeartBeforeInfoByIassDs*/
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , #{langStoreId}    AS langStoreId
+             , 'Y'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , A.SERVER_USE      AS serverUse
+             , A.SERVER_OS       AS serverOs
+             , A.SERVER_CPU      AS serverCpu
+             , A.SERVER_MEMORY   AS serverMemory
+             , A.SERVER_DISK     AS serverDisk
+             , A.SERVER_QNTY     AS serverQnty
+             , A.SERVER_IP       AS serverIp
+             , A.SERVER_NETWORK  AS serverNetwork
+             , A.SERVER_GSLB     AS serverGslb
+             , A.SERVER_LDBL     AS serverLdbl
+             , A.SERVER_SNAP     AS serverSnap
+             , A.SERVER_IMG      AS serverImg
+          FROM TCN_BEFORE_IAAS_DS A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+        UNION ALL
+        SELECT A.NOTIFY_NUM      AS notifyNum
+             , A.NOTIFY_SEQ      AS notifySeq
+             , A.USER_ID         AS userId
+             , B.USER_ID         AS langStoreId
+             , 'N'               AS consumerYn
+             , A.APPLY_SEQ       AS applySeq
+             , B.SERVER_USE      AS serverUse
+             , B.SERVER_OS       AS serverOs
+             , B.SERVER_CPU      AS serverCpu
+             , B.SERVER_MEMORY   AS serverMemory
+             , B.SERVER_DISK     AS serverDisk
+             , B.SERVER_QNTY     AS serverQnty
+             , B.SERVER_IP       AS serverIp
+             , B.SERVER_NETWORK  AS serverNetwork
+             , B.SERVER_GSLB     AS serverGslb
+             , B.SERVER_LDBL     AS serverLdbl
+             , B.SERVER_SNAP     AS serverSnap
+             , B.SERVER_IMG      AS serverImg
+          FROM TCN_BEFORE_IAAS_DS A
+               LEFT JOIN TCN_BEFORE_IAAS_DS B
+                      ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                     AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                     AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+         ORDER BY A.NOTIFY_NUM, A.NOTIFY_SEQ, A.APPLY_SEQ
+    </select>
+
+    <!--
+     * SQL 명        : _myCeart.selectMyCeartBeforeInfoByIass2Ds
+     * 기능(설명)    : 상세정보(견적)요청서 IaaS2 DS
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <select id="selectMyCeartBeforeInfoByIass2Ds" parameterType="map" resultType="MyCeartIaas2DsVO">
+        
+        /*_myCeart.selectMyCeartBeforeInfoByIass2Ds*/
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,#{langStoreId}    AS langStoreId
+              ,'Y'               AS consumerYn
+              ,A.SERVER_SEQ      AS serverSeq
+              
+              ,A.SERVER_USE      AS serverUse
+              ,A.SERVER_OS       AS serverOs
+              ,A.SERVER_CPU      AS serverCpu
+              ,A.SERVER_MEMORY   AS serverMemory
+              ,A.SERVER_DISK     AS serverDisk
+              ,A.SERVER_QNTY     AS serverQnty
+          FROM TCN_BEFORE_IAAS2_DS A
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+           
+        UNION ALL
+        
+        SELECT A.NOTIFY_NUM      AS notifyNum
+              ,A.NOTIFY_SEQ      AS notifySeq
+              ,A.USER_ID         AS userId
+              ,B.USER_ID         AS langStoreId
+              ,'N'               AS consumerYn
+              ,A.SERVER_SEQ      AS serverSeq
+              
+              ,B.SERVER_USE      AS serverUse
+              ,B.SERVER_OS       AS serverOs
+              ,B.SERVER_CPU      AS serverCpu
+              ,B.SERVER_MEMORY   AS serverMemory
+              ,B.SERVER_DISK     AS serverDisk
+              ,B.SERVER_QNTY     AS serverQnty
+          FROM TCN_BEFORE_IAAS2_DS A
+     LEFT JOIN TCN_BEFORE_IAAS2_DS B
+            ON A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND B.USER_ID    = #{langStoreId}
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+           AND A.USER_ID    = #{userId}
+      ORDER BY A.NOTIFY_NUM
+              ,A.NOTIFY_SEQ
+              ,A.SERVER_SEQ
+         
+    </select>
+    
+    <!--
+     * SQL 명      : _myCeart.myCeartBeforeRequestListDeleteAction
+     * 기능(설명)  : 사전견적공고 삭제구분 업데이트
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-13
+    -->
+    <update id="myCeartBeforeRequestListDelete" parameterType="MyWishVO">
+    	/*_myCeart.myCeartBeforeRequestListDelete*/
+        UPDATE TCN_BEFORE_ESTE_SPLY
+           SET DELETE_AT = 'Y' 
+    	 WHERE NOTIFY_NUM    = #{notifyNum}
+		   AND NOTIFY_SEQ    = #{notifySeq}
+		   AND USER_ID 		 = #{userId}
+    </update>
+    
+    
+        <!--
+     * SQL 명      : _myCeart.insertbdGoodsTmp
+     * 기능(설명)  : 서비스비교 등록
+     * 작   성   자  : eulro.yoon
+     * 작   성   일  : 2017-11-29
+    -->
+    <update id="insertbdGoodsTmp">
+             
+	/*_myCeart.insertbdGoodsTmp*/
+
+            MERGE INTO TST_GOOD_TMP_M A USING DB_ROOT  
+                    ON (
+                            A.GOODS_CODE = #{item} 
+                        <!-- <if test="userId != null  and userId != ''"> -->
+                        AND A.USER_ID = #{userId} 
+                        AND A.USER_ID = #{sessionId}
+                        <!-- </if>
+                             <if test="userId == null  and userId == ''">
+                             AND SESSION_ID = #{sessionId}
+                             </if>
+                        -->             
+                       )
+ WHEN NOT MATCHED THEN
+                       INSERT
+                       (
+                         A.GOODS_CODE
+                       , A.GOODS_NM
+                       , A.USER_ID
+                       , A.SESSION_ID
+                       )
+                       VALUES
+                       (
+                          #{item}
+                       , (SELECT GOODS_NM FROM TST_GOOD_INFO_I WHERE GOODS_CODE = ${item})
+                       , #{userId}
+                       , #{sessionId}
+                       )
+    </update>
+ 
+    <select id="selectBgGoodsList" parameterType="map" resultType="HashMap">
+        
+    /*_myCeart.selectBgGoodsList*/
+        
+         SELECT GOODS_CODE
+              , GOODS_NM
+              , USER_ID
+              , GOODS_KND_CD
+              , GOODSTYNM
+              <!-- 
+              , FILE_SEQ
+              , (SELECT file_url FROM op_file WHERE file_seq = A.FILE_SEQ  AND file_ordr_no = 1 LIMIT 1) AS FILE_URL 
+              , GOODS_MAKR
+              -->
+          FROM  (    SELECT M.GOODS_CODE
+                          , M.GOODS_NM
+                          , M.USER_ID
+                          , (SELECT GOODS_KND_CD FROM TST_GOOD_INFO_I WHERE goods_code = M.GOODS_CODE) AS GOODS_KND_CD
+                          , CA.GOODSTYNM       AS GOODSTYNM   /*서비스구분*/
+                          <!--                    
+                          , (SELECT GOODS_IMAGE_FILE_SEQ FROM TST_GOOD_INFO_I WHERE goods_code = M.GOODS_CODE) AS FILE_SEQ
+                          , (SELECT GOODS_MAKR FROM TST_GOOD_INFO_I WHERE goods_code = M.GOODS_CODE) AS GOODS_MAKR 
+                          -->
+                      FROM TST_GOOD_TMP_M M
+                 LEFT JOIN (   SELECT A.GOODS_CODE
+                                    , (SELECT INDVDLZ_CD_NM
+                                         FROM OP_CODE_INDVDLZ
+                                        WHERE LANG_CODE  = '00'
+                                          AND GROUP_CD   = 1005
+                                          AND INDVDLZ_CD = B.CTGRY_CL_CD
+                                      ) AS GOODSTYNM
+                                 FROM TST_GOOD_CATE_I A
+                                    , TST_CATE_MGMT_M B
+                                WHERE A.CTGRY_CODE = B.CTGRY_CODE 
+                                  AND B.LANG_CODE  = '00'
+                             GROUP BY A.GOODS_CODE
+                                    , B.CTGRY_CL_CD
+                           ) CA 
+                        ON M.GOODS_CODE = CA.GOODS_CODE
+                     WHERE USER_ID = #{userId} 
+                        OR USER_ID = #{sessionId}
+                  ORDER BY GOODS_TMP_SN DESC
+                ) A
+
+    </select>
+    
+    <delete id="deleteBdGoodsTmp">
+    
+    /*_myCeart.deleteBdGoodsTmp*/
+    
+   DELETE FROM TST_GOOD_TMP_M 
+         WHERE (   USER_ID = #{userId} 
+                OR USER_ID = #{sessionId}
+               )
+           <if test="item != null  and item != ''">
+           AND GOODS_CODE = #{item} 
+           </if> 
+    </delete>
+    
+    <!--
+     * SQL 명        : _myCeart.selectMyWishHistory
+     * 기능(설명)    : 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-04
+    -->
+    <select id="selectMyWishHistory" parameterType="map" resultType="MyWishVO">
+        
+        /*_myCeart.selectMyWishHistory*/
+        
+              SELECT A.LOG_SEQ               AS logSeq
+                    ,A.USER_ID               AS userId
+                    ,A.GRP_SEQ               AS grpSeq
+                    ,CA.GOODSTYNM            AS goodsTyNm   /*서비스구분*/
+                    ,CA.CTGRY_CL_CD          AS goodsTycd
+                    ,A.GOODS_CODE            AS goodsCd
+                    ,A.SEL_CHK               AS selChk
+                    ,NVL2(A.REG_DT,TO_CHAR(A.REG_DT, 'YYYY-MM-DD'),'')  AS regDt
+                    ,B.GOODS_NM              AS goodsNm
+                    ,C.LANG_STORE_NM         AS langStoreNm
+                    ,C.USER_ID               AS langStoreUserId
+                    ,D.FILTER_CON            AS filterCon
+                    ,D.KEY_WORD              AS keyWord
+                    ,NVL(A.CONFRM_CHK, 'N')  AS goodsConfrmYn /* 서비스 확정여부 */
+                    ,NVL(A.CONTRCT_CHK, 'N') AS contrctChk    /* 계약 확정여부 */ 
+                    ,E.CONFM_GBN             AS confrmChk     /* null:'요청', Y:'보기', N:'미수신'  */
+                    ,A.confrm_dt             As confrmDt                    
+                    ,E.NOTIFY_NUM            AS notifyNum
+                    ,E.NOTIFY_SEQ            AS notifySeq
+                    ,E.SUPLER_ID             AS suplerId
+                    ,NVL2(E.ENTR_DT,TO_CHAR(A.REG_DT, 'YYYY-MM-DD'),'')  AS entrDt
+                    ,E.SPLY_AMT              AS splyAmt
+                FROM TCM_WISHORDER_DETAIL_L A
+     LEFT OUTER JOIN TST_GOOD_INFO_I B
+                  ON B.GOODS_CODE = A.GOODS_CODE  
+     LEFT OUTER JOIN (  SELECT A.GOODS_CODE
+                              ,(SELECT INDVDLZ_CD_NM
+                                  FROM OP_CODE_INDVDLZ
+                                 WHERE LANG_CODE  = '00'
+                                   AND GROUP_CD   = 1005
+                                   AND INDVDLZ_CD = B.CTGRY_CL_CD
+                               ) AS GOODSTYNM 
+                              ,CTGRY_CL_CD
+                          FROM TST_GOOD_CATE_I A
+                              ,TST_CATE_MGMT_M B
+                         WHERE B.CTGRY_CODE = A.CTGRY_CODE 
+                           AND B.LANG_CODE  = '00'
+                      GROUP BY A.GOODS_CODE
+                              ,B.CTGRY_CL_CD
+                     ) CA 
+                  ON CA.GOODS_CODE = B.GOODS_CODE 
+     LEFT OUTER JOIN TUM_SVC_STOR_I C
+                  ON C.USER_ID = B.USER_ID  
+                 AND C.LANG_CODE = '00'
+     LEFT OUTER JOIN TCM_WISHORDER_INFO_I D
+                  ON D.USER_ID = A.USER_ID 
+                 AND D.GRP_SEQ = A.GRP_SEQ 
+     LEFT OUTER JOIN (  SELECT A1.NOTIFY_NUM
+                              ,A1.NOTIFY_SEQ
+                              ,A1.GOODS_CODE
+                              ,A1.CONFM_GBN
+                              ,A1.SPLY_AMT
+                              ,A1.USER_ID AS SUPLER_ID
+                              ,A1.ENTR_DT
+                              ,A2.GRP_SEQ 
+                              ,A2.USER_ID                              
+                          FROM TCN_BEFORE_ESTE_SPLY A1
+                              ,TCN_BEFORE_ESTE_NOFY A2
+                         WHERE A1.NOTIFY_NUM = A2.NOTIFY_NUM 
+                           AND A1.NOTIFY_SEQ = A2.NOTIFY_SEQ
+                     ) E
+                  ON E.GRP_SEQ    = A.GRP_SEQ 
+                 AND E.USER_ID    = A.USER_ID   
+                 AND E.GOODS_CODE = A.GOODS_CODE 
+               WHERE A.USER_ID    = #{userId}
+                 AND A.GOODS_CODE = #{goodsCd}                 
+            ORDER BY E.NOTIFY_SEQ DESC /* 답변역순으로.. */
+                     
+    </select>
+    
+</mapper>

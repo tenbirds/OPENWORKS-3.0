@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>POPUP - 구매요청</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_pop.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body class="winPopup buying">
+	<h2>구매요청 <a href="#">닫기</a></h2>
+	<div>
+		<table class="tbl_st3">
+			<thead>
+				<tr>
+					<th>공급사</th>
+					<th>서비스</th>
+					<th>규격</th>
+					<th class="requ">수량</th>
+					<th>구매희망금액</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>더존비즈온</td>
+					<td>iCube G20 Cloud Edition</td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+				</tr>
+				<tr>
+					<td>대원씨티에스</td>
+					<td>Microsoft Office 365 Business Essentials</td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+				</tr>
+				<tr>
+					<td>소프트캠프</td>
+					<td>SHIELDEX SaniTrans Mail</td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+					<td><input type="text" /></td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<h3>세부조건</h3>
+		<table class="tbl_st4">
+			<tr>
+				<th>납품 기한</th>
+				<td class="term">
+					<input type="text" id="dPicker_1" />						
+				    <span class="sel_box">
+						<select>
+							<option>01</option>
+							<option>02</option>
+							<option>03</option>
+							<option>04</option>
+							<option>05</option>
+							<option>06</option>
+							<option>07</option>
+							<option>08</option>
+							<option>09</option>
+							<option>10</option>
+							<option>11</option>
+							<option>12</option>
+							<option>13</option>
+							<option>14</option>
+							<option>15</option>
+							<option>16</option>
+							<option>17</option>
+							<option>18</option>
+							<option>19</option>
+							<option>20</option>
+							<option>21</option>
+							<option>22</option>
+							<option>23</option>
+							<option>24</option>
+						</select>
+					</span>
+					시
+					<input type="radio" id="decision_after" />
+					<label for="decision_after">합희 후 결정</label>
+				</td>						
+			</tr>					
+			<tr>
+				<th>납품 장소</th>
+				<td><input type="text" /></td>						
+			</tr>					
+			<tr>
+				<th>첨부파일</th>
+				<td>
+					<div class="uploadFile">
+						<input type="text" readonly="readonly" />
+						<div>
+							<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+			            	<span class="btns st3">
+			            		파일선택
+			            		<input type="file" />
+			            	</span>
+		            	</div>
+	                </div>
+		            <p class="uploaded">
+		            	<span>
+		            		FrameWork.psd
+		            		<a href="#">삭제</a>
+		            	</span>
+		            </p>	                
+				</td>						
+			</tr>					
+			<tr>
+				<th class="requ">문의내용</th>
+				<td>
+					<div class="quNum">
+						<a href="#">행추가</a>
+						<div>
+							<textarea></textarea>
+						</div>
+					</div>
+					<div class="quNum">
+						<a href="#">행추가</a>
+						<div>
+							<textarea></textarea>
+						</div>
+					</div>
+					<p>※ 질문 수 만큼 텍스트 박스를 추가하여 작성해 주세요.</p>
+				</td>						
+			</tr>					
+		</table>			
+		
+		<h3>요청자 정보</h3>
+		<table class="tbl_st4">
+			<tr>
+				<th>작성자</th>
+				<td>호익동</td>						
+				<th>휴대전화</th>
+				<td>010-1234-5678</td>						
+			</tr>
+			<tr>
+				<th class="requ">기업/기관명</th>
+				<td><input type="text" /></td>
+				<th>이메일</th>
+				<td>abcd@agmidl.com</td>						
+			</tr>
+			<tr>
+				<th>직책</th>
+				<td><input type="text" /></td>						
+				<th>대표전화</th>
+				<td class="tel"><input type="text" /> - <input type="text" /> - <input type="text" /></td>						
+			</tr>
+		</table>
+
+		<div class="btnArea cen">
+			<input type="submit" value="발송하기" class="btns st1" />
+		</div>
+	</div>
+
+  <script src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>
+  
+  <!-- datepicker -->
+  <link rel="stylesheet" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+  <script src="/resources/openworks/spi/openworks/openworks.ui.js"></script>
+  <script>
+	$(document).ready(function() {
+	  $("#dPicker_1").datepicker({
+	          showOn: "both", 
+	          buttonImage: "/cloud_ver2/new_cloud/images/icn_calen.png", 
+	          buttonImageOnly: false,
+	          buttonText: "달력"
+	    });
+	});
+  </script>
+  <!--// datepicker -->
+  
+ </body>
+</html>

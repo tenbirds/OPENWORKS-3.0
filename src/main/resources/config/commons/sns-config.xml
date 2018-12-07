@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <sns>
+        <providers>
+            <facebook>Facebook</facebook>
+            <twitter>Twitter</twitter>
+            <!-- <me2day>네이버 me2day</me2day>
+            <google>Google</google>
+            <yozm>다음 요즘</yozm> -->
+        </providers>
+        <authType>
+            <oAuth1>OAuth 1.0a</oAuth1>
+            <oAuth2>OAuth 2.0</oAuth2>
+            <user>회원</user>
+        </authType>
+    </sns>
+    <shortKey>
+    	<bit>
+    		<url>http://bit.ly/</url>
+	    	<id>nia2131</id>
+	    	<apiKey>R_c756946f81254800957c815659c132e6</apiKey>
+    	</bit>
+    </shortKey>
+</configuration>

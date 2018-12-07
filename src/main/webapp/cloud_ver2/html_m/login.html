@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<title>로그인</title>
+	<script type="text/javascript" src="/new_cloud_m/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud_m/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud_m/js/common.js"></script>
+    <script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+    <!-- <script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script> -->
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+    
+	<link rel="shortcut icon" href="/resources/web/theme/default/images/common/ico/ceart_favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/new_cloud_m/css/sub.css" />
+	<script type="text/javascript">var CTX_PATH="";</script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+
+	<!-- 기능별 스크립트 정의 -->
+	<script type="text/javascript" src="/resources/web/board/board.js"></script>
+    <script type="text/javascript" src="/resources/web/theme/common/js/fakeselect.js"></script>
+
+</head>
+
+
+</head>
+<body>
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<div class="head">
+					<h1>
+						<a href="#" class="myCom">나의<br />커뮤니티</a>
+						<a href="#" class="login">로그인</a>
+						<!-- 로그인 후 --
+						<a href="#" class="logout">로그아웃</a>
+						-->
+						<a href="http://www.ceart.kr/korean/m/index.do"><img src="/new_cloud_m/images/common/logo.png" alt="소프트웨어스토어 씨앗" /></a>
+					</h1>
+				</div>
+				
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mobMainSearch; }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mobMainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+				</div>
+				<!-- //quick -->
+				
+				<div class="navi">
+					<ul>
+						<li><a href="/korean/m/store/software/BD_index.do?goodsTyCd=1002" id="mSaaS">SaaS</a></li>
+						<li><a href="/korean/m/store/software/BD_index.do?goodsTyCd=1001" id="mPaaS">PaaS</a></li>
+						<li><a href="/korean/m/store/software/BD_index.do?goodsTyCd=1003" id="mIaaS">IaaS</a></li>
+						<li><a href="/korean/m/board/BD_board.list.do?domainCd=2&bbsCd=1004" id="mcommunication">지식</a></li>
+						<li><a href="/mob/introduction/ompIntro/ompIntroduction.jsp" id="mintroduction">소개</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" >
+			<!-- contents -->
+			<div class="contents login">
+				<h2><i>클라우드스토어 씨앗에 오신 것을 환영합니다.</i></h2>
+				
+				<p>로그인 하시면 회원님을 위한 더 많은 서비스를 경험하실 수 있습니다.</p>
+				
+				<form>
+					<input type="text" placeholder="ID" />
+					<input type="password" placeholder="PW" />
+					
+					<a href="#"><i>Login</i></a>
+					
+					<label><input type="checkbox" checked="checked" /> 로그인 상태 유지</label>
+				</form>				
+			</div>
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<div class="foot-area">
+					<!-- quick -->
+					<div class="quick">
+						<a href="/korean/m/board/BD_board.list.do?domainCd=2&bbsCd=1007">이벤트</a>
+						<a href="/korean/m/board/BD_board.list.do?domainCd=2&amp;bbsCd=1001">공지사항</a>
+						<a href="/mob/userGuide/roadmap_dg.jsp">오시는길</a>
+						<a href="http://www.seart.kr/m" class="new">씨앗소프트웨어</a>
+						<a href="/korean/pt/index.do"class="new">PC버전</a>					
+					</div>
+					<!-- //quick -->
+					<address>
+						<p><strong>본원</strong><span>대구광역시 동구 첨단로 53 (41068)</span></p>
+						<p><strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>					
+						<p><strong>대표전화</strong><span><a href="tel:053-230-1787">053-230-1787</a></span><strong>이메일</strong><span><a href="mailto:ceart@ceart.kr">ceart@ceart.kr</a></span></p>
+						<p><strong>개인정보보호 책임자</strong><span>경영기획실장</span></p>
+						<!-- <p>Copyright 2015 한국정보화진흥원 All Rights Reserved.</p> -->
+					</address>
+				</div>
+				<p class="copyright">Copyright ©한국정보화진흥원 All Rights Reserved.</p>
+			</div>
+		</footer>
+		<!-- //footer -->
+	</div>
+</body>
+</html>			
+			
+

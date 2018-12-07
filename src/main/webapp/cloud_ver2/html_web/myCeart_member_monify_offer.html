@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>정보수정 - 판매 권한 신청</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body>
+	<!-- header -->
+	<header id="gnb">
+		<div class="conWrap">
+			<h1><a href="#"><img src="/cloud_ver2/new_cloud/images/logo.png" alt="클라우드 스토어 씨앗" /></a></h1>
+
+			<!-- 상단 메뉴 -->
+			<aside>
+				<div>
+					<!-- 구굴 사이트 번역 API -->
+					<div id="google_translate_element"></div>
+					<script type="text/javascript">
+						function googleTranslateElementInit() {
+						    new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+						    }
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!--// 구굴 사이트 번역 API -->
+	
+					<ul>
+						<li><a href="http://www.ceart.kr:8080/korean/pt/login/user/BD_index.do">로그인</a></li>
+						<li><a href="#">회원가입</a></li>
+						<li><a href="#">커뮤니티</a></li>
+					</ul>
+				</div>
+
+				<!-- 전체 검색 -->
+				<form>
+					<input type="text" placeholder="service search" />
+					<input type="image" src="/cloud_ver2/new_cloud/images/gnb_btn_search.png" alt="검색" />
+				</form>
+				<!--// 전체 검색 -->
+			</aside>
+			<!-- 상단 메뉴 -->
+		</div>
+
+		<!-- gnb -->
+		<nav>
+			<div class="conWrap">
+				<a href="#" class="view_allmenu"><img src="/cloud_ver2/new_cloud/images/gnb_allmenu.png" alt="전체메뉴" /></a>
+				<ul>
+					<li>
+						<a href="#">씨앗소개</a>
+						<ul>
+							<li><a href="#">스토어소개</a></li>
+							<li><a href="#">공급자 협약체결</a></li>
+							<li><a href="#">서비스 판매절차</a></li>
+							<li><a href="#">기타 공급자가이드</a></li>
+							<li><a href="#">표준계약서</a></li>
+							<li><a href="#">서비스 구매절차</a></li>
+							<li><a href="#">기타 수요자가이드</a></li>
+							<li><a href="#">공공기관 클라우드 이용가이드</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">SaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">IT서비스</a></li>
+							<li><a href="#">비즈니스</a></li>
+							<li><a href="#">마케팅</a></li>
+							<li><a href="#">산업</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+							<li><a href="#">기타</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">PaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">시스템보안</a></li>
+							<li><a href="#">DBMS</a></li>
+							<li><a href="#">기타 개발도구</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">IaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">컴퓨팅</a></li>
+							<li><a href="#">스토리지</a></li>
+							<li><a href="#">네트워킹</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">입찰공고</a>
+						<ul>
+							<li><a href="#">신규공고</a></li>
+							<li><a href="#">수의계약공고</a></li>
+							<li><a href="#">예비공고</a></li>
+							<li><a href="#">마감공고</a></li>
+							<li><a href="#">공고등록</a></li>
+							<li><a href="#">나라장터 입찰공고</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">지식허브</a>
+						<ul>
+							<li><a href="#">전문가상담</a></li>
+							<li><a href="#">지식맵</a></li>
+							<li><a href="#">지식나눔</a></li>
+							<li><a href="#">행사 및 이벤트</a></li>
+							<li><a href="#">성공스토리</a></li>
+							<li><a href="#">뉴스레터</a></li>
+							<li><a href="#">씨앗워키</a></li>
+							<li><a href="#">해외 클라우드마켓 동향</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<!-- allmenu -->
+			<div class="all_menu">
+				<div class="conWrap">
+					<table>
+						<tr>
+							<th>씨앗소개</th>
+							<th>SaaS</th>
+							<th>PaaS</th>
+							<th>IaaS</th>
+							<th>입찰공고</th>
+							<th>지식허브</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">스토어소개</a></li>
+									<li><a href="#">공급자 협약체결</a></li>
+									<li><a href="#">서비스 판매절차</a></li>
+									<li><a href="#">기타 공급자가이드</a></li>
+									<li><a href="#">표준계약서</a></li>
+									<li><a href="#">서비스 구매절차</a></li>
+									<li><a href="#">기타 수요자가이드</a></li>
+									<li><a href="#">공공기관 클라우드 이용가이드</a></li>									
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li>IT서비스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 데이터 관리</a></li>
+											<li><a href="#">- IT 관리</a></li>
+											<li><a href="#">- 프로젝트 관리</a></li>
+											<li><a href="#">- 소프트웨어 개발 도구</a></li>
+											<li><a href="#">- 전자문서/기록관리(EDRM)</a></li>
+											<li><a href="#">- 협업도구</a></li>
+											<li><a href="#">- 크리에이티브&디자인</a></li>
+											<li><a href="#">- 보안</a></li>
+										</ul>
+									</li>
+									<li>비즈니스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 의사결정지원/분석</a></li>
+											<li><a href="#">- 생산관리</a></li>
+											<li><a href="#">- 회계/금융</a></li>
+											<li><a href="#">- 인적 자원 관리</a></li>
+										</ul>
+									</li>
+									<li>마케팅
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 세일즈</a></li>
+											<li><a href="#">- 마케팅</a></li>
+											<li><a href="#">- 고객 관계 관리(CRM)</a></li>
+										</ul>
+									</li>
+									<li>산업
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 교육</a></li>
+											<li><a href="#">- 운송/물류</a></li>
+											<li><a href="#">- 에너지/환경</a></li>
+											<li><a href="#">- 도서</a></li>
+											<li><a href="#">- 법률</a></li>
+											<li><a href="#">- 문화</a></li>
+										</ul>
+									</li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">시스템 보안</a></li>
+									<li><a href="#">DBMS</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타 개발도구</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">컴퓨팅</a></li>
+									<li><a href="#">스토리지</a></li>
+									<li><a href="#">네트워킹</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">신규공고</a></li>
+									<li><a href="#">수의계약공고</a></li>
+									<li><a href="#">예비공고</a></li>
+									<li><a href="#">마감공고</a></li>
+									<li><a href="#">공고등록</a></li>
+									<li><a href="#">나라장터 입찰공고</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전문가상담</a></li>
+									<li><a href="#">지식맵</a></li>
+									<li><a href="#">지식나눔</a></li>
+									<li><a href="#">행사 및 이벤트</a></li>
+									<li><a href="#">기타 입찰정보</a></li>
+									<li><a href="#">성공스토리</a></li>
+									<li><a href="#">뉴스레터</a></li>
+									<li><a href="#">씨앗워키</a></li>
+									<li><a href="#">해외 클라우드마켓 동향</a></li>
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<th>로그인</th>
+							<th>회원가입</th>
+							<th>마이씨앗</th>
+							<th>공급자씨앗</th>
+							<th>커뮤니티</th>
+							<th>고객센터</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">아이디 찾기</a></li>
+									<li><a href="#">비밀번호 찾기</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">일반회원가입</a></li>
+									<li><a href="#">공급자권한가입</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">구매내역 관리</a></li>
+									<li><a href="#">상세정보(견적)요청서 관리</a></li>
+									<li><a href="#">입찰공고 관리</a></li>
+									<li><a href="#">구매희망목록</a></li>
+									<li>관심목록
+										<ul>
+											<li><a href="#">- 관심서비스</a></li>
+											<li><a href="#">- 최근 본 서비스</a></li>
+										</ul>
+									</li>
+									<li><a href="#">전문가상담</a></li>
+									<li>나의게시물
+										<ul>
+											<li><a href="#">- 공급자문의</a></li>
+											<li><a href="#">- 운영자문의</a></li>
+											<li><a href="#">- 내가쓴 글</a></li>
+											<li><a href="#">- 응모이벤트</a></li>
+										</ul>
+									</li>
+									<li>커뮤니티
+										<ul>
+											<li><a href="#">- 가입 커뮤니티</a></li>
+											<li><a href="#">- 개설 커뮤니티</a></li>
+										</ul>
+									</li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">회원정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">데시보드</a></li>
+									<li><a href="#">씨앗공지</a></li>
+									<li><a href="#">구매요청 답변서관리</a></li>
+									<li><a href="#">입찰참여 현황</a></li>
+									<li><a href="#">판매현황</a></li>
+									<li>공급서비스 관리
+										<ul>
+											<li><a href="#">- 서비스목록</a></li>
+											<li><a href="#">- 서비스등록대기</a></li>
+											<li><a href="#">- 서비스등록</a></li>
+											<li><a href="#">- 서비스삭제목록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">Q &amp; A 관리</a></li>
+									<li><a href="#">전문가상담 관리</a></li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">공급자정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">커뮤니티</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">고객센터</a></li>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!--// allmenu -->
+		</nav>
+		<!--// gnb -->
+	</header>
+	<!--// header -->
+
+	<!-- content -->
+	<section class="listTit">
+		<!-- 타이틀 영역 -->
+		<div class="conWrap">
+			<h2>공급자씨앗</h2>
+			<div>공급자정보 관리</div>
+		</div>
+		<!--// 타이틀 영역 -->
+	</section>
+
+	<section class="lay_lnb">
+		<div class="conWrap">
+			<nav>
+				<!-- 좌측 카테고리 -->
+				<ul>
+					<li>
+						<a href="#">공급자 홈</a>
+					</li>
+					<li>
+						<a href="#">씨앗공지</a>
+					</li>
+					<li>
+						<a href="#">구매요청 답변서관리</a>
+					</li>
+					<li>
+						<a href="#">입찰참여현황</a>
+					</li>
+					<li>
+						<a href="#">공급현황</a>
+					</li>
+					<li>
+						<a href="#">공급서비스 관리</a>
+					</li>
+					<li>
+						<a href="#">Q&A 관리</a>
+					</li>
+					<li>
+						<a href="#">전문가상담 관리</a>
+					</li>
+					<li>
+						<a href="#">마스터/서브 관리</a>
+					</li>
+					<li class="on">
+						<a href="#">공급자정보 관리</a>
+					</li>
+				</ul>
+				<!--// 좌측 카테고리 -->
+			</nav>
+			
+			<div class="join_info inputOffer">
+				<h4>한국정보화진흥원 알림사항</h4>
+				<table class="tbl_st4">
+					<tr>
+						<th>상태</th>
+						<td>
+							승인보류
+							<i class="importInfo_1">※ 승인보류 시 관련내용을 보완하여 보완신청 해 주세요</i>
+						</td>
+					</tr>
+					<tr>
+						<th>알림사항</th>
+						<td class="importInfo_2">공급자 권한 승인요청이 반려되었습니다. 협약서 양식 준수 하여 재 제출해주세요.</td>
+					</tr>
+				</table>
+				
+				
+				<p><i>*</i> 으로 표시된 항목은 필수 입력 사항입니다.</p>
+		
+				<h4>필수정보</h4>
+				
+				<table class="tbl_st4">
+					<tr>
+						<th>담당자 명</th>
+						<td>황길동</td>
+					</tr>
+				</table>
+				
+				<h4>기업정보</h4>
+				<table class="tbl_st4">
+					<tr>
+						<th>기업 명</th>
+						<td>엔키소프ㅡㅌ</td>
+						<th>소재지</th>
+						<td></td>
+					</tr>
+					<tr>
+						<th>회사로고</th>
+						<td colspan="3" class="thumb">							
+							<span>
+								<a href="#" class="del">삭제</a>
+								<img src="/cloud_ver2/new_cloud/images/temp/thumb_10.png" alt="대표이미지">
+								<a href="#">변경</a>
+							</span>
+							
+							<div class="uploadFileWrap">
+								<div class="uploadFile">
+									<input type="text" readonly="readonly" />
+									<div>																
+						            	<span class="btns st3">
+						            		파일선택
+						            		<input type="file" />
+						            	</span>
+					            	</div>
+					            </div>
+					            <p class="uploaded">
+					            	<span>
+					            		FrameWork.psd
+					            		<a href="#">삭제</a>
+					            	</span>
+					            </p>					            
+								<p class="desc">jpg, png (권장 000pxX00px) 파일</p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th class="requ">대표전화</th>
+						<td colspan="3" class="tel">
+							<input type="text" /> -
+							<input type="text" /> -
+							<input type="text" />
+						</td>
+					</tr>
+					<tr>
+						<th>사업자 등록번호</th>
+						<td colspan="3">
+							123-45-67895
+						</td>
+					</tr>
+				</table>
+				
+				<h4>구비서류 첨부<i>※ PDF파일로 업로드 하셔야 합니다.</i></h4>
+				<table class="tbl_st4">
+					<tr>
+						<th class="requ">협약서</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+					<tr>
+						<th class="requ">등기부등본</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+					<tr>
+						<th class="requ">신용평가서</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+					<tr>
+						<th class="requ">재무재표</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+					<tr>
+						<th>벤처기업인증서</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+					<tr>
+						<th>직접생산증명서</th>
+						<td>
+							<div class="uploadFile">
+								<input type="text" readonly="readonly" />
+								<div>
+									<img src="/cloud_ver2/new_cloud/images/icn_close_2.png" alt="삭제" />							
+					            	<span class="btns st3">
+					            		파일선택
+					            		<input type="file" />
+					            	</span>
+				            	</div>
+				            </div>
+				            <p class="uploaded">
+				            	<span>
+				            		FrameWork.psd
+				            		<a href="#">삭제</a>
+				            	</span>
+				            </p>				            
+						</td>
+					</tr>
+				</table>
+				
+				<div class="btnArea rig">
+					<a href="#" class="btns st1 icn icnCheck2">보완신청</a>
+					<a href="#" class="btns st1 icn icnList">목록보기</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!--// content -->
+
+	<!-- 배너링크 -->
+	<div class="bnrArea">
+		<div class="conWrap">
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_nia.png" alt="한국정보화진흥원"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_cpcp.png" alt="공공클라우드지원센터"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_msip.png" alt="미래창조과학부"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_g2b.png" alt="나라장터 종합쇼핑몰"></a>
+		</div>
+	</div>
+	<!--// 배너링크 -->
+	
+	<!-- footer -->
+	<footer>
+		<div class="conWrap">
+			<img src="/cloud_ver2/new_cloud/images/logo_footer.png" alt="클라우드 스토어 씨앗" />
+			<span>
+				<a href="#">고객센터</a>
+				<a href="#">공지사항</a>
+				<a href="#">서비스 이용약관</a>
+				<a href="#">개인정보 보호정책</a>
+				<a href="#">이메일 수집거부</a>
+				<a href="#">기본협약</a>
+				<a href="#">오시는 길</a>
+			</span>
+
+			<address>
+				<span>
+					<b>대표전화 : 053-230-1787</b>
+					<b>이메일 : ceart@ceart.kr</b>
+					<b>개인정보보호 책임자 : 경영기획실장</b>
+				</span>
+				대구광역시 동구 첨단로 53 (41068) | 서울사무소 : 서울특별시 중구 청계천로 14 (04520)<br />
+				Copyright 2015 한국정보화진흥원 All Rights Reserved
+			</address>
+		</div>
+	</footer>
+	<!--// footer -->
+
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+
+    
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+     
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+   
+  <script type="text/javascript" src="/resources/web/analyze/tracking/js/detector.js"></script>
+
+  <!-- datepicker -->
+  <link rel="stylesheet" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+  <script src="/resources/openworks/spi/openworks/openworks.ui.js"></script>
+  <script>
+	$(document).ready(function() {
+	  $( "#dPicker_1" ).datepicker({
+	          showOn: "both", 
+	          buttonImage: "/cloud_ver2/new_cloud/images/icn_calen.png", 
+	          buttonImageOnly: false,
+	          buttonText: "달력"
+	    });
+	});
+  </script>
+  <!--// datepicker -->
+  
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>  	
+ </body>
+</html>

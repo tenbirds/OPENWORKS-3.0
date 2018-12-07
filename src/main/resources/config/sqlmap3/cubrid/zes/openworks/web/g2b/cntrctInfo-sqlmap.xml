@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_cntrctInfo">
+	<sql id="dynamicWhere">
+    	<if test="searchNmVal != null  and searchNmVal != ''">
+            AND CNTRCT_NM LIKE '%' || #{searchNmVal} || '%'
+        </if>
+        <if test="searchKey != null and searchKey != '' and searchVal != null and searchVal != ''">
+            AND ${searchKey} LIKE '%' || #{searchVal} || '%'
+        </if>
+        <if test="dateType != null and dateType != '' and sDate != null and sDate != '' and eDate != null and eDate != ''">
+            AND ${dateType} BETWEEN TO_DATE(#{sDate},'YYYY-MM-DD') AND TO_DATE(#{eDate},'YYYY-MM-DD') + 1
+        </if>
+	</sql>
+
+    <select id="cntrctInfoList" parameterType="map" resultType="cntrctInfoVO">
+    	/* _cntrctInfo.cntrctInfoList */
+		SELECT Y.* FROM (
+	    	SELECT ROWNUM NUM, X.* FROM (
+	    		SELECT CNTRCT_UNION_NO			as cntrctUnionNo       
+	    			 , CNTRCT_NO                as cntrctNo            
+	    			 , CNTRCT_NM                as cntrctNm            
+	    			 , CNTRCT_TYPE              as cntrctType          
+	    			 , CNTRCT_MTH               as cntrctMth           
+	    			 , CNTRCT_DATE              as cntrctDate          
+	    			 , CNTRCT_PD                as cntrctPd            
+	    			 , CNTRCT_AMT               as cntrctAmt           
+	    			 , CNTRCT_THIS_TIME_AMT     as cntrctThisTimeAmt
+	    			 , BID_NOTIFY_NO            as bidNotifyNo         
+	    			 , ORDER_ORGN_NM            as orderOrgnNm         
+	    			 , REAL_ORGN_CODE           as realOrgnCode        
+	    			 , REAL_ORGN_NM             as realOrgnNm          
+	    			 , MAIN_CNTRCT_ENTRPS_TYPE  as mainCntrctEntrpsType
+	    			 , MAIN_CNTRCT_ENTRPS_NM    as mainCntrctEntrpsNm  
+	    			 , SENDER_ID                as senderId            
+	    			 , MESS_TYPE                as messType            
+	    			 , MESS_NM                  as messNm              
+	    			 , DOCU_MANG_NO             as docuMangNo          
+				  FROM TCN_CNTRCT_INFO_L
+	             WHERE (UPPER(CNTRCT_NM) LIKE '%' || UPPER('클라우드') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('cloud') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('가상화') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('virtualization') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('하이퍼바이저') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('Hypervisor') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('IaaS') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('PaaS') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('SaaS') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('DaaS') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('VDI') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('데스크탑가상화') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('SLA') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('g-cloud') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('gcloud') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('멀티테넌트') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multi-tenant') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multitenant') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('멀티네넌시') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multi-tenancy') || '%'
+					OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multitenancy') || '%')
+	           <include refid="dynamicWhere"/>
+	             ORDER BY CNTRCT_UNION_NO DESC
+			) X WHERE ROWNUM &lt;= #{pagingEndNum}
+		) Y WHERE NUM &gt;= #{pagingStartNum}
+    
+    </select>
+    
+    <select id="cntrctInfoCount" parameterType="map" resultType="int">
+    	/* _cntrctInfo.cntrctInfoCount */
+        SELECT COUNT(1) 
+          FROM TCN_CNTRCT_INFO_L
+         WHERE (UPPER(CNTRCT_NM) LIKE '%' || UPPER('클라우드') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('cloud') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('가상화') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('virtualization') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('하이퍼바이저') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('Hypervisor') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('IaaS') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('PaaS') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('SaaS') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('DaaS') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('VDI') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('데스크탑가상화') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('SLA') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('g-cloud') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('gcloud') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('멀티테넌트') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multi-tenant') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multitenant') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('멀티네넌시') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multi-tenancy') || '%'
+			OR UPPER(CNTRCT_NM) LIKE '%' || UPPER('multitenancy') || '%')
+        <include refid="dynamicWhere"/>
+    </select>
+    
+    <select id="cntrctInfoCheck" parameterType="cntrctInfoVO" resultType="int">
+    	/* _cntrctInfo.cntrctInfoCheck */
+        SELECT COUNT(1) 
+          FROM TCN_CNTRCT_INFO_L
+         WHERE CNTRCT_UNION_NO = #{cntrctUnionNo}
+    </select>
+    
+    <insert id="cntrctInfoInsertAction" parameterType="cntrctInfoVO" >
+    	/* _cntrctInfo.cntrctInfoInsertAction */
+		INSERT INTO TCN_CNTRCT_INFO_L (
+			   CNTRCT_UNION_NO 
+			 , CNTRCT_NO 
+			 , CNTRCT_NM 
+			 , CNTRCT_TYPE 
+			 , CNTRCT_MTH 
+			 , CNTRCT_DATE
+			 <if test="cntrctPd != null and cntrctPd != ''"> 
+			 , CNTRCT_PD 
+			 </if>
+			 <if test="cntrctAmt != null and cntrctAmt != ''"> 
+			 , CNTRCT_AMT 
+			 </if>
+			 <if test="cntrctThisTimeAmt != null and cntrctThisTimeAmt != ''"> 
+			 , CNTRCT_THIS_TIME_AMT 
+			 </if>
+			 <if test="bidNotifyNo != null and bidNotifyNo != ''"> 
+			 , BID_NOTIFY_NO 
+			 </if>
+			 <if test="orderOrgnNm != null and orderOrgnNm != ''"> 
+			 , ORDER_ORGN_NM 
+			 </if>
+			 <if test="realOrgnCode != null and realOrgnCode != ''"> 
+			 , REAL_ORGN_CODE 
+			 </if>
+			 <if test="realOrgnNm != null and realOrgnNm != ''"> 
+			 , REAL_ORGN_NM 
+			 </if>
+			 <if test="mainCntrctEntrpsType != null and mainCntrctEntrpsType != ''"> 
+			 , MAIN_CNTRCT_ENTRPS_TYPE 
+			 </if>
+			 <if test="mainCntrctEntrpsNm != null and mainCntrctEntrpsNm != ''"> 
+			 , MAIN_CNTRCT_ENTRPS_NM 
+			 </if>
+			 , SENDER_ID 
+			 , MESS_TYPE 
+			 , MESS_NM 
+			 , DOCU_MANG_NO 
+		) 
+		VALUES 
+		(
+			   #{cntrctUnionNo} 
+			 , #{cntrctNo}
+			 , #{cntrctNm}
+			 , #{cntrctType}
+			 , #{cntrctMth}
+			 , #{cntrctDate}
+			 <if test="cntrctPd != null and cntrctPd != ''"> 
+			 , #{cntrctPd}
+			 </if>
+			 <if test="cntrctAmt != null and cntrctAmt != ''"> 
+			 , CAST(#{cntrctAmt} AS NUMERIC)
+			 </if>
+			 <if test="cntrctThisTimeAmt != null and cntrctThisTimeAmt != ''"> 
+			 , CAST(#{cntrctThisTimeAmt} AS NUMERIC)
+			 </if>
+			 <if test="bidNotifyNo != null and bidNotifyNo != ''"> 
+			 , #{bidNotifyNo}
+			 </if>
+			 <if test="orderOrgnNm != null and orderOrgnNm != ''"> 
+			 , #{orderOrgnNm}
+			 </if>
+			 <if test="realOrgnCode != null and realOrgnCode != ''"> 
+			 , #{realOrgnCode}
+			 </if>
+			 <if test="realOrgnNm != null and realOrgnNm != ''"> 
+			 , #{realOrgnNm}
+			 </if>
+			 <if test="mainCntrctEntrpsType != null and mainCntrctEntrpsType != ''"> 
+			 , #{mainCntrctEntrpsType}
+			 </if>
+			 <if test="mainCntrctEntrpsNm != null and mainCntrctEntrpsNm != ''"> 
+			 , #{mainCntrctEntrpsNm}
+			 </if>
+			 , #{senderId}
+			 , #{messType}
+			 , #{messNm}
+			 , #{docuMangNo}
+
+		)
+    </insert>
+    
+    <update id="cntrctInfoUpdateAction" parameterType="cntrctInfoVO">
+    	/* _cntrctInfo.cntrctInfoUpdateAction */
+        UPDATE TCN_CNTRCT_INFO_L
+           SET CNTRCT_UNION_NO = #{cntrctUnionNo}
+			 , CNTRCT_NO = #{cntrctNo}
+			 , CNTRCT_NM = #{cntrctNm}
+			 , CNTRCT_TYPE = #{cntrctType}
+			 , CNTRCT_MTH = #{cntrctMth}
+			 , CNTRCT_DATE = #{cntrctDate}
+			 <if test="cntrctPd != null and cntrctPd != ''">
+			 , CNTRCT_PD = #{cntrctPd}
+			 </if>
+			 <if test="cntrctAmt != null and cntrctAmt != ''">
+			 , CNTRCT_AMT = CAST(#{cntrctAmt} AS NUMERIC)
+			 </if>
+			 <if test="cntrctThisTimeAmt != null and cntrctThisTimeAmt != ''">
+			 , CNTRCT_THIS_TIME_AMT = CAST(#{cntrctThisTimeAmt} AS NUMERIC)
+			 </if>
+			 <if test="bidNotifyNo != null and bidNotifyNo != ''">
+			 , BID_NOTIFY_NO = #{bidNotifyNo}
+			 </if>
+			 <if test="orderOrgnNm != null and orderOrgnNm != ''">
+			 , ORDER_ORGN_NM = #{orderOrgnNm}
+			 </if>
+			 <if test="realOrgnCode != null and realOrgnCode != ''">
+			 , REAL_ORGN_CODE = #{realOrgnCode}
+			 </if>
+			 <if test="realOrgnNm != null and realOrgnNm != ''">
+			 , REAL_ORGN_NM = #{realOrgnNm}
+			 </if>
+			 <if test="mainCntrctEntrpsType != null and mainCntrctEntrpsType != ''">
+			 , MAIN_CNTRCT_ENTRPS_TYPE = #{mainCntrctEntrpsType}
+			 </if>
+			 <if test="mainCntrctEntrpsNm != null and mainCntrctEntrpsNm != ''">
+			 , MAIN_CNTRCT_ENTRPS_NM = #{mainCntrctEntrpsNm}
+			 </if>
+			 , SENDER_ID = #{senderId}
+			 , MESS_TYPE = #{messType}
+			 , MESS_NM = #{messNm}
+			 , DOCU_MANG_NO = #{docuMangNo} 
+         WHERE CNTRCT_UNION_NO = #{cntrctUnionNo}
+    </update>    
+    
+    
+    <select id="cntrctItemCheck" parameterType="cntrctInfoVO" resultType="int">
+    	/* _cntrctInfo.cntrctItemCheck */
+        SELECT COUNT(1) 
+          FROM TCN_CNTRCT_INFO_D
+         WHERE CNTRCT_UNION_NO = #{cntrctUnionNo}
+    </select>
+    
+    <delete id="cntrctItemDelete" parameterType="cntrctInfoVO">
+    	/* _cntrctInfo.cntrctItemDelete */
+        DELETE FROM TCN_CNTRCT_INFO_D
+        WHERE CNTRCT_UNION_NO = #{cntrctUnionNo}
+    </delete>
+    
+    <insert id="cntrctItemInsertAction" parameterType="cntrctItemVO" >
+    	/* _cntrctInfo.cntrctItemInsertAction */
+		INSERT INTO TCN_CNTRCT_INFO_D (
+			   CNTRCT_UNION_NO 
+			 , CNTRCT_UNION_SEQ 
+			 <if test="itemClNo != null and itemClNo != ''"> 
+			 , ITEM_CL_NO 
+			 </if>
+			 <if test="itemIdntfcNo != null and itemIdntfcNo != ''"> 
+			 , ITEM_IDNTFC_NO 
+			 </if> 
+			 <if test="cntrctItemUntpc != null and cntrctItemUntpc != ''"> 
+			 , CNTRCT_ITEM_UNTPC 
+			 </if>
+			 <if test="cntrctItemQy != null and cntrctItemQy != ''"> 
+			 , CNTRCT_ITEM_QY 
+			 </if>
+			 <if test="cntrctItemNm != null and cntrctItemNm != ''"> 
+			 , CNTRCT_ITEM_NM 
+			 </if>
+			 <if test="cntrctItemAmt != null and cntrctItemAmt != ''"> 
+			 , CNTRCT_ITEM_AMT 
+			 </if>
+		) 
+		VALUES 
+		(
+			   #{cntrctUnionNo} 
+			 , #{cntrctUnionSeq} 
+			 <if test="itemClNo != null and itemClNo != ''"> 
+			 , #{itemClNo}
+			 </if>
+			 <if test="itemIdntfcNo != null and itemIdntfcNo != ''"> 
+			 , #{itemIdntfcNo}
+			 </if> 
+			 <if test="cntrctItemUntpc != null and cntrctItemUntpc != ''"> 
+			 , CAST(#{cntrctItemUntpc} AS NUMERIC(15, 3))
+			 </if>
+			 <if test="cntrctItemQy != null and cntrctItemQy != ''"> 
+			 , CAST(#{cntrctItemQy} AS NUMERIC(15, 3))
+			 </if>
+			 <if test="cntrctItemNm != null and cntrctItemNm != ''"> 
+			 , #{cntrctItemNm}
+			 </if>
+			 <if test="cntrctItemAmt != null and cntrctItemAmt != ''"> 
+			 , CAST(#{cntrctItemAmt} AS NUMERIC)
+			 </if>
+		)
+    </insert>
+
+</mapper>

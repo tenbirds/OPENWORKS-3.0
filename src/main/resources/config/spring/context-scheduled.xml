@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/task
+                           http://www.springframework.org/schema/task/spring-task-3.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!-- cron 설정 방법은 동일 위치의 context-scheduled-readme.txt 참조 -->
+
+    <!-- 셈플 스케쥴 매월 매주 매일 매시 매분 0초 0분 마다 즉 1시간 마다 -->
+    <task:scheduled-tasks>
+	    <!-- 포털 접속통계 데이터 가공 -->
+	    <task:scheduled ref="webanalyzeProcessor" method="process" cron="0 0/5 * * * ?" />
+	
+	    <!-- 커뮤니티 완전 폐쇄 -->
+	    <task:scheduled ref="cmCloseBatchProcessor" method="process" cron="0 10 0 * * ?" />
+		
+		<!-- 입찰정보 메모리 삭제:api방식으로 변경 후 사용안함 -->
+	    <!-- <task:scheduled ref="bidInfoBatchProcessor" method="process" cron="0 0 */1 * * ?" /> -->
+	
+	    <!-- 인증기간 만료된 뉴스레터 테이블 데이터 삭제 2015-08-25 -->
+	    <task:scheduled ref="newsLetterDeleteExpiredCrtfcBatchProcessor" method="process" cron="0 0 3 * * ?" />
+	
+	    <!-- 휴면 전환 대상자 이메일 발송. 2015-11-10 -->
+	    <task:scheduled ref="dormancyConversionSendMailBatchProcessor" method="process" cron="0 0 4 * * ?" />
+	    
+	    <!-- 나라장터 계약정보 스케쥴 개발 : 3분 마다 -->
+	    <!-- <task:scheduled ref="g2bCntrctInfoBatchProcessor" method="process" cron="0 22 14 * * ?" /> -->
+	    <!-- 나라장터 계약정보 스케쥴 운영 : 매일 4시 10분(12시간 후 한번더 돌림) -->
+	    <task:scheduled ref="g2bCntrctInfoBatchProcessor" method="process" cron="0 10 4 * * ?" />
+	    <task:scheduled ref="g2bCntrctInfoBatchProcessor" method="process" cron="0 10 16 * * ?" />
+	    
+	    <!-- 나라장터 입찰정보 스케쥴 개발 : 2분 마다 -->
+	    <!-- <task:scheduled ref="g2bBidInfoBatchProcessor" method="process" cron="0 10 14 * * ?" /> -->
+	    <!-- 나라장터 입찰정보 스케쥴 운영 : 매일 4시 30분(12시간 후 한번더 돌림) -->
+	    <task:scheduled ref="g2bBidInfoBatchProcessor" method="process" cron="0 30 4 * * ?" />
+	    <task:scheduled ref="g2bBidInfoBatchProcessor" method="process" cron="0 30 16 * * ?" />
+	    
+	    <!-- 나라장터 서비스정보 스케쥴 개발 : 1분 마다 -->
+		<!-- <task:scheduled ref="g2bGoodsInfoBatchProcessor" method="process"  cron="0 40 17 * * ?" /> -->
+		<!-- 나라장터 서비스정보 스케쥴 운영 : 매일 4시 40분(12시간 후 한번더 돌림) -->
+	    <task:scheduled ref="g2bGoodsInfoBatchProcessor" method="process" cron="0 40 4 * * ?" />
+	    <task:scheduled ref="g2bGoodsInfoBatchProcessor" method="process" cron="0 0 17 * * ?" />
+	    	    
+	    <!-- 납품정보 스케쥴 개발 : 3분 마다 -->
+	    <!-- <task:scheduled ref="g2bDvyfgInfoBatchProcessor" method="process"  cron="0 10 16 * * ?" /> --> 
+	    <!-- 납품정보 스케쥴 운영 : 매일 4시 50분(12시간 후 한번더 돌림) -->
+	    <task:scheduled ref="g2bDvyfgInfoBatchProcessor" method="process" cron="0 50 4 * * ?" />
+	    <task:scheduled ref="g2bDvyfgInfoBatchProcessor" method="process" cron="0 50 16 * * ?" />
+	    
+	    <!-- 서비스 URL 모니터링 스케쥴 개발 : 1시간 마다 -->
+	    <task:scheduled ref="goodsMonitorBatchProcessor" method="process" cron="0 5 */1 * * ?" />
+	    
+	   
+	    <!-- 해외동양 서비스 가져오기 스케쥴 개발 : 07:00 마다 -->
+	    <task:scheduled ref="overseasProductsMonitorBatchProcessor" method="process" cron="0 0 7 * * ?" />
+
+	    <!-- 협약 만료일 도래시 사용자 정보 전환 스케쥴 개발 : 0분 / 5분  -->
+	    <!-- <task:scheduled ref="agremClosBatchProcessor" method="process" cron="0 0/5 * * * ?" /> -->
+	    <!-- 협약 만료일 도래시 사용자 정보 전환 스케쥴 운영 : 00:00 마다 -->
+	    <task:scheduled ref="agremClosBatchProcessor" method="process" cron="0 0 0 * * ?" />
+	    
+    </task:scheduled-tasks>
+    
+	    <!-- 포털 접속통계 데이터 가공 -->
+	    <bean id="webanalyzeProcessor" class="zes.openworks.web.analyze.batch.WebAnalyzeProcessorImpl" />
+	
+	    <!-- 커뮤니티 완전 폐쇄 -->
+	    <bean id="cmCloseBatchProcessor" class="zes.openworks.intra.cmMgmt.cmCloseBatch.CmCloseBatchProcessor" />
+	
+	    <!-- 입찰정보 메모리 삭제:api방식으로 변경 후 사용안함 -->
+	    <!-- <bean id="bidInfoBatchProcessor" class="zes.openworks.web.study.bidInfo.BidInfoBatchProcessor" /> -->
+	    
+	    <!-- 인증기간 만료된 뉴스레터 테이블 데이터 삭제 2015-08-25 -->
+	    <bean id="newsLetterDeleteExpiredCrtfcBatchProcessor" class="zes.openworks.web.newsLetter.batch.NewsLetterDeleteExpiredCrtfcBatchProcessor" />
+	
+	    <!-- 휴면 전환 대상자 이메일 발송, WAS#2에서는 주석 처리 할것. 2015-11-10 -->
+	    <bean id="dormancyConversionSendMailBatchProcessor" class="zes.openworks.web.register.batch.DormancyConversionSendMailBatchProcessor" />
+	    
+	    <!-- 나라장터 서비스정보 데이터 등록 -->
+	    <bean id="g2bGoodsInfoBatchProcessor" class="zes.openworks.common.schedule.g2b.goodsInfo.GoodsInfoBatchProcessor" />
+	    <!-- 나라장터 입찰정보 데이터 등록 -->
+	    <bean id="g2bBidInfoBatchProcessor" class="zes.openworks.common.schedule.g2b.bidInfo.BidInfoBatchProcessor" />
+	    <!-- 나라장터 계약정보 데이터 등록 -->
+	    <bean id="g2bCntrctInfoBatchProcessor" class="zes.openworks.common.schedule.g2b.cntrctInfo.CntrctInfoBatchProcessor" />
+	    <!-- 나라장터 납품정보 데이터 등록 -->
+	    <bean id="g2bDvyfgInfoBatchProcessor" class="zes.openworks.common.schedule.g2b.dvyfgInfo.DvyfgInfoBatchProcessor" />
+	    
+	    <!-- 서비스 URL 모니터링 데이터 등록 -->
+	    <bean id="goodsMonitorBatchProcessor" class="zes.openworks.common.schedule.goods.GoodsMonitorBatchProcessor" />
+    	
+    	<!-- 해외동양 서비스 가져오기 모니터링 데이터 등록 -->
+    	<bean id="overseasProductsMonitorBatchProcessor" class="zes.openworks.common.schedule.goods.OverseasProductsMonitorBatchProcessor" />
+    	
+    	<!-- 협약 만료일 도래시 사용자 정보 전환 배치 -->
+    	<bean id="agremClosBatchProcessor" class="zes.openworks.common.schedule.agrem.agremInfo.AgremInfoBatchProcessor" />
+</beans>

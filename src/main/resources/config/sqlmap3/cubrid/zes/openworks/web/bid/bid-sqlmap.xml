@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_bid">
+    <!-- 입찰공고정보 공고차수 채번 -->
+    <select id="selectBidNotifySeq" parameterType="TcnBidNotifyVO" resultType="int">
+     	/*_bid.selectBidNotifySeq*/      
+        SELECT NVL(MAX(NOTIFY_SEQ), 0) + 1
+          FROM TCN_BID_NOTIFY_I
+         WHERE NOTIFY_NUM = #{notifyNum}
+    </select>
+
+    <!-- 입찰정보 등록 -->
+    <insert id="insertBidNotify" parameterType="TcnBidNotifyVO">
+		/*_bid.insertBidNotify*/
+        INSERT INTO TCN_BID_NOTIFY_I (NOTIFY_NUM
+                                    , NOTIFY_SEQ
+                                    , BID_GBN_CD
+                                    , GOOD_KND_CD
+                                    , USER_ID
+                                    , GRP_SEQ
+                                    , BID_KND_CD
+                                    , BID_CLASS_CD
+                                    , CNTR_MOTHOD
+                                    , OPTL_CNTR_FILE
+                                    , GOODS_CHARGER_NM
+                                    , LINK_ORGN_URL
+                                    , BID_NOTIFY_NM
+                                    <if test="strtDt != null  and strtDt != ''">
+                                    , STRT_DT
+                                    </if>
+                                    <if test="clseDt != null  and clseDt != ''">
+                                    , CLSE_DT
+                                    </if>
+                                    <if test="openDt != null  and openDt != ''">
+                                    , OPEN_DT
+                                    </if>
+                                    , AREA_LIMIT1
+                                    , AREA_LIMIT2
+                                    , AREA_LIMIT3
+                                    , CATY_LIMIT_ENTR
+                                    , CATY_LIMIT_VNTR
+                                    , CATY_LIMIT_SOC
+                                    , CATY_LIMIT_WOMN
+                                    , CATY_LIMIT_DIAD
+                                    , CATY_LIMIT_ETC
+                                    , CATY_LIMIT_ETC_COMT
+                                    , REAL_DMND_ORGN
+                                    , GOODS_CHARGER_CTTPC
+                                    , USER_POSITION
+                                    , HOPE_PUCH_AMT
+                                    , VAT_GBN
+                                    <if test="delyDt != null  and delyDt != ''">
+                                    , DELY_DT
+                                    </if>
+                                    , TALK_GBN
+                                    <if test="rplyDt != null  and rplyDt != ''">
+                                    , RPLY_DT
+                                    </if>
+                                    , DELY_PLAC
+                                    , DELY_FILE
+                                    , NOTIFY_CONT
+                                    <if test="bidGbnCd != null  and bidGbnCd != ''">
+                                        <if test='bidGbnCd.equals("1001")'>
+                                    , BID_PGES_STAT
+                                        </if>
+                                    </if>
+                                    , ENTR_DT
+                                     ) 
+                              VALUES (TO_CHAR(SYSDATE,'YYYYMMDD')
+	 		                        , #{notifySeq}
+	 		                        , #{bidGbnCd}
+	 		                        , #{goodKndCd}
+	 		                        , #{userId}
+	 		                        , #{grpSeq}
+	 		                        , #{bidKndCd}
+	 		                        , #{bidClassCd}
+	 		                        , #{cntrMothod}
+	 		                        , #{optlCntrFile}
+	 		                        , #{goodsChargerNm}
+	 		                        , #{linkOrgnUrl}
+	 		                        , #{bidNotifyNm}
+	 		                        <if test="strtDt != null  and strtDt != ''">
+	 		                        , TO_DATETIME(#{strtDt}||#{strtTime}, 'YYYY-MM-DDHH24')
+	 		                        </if>
+	 		                        <if test="clseDt != null  and clseDt != ''">
+	 		                        , TO_DATETIME(#{clseDt}||#{clseTime}, 'YYYY-MM-DDHH24')
+	 		                        </if>
+	 		                        <if test="openDt != null  and openDt != ''">
+	 		                        , TO_DATETIME(#{openDt}||#{openTime}, 'YYYY-MM-DDHH24')
+	 		                        </if>
+	 		                        , #{areaLimit1}
+	 		                        , #{areaLimit2}
+	 		                        , #{areaLimit3}
+	 		                        , #{catyLimitEntr}
+	 		                        , #{catyLimitVntr}
+	 		                        , #{catyLimitSoc}
+	 		                        , #{catyLimitWomn}
+	 		                        , #{catyLimitDiad}
+	 		                        , #{catyLimitEtc}
+	 		                        , #{catyLimitEtcComt}
+	 		                        , #{realDmndOrgn}
+	 		                        , #{goodsChargerCttpc}
+	 		                        , #{userPosition}
+	 		                        , #{hopePuchAmt}
+	 		                        , #{vatGbn}
+	 		                        <if test="delyDt != null  and delyDt != ''">
+	 		                        , TO_DATETIME(#{delyDt}||#{delyTime}, 'YYYY-MM-DDHH24')
+	 		                        </if>
+	 		                        , #{talkGbn}
+	 		                        <if test="rplyDt != null  and rplyDt != ''">
+	 		                        , #{rplyDt}
+	 		                        </if>
+	 		                        , #{delyPlac}
+	 		                        , #{delyFile}
+	 		                        , #{notifyCont}
+                                    <if test="bidGbnCd != null  and bidGbnCd != ''">
+                                        <if test='bidGbnCd.equals("1001")'>
+	 		                        , '1001'
+                                        </if>
+                                    </if>
+	 		                        , SYSDATETIME
+                                    )
+    </insert>
+    
+
+    <!-- 입찰정보 수정 -->
+    <update id="updateBidNotify" parameterType="TcnBidNotifyVO">
+		/*_bid.updateBidNotify*/
+		UPDATE TCN_BID_NOTIFY_I SET BID_GBN_CD       = #{bidGbnCd}
+		                          , GOOD_KND_CD      = #{goodKndCd}
+		                          , BID_KND_CD       = #{bidKndCd}
+		                          , BID_CLASS_CD     = #{bidClassCd}
+		                          , CNTR_MOTHOD      = #{cntrMothod}
+		                          , OPTL_CNTR_FILE   = #{optlCntrFile}
+		                          , GOODS_CHARGER_NM = #{goodsChargerNm}
+		                          , LINK_ORGN_URL    = #{linkOrgnUrl}
+		                          , BID_NOTIFY_NM    = #{bidNotifyNm}
+		                          <if test='!strtDt.equals("")'>
+                                  , STRT_DT = TO_DATETIME(#{strtDt}||#{strtTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='strtDt.equals("")'>
+                                  , STRT_DT = NULL
+                                  </if>
+                                  <if test='!clseDt.equals("")'>
+                                  , CLSE_DT = TO_DATETIME(#{clseDt}||#{clseTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='clseDt.equals("")'>
+                                  , CLSE_DT = NULL
+                                  </if>
+                                  <if test='!openDt.equals("")'>
+                                  , OPEN_DT = TO_DATETIME(#{openDt}||#{openTime}, 'YYYY-MM-DDHH24')
+                                  </if>
+                                  <if test='openDt.equals("")'>
+                                  , OPEN_DT = NULL
+                                  </if>
+                                  , AREA_LIMIT1 = #{areaLimit1}
+                                  , AREA_LIMIT2 = #{areaLimit2}
+                                  , AREA_LIMIT3 = #{areaLimit3}
+                                  , CATY_LIMIT_ENTR = #{catyLimitEntr}
+                                  , CATY_LIMIT_VNTR = #{catyLimitVntr}
+                                  , CATY_LIMIT_SOC  = #{catyLimitSoc}
+                                  , CATY_LIMIT_WOMN = #{catyLimitWomn}
+                                  , CATY_LIMIT_DIAD = #{catyLimitDiad}
+                                  , CATY_LIMIT_ETC  = #{catyLimitEtc}
+                                  , CATY_LIMIT_ETC_COMT = #{catyLimitEtcComt}
+                                  , REAL_DMND_ORGN      = #{realDmndOrgn}
+                                  , GOODS_CHARGER_CTTPC = #{goodsChargerCttpc}
+                                  , USER_POSITION       = #{userPosition}
+                                  , HOPE_PUCH_AMT       = #{hopePuchAmt}
+                                  , VAT_GBN             = #{vatGbn}
+ 		                          <if test='!delyDt.equals("")'>
+ 		                          , DELY_DT = TO_DATETIME(#{delyDt}||#{delyTime}, 'YYYY-MM-DDHH24')
+ 		                          </if>
+ 		                          <if test='delyDt.equals("")'>
+ 		                          , DELY_DT = NULL
+ 		                          </if>
+                                  , TALK_GBN = #{talkGbn}
+                                  , RPLY_DT  = #{rplyDt}
+                                  , DELY_PLAC = #{delyPlac}
+                                  , DELY_FILE = #{delyFile}
+                                  , NOTIFY_CONT = #{notifyCont}
+                                  <if test='bidGbnCd.equals("1001")'>
+                                  , BID_PGES_STAT = '1001'
+                                  </if>
+                                  , ENTR_DT = SYSDATETIME
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!-- 입찰공고 공급자 확인정보 등록 -->
+    <insert id="insertNotifySply" parameterType="TcnBidNotifyVO">
+		/*_bid.insertNotifySply*/
+        INSERT INTO TCN_NOTIFY_SPLY_I(NOTIFY_NUM
+                                    , NOTIFY_SEQ
+                                    , USER_ID
+                                    , GOODS_CODE
+                                    , CONFM_GBN
+                                    , ASK_APPLY_CD)
+        SELECT A.NOTIFY_NUM  AS NOTIFY_NUM
+             , A.NOTIFY_SEQ  AS NOTIFY_SEQ
+             , C.USER_ID     AS USER_ID
+             , C.GOODS_CODE  AS GOODS_CODE
+             , 'N'           AS CONFM_GBN
+             , '1001'        AS ASK_APPLY_CD
+          FROM TCN_BID_NOTIFY_I A
+               INNER JOIN TCM_WISHORDER_DETAIL_L B
+                       ON A.USER_ID = B.USER_ID
+                      AND A.GRP_SEQ = B.GRP_SEQ
+                      AND B.CONFRM_CHK = 'Y'
+                      AND b.goods_code = #{goodsCd}
+               INNER JOIN TST_GOOD_INFO_I C
+                       ON B.GOODS_CODE = C.GOODS_CODE
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+    </insert>
+
+    <!-- 입찰공고 SaaS 정보 등록 -->
+    <insert id="insertBidSaas" parameterType="BidSaasInfoVO">
+		/*_bid.insertBidSaas*/
+		INSERT INTO TCN_BID_SAAS_I(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , UNIT_SYS
+		                         , ETC_UNIT_SYS
+		                         , CAPTY_SYS
+		                         , AMOUNT_SYS
+		                         , SPLY_MOTH_SYS)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{unitSys}
+		     , #{etcUnitSys}
+		     , #{captySys}
+		     , #{amountSys}
+		     , #{splyMothSys}
+		     )
+    </insert>
+
+    <!-- 입찰공고 SaaS2 정보 등록 -->
+    <insert id="insertBidSaas2" parameterType="BidSaas2InfoVO">
+		
+		/*_bid.insertBidSaas2*/
+			
+	    INSERT INTO TCN_BID_SAAS2_I ( NOTIFY_NUM
+	                                 ,NOTIFY_SEQ
+	                                 ,USER_ID
+	                                 ,APPLY_GBN
+	                                 ,SUPPORT_METHOD
+	                                 ,USER_MANAGER_SEPARATE
+	                                 ,SERVICE_SUPPLY_METHOD
+	                                 ,ENCRYPTION
+	                                 ,MULTIPLATFORM
+	                                )
+	                         VALUES ( #{notifyNum}
+	                                 ,#{notifySeq}
+	                                 ,#{userId}
+	                                 ,'N' 
+	                                 ,#{supportMethod}
+	                                 ,#{userManagerSeparate}
+	                                 ,#{serviceSupplyMethod}
+	                                 ,#{encryption}
+	                                 ,#{multiPlatform}
+	                                )
+                                   
+    </insert>
+
+    <!-- 입찰공고 SaaS 정보 수정 -->
+    <update id="updateBidSaas" parameterType="BidSaasInfoVO">
+		/*_bid.updateBidSaas*/
+		UPDATE TCN_BID_SAAS_I SET UNIT_SYS      = #{unitSys}
+		                        , ETC_UNIT_SYS  = #{etcUnitSys}
+		                        , CAPTY_SYS     = #{captySys}
+		                        , AMOUNT_SYS    = #{amountSys}
+		                        , SPLY_MOTH_SYS = #{splyMothSys}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+
+    <!-- 입찰공고 SaaS 상세정보 삭제 -->
+    <update id="deleteBidSaasDetail" parameterType="BidSaasInfoVO">
+		/*_bid.deleteBidSaasDetail*/
+		DELETE 
+		  FROM TCN_BID_SAAS_D
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+
+    <!-- 입찰공고 SaaS 상세정보 등록 -->
+    <insert id="insertBidSaasDetail" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BID_SAAS_D
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_bid.insertBidSaasDetail*/
+		INSERT INTO TCN_BID_SAAS_D(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , APPLY_SEQ
+		                         , OPTION_NM
+		                         , UNIT_ITEM
+		                         , CAPTY_ITEM
+		                         , AMOUNT_ITEM
+		                         , CMNT_ITEM)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{optionNm}
+		     , #{unitItem}
+		     , #{captyItem}
+		     , #{amountItem}
+		     , #{cmntItem}
+		     )
+    </insert>    
+    
+    <!-- SaaS2 필요정보 등록 -->
+    <insert id="insertBidSaas2Need" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="needSeq" resultType="int">
+            SELECT NVL(MAX(NEED_SEQ), 0) + 1
+              FROM TCN_BID_SAAS2_DN
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		
+		/*_bid.insertBidSaas2Need*/
+		
+		INSERT INTO TCN_BID_SAAS2_DN ( NOTIFY_NUM
+						              ,NOTIFY_SEQ
+						              ,USER_ID
+						              ,NEED_SEQ
+						             
+						              ,FUNCTIONNAME
+						              ,AMOUNT
+						              ,UNITCODE
+						             )
+		                      VALUES ( #{notifyNum}
+								      ,#{notifySeq}
+								      ,#{userId}
+								      ,#{needSeq}
+								     
+								      ,#{functionName}
+								      ,#{amount}
+								      ,#{unitCode}
+								     )
+    </insert>
+    
+    <!-- Insert된 SaaS2 필요정보의 현재 NEED_SEQ을 구한다. -->
+    <select id="selectBidSaas2NeedSeq" parameterType="map" resultType="int">
+     	/*_bid.selectBidSaas2NeedSeq*/      
+        SELECT NVL(MAX(NEED_SEQ), 0)
+          FROM TCN_BID_SAAS2_DN
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{userId}
+    </select>
+    
+    <!-- SaaS2 옵션정보 등록 -->
+    <insert id="insertBidSaas2Option" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="optionSeq" resultType="int">
+            SELECT NVL(MAX(OPTION_SEQ), 0) + 1
+              FROM TCN_BID_SAAS2_DO
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+               AND NEED_SEQ   = #{needSeq}
+        </selectKey>
+        
+        /*_bid.insertBidSaas2Option*/
+        
+        INSERT INTO TCN_BID_SAAS2_DO ( NOTIFY_NUM
+                                      ,NOTIFY_SEQ
+                                      ,USER_ID
+                                      ,NEED_SEQ
+                                      ,OPTION_SEQ
+                                     
+                                      ,FUNCTIONNAME
+                                      ,AMOUNT
+                                      ,UNITCODE
+                                     )
+                              VALUES ( #{notifyNum}
+                                      ,#{notifySeq}
+                                      ,#{userId}
+                                      ,#{needSeq}
+                                      ,#{optionSeq}
+                                     
+                                      ,#{functionName}
+                                      ,#{amount}
+                                      ,#{unitCode}
+                                     )
+                                     
+    </insert>
+
+    <!-- 입찰공고 IaaS 정보 등록 -->
+    <insert id="insertBidIaas" parameterType="BidIaasInfoVO">
+		/*_bid.insertBidIaas*/
+		INSERT INTO TCN_BID_IAAS_I(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , CDN_TRANS_VLMN
+		                         , CDN_REQU_CNT
+		                         , WEB_GOODS_KIND
+		                         , WEB_ACCESS
+		                         , MNTING_VM
+		                         , MNTING_ID_CNT
+		                         , BAKUP_CNT
+		                         , BAKUP_STORG
+		                         , MANG_FUNC
+		                         , SECTY_VPN
+		                         , SECTY_SSLVPN
+		                         , TECH_SUPT
+		                         , FUNC_DMND1
+		                         , FUNC_DMND2
+		                         , FUNC_DMND3
+		                         , FUNC_DMND4
+		                         , INTERFACE_DMND
+		                         , SECTY_DMND1
+		                         , SECTY_DMND2
+		                         , SECTY_DMND3
+		                         , SECTY_DMND4
+		                         , SECTY_DMND5
+		                         , QUTY_DMND1
+		                         , QUTY_DMND2
+		                         , OPTN_DMND1
+		                         , OPTN_DMND2
+		                         , PRJT_DMND1
+		                         , PRJT_DMND2
+		                         , PRJT_DMND3
+		                         , ETC_DMND)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{cdnTransVlmn}
+		     , #{cdnRequCnt}
+		     , #{webGoodsKind}
+		     , #{webAccess}
+		     , #{mntingVm}
+		     , #{mntingIdCnt}
+		     , #{bakupCnt}
+		     , #{bakupStorg}
+		     , #{mangFunc}
+		     , #{sectyVpn}
+		     , #{sectySslvpn}
+		     , #{techSupt}
+		     , #{funcDmnd1}
+		     , #{funcDmnd2}
+		     , #{funcDmnd3}
+		     , #{funcDmnd4}
+		     , #{interfaceDmnd}
+		     , #{sectyDmnd1}
+		     , #{sectyDmnd2}
+		     , #{sectyDmnd3}
+		     , #{sectyDmnd4}
+		     , #{sectyDmnd5}
+		     , #{qutyDmnd1}
+		     , #{qutyDmnd2}
+		     , #{optnDmnd1}
+		     , #{optnDmnd2}
+		     , #{prjtDmnd1}
+		     , #{prjtDmnd2}
+		     , #{prjtDmnd3}
+		     , #{etcDmnd}
+		     )
+    </insert>
+
+    <!-- 입찰공고 IaaS 정보 등록 -->
+    <insert id="insertBidIaas2" parameterType="BidIaas2InfoVO">
+		
+		/*_bid.insertBidIaas2*/
+		
+        INSERT INTO TCN_BID_IAAS2_I ( NOTIFY_NUM
+                                     ,NOTIFY_SEQ
+                                     ,USER_ID
+                                     ,APPLY_GBN
+                                     ,SERVER_IP
+                                     ,SERVER_NETWORK
+                                     ,SERVER_GSLB
+                                     ,SERVER_LDBL
+                                     ,SERVER_SNAP
+                                     ,SERVER_IMG
+                                     ,DB_IP
+                                     ,DB_NETWORK
+                                     ,DB_ADDDISK
+                                     ,DB_BACKSTORG
+                                     ,DB_STORG_SPACE
+                                     ,DB_TRANS_VLMN
+                                     ,CDN_TRANS_VLMN
+                                     ,CDN_REQU_CNT
+                                     ,WEB_GOODS_KIND
+                                     ,WEB_ACCESS
+                                     ,MNTING_VM
+                                     ,MNTING_ID_CNT
+                                     ,BAKUP_CNT
+                                     ,BAKUP_STORG
+                                     ,MANG_FUNC
+                                     ,SECTY_VPN
+                                     ,SECTY_SSLVPN
+                                     ,ADDED_ETC 
+                                    )
+                             VALUES ( #{notifyNum}
+                                     ,#{notifySeq}
+                                     ,#{userId}
+                                     ,'N' 
+                                     ,#{serverIp} 
+                                     ,#{serverNetwork} 
+                                     ,#{serverGslb} 
+                                     ,#{serverLdbl} 
+                                     ,#{serverSnap} 
+                                     ,#{serverImg}
+                                     ,#{dbIp} 
+                                     ,#{dbNetwork} 
+                                     ,#{dbAddDisk} 
+                                     ,#{dbBackStorg} 
+                                     ,#{dbStorgSpace} 
+                                     ,#{dbTransVlmn}
+                                     ,#{cdnTransVlmn} 
+                                     ,#{cdnRequCnt} 
+                                     ,#{webGoodsKind} 
+                                     ,#{webAccess} 
+                                     ,#{mntingVm} 
+                                     ,#{mntingIdCnt} 
+                                     ,#{bakupCnt} 
+                                     ,#{bakupStorg} 
+                                     ,#{mangFunc} 
+                                     ,#{sectyVpn} 
+                                     ,#{sectySslvpn} 
+                                     ,#{addedEtc} 
+                                    )
+    </insert>
+
+    <!-- 입찰공고 IaaS 정보 수정 -->
+    <insert id="updateBidIaas" parameterType="BidIaasInfoVO">
+		/*_bid.updateBidIaas*/
+		UPDATE TCN_BID_IAAS_I SET CDN_TRANS_VLMN = #{cdnTransVlmn}
+		                        , CDN_REQU_CNT   = #{cdnRequCnt}
+		                        , WEB_GOODS_KIND = #{webGoodsKind}
+		                        , WEB_ACCESS     = #{webAccess}
+		                        , MNTING_VM      = #{mntingVm}
+		                        , MNTING_ID_CNT  = #{mntingIdCnt}
+		                        , BAKUP_CNT      = #{bakupCnt}
+		                        , BAKUP_STORG    = #{bakupStorg}
+		                        , MANG_FUNC      = #{mangFunc}
+		                        , SECTY_VPN      = #{sectyVpn}
+		                        , SECTY_SSLVPN   = #{sectySslvpn}
+		                        , TECH_SUPT      = #{techSupt}
+		                        , FUNC_DMND1     = #{funcDmnd1}
+		                        , FUNC_DMND2     = #{funcDmnd2}
+		                        , FUNC_DMND3     = #{funcDmnd3}
+		                        , FUNC_DMND4     = #{funcDmnd4}
+		                        , INTERFACE_DMND = #{interfaceDmnd}
+		                        , SECTY_DMND1    = #{sectyDmnd1}
+		                        , SECTY_DMND2    = #{sectyDmnd2}
+		                        , SECTY_DMND3    = #{sectyDmnd3}
+		                        , SECTY_DMND4    = #{sectyDmnd4}
+		                        , SECTY_DMND5    = #{sectyDmnd5}
+		                        , QUTY_DMND1     = #{qutyDmnd1}
+		                        , QUTY_DMND2     = #{qutyDmnd2}
+		                        , OPTN_DMND1     = #{optnDmnd1}
+		                        , OPTN_DMND2     = #{optnDmnd2}
+		                        , PRJT_DMND1     = #{prjtDmnd1}
+		                        , PRJT_DMND2     = #{prjtDmnd2}
+		                        , PRJT_DMND3     = #{prjtDmnd3}
+		                        , ETC_DMND       = #{etcDmnd}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(서버) 등록 -->
+    <insert id="insertBidIaasServer" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BID_IAAS_DS
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_bid.insertBidIaasServer*/
+		INSERT INTO TCN_BID_IAAS_DS(NOTIFY_NUM
+		                          , NOTIFY_SEQ
+		                          , USER_ID
+		                          , APPLY_SEQ
+		                          , SERVER_USE
+		                          , SERVER_OS
+		                          , SERVER_CPU
+		                          , SERVER_MEMORY
+		                          , SERVER_DISK
+		                          , SERVER_QNTY
+		                          , SERVER_IP
+		                          , SERVER_NETWORK
+		                          , SERVER_GSLB
+		                          , SERVER_LDBL
+		                          , SERVER_SNAP
+		                          , SERVER_IMG)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{serverUse}
+		     , #{serverOs}
+		     , #{serverCpu}
+		     , #{serverMemory}
+		     , #{serverDisk}
+		     , #{serverQnty}
+		     , #{serverIp}
+		     , #{serverNetwork}
+		     , #{serverGslb}
+		     , #{serverLdbl}
+		     , #{serverSnap}
+		     , #{serverImg}
+		     )
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(서버) 등록 -->
+    <insert id="insertBidIaas2Server" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="serverSeq" resultType="int">
+            SELECT NVL(MAX(server_seq), 0) + 1
+              FROM tcn_bid_iaas2_ds
+             WHERE notify_num = #{notifyNum}
+               AND notify_seq = #{notifySeq}
+               AND user_id    = #{userId}
+        </selectKey>
+		/*_bid.insertBidIaas2Server*/
+		INSERT INTO tcn_bid_iaas2_ds ( notify_num
+				                      ,notify_seq
+				                      ,user_id
+				                      ,server_seq
+				                      ,server_use
+				                      ,server_os
+				                      ,server_cpu
+				                      ,server_memory
+				                      ,server_disk
+				                      ,server_qnty
+				                     )		                          
+		                      VALUES ( #{notifyNum}
+									  ,#{notifySeq}
+									  ,#{userId}
+									  ,#{serverSeq}
+									  ,#{serverUse}
+									  ,#{serverOs}
+									  ,#{serverCpu}
+									  ,#{serverMemory}
+									  ,#{serverDisk}
+									  ,#{serverQnty}
+									 )
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(서버) 삭제 -->
+    <update id="deleteBidIaasServer" parameterType="map">
+		/*_bid.deleteBidIaasServer*/
+		DELETE
+		  FROM TCN_BID_IAAS_DS
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+
+    <!-- 입찰공고 IaaS 상세정보(DB) 등록 -->
+    <insert id="insertBidIaasDb" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BID_IAAS_DD
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_bid.insertBidIaasDb*/
+		INSERT INTO TCN_BID_IAAS_DD(NOTIFY_NUM
+		                          , NOTIFY_SEQ
+		                          , USER_ID
+		                          , APPLY_SEQ
+		                          , DB_USE
+		                          , DB_OS
+		                          , DB_CPU
+		                          , DB_MEMORY
+		                          , DB_DISK
+		                          , DB_QNTY
+		                          , DB_IP
+		                          , DB_NETWORK
+		                          , DB_ADD_DISK
+		                          , DB_BACK_STORG
+		                          , DB_STORG_SPACE
+		                          , DB_TRANS_VLMN)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{dbUse}
+		     , #{dbOs}
+		     , #{dbCpu}
+		     , #{dbMemory}
+		     , #{dbDisk}
+		     , #{dbQnty}
+		     , #{dbIp}
+		     , #{dbNetwork}
+		     , #{dbAddDisk}
+		     , #{dbBackStorg}
+		     , #{dbStorgSpace}
+		     , #{dbTransVlmn}
+		     )
+    </insert>
+
+    <!-- 입찰공고 IaaS2 상세정보(DB) 등록 -->
+    <insert id="insertBidIaas2Db" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="dbSeq" resultType="int">
+            SELECT NVL(MAX(DB_SEQ), 0) + 1
+              FROM TCN_BID_IAAS2_DD
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+        /*_bid.insertBidIaas2Db*/
+        INSERT INTO tcn_bid_iaas2_dd ( notify_num
+                                      ,notify_seq
+                                      ,user_id
+                                      ,db_seq
+                                      ,db_use
+                                      ,db_os
+                                      ,db_cpu
+                                      ,db_memory
+                                      ,db_disk
+                                      ,db_qnty
+                                     )                                    
+                              VALUES ( #{notifyNum}
+                                      ,#{notifySeq}
+                                      ,#{userId}
+                                      ,#{dbSeq}
+                                      ,#{dbUse}
+                                      ,#{dbOs}
+                                      ,#{dbCpu}
+                                      ,#{dbMemory}
+                                      ,#{dbDisk}
+                                      ,#{dbQnty}
+                                     )
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(DB) 삭제 -->
+    <insert id="deleteBidIaasDb" parameterType="map">
+		/*_bid.deleteBidIaasDb*/
+		DELETE
+		  FROM TCN_BID_IAAS_DD
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+    <!-- 입찰공고 PaaS 정보 등록 -->
+    <insert id="insertBidPaas" parameterType="BidPaasInfoVO">
+		/*_bid.insertBidPaas*/
+		INSERT INTO TCN_BID_PAAS_I(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , LANG_SYS
+		                         , FRAMEWORK_SYS
+		                         , CACHE_SYS
+		                         , DBMS_SYS
+		                         , FAST_DEPLOY_SYS
+		                         , ETC_SYS)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{langSys}
+		     , #{frameworkSys}
+		     , #{cacheSys}
+		     , #{dbmsSys}
+		     , #{fastDeploySys}
+		     , #{etcSys}
+		     )
+    </insert>
+
+    <!-- 입찰공고 PaaS2 정보 등록 -->
+    <insert id="insertBidPaas2" parameterType="BidPaas2InfoVO">
+		
+		/*_bid.insertBidPaas2*/
+		
+        INSERT INTO TCN_BID_PAAS2_I ( NOTIFY_NUM
+                                     ,NOTIFY_SEQ
+                                     ,USER_ID
+                                     ,APPLY_GBN
+                                     ,HOSTINGMETHOD
+                                     ,SCALING
+                                     ,PLATFORM
+                                     ,RUNTIMES
+                                     ,MIDDLEWARE
+                                     ,FRAMEWORKS
+                                     ,SERVICES
+                                     ,ADDONS
+                                     ,EXTENDFUNCTION
+                                     ,GEOLOCATIONS  
+                                    )
+                             VALUES ( #{notifyNum}
+							         ,#{notifySeq}
+							         ,#{userId}
+							         ,#{applyGbn}
+							         ,#{hostingMethod}
+                                     ,#{scaling}
+                                     ,#{platform}
+                                     ,#{runtimes}
+                                     ,#{middleware}
+                                     ,#{frameworks}
+                                     ,#{services}
+                                     ,#{addons}
+                                     ,#{extendFunction}
+                                     ,#{geolocations}
+							        )
+    </insert>
+
+    <!-- 입찰공고 PaaS 정보 수정 -->
+    <insert id="updateBidPaas" parameterType="BidPaasInfoVO">
+		/*_bid.updateBidPaas*/
+		UPDATE TCN_BID_PAAS_I SET LANG_SYS        = #{langSys}
+		                        , FRAMEWORK_SYS   = #{frameworkSys}
+		                        , CACHE_SYS       = #{cacheSys}
+		                        , DBMS_SYS        = #{dbmsSys}
+		                        , FAST_DEPLOY_SYS = #{fastDeploySys}
+		                        , ETC_SYS         = #{etcSys}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+	<!--
+     * SQL 명      : _bid.tcnBidNotifyInfo
+     * 기능(설명)  : 입찰공고 상세정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-12-23
+    -->
+    <resultMap id="tcnBidNotifyInfoMap" type="map">
+    </resultMap>
+    <select id="tcnBidNotifyInfo" parameterType="TcnBidNotifyVO" resultMap="tcnBidNotifyInfoMap">
+		/*_bid.tcnBidNotifyInfo*/
+        SELECT NOTIFY_NUM
+             , NOTIFY_SEQ
+             , BID_GBN_CD
+             , GOOD_KND_CD
+             , USER_ID
+             , GRP_SEQ
+             , BID_KND_CD
+             , BID_CLASS_CD
+             , CNTR_MOTHOD
+             , OPTL_CNTR_FILE
+             , REAL_DMND_ORG
+             , GOODS_CHARGER_NM
+             , GOODS_CHARGER_CTTPC
+             , LINK_ORGN_URL
+             , BID_NOTIFY_NM
+             , TO_CHAR(STRT_DT, 'YYYY-MM-DD')      AS STRT_DT
+             , TO_NUMBER(TO_CHAR(STRT_DT, 'HH24')) AS STRT_TIME
+             , TO_CHAR(CLSE_DT, 'YYYY-MM-DD')      AS CLSE_DT
+             , TO_NUMBER(TO_CHAR(CLSE_DT, 'HH24')) AS CLSE_TIME
+             , TO_CHAR(OPEN_DT, 'YYYY-MM-DD')      AS OPEN_DT
+             , TO_NUMBER(TO_CHAR(OPEN_DT, 'HH24')) AS OPEN_TIME
+             , AREA_LIMIT1
+             , AREA_LIMIT2
+             , AREA_LIMIT3
+             , CATY_LIMIT_ENTR
+             , CATY_LIMIT_VNTR
+             , CATY_LIMIT_SOC
+             , CATY_LIMIT_WOMN
+             , CATY_LIMIT_DIAD
+             , CATY_LIMIT_ETC
+             , CATY_LIMIT_ETC_COMT 
+          FROM TCN_BID_NOTIFY_I
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+    </select>
+
+
+    <!--
+     * SQL 명      : _bid.selectSuplerList
+     * 기능(설명)  : 입찰공고 공급자 확인정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-05
+    -->
+    <select id="selectSuplerList" parameterType="map" resultType="BidSuplerListVO">
+        /*_bid.selectSuplerList*/
+        SELECT A.NOTIFY_NUM  AS NotifyNum
+             , A.NOTIFY_SEQ  AS NotifySeq
+             , A.USER_ID     AS suplerId
+             , B.USER_ID     AS userId
+             , C.USER_NM   	 AS suplerName
+             , B.BID_NOTIFY_NM 				 AS bidNotifyNm
+             , DECRYPT(C.EMAIL ,'P008')      AS suplerEmail
+             , DECRYPT(c.mbtlnum ,'P007')    AS suplerMbtlnum
+             , B.CNTR_MOTHOD AS cntrMothod
+          FROM TCN_NOTIFY_SPLY_I A
+               INNER JOIN TCN_BID_NOTIFY_I B
+                       ON A.NOTIFY_NUM = B.NOTIFY_NUM
+                      AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+                LEFT JOIN OP_USER C
+               		 <!--   ON A.USER_ID = C.USER_ID  -->
+            <if test="suplerId == null or suplerId == ''">
+               		 ON A.USER_ID    = C.USER_ID
+             </if>
+              <if test="suplerId != null  and suplerId != ''">
+             		 ON B.USER_ID    = C.USER_ID
+             </if>
+         WHERE A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+         <if test="suplerId != null  and suplerId != ''">
+           AND A.USER_ID    =#{suplerId}
+         </if>
+         <if test="userId != null  and userId != ''">
+           AND B.USER_ID    = #{userId}
+         </if>
+    </select>
+</mapper>

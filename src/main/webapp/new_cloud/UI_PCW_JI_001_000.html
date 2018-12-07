@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="join-wrap">
+
+			<!-- contents -->
+			<div class="contents main">
+
+				<h2 class="tit">씨앗마켓에 오신 것을 환영합니다</h2>
+
+				<!-- tab -->
+				<div class="tab-area">
+					<ul>
+					<li class="on">
+						<a href="#">대한민국 국적을 가진 내국인<strong>국내 회원 가입</strong></a>
+					</li>
+					<li>
+						<a href="#">대한민국 外 국적을 가진 내국인</span><strong>해외 회원 가입</strong></a>
+					</li>
+					</ul>
+				</div>
+				<!-- //tab -->
+
+				<!-- 국내 회원 가입 -->
+				<div class="multi-section-half">
+					<div class="section">
+						<h3>구매 회원 가입</h3>
+						<ul>
+						<li><span>개인 일반 회원 / 공공기관 담당자</span><span><a href="#" class="b-btn-type3"><strong><span>개인 회원</span></strong></a></span></li>
+						<li><span>기업을 대표하는 기업 담당자</span><span><a href="#" class="b-btn-type2"><strong><span>기업 회원</span></strong></a></span></li>
+						</ul>
+					</div>
+					<div class="section">
+						<h3>판매 회원 가입<span>(구매도 가능)</span></h3>
+						<ul>
+						<li><span>개인 일반 회원 / 공공기관 담당자</span><span><a href="#" class="b-btn-type3"><strong><span>개인 회원</span></strong></a></span></li>
+						<li><span>기업을 대표하는 기업 담당자</span><span><a href="#" class="b-btn-type2"><strong><span>기업 회원</span></strong></a></span></li>
+						</ul>
+					</div>
+				</div>
+				<!-- //국내 회원 가입 -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

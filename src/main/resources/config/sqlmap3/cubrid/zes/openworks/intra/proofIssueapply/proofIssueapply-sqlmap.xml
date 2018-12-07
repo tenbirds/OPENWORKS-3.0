@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_proofIssueapply">
+
+	<sql id="dynamicWhere">
+		<if test="q_searchKey == '1001' and q_searchVal != null and q_searchVal != ''">
+               AND A.REGIST_ID LIKE '%' || TRIM(#{q_searchVal}) || '%'
+        </if>
+        <if test="q_searchKey == '1002' and q_searchVal != null and q_searchVal != ''">
+                AND A.REGIST_ID IN (SELECT USER_ID 
+                               FROM OP_USER 
+                              WHERE USER_ID = A.REGIST_ID
+                                      AND USER_NM LIKE '%'||TRIM(#{q_searchVal})||'%')
+        </if>
+
+        <if test="q_searchType != null and q_searchType !=''">
+        	   AND A.ISSU_STTUS = #{q_searchType}
+        </if>
+        
+        <if test="issuSttus != null and issuSttus !=''">
+        	<if test="issuSttus == '1003' or issuSttus == '1002'">
+        		AND A.ISSU_STTUS IN ('1003', '1002')
+        	</if>
+        	<if test="issuSttus == '1001'">
+        		AND A.ISSU_STTUS = #{issuSttus}
+        	</if>
+        </if>
+        
+	</sql>
+
+ 	<select id="proofIssueapplyListCount" parameterType="ProofIssueledgerVO" resultType="int">
+    	
+    	/*_proofIssueapply.proofIssueapplyListCount*/
+    	
+		 SELECT COUNT(1) AS totalCount
+ 		   FROM ROU_ISSU_APPLY_I A
+		  WHERE 1=1
+<!-- 		    AND A.ISSU_STTUS = '1001' -->
+		  <include refid="dynamicWhere"/>
+			<!-- WHERE A.CNTRCTAMOUNT != 0
+			    AND A.CERT_RESULT_CODE IS NOT NULL
+			    AND A.CNTR_DT IS NOT NULL
+				AND TO_CHAR(regist_dt,'YYYYMMDD') &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')
+		<include refid="dynamicWhere"/> -->
+        
+    </select>
+
+ 	<select id="proofIssueapplyList" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+        
+        /*_proofIssueapply.proofIssueapplyList*/
+        /*메인화면에 뿌릴 리스트 목록*/ <!-- skyou 2017-11-30 이용실적증명서 발급 신청관련 테이블 변경에 따라 query 변경{{{{{{ -->
+        
+        SELECT Y.*
+          FROM (SELECT  ROWNUM NUM
+                      , X.*
+                  FROM  (SELECT  A.ROU_SN AS rouSn                                                      /*이용신청발급번호*/
+                               , ISSU_RESN AS issuResn                                                  /*발급사유*/
+                               , (SELECT (SELECT ORGN_NM 
+                                            FROM TCN_ORGN_INFO_D 
+                                           WHERE BUSEO_CODE = B.BUSEO_CODE) 
+                                    FROM  OP_USER_PBLINSTT_OPTION  B    
+                                   WHERE  B.USER_ID = A.REGIST_ID) AS organNm                           /*신청기관*/    
+                               , (SELECT USER_NM 
+                                    FROM OP_USER
+                                   WHERE USER_ID = A.REGIST_ID) AS userNm                               /*신청자명*/
+                               , (CASE WHEN ISSU_MTH='E' THEN '이메일'                         
+                                       WHEN ISSU_MTH='Z' THEN '우편발송' 
+                                   END) AS issuMthNm                                                    /*발급방식*/
+                               , A.ISSU_STTUS AS issuSttus                                              /*진행상태*/
+                               , (SELECT indvdlz_cd_nm 
+                                    FROM op_code_indvdlz 
+                                   WHERE group_cd = '2045' 
+                                     AND use_yn = 'Y' 
+                                     AND indvdlz_cd = A.ISSU_STTUS 
+                                 ) AS issuSttusNm                                                       /*진행상태이름*/
+                               , FILE_SEQ AS fileSeq                                                    /*파일첨부*/
+                               , (SELECT file_id  FROM op_file WHERE file_seq = a.FILE_SEQ) AS fileId
+                               , (SELECT local_orginl_nm  FROM op_file WHERE file_seq = a.FILE_SEQ) AS localOrginlNm
+                               , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') AS registDt                          /*발급신청일*/
+                               , TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD') AS sndngDe    /*발급일*/
+                               , A.ROU_ISSU_NO                        AS rouIssuNo                      /*발급번호*/
+                               , (SELECT COUNT(*) 
+                                    FROM ROU_ISSU_SERVICE_I 
+                                   WHERE ROU_SN = A.ROU_SN 
+                                   GROUP BY ROU_SN ) AS serviceCnt                                      /*증명서발급신청수 */
+                               , PRUF_PD_BEGIN_DE AS prufPdBeginDe
+                               , PRUF_PD_END_DE AS prufPdEndDe
+                               , NVL(DATEDIFF(SYSDATE, A.REGIST_DT), 0) AS dateDiffe
+                           FROM  ROU_ISSU_APPLY_I A
+                          WHERE  1=1
+							
+							<!-- AND  A.ISSU_STTUS != '1003' -->
+                            <include refid="dynamicWhere"/>
+                            
+                          ORDER  BY A.ROU_SN DESC
+                           ) X 
+                   WHERE 1=1
+                   <if test="q_searchKey == '1000' and q_searchVal != null and q_searchVal != ''">
+                        AND X.organNm LIKE '%' || TRIM(#{q_searchVal}) || '%'
+                    </if>          
+                     AND ROWNUM &lt;= #{pagingEndNum}
+               ) Y 
+           WHERE  NUM &gt;= #{pagingStartNum}
+<!--                    
+           SELECT Y.* 
+             FROM (SELECT  ROWNUM NUM
+                         , X.* 
+                     FROM  (SELECT  A.ROU_SN                                                     AS rouSn        /*이용신청발급번호*/
+                                  , ISSU_RESN                                                    AS issuResn        /*발급사유*/
+                               , D.ORGN_NM                                                    AS organNm        /*신청기관*/    
+                               , C.USER_NM                                                    AS userNm        /*신청자명*/
+                               , (CASE WHEN ISSU_MTH='E' THEN '이메일'                         
+                                       WHEN ISSU_MTH='Z' THEN '우편발송' 
+                                   END)                                                        AS issuMthNm    /*발급방식*/
+                               , A.ISSU_STTUS                                                  AS issuSttus    /*진행상태*/
+                               , INDVDLZ_CD_NM                                                AS issuSttusNm    /*발급이름*/
+                               , FILE_SEQ                                                    AS fileSeq        /*파일첨부*/
+                               , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD')                            AS registDt        /*발급신청일*/
+                               , TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD')    AS sndngDe        /*발급일*/
+                               , A.ROU_ISSU_NO                                                AS rouIssuNo    /*발급번호*/
+                               , E.SERVICE_CNT                                                AS serviceCnt    /*증명서발급신청수 */
+                               , PRUF_PD_BEGIN_DE                                            AS prufPdBeginDe
+                               , PRUF_PD_END_DE                                                AS prufPdEndDe
+                              FROM  ROU_ISSU_APPLY_I A
+                              LEFT  JOIN OP_CODE_INDVDLZ B ON B.GROUP_CD='2045' 
+                               AND  A.ISSU_STTUS = B.INDVDLZ_CD                                                /*발급중복*/
+                              LEFT  JOIN OP_USER C ON A.REGIST_ID = C.USER_ID                                   /*공공회원만 신청가능하므로 기관정보만 가져옴*/
+                              LEFT  JOIN (SELECT  B.USER_ID AS USER_ID
+                                                , C.ORGN_NM AS ORGN_NM
+                                            FROM  OP_USER_PBLINSTT_OPTION  B
+                                            LEFT  JOIN TCN_ORGN_INFO_D C ON B.BUSEO_CODE = C.BUSEO_CODE
+                                         ) D ON C.USER_ID = D.USER_ID 
+                              LEFT  JOIN (SELECT  ROU_SN
+                                                , COUNT(*) AS SERVICE_CNT 
+                                            FROM  ROU_ISSU_SERVICE_I 
+                                           GROUP  BY ROU_SN
+                                         ) E ON E.ROU_SN =A.ROU_SN    /*신청연계서비스 */
+                             WHERE  1=1
+                               AND  A.ISSU_STTUS != '1003'
+                               <include refid="dynamicWhere"/>
+                               ORDER BY A.ROU_SN DESC
+                           ) X 
+                   WHERE  ROWNUM &lt;= #{pagingEndNum}
+               ) Y 
+           WHERE  NUM &gt;= #{pagingStartNum}
+ -->
+    </select>
+    
+    <!-- 2018.05.19 eulro.yoon 작업 중 -->
+	<select id="proofIssueServiceList" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+	/* _proofIssueapply.proofIssueServiceList -- 레포트계약 목록 대상*/
+		SELECT  rouSn
+          , userId
+          , cntrct_svc_sn
+          , cntrctSn
+          , svcNm
+          , goodsNm
+          , storeNm
+          , goodsCode
+          , commUserId
+          , userNm
+          , notifyNum
+          , notifySeq
+          , registDt
+          , cntrctBeginDe
+          , cntrctEnd
+          , codeNm
+          , cntrDt
+          , certResultDt
+          , recogDt
+          , bidGbnCd
+          , realDmndOrgn
+          , goodsKndCd
+          , cntrctAmount
+      FROM  (SELECT  A.rou_sn AS rouSn
+                   , A.user_id AS userId
+                   , B.cntrct_svc_sn
+                   , C.cntrct_sn AS cntrctSn
+                   , DECODE(NVL(C.svc_nm, C.goods_nm), '', C.goods_nm, C.svc_nm) AS svcNm
+                   , C.goods_nm AS goodsNm
+                   , C.storeNm
+                   , C.goods_code AS goodsCode 
+                   , C.commUserId
+                   , C.userNm
+                   , C.notifyNum
+                   , C.notifySeq
+                   , C.registDt
+                   , TO_DATE(C.cntrctBeginDe,'yyyymmdd') AS cntrctBeginDe
+                   , TO_DATE(C.cntrctEnd,'yyyymmdd') AS cntrctEnd
+                   , C.codeNm
+                   , C.cntrDt
+                   , C.certResultDt
+                   , C.recogDt
+                   , C.bidGbnCd
+                   , C.realDmndOrgn
+                   , C.goodsKndCd
+                   , C.cntrctAmount
+               FROM  ROU_ISSU_APPLY_I   A
+                   , ROU_ISSU_SERVICE_I B
+                   , (SELECT  TM.cntrct_sn
+                            , TS.cntrct_svc_sn
+                            , TM.svc_nm
+                            , TS.goods_code
+                            , (SELECT goods_nm 
+                                 FROM TST_GOOD_INFO_I 
+                                WHERE goods_code = TS.goods_code ) AS goods_nm
+
+                            , (SELECT Z.LANG_STORE_NM 
+                                 FROM TST_GOOD_INFO_I X,
+                                           tum_svc_stor_i Z
+                                WHERE X.goods_code = TS.goods_code 
+                                AND X.USER_ID = Z.USER_ID) AS storeNm
+
+                            , TM.COMM_USER_ID AS commUserId
+                            , (SELECT USER_NM 
+                                 FROM OP_USER 
+                                WHERE USER_ID = TM.COMM_USER_ID) AS userNm
+                            , TM.NOTIFY_NUM AS notifyNum
+                            , TM.NOTIFY_SEQ AS notifySeq
+                            , TO_CHAR(TM.REGIST_DT,'YYYY-MM-DD') AS registDt
+                            , TM.CNTRCT_BEGIN_DE AS cntrctBeginDe
+                            , TM.CNTRCT_END_DE AS cntrctEnd
+                            , (SELECT INDVDLZ_CD_NM 
+                                 FROM OP_CODE_INDVDLZ 
+                                WHERE GROUP_CD = '2045' 
+                                  AND INDVDLZ_CD = TM.CERT_RESULT_CODE) AS codeNm
+                            , (SELECT CASE WHEN TB.BID_GBN_CD IS NULL THEN (SELECT CASE WHEN SPLY_FORM = 9 THEN '수의계약' 
+                                                                                   ELSE '수기입력' 
+                                                                                   END 
+                                                                              FROM TCM_CNTRCT_MANAGE_I)
+                                      ELSE (SELECT INDVDLZ_CD_NM 
+                                              FROM OP_CODE_INDVDLZ 
+                                             WHERE INDVDLZ_CD = TB.BID_GBN_CD 
+                                               AND GROUP_CD ='2037') 
+                                       END
+                                 FROM TCN_BID_NOTIFY_I TB 
+                                WHERE TM.NOTIFY_NUM = TB.NOTIFY_NUM 
+                                  AND TM.NOTIFY_SEQ = TB.NOTIFY_SEQ ) AS bidGbnCd
+                            , TO_CHAR(TM.CNTR_DT,'YYYY-MM-DD') AS cntrDt
+                            , TM.CERT_RESULT_DT AS certResultDt
+                            , TO_CHAR(TM.RECOG_DT,'YYYY-MM-DD') AS recogDt
+                            , (SELECT (CASE WHEN TB.REAL_DMND_ORGN IS NULL THEN (SELECT PURCHS_INSTT_NM 
+                                                                                   FROM TCM_CNTRCT_MANAGE_I 
+                                                                                  WHERE CNTRCT_SN = TM.CNTRCT_SN)
+                                       ELSE  TB.REAL_DMND_ORGN
+                                        END)
+                                 FROM TCN_BID_NOTIFY_I TB
+                                WHERE TM.NOTIFY_NUM = TB.NOTIFY_NUM 
+                                  AND TM.NOTIFY_SEQ = TB.NOTIFY_SEQ) AS realDmndOrgn
+                            , (SELECT DECODE(GOODS_KND_CD, '1001','PaaS', '1002','SaaS', '1003','IaaS', '1004','SCS') 
+                                 FROM TST_GOOD_INFO_I 
+                                WHERE goods_code = TS.goods_code) AS goodsKndCd
+                            , TS.CNTRCT_AMOUNT AS cntrctAmount
+                        FROM  TCM_CNTRCT_MANAGE_I  TM
+                            , TCM_CNTRCT_SERVICE_I TS
+                       WHERE  TM.CNTRCT_SN = TS.CNTRCT_SN
+                         AND  TM.CNTR_DT   IS NOT NULL
+                         AND  TO_CHAR(TM.REGIST_DT,'YYYYMMDD')  &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')) C
+              WHERE  B.ROU_SN = A.ROU_SN 
+                AND  B.CNTRCT_SVC_SN = C.CNTRCT_SVC_SN) AA
+     WHERE  ROUSN IN (<foreach collection="itemList" item="item" separator=", ">#{item}</foreach>)
+     ORDER  BY ROUSN DESC
+
+<!--
+		SELECT Y.* 
+		  FROM (SELECT  ROWNUM NUM
+		              , X.* 
+		          FROM  (SELECT  A.CNTRCT_SN AS cntrctSn
+		                       , A.USER_ID AS userId
+		                       , A.COMM_USER_ID AS commUserId
+		                       , A.NOTIFY_NUM AS notifyNum
+		                       , A.NOTIFY_SEQ AS notifySeq
+		                       , A.SVC_NM AS svcNm
+		                       , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD') AS registDt
+		                       , A.CNTRCT_BEGIN_DE AS cntrctBeginDe
+		                       , A.CNTRCT_END_DE AS cntrctEnd
+		                       , FORMAT(A.CNTRCTAMOUNT,'0') AS cntrctMount
+		                       , (SELECT INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ 
+								   WHERE GROUP_CD = '2045' 
+								     AND INDVDLZ_CD = A.CERT_RESULT_CODE) AS codeNm
+							   , TO_CHAR(A.CNTR_DT,'YYYY-MM-DD') AS cntrDt
+							   , (CASE WHEN B.BID_GBN_CD IS NULL THEN (CASE WHEN A.SPLY_FORM = 9 THEN '수의계약' ELSE '수기입력' END)
+								  ELSE (SELECT INDVDLZ_CD_NM 
+								          FROM OP_CODE_INDVDLZ
+								         WHERE INDVDLZ_CD = B.BID_GBN_CD
+								           AND GROUP_CD ='2037')
+								   END) AS bidGbnCd
+							   , (SELECT USER_NM 
+								    FROM OP_USER 
+								   WHERE USER_ID = A.COMM_USER_ID) AS userNm
+							   , (CASE WHEN B.REAL_DMND_ORGN IS NULL THEN (SELECT PURCHS_INSTT_NM FROM TCM_CNTRCT_MANAGE_I WHERE CNTRCT_SN = A.CNTRCT_SN)
+							      ELSE  B.REAL_DMND_ORGN
+								   END) AS realDmndOrgn
+							   , A.CERT_RESULT_DT AS certResultDt
+							   , TO_CHAR(A.RECOG_DT,'YYYY-MM-DD') AS recogDt
+							   , (SELECT rou_sn FROM ROU_ISSU_SERVICE_I WHERE cntrct_svc_sn = A.CNTRCT_SN) AS rouSn
+						   FROM  TCM_CNTRCT_MANAGE_I A 
+						   LEFT  OUTER JOIN TCN_BID_NOTIFY_I B 
+						     ON  A.NOTIFY_NUM = B.NOTIFY_NUM AND  A.NOTIFY_SEQ = B.NOTIFY_SEQ 
+						  WHERE  A.CERT_RESULT_CODE IS NOT NULL
+						    AND  A.CNTR_DT IS NOT NULL
+							AND  TO_CHAR(regist_dt,'YYYYMMDD') &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')
+						  ORDER BY A.COMM_USER_ID DESC, A.REGIST_DT DESC
+					    ) X
+	    		) Y
+	       WHERE 1=1
+	         AND rouSn IN (<foreach collection="itemList" item="item" separator=", ">#{item}</foreach>) 
+ -->
+    </select>
+    <!-- 2018.11.28 csm -->
+	<select id="proofIssueServiceList2" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+	/* _proofIssueapply.proofIssueServiceList2 -- 레포트계약 목록 대상*/
+		SELECT  rouSn
+          , userId
+          , cntrct_svc_sn
+          , cntrctSn
+          , svcNm
+          , goodsNm
+          , storeNm
+          , goodsCode
+          , commUserId
+          , userNm
+          , notifyNum
+          , notifySeq
+          , registDt
+          , cntrctBeginDe
+          , cntrctEnd
+          , codeNm
+          , cntrDt
+          , certResultDt
+          , recogDt
+          , bidGbnCd
+          , realDmndOrgn
+          , goodsKndCd
+          , cntrctAmount
+      FROM  (SELECT  A.rou_sn AS rouSn
+                   , A.user_id AS userId
+                   , B.cntrct_svc_sn
+                   , C.cntrct_sn AS cntrctSn
+                   , DECODE(NVL(C.svc_nm, C.goods_nm), '', C.goods_nm, C.svc_nm) AS svcNm
+                   , C.goods_nm AS goodsNm
+                   , C.storeNm
+                   , C.goods_code AS goodsCode 
+                   , C.commUserId
+                   , C.userNm
+                   , C.notifyNum
+                   , C.notifySeq
+                   , C.registDt
+                   , TO_DATE(C.cntrctBeginDe,'yyyymmdd') AS cntrctBeginDe
+                   , TO_DATE(C.cntrctEnd,'yyyymmdd') AS cntrctEnd
+                   , C.codeNm
+                   , C.cntrDt
+                   , C.certResultDt
+                   , C.recogDt
+                   , C.bidGbnCd
+                   , C.realDmndOrgn
+                   , C.goodsKndCd
+                   , C.cntrctAmount
+               FROM  ROU_ISSU_APPLY_I   A
+                   , ROU_ISSU_SERVICE_I B
+                   , (SELECT  TM.cntrct_sn
+                            , TS.cntrct_svc_sn
+                            , TM.svc_nm
+                            , TS.goods_code
+                            , (SELECT goods_nm 
+                                 FROM TST_GOOD_INFO_I 
+                                WHERE goods_code = TS.goods_code ) AS goods_nm
+
+                            , (SELECT Z.LANG_STORE_NM 
+                                 FROM TST_GOOD_INFO_I X,
+                                           tum_svc_stor_i Z
+                                WHERE X.goods_code = TS.goods_code 
+                                AND X.USER_ID = Z.USER_ID) AS storeNm
+
+                            , TM.COMM_USER_ID AS commUserId
+                            , (SELECT USER_NM 
+                                 FROM OP_USER 
+                                WHERE USER_ID = TM.COMM_USER_ID) AS userNm
+                            , TM.NOTIFY_NUM AS notifyNum
+                            , TM.NOTIFY_SEQ AS notifySeq
+                            , TO_CHAR(TM.REGIST_DT,'YYYY-MM-DD') AS registDt
+                            , TM.CNTRCT_BEGIN_DE AS cntrctBeginDe
+                            , TM.CNTRCT_END_DE AS cntrctEnd
+                            , (SELECT INDVDLZ_CD_NM 
+                                 FROM OP_CODE_INDVDLZ 
+                                WHERE GROUP_CD = '2045' 
+                                  AND INDVDLZ_CD = TM.CERT_RESULT_CODE) AS codeNm
+                            , (SELECT CASE WHEN TB.BID_GBN_CD IS NULL THEN (SELECT CASE WHEN SPLY_FORM = 9 THEN '수의계약' 
+                                                                                   ELSE '수기입력' 
+                                                                                   END 
+                                                                              FROM TCM_CNTRCT_MANAGE_I)
+                                      ELSE (SELECT INDVDLZ_CD_NM 
+                                              FROM OP_CODE_INDVDLZ 
+                                             WHERE INDVDLZ_CD = TB.BID_GBN_CD 
+                                               AND GROUP_CD ='2037') 
+                                       END
+                                 FROM TCN_BID_NOTIFY_I TB 
+                                WHERE TM.NOTIFY_NUM = TB.NOTIFY_NUM 
+                                  AND TM.NOTIFY_SEQ = TB.NOTIFY_SEQ ) AS bidGbnCd
+                            , TO_CHAR(TM.CNTR_DT,'YYYY-MM-DD') AS cntrDt
+                            , TM.CERT_RESULT_DT AS certResultDt
+                            , TO_CHAR(TM.RECOG_DT,'YYYY-MM-DD') AS recogDt
+                            , (SELECT (CASE WHEN TB.REAL_DMND_ORGN IS NULL THEN (SELECT PURCHS_INSTT_NM 
+                                                                                   FROM TCM_CNTRCT_MANAGE_I 
+                                                                                  WHERE CNTRCT_SN = TM.CNTRCT_SN)
+                                       ELSE  TB.REAL_DMND_ORGN
+                                        END)
+                                 FROM TCN_BID_NOTIFY_I TB
+                                WHERE TM.NOTIFY_NUM = TB.NOTIFY_NUM 
+                                  AND TM.NOTIFY_SEQ = TB.NOTIFY_SEQ) AS realDmndOrgn
+                            , (SELECT DECODE(GOODS_KND_CD, '1001','PaaS', '1002','SaaS', '1003','IaaS', '1004','SCS') 
+                                 FROM TST_GOOD_INFO_I 
+                                WHERE goods_code = TS.goods_code) AS goodsKndCd
+                            , TS.CNTRCT_AMOUNT AS cntrctAmount
+                        FROM  TCM_CNTRCT_MANAGE_I  TM
+                            , TCM_CNTRCT_SERVICE_I TS
+                       WHERE  TM.CNTRCT_SN = TS.CNTRCT_SN
+                         AND  TM.CNTR_DT   IS NOT NULL
+                         AND  TO_CHAR(TM.REGIST_DT,'YYYYMMDD')  &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')) C
+              WHERE  B.ROU_SN = A.ROU_SN 
+                AND  B.CNTRCT_SVC_SN = C.CNTRCT_SVC_SN) AA
+     WHERE  ROUSN =  #{strRouSn}
+     ORDER  BY ROUSN DESC
+
+    </select>
+
+
+	<update id="setIssuSttus1002_old" parameterType="ProofIssueledgerVO">
+  
+	/* _proofIssueapply.setIssuSttus1002_old */
+  
+	    UPDATE ROU_ISSU_APPLY_I
+	       SET ISSU_STTUS = 1002
+	     WHERE ROU_SN IN (<foreach collection="itemList" item="item" separator=", ">#{item}</foreach>)
+  
+	</update>
+
+	<update id="setIssuSttus1002" parameterType="ProofIssueledgerVO">
+  
+	/* _proofIssueapply.setIssuSttus1002 */
+  
+	    UPDATE ROU_ISSU_APPLY_I
+	       SET ISSU_STTUS = 1002
+	     WHERE ROU_SN = #{rouSn}
+  
+	</update>
+
+
+    <select id="proofIssueapply" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+        
+        /*_proofIssueapply.proofIssueapply*/       
+        
+          SELECT A.ROU_SN                                                    AS rouSn          /*이용신청발급번호*/
+               , ISSU_RESN                                                   AS issuResn       /*발급사유*/
+               , (SELECT (SELECT ORGN_NM 
+                            FROM TCN_ORGN_INFO_D 
+                           WHERE BUSEO_CODE = B.BUSEO_CODE
+                         ) 
+                    FROM OP_USER_PBLINSTT_OPTION  B    
+                   WHERE B.USER_ID = A.REGIST_ID
+                 )                                                           AS organNm        /*신청기관*/    
+               , (SELECT USER_NM 
+                    FROM OP_USER
+                   WHERE USER_ID = A.REGIST_ID
+                 )                                                           AS userNm         /*신청자명*/
+               , (CASE WHEN ISSU_MTH='E' THEN '이메일'                         
+                       WHEN ISSU_MTH='Z' THEN '우편발송' 
+                   END
+                 )                                                           AS issuMthNm      /*발급방식*/
+               , A.ISSU_STTUS                                                AS issuSttus      /*진행상태*/
+               , (SELECT indvdlz_cd_nm 
+                    FROM op_code_indvdlz 
+                   WHERE group_cd   = '2045' 
+                     AND use_yn     = 'Y' 
+                     AND indvdlz_cd = A.ISSU_STTUS 
+                 )                                                           AS issuSttusNm    /*진행상태이름*/
+               , FILE_SEQ                                                    AS fileSeq        /*파일첨부*/
+               , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD')                           AS registDt       /*발급신청일*/
+               , TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD')    AS sndngDe        /*발급일*/
+               , A.ROU_ISSU_NO                                               AS rouIssuNo      /*발급번호*/
+               , (SELECT COUNT(*) 
+                    FROM ROU_ISSU_SERVICE_I 
+                   WHERE ROU_SN = A.ROU_SN 
+                   GROUP BY ROU_SN 
+                 )                                                           AS serviceCnt     /*증명서발급신청수 */
+               , PRUF_PD_BEGIN_DE                                            AS prufPdBeginDe  
+               , PRUF_PD_END_DE                                              AS prufPdEndDe    
+               , NVL(DATEDIFF(SYSDATE, A.REGIST_DT), 0)                      AS dateDiffe      
+            FROM ROU_ISSU_APPLY_I A
+           WHERE 1=1                        
+             AND A.ROU_SN IN (<foreach collection="itemList" item="item" separator=", ">#{item}</foreach>)                            
+                       
+    </select>
+    <select id="proofIssueapply2" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+        
+        /*_proofIssueapply.proofIssueapply2*/       
+        
+          SELECT A.ROU_SN                                                    AS rouSn          /*이용신청발급번호*/
+               , ISSU_RESN                                                   AS issuResn       /*발급사유*/
+               , (SELECT (SELECT ORGN_NM 
+                            FROM TCN_ORGN_INFO_D 
+                           WHERE BUSEO_CODE = B.BUSEO_CODE
+                         ) 
+                    FROM OP_USER_PBLINSTT_OPTION  B    
+                   WHERE B.USER_ID = A.REGIST_ID
+                 )                                                           AS organNm        /*신청기관*/    
+               , (SELECT USER_NM 
+                    FROM OP_USER
+                   WHERE USER_ID = A.REGIST_ID
+                 )                                                           AS userNm         /*신청자명*/
+               , (CASE WHEN ISSU_MTH='E' THEN '이메일'                         
+                       WHEN ISSU_MTH='Z' THEN '우편발송' 
+                   END
+                 )                                                           AS issuMthNm      /*발급방식*/
+               , A.ISSU_STTUS                                                AS issuSttus      /*진행상태*/
+               , (SELECT indvdlz_cd_nm 
+                    FROM op_code_indvdlz 
+                   WHERE group_cd   = '2045' 
+                     AND use_yn     = 'Y' 
+                     AND indvdlz_cd = A.ISSU_STTUS 
+                 )                                                           AS issuSttusNm    /*진행상태이름*/
+               , FILE_SEQ                                                    AS fileSeq        /*파일첨부*/
+               , TO_CHAR(A.REGIST_DT,'YYYY-MM-DD')                           AS registDt       /*발급신청일*/
+               , TO_DATE(IF( A.SNDNG_DE='', null,A.SNDNG_DE ),'YYYYMMDD')    AS sndngDe        /*발급일*/
+               , A.ROU_ISSU_NO                                               AS rouIssuNo      /*발급번호*/
+               , (SELECT COUNT(*) 
+                    FROM ROU_ISSU_SERVICE_I 
+                   WHERE ROU_SN = A.ROU_SN 
+                   GROUP BY ROU_SN 
+                 )                                                           AS serviceCnt     /*증명서발급신청수 */
+               , PRUF_PD_BEGIN_DE                                            AS prufPdBeginDe  
+               , PRUF_PD_END_DE                                              AS prufPdEndDe    
+               , NVL(DATEDIFF(SYSDATE, A.REGIST_DT), 0)                      AS dateDiffe      
+            FROM ROU_ISSU_APPLY_I A
+           WHERE 1=1                        
+             AND A.ROU_SN = #{strRouSn}                            
+                       
+    </select>
+    
+    <select id="proofIssueapply3" parameterType="ProofIssueledgerVO" resultType="ProofIssueledgerVO">
+        
+        /*_proofIssueapply.proofIssueapply3*/       
+		SELECT  SUM(cntrctAmount) AS cntrctAmount
+        FROM  (SELECT  A.rou_sn AS rouSn
+                   , B.cntrct_svc_sn
+                   , C.cntrct_sn AS cntrctSn
+                   , C.cntrctAmount
+               FROM  ROU_ISSU_APPLY_I   A
+                   , ROU_ISSU_SERVICE_I B
+                   , (SELECT  TM.cntrct_sn
+                            , TS.cntrct_svc_sn
+                             ,TS.CNTRCT_AMOUNT AS cntrctAmount
+                        FROM  TCM_CNTRCT_MANAGE_I  TM
+                            , TCM_CNTRCT_SERVICE_I TS
+                       WHERE  TM.CNTRCT_SN = TS.CNTRCT_SN
+                         AND  TM.CNTR_DT   IS NOT NULL
+                         AND  TO_CHAR(TM.REGIST_DT,'YYYYMMDD') &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')) C
+              WHERE  B.ROU_SN = A.ROU_SN 
+                AND  B.CNTRCT_SVC_SN = C.CNTRCT_SVC_SN) AA
+     WHERE  ROUSN =   #{strRouSn}
+                          
+                       
+    </select>
+    
+	<update id="setIssuSttus1003" parameterType="ProofIssueledgerVO">
+  
+	/* _proofIssueapply.setIssuSttus1003 */
+  
+	    UPDATE ROU_ISSU_APPLY_I
+	       SET ISSU_STTUS = 1003
+	         , FILE_SEQ = #{pdfProfIssuFileSeq}
+             , SNDNG_DE = SUBSTR ( #{sndngDe}, 1, 4)    
+	                    || SUBSTR ( #{sndngDe}, 6, 2)
+	                    || SUBSTR ( #{sndngDe}, 9, 2)	          
+	     WHERE ROU_SN = #{rouSn}
+  
+	</update>
+
+</mapper>

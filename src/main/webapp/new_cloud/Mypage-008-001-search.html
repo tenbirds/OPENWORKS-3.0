@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+	<script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<script type="text/javascript" src="/resources/cmmnty/common/js/fakeselect.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/colobox/themes/theme5/colorbox.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/jquery.datepicker.css">
+	<script type="text/javascript" src="/new_cloud/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script-addon.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					//로그인 전 -->
+
+					<!-- 로그인 후 -->
+					<ul>
+					<li><a href="#">홍길동님</a></li>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="buy-history"><a href="#">구매기록<span>ON</span></a></li>
+					<!-- <li class="prd"><a href="#">12</a></li> -->
+					</ul>
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>마이페이지</h2>
+					<ul>
+					<li><a href="#">쇼핑내역</a></li>
+					<li><a href="#">관심목록</a></li>
+					<li><a href="#">나의 활동내역</a>
+						<ul>
+						<li><a href="/new_cloud/Mypage-003-001-list.html">- 상품 문의내역</a></li>
+						<li class="on"><a href="/new_cloud/Mypage-003-002-list.html">- 묻고답하기</a></li>
+						<li><a href="/new_cloud/Mypage-003-003-list.html">- 내가쓴글</a></li>
+						</ul>
+					</li>
+					<li><a href="#">전문가상담</a></li>
+					<li><a href="#">커뮤니티</a></li>
+					<li><a href="#">이벤트</a></li>
+					<li><a href="#">회원정보 변경</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>구매희망목록 검색</h2>
+				</div>
+				<!-- //title-area -->
+
+				<div class="section">
+
+					<div class="type-data">
+						<table>
+							<caption>검색</caption>
+							<colgroup>
+							<col style="width:130px;"/>
+							<col style="width:;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>검색조건</th>
+									<td>
+										<!-- 넓이값 수정되어야 함 -->
+										<!-- static select -->
+										<div class="select-area fl">
+											<!-- select box -->
+											<div class="sech_form">
+												<div class="cont_wrap">
+
+													<div class="selected">
+														<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>회원아이디</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+															<option value="">사업명</option>
+														</select>
+													</div>
+												</div>
+											</div>
+											<!-- //select box -->
+										</div>
+										<!-- //static select -->
+										<input type="text" id="" class="ml10" />
+									</td>
+								</tr>
+								<tr>
+									<th>적용일</th>
+									<td>
+										<div class="calendar_input">
+										  <input type="text" class="input" name="sDate" id="sDate" readonly="readonly" title="시작일 레이어 달력 열림" style="width:100px"
+										  value="2015-12-06" />
+										  <button type="button" class="ui-datepicker-trigger">...</button>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- btn-area -->
+					<div class="btn-area mt10 ar">
+						<a href="#" class="b-btn search type2"><strong><span>검 색</span></strong></a><a href="#" class="b-btn ml10 type1"><strong><span>전체보기</span></strong></a>
+					</div>
+					<!-- //btn-area -->
+				</div>
+
+				<div class="section mt30">
+					<div class="type-data ac">
+						<table>
+							<caption>목록</caption>
+							<colgroup>
+							<col style="width:;" />
+							<col style="width:;" />
+							<col style="width:;" />
+							<col style="width:;" />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>회원아이디</th>
+									<th>사업명</th>
+									<th>적용일시</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td>momo444</td>
+									<td><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016-02-00</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<? include $_SERVER["DOCUMENT_ROOT"]."/new_cloud/include/footer.html" ?>
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

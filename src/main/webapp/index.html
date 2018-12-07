@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>IT 유통생태계와 플랫폼 전략 세미나</title>
+	<link type="image/x-icon" rel="icon" href="http://korean.ceart.kr/images/favicon.ico" />
+	<link type="image/x-icon" rel="shortcut icon" http://korean.ceart.kr/images/favicon.ico" />
+	<style type="text/css">
+		*{margin:0; padding:0;}
+		img{border:none; vertical-align:top;}
+		ul,ol{list-style-type:none;}
+
+		.wrap{width:100%;padding-top:40px;}
+		.contents{width:900px;margin:0 auto;}
+		.footer{width:900px;margin:0 auto;}
+	</style>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript">
+		$(function() {
+		  $('area[href*=#]:not([href=#])').click(function() {
+			if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+			  var target = $(this.hash);
+			  target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+			  if (target.length) {
+				$('html,body').animate({
+				  scrollTop: target.offset().top
+				}, 1000);
+				return false;
+			  }
+			}
+		  });
+		});
+	</script>
+</head>
+<body>
+	<div class="wrap">
+		<div class="contents">
+			<img src="http://korean.ceart.kr/images/seminar_01.jpg" alt="" usemap="#map01" />
+			<map name="map01">
+				<area shape="rect" coords="526,440,759,499" href="https://docs.google.com/forms/d/1fToQE-zHjgkcql-F7X6xSC7ZE_TKIL7XMgEHqjuM9bY/viewform" target="_blank" alt="사전등록" />
+				<area shape="rect" coords="643,575,747,608" href="#introduce" alt="행사안내" />
+				<area shape="rect" coords="536,576,640,608" href="#program" alt="프로그램" />
+				<area shape="rect" coords="751,576,854,609" href="#location" alt="오시는길"" />
+			</map>
+			<div id="program"><img src="http://korean.ceart.kr/images/seminar_02.jpg" alt="" /></div>
+			<div id="introduce"><img src="http://korean.ceart.kr/images/seminar_03.jpg" alt="" usemap="#map02" /><map name="map02">
+			<area shape="rect" coords="344,870,578,930" href="https://docs.google.com/forms/d/1fToQE-zHjgkcql-F7X6xSC7ZE_TKIL7XMgEHqjuM9bY/viewform" target="_blank" alt="사전등록" />
+			</map></div>
+			<div id="location"><img src="http://korean.ceart.kr/images/seminar_04.jpg" alt="" /></div>
+		</div>
+		<div class="footer"><img src="http://korean.ceart.kr/images/footer.jpg" alt="" /></div>
+	</div>
+</body>
+</html>

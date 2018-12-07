@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_cache.board">
+
+	<select id="boardConfList" resultType="boardConfVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardConfList */
+        SELECT DOMAIN_CD AS domainCd
+             , BBS_CD    AS bbsCd
+             , BBS_NM    AS bbsNm
+          FROM OP_BOARD_CONF
+         WHERE USE_YN = 'Y'
+           AND DOMAIN_DELETE_AT = 'N'
+         ORDER BY BBS_NM ASC
+    </select>
+
+	<select id="boardConfView" parameterType="boardConfVO" resultType="boardConfVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardConfView */
+        SELECT 
+               A.DOMAIN_CD              AS domainCd
+             , A.BBS_CD                 AS bbsCd
+             , A.BBS_NM                 AS bbsNm
+             , A.BBS_DC                 AS bbsDc
+             , A.USE_YN                 AS useYn
+             , B.KND_CD                 AS kndCd
+             , B.CTG_YN                 AS ctgYn
+             , B.NOTICE_BBSCTT_USE_YN   AS noticeBbscttUseYn
+             , B.CMT_YN                 AS cmtYn
+             , B.SKIN_PATH              AS skinPath
+             , B.HDER_PATH              AS hderPath
+             , B.FOOTER_PATH            AS footerPath
+             , B.LIST_SKIN              AS listSkin
+             , B.VIEW_SKIN              AS viewSkin
+             , B.FORM_SKIN              AS formSkin
+             , C.USER_EDITR_YN          AS userEditorYn
+             , C.MNGR_EDITR_YN          AS mngrEditorYn
+             , C.FILE_YN                AS fileYn
+             , C.UPLOAD_TY              AS uploadTy
+             , C.MXMM_FILE_CNT          AS maxFileCnt
+             , C.MXMM_FILE_SIZE         AS maxFileSize
+             , C.TOTAL_FILE_SIZE        AS totalFileSize
+             , C.FILE_PERM_EXTSN        AS filePermExtsn
+             , C.BANNED_WRD_YN          AS bannedWordYn
+             , C.BANNED_WRD_CN          AS bannedWordCn
+             , C.CAPTCHA_YN             AS captchaYn
+             , C.OTHBC_YN               AS othbcYn
+             , D.LIST_VIEW_CD           AS listViewCd
+             , D.RECOMEND_YN            AS recomendYn
+             , D.ACCUSE_YN              AS accuseYn
+             , D.STSFDG_YN              AS stsfdgYn
+             , D.TAG_YN                 AS tagYn
+             , D.RDCNT_INCRS_LMTT_TIME  AS rdcntIncrsLmttTime
+             , E.RPP_CO                 AS rppNum
+             , E.DWLD_YN                AS dwldYn
+             , E.CUT_TITLE_CO           AS cutTitleNum
+             , E.NW_SNTNC_NTCN_CO       AS newArticleNum
+             , E.EMPHASIS_INQIRE_CO     AS emphasisNum
+             , E.REGISTER_INDICT_CD     AS registerIndictCd
+             , E.FEED_YN                AS feedYn
+          FROM OP_BOARD_CONF A,      OP_BOARD_CONF_GLOBAL B,
+               OP_BOARD_CONF_FORM C, OP_BOARD_CONF_VIEW D, 
+               OP_BOARD_CONF_LIST E
+         WHERE A.BBS_CD = #{bbsCd}
+           AND A.BBS_CD = B.BBS_CD
+           AND A.BBS_CD = C.BBS_CD
+           AND A.BBS_CD = D.BBS_CD
+           AND A.BBS_CD = E.BBS_CD
+           AND A.DOMAIN_CD = #{domainCd}
+           AND A.DOMAIN_CD = B.DOMAIN_CD
+           AND A.DOMAIN_CD = C.DOMAIN_CD
+           AND A.DOMAIN_CD = D.DOMAIN_CD
+           AND A.DOMAIN_CD = E.DOMAIN_CD
+           AND A.DOMAIN_DELETE_AT = 'N'
+    </select>
+
+	<resultMap id="aditCtg" type="boardCtgVO">
+<!--         <result property="ctgCd" column="USER_ID" javaType="String" /> -->
+        <collection property="aditCtgList" column="{domainCd=DOMAIN_CD,bbsCd=BBS_CD,ctgCd=aCtgCd}" ofType="boardCtgVO" select="boardAditCtgList"/>
+    </resultMap>
+    
+    <select id="boardCtgList" parameterType="boardConfVO" resultMap="aditCtg">
+    /*_cache.board : board-cache-sqlmap.xml : boardCtgList */
+        SELECT CTG_CD  AS aCtgCd 
+             , CTG_CD  AS CtgCd 
+             , CTG_NM  AS ctgNm
+             , USE_YN  AS useYn
+             , DOMAIN_CD
+             , BBS_CD
+          FROM OP_BOARD_CTG
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+         ORDER BY CTG_ORDR_NO ASC
+    </select>
+    
+    <select id="boardAditCtgList" parameterType="boardCtgVO" resultType="boardCtgVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardAditCtgList */
+        SELECT ADIT_CTG_CD  AS aditCtgCd 
+             , CTG_NM       AS aditCtgNm
+             , CTG_CD       AS ctgCd
+          FROM OP_BOARD_ADIT_CTG
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND CTG_CD = #{ctgCd}
+         ORDER BY CTG_ORDR_NO ASC
+    </select>
+    
+    <select id="boardListArrange" parameterType="int" resultType="boardArrangeVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardListArrange */
+        SELECT COLUMN_ID        AS columnId
+             , COLUMN_NM        AS columnNm
+             , IEM_ARNG_ORDR_NO AS arrangeOrdrNo
+             , BEAN_NM          AS beanNm
+             , LANG_COLUMN_NM   AS langColumnNm
+          FROM OP_BOARD_CONF_ARRANGE
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND LIST_VIEW_SE = 'list'
+         ORDER BY IEM_ARNG_ORDR_NO ASC
+    </select>
+
+    <select id="boardViewArrange" parameterType="int" resultType="boardArrangeVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardViewArrange */
+        SELECT COLUMN_ID        AS columnId
+             , COLUMN_NM        AS columnNm
+             , IEM_ARNG_ORDR_NO AS arrangeOrdrNo
+             , BEAN_NM          AS beanNm
+          FROM OP_BOARD_CONF_ARRANGE
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+           AND LIST_VIEW_SE = 'view'
+         ORDER BY IEM_ARNG_ORDR_NO ASC
+    </select>
+
+    <select id="boardExtensionList" parameterType="map" resultType="boardExtensionVO">
+    /*_cache.board : board-cache-sqlmap.xml : boardExtensionList */
+        SELECT BBS_CD           AS bbsCd
+             , COLUMN_ID        AS columnId
+             , COLUMN_NM        AS columnNm
+             , COLUMN_TY        AS columnTy
+             , COLUMN_CM        AS columnCm
+             , SEARCH_CND_YN    AS searchCndYn
+             , SEARCH_TY        AS searchTy
+             , ESSNTL_YN        AS essntlYn
+             , USE_YN           AS useYn
+             , LANG_COLUMN_NM AS langColumnNm
+          FROM OP_BOARD_CONF_EXTENSION
+         WHERE DOMAIN_CD = #{domainCd}
+           AND BBS_CD = #{bbsCd}
+            <if test="searchCndYn != null  and searchCndYn != ''">
+            AND SEARCH_CND_YN = #{searchCndYn}
+            </if>
+           AND USE_YN = 'Y'
+         ORDER BY COLUMN_NM ASC
+    </select>
+    
+    <!--  서비스 목록 조회-->
+    <select id="productList" parameterType="java.util.Map" resultType="boardConfVO">
+        /*_cache.board : board-cache-sqlmap.xml : productList */
+                /* 서비스 목록 */
+                SELECT
+                        GOODS_CODE        AS goodsCd
+                      , GOODS_NM          AS goodsNm
+                   FROM TST_GOOD_INFO_I
+                  WHERE MNGR_DELETE_AT ='N' 
+                    AND GOODS_ACTVTY_AT ='Y' 
+                    AND GOODS_REGIST_STTUS = 1006 
+                    AND LANG_CODE = #{langCode} 
+                  ORDER BY REGIST_DT DESC     
+    </select>
+
+</mapper>

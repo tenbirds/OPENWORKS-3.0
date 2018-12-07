@@ -1,0 +1,1336 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <msg>
+        <!-- jquery.validate.messages.js -->
+        <required>필수입력 항목입니다.</required>
+        <email>올바른 이메일 주소를 입력하세요.</email>
+        <url>http://를 포함한 URL을 입력해 주세요.</url>
+        <date>올바른 날짜를 입력하세요. (YYYY-MM-DD)</date>
+        <formatDate>올바른 날짜를 입력하세요. (YYYYMMDD)</formatDate>
+        <number>올바른 숫자값을 입력하세요.</number>
+        <digits>올바른 숫자값을 입력하세요.</digits>
+        <equalTo>동일한 값을 입력하셔야 합니다.</equalTo>
+        <maxlength>{0}Byte를 초과할 수 없습니다.(한글:3byte\,영문:1byte)</maxlength>
+        <minlength>{0}Byte이상이어야 합니다.(한글:3byte\,영문:1byte)</minlength>
+        <rangelength>{0} ~ {1}자리 이내의 값을 입력하세요.</rangelength>
+        <range>{0} ~ {1}사이의 값을 입력하세요.</range>
+        <max>{0}보다 같거나 작은 값을 입력하세요.</max>
+        <min>{0}보다 같거나 큰 값을 입력하세요.</min>
+        <maxByte>{0}Byte를 초과할 수 없습니다.(한글:3byte\,영문:1byte)</maxByte>
+        <mixByte>{0}Byte 이상이어야 합니다.(한글:3byte\,영문:1byte)</mixByte>
+        <alphabetic>영문자만 입력하세요.</alphabetic>
+        <alphalower>영문자(소문자)만 입력하세요.</alphalower>
+        <alphanumeric>영문자와 숫자만 입력하세요.</alphanumeric>
+        <alphaupper>영문자(대문자)만 입력하세요.</alphaupper>
+        <nowhitespace>공백문자는 허용되지 않습니다.</nowhitespace>
+        <pattern>정규표현식에 일치하지 않습니다.</pattern>
+        <remote>값이 올바르지 않습니다.</remote>
+
+        <dateISO>올바른 날짜를 입력하세요. (YYYY-MM-DD)</dateISO>
+        <creditcard>올바른 신용카드 번호를 입력하세요.</creditcard>
+        <accept>값이 올바르지 않습니다.</accept>
+
+        <!-- 인트라전용 -->
+        <!-- 메일발송 -->
+        <mailSendSucs>메일발송을 성공하였습니다.</mailSendSucs>
+        <mailSendFail>메일발송에 실패하였습니다.</mailSendFail>
+        <!-- 메뉴삭제 -->
+        <delMenuAuthAsgn>특정권한에 지정된 현재메뉴를 지정해제 후 삭제 가능합니다.</delMenuAuthAsgn>
+        <loginIdPwdValid>아이디 또는 비밀번호를 다시 확인하세요.</loginIdPwdValid>
+        <!-- 인트라전용// -->
+
+        <!-- common -->
+        <noData>데이터가 존재하지 않습니다.</noData>
+        <numberOnly>숫자만 입력 가능합니다.</numberOnly>
+        <exactlyEnter>정확하게 입력해 주세요.</exactlyEnter>
+
+        <!-- 글자제한 -->
+        <characters10>10자 이상입력하세요.</characters10>
+        <characters20>20자 이상입력하세요.</characters20>
+        <characters30>30자 이상입력하세요.</characters30>
+        <characters100>100자 이상입력하세요.</characters100>
+        <characters200>200자 이상입력하세요.</characters200>
+        <characters500>500자 이상입력하세요.</characters500>
+
+        <!-- alert message -->
+        <chkDt>시작일이 종료일 이후 날짜로 올 수 없습니다.</chkDt>
+        <chkCont>내용을 입력해주세요.</chkCont>
+        <chkDelete>파일을 정말 삭제하시겠습니까? 삭제 후 복구는 불가능 합니다.</chkDelete>
+
+        <!-- SUCCESS -->
+        <saveOk>요청정보를 성공적으로 저장하였습니다.</saveOk>
+        <insertOk>요청정보를 성공적으로 등록하였습니다.</insertOk>
+        <updateOk>요청정보를 성공적으로 수정하였습니다.</updateOk>
+        <deleteOk>요청정보를 성공적으로 삭제하였습니다.</deleteOk>
+        <processOk>요청처리를 성공적으로 수행하였습니다.</processOk>
+        <!-- 20150819 전시, 비전시 변경 시 성공 메세지 추가 시작 -->
+        <changeDisplayOK>서비스상태를 전시로 변경하였습니다</changeDisplayOK>
+        <changeNotDisplayOK>서비스상태를 비전시로 변경하였습니다</changeNotDisplayOK>
+        <!-- 20150819 전시, 비전시 변경 시 성공 메세지 추가 끝 -->
+
+        <!-- FAIL -->
+        <validateFail>요청정보가 잘못 입력되었습니다.</validateFail>
+        <processFail>요청에 대한 처리가 실패되었습니다.</processFail>
+        <invalidParam>요청정보가 잘못되었습니다.(데이터 정합성 오류)</invalidParam>
+		<wrongFile>잘못된 파일을 등록하셨습니다.\n\n수요예보조사표를 확인해 주세요.</wrongFile>
+		
+        <!-- ERROR -->
+        <processError>요청을 처리하는 중 프로그램 오류가 발생되었습니다.</processError>
+
+        <!-- CONDITION -->
+        <illegalRequest>부정한 방법으로 요청된 정보입니다.</illegalRequest>
+        <hasPersonalInfo>입력하신 내용에 개인정보가 포함되어 있습니다. 개인정보를 삭제하신 후 다시 시도하세요.</hasPersonalInfo>
+        <fileSizeOver>첨부파일 용량이 허용치보다 초과되었습니다.</fileSizeOver>
+        <noAuth>권한이 없습니다.</noAuth>
+        <noCeartAuth>공급자회원 승인대기중 또는 권한이 없습니다. \n공급자 권한 신청으로 이동하곘습니까?</noCeartAuth>
+        <noCeartAuth1>공급자회원 승인대기중 또는 권한이 없습니다.</noCeartAuth1>
+        <noCeartAuth2>마스터권한만 접속이 가능합니다.</noCeartAuth2>
+        <noCeartAuth3>이용 권한이 없습니다.</noCeartAuth3>
+        <noCeartAuth4>씨앗 회원 중 정부 및 공공기관 회원만 이용 가능합니다.</noCeartAuth4>
+
+        <!-- uniSearch -->
+        <enterSrchWrd>검색어를 입력해 주세요.</enterSrchWrd>
+
+        <!-- login -->
+        <loginAlready>이미 로그인이 되어 있습니다.</loginAlready>
+        <requiredLogin>로그인이 필요한 서비스입니다.\r\n먼저 로그인 하세요.</requiredLogin>
+        <emptyId>아이디를 입력하세요.</emptyId>
+        <emptyPwd>비밀번호를 입력하세요.</emptyPwd>
+        <wrongPwd>비밀번호는 직접 입력해 주세요.</wrongPwd>
+        <noUseId>사용하지 않는 아이디 입니다.</noUseId>
+        <noUseDeptIn>사용하지 않는 부서에 속해 있습니다.</noUseDeptIn>
+        <noUseIdAndDept>사용하지 않는 아이디 또는 부서에 속해 있습니다.</noUseIdAndDept>
+        <wrongId>아이디 형식에 맞지 않습니다.</wrongId>
+        <notFoundId>입력하신 정보와 일치하는 아이디가 없습니다.</notFoundId>
+        <notMatchPwd>비밀번호가 일치하지 않습니다.(대소문자 구분)</notMatchPwd>
+        <notMatchLogin>아이디 또는 비밀번호가 일치하지 않습니다.</notMatchLogin>
+        <limitTry>로그인 시도 횟수를 3회이상 초과하였습니다. 10분 후에 다시 시도하세요.</limitTry>
+        <noSession>개인정보 보호를 위해 로그인 정보가 소멸되었습니다. 다시 로그인해 주시기 바랍니다.</noSession>
+        <emptyUserNm>이름을 입력하세요.</emptyUserNm>
+        <emptyBirth>생년월일을 입력하세요.</emptyBirth>
+        <userLoginCheck>로그인이 필요한 서비스 입니다. 로그인페이지로 이동하시겠습니까?</userLoginCheck>
+        <pwdTooOld>비밀번호 설정이 90일이 경과하였습니다. 확인을 누르시면 회원정보변경 페이지로 이동합니다.</pwdTooOld>
+        <emptyMobile>휴대전화번호를 입력하세요.</emptyMobile>
+        <mobileNumberOnly>휴대전화번호는 숫자만 입력 가능합니다.</mobileNumberOnly>
+        <mobileExactlyEnter>휴대전화번호를 정확히 입력하세요.</mobileExactlyEnter>
+        <mobileChar>3자리이상 4자리이하로 입력하세요.</mobileChar>
+        <emptyEmail>이메일을 입력하세요.</emptyEmail>
+        <selectUserTy>회원 유형을 선택해주세요.</selectUserTy>
+        <selectGender>성별을 선택해주세요.</selectGender>
+        <sendMailSucc>메일이 발송되었습니다.</sendMailSucc>
+        <sendMailFail>메일 발송에 실패하였습니다.</sendMailFail>
+        <notMatchDi>본인 인증정보가 다릅니다. 다시 시도해 주세요.</notMatchDi>
+        <noneDiInfo>시스템 내 본인 인증정보가 없습니다. 개인인증을 통하여 가입한 회원만 인증이 가능합니다.</noneDiInfo>
+        <decDiFail>인증값 복호화에 실패하였습니다. 다시 시도해 주세요.</decDiFail>
+        <noCertfyInfo>인증정보가 없습니다. 다시 시도해 주세요.</noCertfyInfo>
+        <notMatchBizno>사업자 인증정보가 다릅니다. 다시 시도해 주세요.</notMatchBizno>
+        <notMatchBizno2>기존 사업자 정보와 다릅니다. 인증받은 사업자 정보로 수정됩니다.</notMatchBizno2>
+        <noneBiznoInfo>시스템 내 사업자 인증정보가 없습니다. 사업자인증을 통하여 가입한 회원만 인증이 가능합니다.</noneBiznoInfo>
+        <bizNoFail>사업자번호 인증에 실패하였습니다.</bizNoFail>
+        <bizNoIncorrect>사업자번호가 올바르지 않습니다. 확인해 주세요.</bizNoIncorrect>
+        <certfyErrorBizNo>잠시 후 다시 시도해 주세요.</certfyErrorBizNo>
+        <noRegBizNo>기업정보가 나이스신용평가정보에 등록 되어있지 않습니다.</noRegBizNo>
+        <noAuth1>회원만 이용이 가능합니다.</noAuth1>
+        <recovryDrmncySuccess>휴면계정 복구가 정상 완료되었습니다.</recovryDrmncySuccess>
+        <recovryDrmncyFail>휴면계정 복구를 실패하였습니다.</recovryDrmncyFail>
+
+        <!-- register -->
+        <pwdIncorrect>비밀번호가 올바르지 않습니다.</pwdIncorrect>
+        <captchaRetype>자동 작성 방지 문자를 다시 입력해주세요.</captchaRetype>
+        <reLogin>다시 접속해 주세요.</reLogin>
+        <moveMemModifyPage>회원정보 수정 페이지로 이동합니다.</moveMemModifyPage>
+        <moveWithdrawPage>회원 탈퇴페이지로 이동합니다.</moveWithdrawPage>
+        <successRegist>회원가입을 성공하였습니다.</successRegist>
+        <memberModify>회원정보가 수정되었습니다.</memberModify>
+        <registFail>등록에 실패하였습니다.</registFail>
+        <checkBirth>생년월일을 확인해 주세요.</checkBirth>
+        <checkDupID>아이디 중복확인을 해주세요.</checkDupID>
+        <checkDupEmail>이메일 중복확인을 해주세요.</checkDupEmail>
+        <agreeTerms>약관에 동의해 주세요.</agreeTerms>
+        <agreeOrderTerms>정보 전달 동의를 확인해주세요.</agreeOrderTerms>
+        <checkTerms>약관 동의여부를 선택해주세요.</checkTerms>
+        <pwdLongerChar>비밀번호는 10자 이상입니다.</pwdLongerChar>
+        <availableEmail>사용가능한 이메일주소입니다.</availableEmail>
+        <dupEmail>사용중인 이메일주소입니다.</dupEmail>
+        <validUserType>회원구분이 유효하지 않습니다.</validUserType>
+        <validEmail>이메일주소가 유효하지 않습니다.</validEmail>
+        <idAvailable>입력하신 아이디는 사용 가능합니다.</idAvailable>
+        <idNotAvailable>입력하신 아이디는 사용이 불가능합니다.</idNotAvailable>
+        <confirmWithdraw>정말 탈퇴하시겠습니까? 탈퇴 후 정보 복구가 불가능합니다.</confirmWithdraw>
+        <doneWithdraw>회원 탈퇴가 정상적으로 처리 되었습니다.  이용해 주셔서 감사합니다.</doneWithdraw>    
+        <withdrawFail1>회원님은 현재 판매중인 서비스가 있어 탈퇴가 불가합니다. 판매중인 서비스를 삭제해 주시기 바랍니다.</withdrawFail1>
+        <withdrawFail2>회원님은 현재 운영중인 커뮤니티가 있습니다. 커뮤니티 폐쇄를 해야 탈퇴가 가능합니다.</withdrawFail2>
+        <withdrawFail3>회원님은 현재 구매중인 서비스가 있어 탈퇴가 불가합니다. 구매가 완료된 후 탈퇴가 가능합니다.</withdrawFail3>
+        <emailCrtfcsuccess>이메일 인증이 완료되었습니다.</emailCrtfcsuccess>
+        <emailCrtfcAgain>이메일 인증시간이 만료되었습니다. 처음부터 다시 가입해주세요.</emailCrtfcAgain>
+        <emailCrtcDelete>이메일 인증이 취소되었습니다.</emailCrtcDelete>
+        <dupEmailCrtfc>발송된 인증 이메일이 있습니다. 이메일을 확인해주세요.</dupEmailCrtfc>
+        <memberAlready>이미 가입한 회원입니다.</memberAlready>
+        <dupChk>중복확인을 해주세요.</dupChk>
+        <bizrnoAlready>사용중인 사업자번호입니다.</bizrnoAlready>
+        <storeNmAlready>사용중인 회사명입니다. 회사명을 변경해주세요</storeNmAlready>
+        <storeNmAvailable>사용가능한 회사명입니다.</storeNmAvailable>
+        <storeNmEmpty>회사명을 2자 이상 입력해 주세요.</storeNmEmpty>
+        <storeNmDupChk>회사명 중복확인 해주세요.</storeNmDupChk>
+        <storeChoice>다국어 판매 정보의 서비스 언어는 한가지 이상 선택하셔야 합니다.</storeChoice>
+        <telnoEmpty>전화번호를 입력해주세요.</telnoEmpty>
+        <storeUrlEmpty>회사 URL을 입력해주세요.</storeUrlEmpty>
+        <storeChargeNmEmpty>회사 담당자를 입력해주세요.</storeChargeNmEmpty>
+        <sotreIntrcnEmpty>회사 소개를 입력해주세요.</sotreIntrcnEmpty>
+        <categoryEmpty>관심카테고리를 선택해주세요.</categoryEmpty>
+        <passwordSame>현재 비밀번호나 이전 비밀번호로 동일하게 변경 할 수 없습니다.</passwordSame>
+        <passwordCheck1>개인정보가 포함되거나 4자이상 연속된 동일한 문자 또는 숫자는 비밀번호로 사용이 불가합니다.</passwordCheck1>
+        <passwordCheck2>비밀번호는 영문과 숫자 또는 특수문자 조합 10~15자이내로 입력하세요</passwordCheck2>
+        <dupSbscrbTyCdCnt>이미 가입된 정보가 있습니다.</dupSbscrbTyCdCnt>
+				
+        <biznoCrtfc>사업자번호 인증이 완료되었습니다.</biznoCrtfc>
+        <emptyCmpnyNm>상호(기업명)를 입력해 주세요.</emptyCmpnyNm>
+        <emptyBizno>사업자 등록번호를 입력해 주세요.</emptyBizno>
+        <biznoAvailable>사용가능한 사업자번호 입니다.</biznoAvailable>
+        <smsCrtfc>SMS인증이 완료되었습니다.</smsCrtfc>
+        <ipinCrtfc>I-PIN 인증이 완료되었습니다.</ipinCrtfc>
+        <!-- 20161208 공급자 회원 신청 Y/N -->
+        <checksellerY> 공급자(판매)권한 신청이 완료되었습니다. </checksellerY>
+        <checksellerN> 공급자(판매)권한 신청이 실패하였습니다. </checksellerN>
+        <signgateCheckY> 공인인증이 성공하였습니다. </signgateCheckY>
+        <signgateCheckN> 공인인증이 성공하였습니다. </signgateCheckN>
+        
+        <!-- 20150824 뉴스레터 관련 메세지 추가 시작 -->
+        <alreadyMemberRequest>씨앗마켓 회원입니다. 회원정보 변경에서 뉴스레터를 구독 신청해주시기 바랍니다.</alreadyMemberRequest>
+        <alreadyMemberCancel>씨앗마켓 회원입니다. 회원정보 변경에서 뉴스레터 구독을 취소하시기 바랍니다.</alreadyMemberCancel>
+        <alreadyNewsLetterUser>이미 뉴스레터 구독자입니다. 기존 신청자가 본인이 아닌 경우 관리자에게 문의바랍니다.(전화: 070-4870-4015)</alreadyNewsLetterUser>
+        <unknownErrorRequest>신청중 오류가 발생하였습니다. 오류 조치를 위해 관리자에게 연락바랍니다.(전화:070-4870-4015)</unknownErrorRequest>
+        <unknownErrorCancel>취소중 오류가 발생하여습니다. 오류 조치를 위해 관리자에게 연락바랍니다.(전화:070-4870-4015)</unknownErrorCancel>
+        <newsLetterCrtfcMailSendRequest>확인 메일을 발송하였습니다. 메일에서 주소를 클릭하시면 구독 신청이 완료됩니다.(메일발송 후 3일 이내)</newsLetterCrtfcMailSendRequest>
+        <newsLetterCrtfcMailSendCancel>확인 메일을 발송하였습니다. 메일에서 주소를 클릭하시면 구독이 취소됩니다.(메일발송 후 3일 이내)</newsLetterCrtfcMailSendCancel>
+        <newsLetterRequestIsOk>뉴스레터 구독 신청이 완료되었습니다.</newsLetterRequestIsOk>
+        <newsLetterCancelIsOk>뉴스레터 구독 취소가 정상적으로 처리되었습니다.</newsLetterCancelIsOk>
+        <newsLetterRejectIsOk>뉴스레터 수신 거부가 정상적으로 처리되었습니다.</newsLetterRejectIsOk>
+        <newsLetterCrtfcExpired>이메일 인증기간이 만료되었습니다. 다시 신청하시기 바랍니다.</newsLetterCrtfcExpired>
+        <newsLetterNotCrtfc>이메일 인증이 완료되지 않았습니다. 메일 인증을 해주시기 바랍니다.</newsLetterNotCrtfc>
+        <notNewsLetterMember>뉴스레터 구독자가 아닙니다.</notNewsLetterMember>
+        <cannotSendDupeEmail>동일한 메일주소로는 제한시간(10분) 이후 서비스 신청/변경이 가능합니다.</cannotSendDupeEmail>
+        <isNotValidLink>올바른 경로가 아닙니다. 정상적인 경로를 이용해 주십시오.</isNotValidLink>
+        <!-- 20150824 뉴스레터 관련 메세지 추가 끝 -->
+
+        <!-- 서비스관리 -->
+        <goodsDisplay>선택하신 항목 중 이미 전시 중인 서비스가 있습니다. 비전시 항목만 선택해 주세요.</goodsDisplay>
+        <goodsHidden>선택하신 항목 중 이미 비전시 중인 서비스가 있습니다. 전시 항목만 선택해 주세요.</goodsHidden>
+        <goodsTag>태그는 10개까지만 등록 가능합니다.</goodsTag>
+        <goodsRegistCancel>서비스등록을 취소하시겠습니까?</goodsRegistCancel>
+        <goodsTempSave>임시저장 하시겠습니까? 임시 저장한 서비스는 서비스등록 대기 목록에서 확인할 수 있습니다.</goodsTempSave>
+        <goodsRegist>등록신청 하시겠습니까? 관리자가 검토\, 승인이 완료되면 서비스를 전시할 수 있습니다.</goodsRegist>
+        <goodsLangChk>선택하신 "언어"를 체크 해제 하시면 작성하신 내용은 모두 삭제됩니다. 체크를 해제 하시겠습니까?</goodsLangChk>
+        <goodsDelete>서비스를 삭제하시겠습니까?</goodsDelete>
+        <goodsDeleteDeny>현재 구매가 진행중인 건이 있어 삭제를 진행할 수 없습니다.</goodsDeleteDeny>
+        <goodsModify>수정신청 하시겠습니까? 관리자가 검토\, 승인이 완료되면 서비스를 전시할 수 있습니다.</goodsModify>
+        <goodsModifyDeny>수정신청은 전시여부가 "비전시" 상태일 경우에만 가능합니다. 전시 여부를 "비전시"로 변경해주세요.</goodsModifyDeny>
+        <goodsCnsltTempSave>임시저장 하시겠습니까? 임시 저장한 서비스는 컨설팅 등록 대기 목록에서 확인할 수 있습니다.</goodsCnsltTempSave>
+        <goodsChangeStatus>서비스상태가 이미 변경되었습니다. 확인하시기 바랍니다.</goodsChangeStatus>
+
+        <!-- 관심목록등록  -->
+        <watchOk>관심목록으로 등록되었습니다. 관심 서비스 리스트 페이지로 이동하시겠습니까?</watchOk>
+        <watchFail>관심목록 등록에 실패하였습니다.</watchFail>
+        <watchDelete>선택한 서비스의 관심설정을 해제 하시겠습니까?</watchDelete>
+        <watchDeleteOk>관심목록에서 삭제되었습니다. 관심목록으로 이동하시겠습니까?</watchDeleteOk>
+        <watchDeleteFail>관심등록 해제에 실패하였습니다.</watchDeleteFail>
+        <watchOverlap>이미 등록된 관심목록입니다.</watchOverlap>        
+        
+        <sell01>판매방식 처리상태를 변경하시겠습니까?</sell01>
+
+        <!-- 구매신청  -->
+        <orderOk>담당자에게 신청이 완료되었습니다. 감사합니다.</orderOk>
+        <orderDown>해당 솔루션(서비스)은 다운로드가 가능한 서비스입니다.</orderDown>
+
+        <!-- Board -->
+        <noPosts>등록된 게시글이 없습니다.</noPosts>
+        <fileCheck>최소 1개의 파일이 있어야 합니다.</fileCheck>
+        <maxLengthTitle>제목은 최대 150자 입니다.</maxLengthTitle>
+        <minLengthTitle>제목은 최소 3자 이상 입력해주세요.</minLengthTitle>
+        <maxLengthSarchWord>하나의 검색어는 최대 18자 입니다.</maxLengthSarchWord>
+        <deleteConfirm>자료를 삭제하시면 첨부파일 및 코멘트들도 모두 삭제됩니다. 삭제 하시겠습니까?</deleteConfirm>
+        <deleteFileConfirm>선택한 파일을 정말 삭제하시겠습니까? 삭제 후 복구는 불가능 합니다.</deleteFileConfirm>
+        <deleteFileFail>파일을 삭제하지 못했습니다.</deleteFileFail>
+        <fileCannotUplaod>는(은) 업로드 할 수 없는 파일확장자입니다.</fileCannotUplaod>
+        <fileAlreadyUpload>는(은) 이미 추가된 파일입니다!</fileAlreadyUpload>
+        <fileSelected>선택된 파일</fileSelected>
+        <fileToomany>첨부파일 갯수가 너무 많습니다. ( 최대</fileToomany>
+        <noUserBoard>본인의 글이 아닙니다.</noUserBoard>
+        <selProduct>서비스를 선택해주세요.</selProduct>
+        <selctgCd>구분을 선택해주세요.</selctgCd>
+        <selctctgCd>연결된 카테고리를 선택해주세요.</selctctgCd>
+        <chkEndDt>종료일을 확인해주세요.</chkEndDt>
+        <chkEndDtAfterToday>종료일은 오늘날짜 이후로 선택해야합니다.</chkEndDtAfterToday>
+        <chkProduct>주문하신 서비스내역이 없으므로 글등록은 불가능합니다.</chkProduct>
+        <chkbizMactingOk>선정이 완료되었습니다.</chkbizMactingOk>
+        <chkbizMactingNo>선정이 실패하였습니다.</chkbizMactingNo>
+        <chkbizMactingSelect>선택한 매칭을 선정하시겠습니까? </chkbizMactingSelect>
+        <commentAllDelete>의견글을 완전 삭제하시겠습니까? 삭제 후 복구는 불가능 합니다.</commentAllDelete>
+        <biz01>구분</biz01>
+        <biz02>연결된 카테고리</biz02>
+        <biz03>비즈매칭 카테고리 선택</biz03>
+        <prdouct01>서비스 선택</prdouct01>
+
+        <!-- Comment -->
+        <commentInsertOk>댓글을 성공적으로 등록하였습니다.</commentInsertOk>
+        <commentUpdateOk>댓글을 성공적으로 수정하였습니다.</commentUpdateOk>
+        <commentDeleteOk>댓글을 성공적으로 삭제하였습니다.</commentDeleteOk>
+        <commentDeleteNo>댓글 삭제가 실패되었습니다.</commentDeleteNo>
+        <commentCharacters>최대 글자수를 초과하였습니다.</commentCharacters>
+        <commentChack>댓글의 내용을 입력해주세요.</commentChack>
+        <commentbizChack>이미 답변을 등록하였습니다. 삭제 후 재등록 가능합니다.</commentbizChack>
+        <deletePostingConfirm>댓글을 삭제하시겠습니까? 삭제 후에는 사용자화면에서 [사용자 삭제글]로 표시됩니다.</deletePostingConfirm>
+        <notifyInsertOK>성공적으로 신고 되었습니다.</notifyInsertOK>
+        <notifyFail>신고글 등록에 실패하였습니다.</notifyFail>
+
+        <!--  CM BOARD-->
+        <noNextWriting>다음글이 없습니다.</noNextWriting> 
+        <noPrevWriting>이전글이 없습니다.</noPrevWriting>
+        <searchValCont>검색어와 검색어는 쉼표로 구분하며 10개까지 입력하실 수 있습니다.</searchValCont>
+
+        <!--  CM BOARD alert-->
+        <chkSearchVal>검색어를 입력해주세요.</chkSearchVal>
+        <chkFile>실행파일은 올리실 수 없습니다.</chkFile>
+        <chkTitle>제목을 입력해주세요.</chkTitle>
+        <chkFileCapacity>파일의 용량이 초과하였습니다.</chkFileCapacity>
+        <chkImage>최소 1개의 대표이미지가 있어야 합니다.</chkImage>
+        <fileDeleteY>파일을 삭제하였습니다.</fileDeleteY>
+        <fileDeleteN>파일을 삭제하지 못했습니다.</fileDeleteN>
+        <chkImageExt>지원하지 않는 이미지 형식입니다. jpg\, png 형식만 가능합니다.</chkImageExt>
+        <chkImageWidth>이미지의 가로크기가 맞지않습니다.</chkImageWidth>
+        <chkImageHeight>이미지의 세로크기가 맞지않습니다.</chkImageHeight>
+        <chkImageError>파일을 확인하는데 문제가 발생하였습니다. 파일을 다시 선택하여 주시기 바랍니다.</chkImageError>
+        <chknNotImage>이미지가 확인되지 않았습니다.</chknNotImage>
+        <chkInsert>등록하시겠습니까?</chkInsert>
+        <chkContent>내용을 입력해주세요.</chkContent>
+        <chkFileDelete>선택한 파일을 정말 삭제하시겠습니까? 삭제 후 복구는 불가능 합니다.</chkFileDelete>
+        <chkModify>수정하시겠습니까?</chkModify>
+        <chkMsDelete>삭제하시겠습니까?</chkMsDelete>
+        <chkLike>이 글을 추천하시겠습니까?</chkLike>
+        <chkNotify>신고하시겠습니까?</chkNotify>
+        <chkImg>이미지 파일을 넣어주세요.</chkImg>
+
+        <!-- Event -->
+        <chkEventAnswer>이미 참여한 이벤트 입니다.</chkEventAnswer>
+        <eventApplcn>이벤트에 정상적으로 응모되었습니다.</eventApplcn>
+        <eventModi>이벤트 응모가 정상적으로 수정되었습니다.</eventModi>
+        <eventConf>이벤트 응모를 취소하시겠습니까?</eventConf>
+        <eventDel>이벤트 응모가 정상적으로 취소되었습니다.</eventDel>
+        <eventComment>이벤트 응모 댓글은 5자 이상 2000자 미만 작성시 등록 가능합니다.</eventComment>
+        <chkEventPassword>비밀번호가 일치하지 않습니다.</chkEventPassword>
+
+        <!-- store -->
+        <incCommentChk>1인 1서비스에 한해서 리뷰작성이 가능합니다.</incCommentChk>
+        <incCommentInsertOk>코멘트를 성공적으로 등록하였습니다.</incCommentInsertOk>
+        <incCmmentUpdateOk>코멘트를 성공적으로 수정하였습니다.</incCmmentUpdateOk>
+        <incCommentDeleteOk>코멘트를 성공적으로 삭제하였습니다.</incCommentDeleteOk>
+        <incCommentStringMin>평가글은 5자 이상 300자 미만 작성시 등록가능 합니다.</incCommentStringMin>
+        <incCommentDel>코멘트를 삭제하시겠습니까?</incCommentDel>
+
+        <incInquiryInsertOk>문의하기를 성공적으로 등록하였습니다.</incInquiryInsertOk>
+        <incInquiryUpdateOk>문의하기를 성공적으로 수정하였습니다.</incInquiryUpdateOk>
+        <incInquiryDeleteOk>문의하기를 성공적으로 삭제하였습니다.</incInquiryDeleteOk>
+        <incInquiryCheck>이미 신고접수가 되었습니다.</incInquiryCheck>
+
+        <!-- community  -->
+        <chkCmOpenInsertNotForm>입력되지 않은 항목이 있습니다.</chkCmOpenInsertNotForm>
+        <chkCmOpenInsertAllNotForm>모든 항목을 입력 후 다시 시도해주십시오.</chkCmOpenInsertAllNotForm>
+        <cmOpenInsertOk>커뮤니티 개설이 신청되었습니다.</cmOpenInsertOk>
+         <cmOpenInsertOk2>진행 및 결과는 마이페이지 > 개설커뮤니티 메뉴에서 확인 가능합니다.</cmOpenInsertOk2>
+        <chkCmOpenInsert>커뮤니티 개설을 신청 하시겠습니까?</chkCmOpenInsert>
+        <chkCmOpenFormNmUrl>커뮤니티 주소 사용 가능 체크를 하시지 않았습니다.</chkCmOpenFormNmUrl>
+        <chkCmOpenFormNmCheck>커뮤니티 이름 사용 가능 체크를 하시지 않았습니다.</chkCmOpenFormNmCheck>
+        <chkCmNcnmFormCheck>커뮤니티 닉네임 사용 가능 체크를 하시지 않았습니다.</chkCmNcnmFormCheck>
+
+        <chkCmNcnmForm>커뮤니티 닉네임을 입력해주세요.</chkCmNcnmForm> 
+        <chkCmNcnmFail>사용 할 수 없는 커뮤니티 닉네임입니다. 다시 입력해주십시오.</chkCmNcnmFail> 
+        <chkCmNcnmOk>사용 가능한 커뮤니티 닉네임입니다.</chkCmNcnmOk>
+
+        <chkCmOpenFormAddr>커뮤니티 주소를 입력하세요.</chkCmOpenFormAddr>
+        <chkCmOpenFormNm>커뮤니티 이름을 입력하세요.</chkCmOpenFormNm>
+        <chkCmOpenFormSpecial>특수문자는 입력하실 수 없습니다.</chkCmOpenFormSpecial>
+        <chkCmOpenFormSpecial2>컴마를 제외한 특수문자는 입력하실 수 없습니다.</chkCmOpenFormSpecial2>
+        <chkCmOpenFormDc>커뮤니티 설명을 입력해 주세요.</chkCmOpenFormDc>
+        <chkFormByteUntill>바이트까지 입력이 가능합니다.</chkFormByteUntill>
+        <chkFormByteOver>바이트이상 입력이 가능합니다.</chkFormByteOver>
+        <chkCmUrlOk>사용 가능한 커뮤니티 주소입니다.</chkCmUrlOk>
+        <chkCmNmOk>사용 가능한 커뮤니티 이름입니다.</chkCmNmOk>
+        <chkCmUrlFail>사용 할 수 없는 커뮤니티 주소입니다.다시 입력해주십시오.</chkCmUrlFail> 
+        <chkCmNmFail>사용 할 수 없는 커뮤니티 이름입니다.다시 입력해주십시오.</chkCmNmFail> 
+        <cmOpenCmNm> 커뮤니티 이름: </cmOpenCmNm>
+        <cmOpenCmUrl> 커뮤니티 주소: </cmOpenCmUrl>
+        <CommunityMenu>커뮤니티 메뉴</CommunityMenu>
+
+        <chkCmInfoUpdate>커뮤니티 정보를 수정 하시겠습니까?</chkCmInfoUpdate>
+        <chkCmInfoUpdateOk>커뮤니티 정보가 수정 되었습니다.</chkCmInfoUpdateOk>
+        <chkCmInfoUpdateFail>커뮤니터 정보 수정이 실패하였습니다.</chkCmInfoUpdateFail>
+
+        <chkCmClsResn>폐쇄 사유를 작성하세요!</chkCmClsResn>
+        <chkCmMemberApprovalOk>가입 승인 되었습니다.</chkCmMemberApprovalOk>
+        <chkCmMemberRefusalOk>가입 거절 되었습니다.</chkCmMemberRefusalOk>
+        <chkCmMemberWithdrawOk>강제 탈퇴 되었습니다.</chkCmMemberWithdrawOk>
+        <chkCmCkMultiBox>최소 한개이상은 체크하셔야 합니다.</chkCmCkMultiBox>
+        <chkStatDate>통계 기준일을 입력하세요.</chkStatDate>
+        <chkCmConfirmRefusalOK>커뮤니티 가입 거절되었습니다.</chkCmConfirmRefusalOK>
+        <chkCmReentrance>커뮤니티 탈퇴 회원 입니다. 재가입 하시겠습니까?</chkCmReentrance>
+        <chkCmConfrimWithdraw> 커뮤니티를 탈퇴 하시겠습니까?</chkCmConfrimWithdraw>
+        <chkCmConfrimWithdrawOk>커뮤니티 탈퇴가 완료 되었습니다.</chkCmConfrimWithdrawOk>
+        <chkCmMember>커뮤니티 회원 가입 하시겠습니까?</chkCmMember>
+        <chkCmMemberNo>커뮤니티 회원 가입 중 오류가 발생했습니다.</chkCmMemberNo>
+        <!-- 20150818 메세지 추가 시작 -->
+        <cmMenuDelete>기본 메뉴는 삭제할 수 없습니다.</cmMenuDelete>
+        <!-- 20150818 메세지 추가 끝 -->
+
+        <!--  커뮤니티 board -->
+        <chkCmBoardbbscttSj>제목을 입력 하시지 않았습니다.</chkCmBoardbbscttSj>
+        <chkCmBoardbbscttCn>내용을 입력 하시지 않았습니다.</chkCmBoardbbscttCn>
+        <chkCmBoardAnswerCn>답변 내용을 입력 하시지 않았습니다.</chkCmBoardAnswerCn>
+
+        <chkCmBoardFileExt>지원하지 않는 파일 형식입니다.</chkCmBoardFileExt>
+        <chkCmBoardFileSize10>첨부 파일은 10MB 미만의 파일만 업로드 가능합니다.</chkCmBoardFileSize10>
+        <chkCmBoardFileEnd>첨부 파일은 5개 까지만 업로드 가능합니다.</chkCmBoardFileEnd>
+        <chkCmBoardFormAgain>확인 후 다시 시도해 주십시오.</chkCmBoardFormAgain>
+        <chkCmBoardInsertOk>게시물이 등록되었습니다.</chkCmBoardInsertOk>
+        <chkCmBoardUpdateOk>게시물이 수정되었습니다.</chkCmBoardUpdateOk>
+        <chkCmBoardDeleteOk>게시물이 삭제되었습니다.</chkCmBoardDeleteOk>
+
+        <chkCmBoardCmt>댓글을 삭제하시겠습니까?</chkCmBoardCmt>
+        <chkCmBoardAnswerInsert>답변을 등록하시겠습니까?</chkCmBoardAnswerInsert>
+        <chkCmBoardAnswerInsertOk>답변이 등록되었습니다.</chkCmBoardAnswerInsertOk>
+        <chkCmBoardADelete>답변을 삭제 하시겠습니까?</chkCmBoardADelete>
+        <chkCmBoardADeleteOk>답변이 삭제되었습니다.</chkCmBoardADeleteOk>
+        <chkCmBoardQDelete>질문을 삭제하시면 답변도 삭제됩니다. 삭제 하시겠습니까?</chkCmBoardQDelete>
+
+        <chkCmMemberOk>커뮤니티 회원에게만 공개된 글입니다.</chkCmMemberOk>
+        <chkCmOptFormOk>운영자만 게시글을 작성할 수 있습니다.</chkCmOptFormOk>
+
+        <chkCmClose>커뮤니티를 폐쇄 하시겠습니까?</chkCmClose>
+        <chkCmCloseOk>커뮤니티가 폐쇄 처리 되었습니다.</chkCmCloseOk>
+        <chkCmCancle>커뮤니티 폐쇄를 취소 하시겠습니까?</chkCmCancle>
+        <chkCmCancleOk>커뮤니티 폐쇄 처리가 취소 되었습니다.</chkCmCancleOk>
+
+        <chkTagOverLap>중복된 태그 내용이 포함되어 있습니다.</chkTagOverLap>
+        <chkCm1001>미 승인된 커뮤니티 입니다.</chkCm1001>
+        <chkCm1004>폐쇄된 커뮤니티 입니다.</chkCm1004>
+        <chkCmNull>미개설 커뮤니티 입니다.</chkCmNull>
+        <chkCmRegist>커뮤니티 회원 가입이 중지되었습니다.</chkCmRegist>
+        <chkCmConfirmCancle>커뮤니티 회원 가입 취소 하시겠습니까?</chkCmConfirmCancle>
+        <chkCmConfirmCancleOk>커뮤니티 가입이 취소되었습니다.</chkCmConfirmCancleOk>
+        
+        <!-- 사용자 서비스 등록/수정 -->
+        <chkGoodsDate01>시작날짜가 형식에 맞지 않습니다.</chkGoodsDate01>
+        <chkGoodsDate02>종료날짜가 형식에 맞지 않습니다.</chkGoodsDate02>
+        <chkGoodsDate03>시작날짜가 존재하지 않습니다.</chkGoodsDate03>
+        <chkGoodsDate04>종료날짜가 존재하지 않습니다.</chkGoodsDate04>
+        <chkGoodsDate05>종료날짜가 시작날짜 보다 작습니다.</chkGoodsDate05>
+        <chkGoodsDate06>시작일을 입력해 주세요.</chkGoodsDate06>
+        <chkGoodsDate07>종료일을 입력해 주세요.</chkGoodsDate07>
+        <chkGoodsDate08>00~12시까지의 시간을 입력하십시요.</chkGoodsDate08>
+        <chkGoodsDate09>00~59분까지의 시간을 입력하십시요.</chkGoodsDate09>
+        
+        <chkGoods01>대상 항목을 선택하세요.</chkGoods01>
+        <chkGoods02>선택한 항목을 전시(비전시) 하시겠습니까?</chkGoods02>
+        <chkGoods03>카테고리는 최소 한 개 이상 존재해야합니다.</chkGoods03>
+        <chkGoods04>카테고리를 선택해주세요</chkGoods04>
+        <chkGoods05>선택하신 인증정보의 증빙파일을 선택해주세요.</chkGoods05>
+        <chkGoods06>인증정보의 체크박스 선택을 해주세요.</chkGoods06>
+        <chkGoods07>라이선스 항목을 입력하여 주세요.</chkGoods07>
+        <chkGoods08>지원언어 항목을 입력하여 주세요.</chkGoods08>
+        <chkGoods09>지원OS 항목을 입력하여 주세요.</chkGoods09>
+        <chkGoods10>아키텍쳐는 필수선택 값입니다.</chkGoods10>
+        <chkGoods11>A/S 항목을 입력하여 주세요.</chkGoods11>
+        <chkGoods12>정확한 이메일을 입력해주세요.</chkGoods12>
+        <chkGoods13>국가를 선택해주세요.</chkGoods13>
+        <chkGoods14>정확한 연락처를 입력해주세요.</chkGoods14>
+        <chkGoods15>태그 항목을 입력하여 주세요.</chkGoods15>
+        <chkGoods16>주요기능을 입력해주세요.</chkGoods16>
+        <chkGoods17>레퍼런스 내용을 입력해주세요.</chkGoods17>
+        <chkGoods18>설명서 파일을 등록해주세요.</chkGoods18>
+        <chkGoods19>설명서의 파일설명을 등록해주세요.</chkGoods19>
+        <chkGoods21>지원하지 않는 이미지 형식입니다. jpg\, gif\, png 형식만 가능합니다.</chkGoods21>
+        <chkGoods22>서비스를 정말 삭제하시겠습니까?</chkGoods22>
+        <chkGoods23>태그를 삭제하시겠습니까?</chkGoods23>
+        <chkGoods24>보유자격증 항목을 입력하여 주세요.</chkGoods24>
+        <chkGoods25>기대효과 내용을 입력해주세요.</chkGoods25>
+        <chkImage01>이미지의 비율(4:3)이 맞지 않습니다.</chkImage01>
+        <chkImage02>이미지의 비율(2:1)이 맞지 않습니다.</chkImage02>
+
+        <!-- 엑셀 -->
+        <excelTitle1>구매신청_관리목록</excelTitle1>
+        <excelTitle2>IT전문가서비스_신청관리목록</excelTitle2>
+        <excelHeader0>번호</excelHeader0>
+        <excelHeader1>서비스코드(언어)</excelHeader1>
+        <excelHeader2>구분</excelHeader2>
+        <excelHeader3>서비스명</excelHeader3>
+        <excelHeader4>가격</excelHeader4>
+        <excelHeader5>조회수</excelHeader5>
+        <excelHeader6>구매문의(신청)수</excelHeader6>
+        <excelHeader7>관심서비스 등록횟수</excelHeader7>
+        <excelHeader8>평가수</excelHeader8>
+        <excelHeader9>구매번호</excelHeader9>
+        <excelHeader10>주문일시</excelHeader10>
+        <excelHeader11>언어</excelHeader11>
+        <excelHeader12>구매자</excelHeader12>
+        <excelHeader13>판매방식</excelHeader13>
+        <excelHeader14>처리</excelHeader14>
+        <excelHeader15>신청내용</excelHeader15>
+        <excelHeader16>신청</excelHeader16>
+        <excelHeader17>다운로드</excelHeader17>
+        <excelHeader18>확인</excelHeader18>
+        <excelHeader19>미확인</excelHeader19>
+    </msg>
+    <englishMsg>
+        <!-- jquery.validate.messages.js -->
+        <required>This field is mandatory.</required>
+        <email>Please enter a valid email address.</email>
+        <url>Please enter a URL including http://.</url>
+        <date>Please enter a valid date. (YYYY-MM-DD)</date>
+        <formatDate>Please enter a valid date. (YYYYMMDD)</formatDate>
+        <number>Please enter a valid number.</number>
+        <digits>Please enter a valid number.</digits>
+        <equalTo>You must enter identical values.</equalTo>
+        <maxlength>It cannot exceed {0}bytes (Korean:3 bytes\, English:1 byte)</maxlength>
+        <minlength>It must be at least {0}bytes (Korean:3 bytes\, English:1 byte)</minlength>
+        <rangelength>Please enter a value within {0} ~ {1}digits.</rangelength>
+        <range>Please enter a value between {0} ~ {1}.</range>
+        <max>Please enter a value equal to or smaller than {0}.</max>
+        <min>Please enter a value equal to or greater than {0}.</min>
+        <maxByte>It cannot exceed {0}bytes (Korean:3 bytes\, English:1 byte)</maxByte>
+        <mixByte>It must be at least {0}bytes. (Korean:3 bytes\, English:1 byte)</mixByte>
+        <alphabetic>Please enter English letters only.</alphabetic>
+        <alphalower>Please enter English letters (lower case) only.</alphalower>
+        <alphanumeric>Please enter English letters and numbers only.</alphanumeric>
+        <alphaupper>Please enter English letters (upper case) only.</alphaupper>
+        <nowhitespace>Spaces are not allowed.</nowhitespace>
+        <pattern>It is not a regular expression.</pattern>
+        <remote>The value is invalid.</remote>
+
+        <dateISO>Please enter a valid date. (YYYY-MM-DD)</dateISO>
+        <creditcard>Please enter a valid credit card number.</creditcard>
+        <accept>The value is invalid.</accept>
+
+        <!-- common -->
+        <noData>No data exist.</noData>
+        <numberOnly>Only numbers can be entered.</numberOnly>
+        <exactlyEnter>Please enter correctly.</exactlyEnter>
+
+        <!-- 글자제한 -->
+        <characters10>requires more than 10 characters.</characters10>
+        <characters20>requires more than 20 characters.</characters20>
+        <characters30>requires more than 30 characters.</characters30>
+        <characters100>requires more than 100 characters.</characters100>
+        <characters200>requires more than 200 characters.</characters200>
+        <characters500>requires more than 500 characters.</characters500>
+
+        <!-- alert message -->
+        <chkDt>start date can not come after end date.</chkDt>
+        <chkCont>please input content.</chkCont>
+        <chkDelete>Would you like to delete file? Restoration impossible after deletion.</chkDelete>
+
+        <!-- SUCCESS -->
+        <insertOk>The information requested has been successfully registered.</insertOk>
+        <updateOk>The information requested has been successfully modified.</updateOk>
+        <deleteOk>The information requested has been successfully deleted.</deleteOk>
+        <processOk>The request has been successfully executed.</processOk>
+
+        <!-- FAIL -->
+        <validateFail>The information requested is incorrect.</validateFail>
+        <processFail>The process for the request has failed.</processFail>
+        <invalidParam>The information requested is wrong.(data integrity error)</invalidParam>
+
+        <!-- ERROR -->
+        <processError>An error occurred while processing your request.</processError>
+
+        <!-- CONDITION -->
+        <illegalRequest>The information is requested in an illegal manner.</illegalRequest>
+        <hasPersonalInfo>The content entered contains personal information. Try again after deleting the personal information.</hasPersonalInfo>
+        <fileSizeOver>The file attached exceeds the maximum size allowed.</fileSizeOver>
+        <noAuth>You are unauthorized to access this page.</noAuth>
+
+        <!-- uniSearch -->
+        <enterSrchWrd>please input search word.</enterSrchWrd>
+
+        <!-- login -->
+        <loginAlready>You are already logged in.</loginAlready>
+        <requiredLogin>Log in first.</requiredLogin>
+        <emptyId>Please enter your ID.</emptyId>
+        <emptyPwd>Please enter your password.</emptyPwd>
+        <wrongPwd>Please type your password.</wrongPwd>
+        <noUseId>This ID is not in use.</noUseId>
+        <noUseDeptIn>It belongs to an unused department.</noUseDeptIn>
+        <noUseIdAndDept>It is an unused ID or belongs to an unused department.</noUseIdAndDept>
+        <wrongId>The ID format is invalid.</wrongId>
+        <notFoundId>There is no ID that matches the entered information.</notFoundId>
+        <notMatchPwd>The passwords do not match (case sensitive).</notMatchPwd>
+        <notMatchLogin>The ID or password does not match.</notMatchLogin>
+        <limitTry>You have failed three login attempts in a row.</limitTry>
+        <noSession>Login information has been removed for privacy protection. Please log in again.</noSession>
+        <emptyUserNm>Please enter your name.</emptyUserNm>
+        <emptyBirth>Please enter your date of birth.</emptyBirth>
+        <userLoginCheck>This service requires you to log in. Would you like to go to the login page?</userLoginCheck>
+        <pwdTooOld>90 days have passed since your last password reset. Click OK to go to the member information edit page. </pwdTooOld>
+        <emptyMobile>Please enter your mobile phone number.</emptyMobile>
+        <mobileNumberOnly>You may enter only numbers in your mobile phone number.</mobileNumberOnly>
+        <mobileExactlyEnter>Please enter your mobile phone number correctly.</mobileExactlyEnter>
+        <mobileChar>Please enter 3 or 4 digits.</mobileChar>
+        <emptyEmail>Please enter your email address.</emptyEmail>
+        <selectUserTy>Please select a membership type.</selectUserTy>
+        <selectGender>Please select your gender.</selectGender>
+        <sendMailSucc>An email has been sent.</sendMailSucc>
+        <sendMailFail>Failed to send the email.</sendMailFail>
+        <notMatchDi>The personal identification information does not match. Please try again.</notMatchDi>
+        <noneDiInfo>Your personal identification information does not exist in the system. Only members registered by personal identity authentication can be verified.</noneDiInfo>
+        <decDiFail>Failed to decode the verification value. Please try again.</decDiFail>
+        <noCertfyInfo>There is no verification information. Please try again.</noCertfyInfo>
+        <notMatchBizno>The business identification information does not match. Please try again.</notMatchBizno>
+        <notMatchBizno2>It does not match the existing business operator information. It will be modified to the verified business operator information.</notMatchBizno2>
+        <noneBiznoInfo>The business identification information does not exist in the system. Only members registered through business identification can be verified.</noneBiznoInfo>
+        <bizNoFail>Failed to verify the business registration number.</bizNoFail>
+        <bizNoIncorrect>The business registration number is invalid. Please check again.</bizNoIncorrect>
+        <certfyErrorBizNo>Please try again later.</certfyErrorBizNo>
+        <noRegBizNo>The company information is not registered with NICE Information Service Co.\, Ltd.</noRegBizNo>
+        <noAuth1>Only members can use our services.</noAuth1>
+
+        <!-- register -->
+        <pwdIncorrect>The password is incorrect.</pwdIncorrect>
+        <captchaRetype>Please enter the CAPTCHA characters again.</captchaRetype>
+        <reLogin>Please log in again.</reLogin>
+        <moveMemModifyPage>Going to the membership information edit page.</moveMemModifyPage>
+        <moveWithdrawPage>Going to the membership withdrawal page.</moveWithdrawPage>
+        <successRegist>Membership registration was successful.</successRegist>
+        <memberModify>Membership information has been edited.</memberModify>
+        <registFail>Registration failed.</registFail>
+        <checkBirth>Please check the date of birth.</checkBirth>
+        <checkDupID>Please check the ID for duplication.</checkDupID>
+        <checkDupEmail>Please perform e-mail duplication check.</checkDupEmail>
+        <agreeTerms>Please agree to the terms and conditions.</agreeTerms>
+        <checkTerms>Please agree to the terms and conditions.</checkTerms>
+        <pwdLongerChar>The password must be 10 or more characters long.</pwdLongerChar>
+        <availableEmail>This email address is available for use.</availableEmail>
+        <dupEmail>This email address is already in use.</dupEmail>
+        <validEmail>This is an invalid email address.</validEmail>
+        <idAvailable>The ID you entered is available for use.</idAvailable>
+        <idNotAvailable>The ID you entered cannot be used.</idNotAvailable>
+        <confirmWithdraw>Would you like to withdrawal? Your information cannot be restored after withdrawal.</confirmWithdraw>
+        <doneWithdraw>Membership withdrawal has been successfully completed. Thank you for using our service.</doneWithdraw> 
+        <withdrawFail1>You cannot withdraw your membership at the moment because you have one or more products on sale now. Please delete the products on sale.</withdrawFail1>
+        <withdrawFail2>You are currently managing a community. You must close your community before you can withdraw your membership.</withdrawFail2>
+        <withdrawFail3>You cannot withdraw your membership at the moment because you currently have a product purchase in progress. You can withdraw your membership after the purchase process is completed.</withdrawFail3>
+        <emailCrtfcsuccess>Your email verification has been completed.</emailCrtfcsuccess>
+        <emailCrtfcAgain>Your email verification time has expired. Please start again from the beginning.</emailCrtfcAgain>
+        <emailCrtcDelete>Your e-mail verification has been cancelled.</emailCrtcDelete>
+        <dupEmailCrtfc>A verification e-mail has been sent. Please check your e-mail.</dupEmailCrtfc>
+        <memberAlready>You are already a member.</memberAlready>
+        <dupChk>Please check for duplicates.</dupChk>
+        <bizrnoAlready>This business registration number is in use.</bizrnoAlready>
+        <storeNmAlready>This company name is in use. Please change the company name.</storeNmAlready>
+        <storeNmAvailable>You may use this company name.</storeNmAvailable>
+        <storeNmEmpty>Please enter the company name more than 2 characters.</storeNmEmpty>
+        <storeNmDupChk>Please check the company name for duplication.</storeNmDupChk>
+        <storeChoice>You must select one or more service languages for multilingual sales information.</storeChoice>
+        <telnoEmpty>Please enter your phone number.</telnoEmpty>
+        <storeUrlEmpty>Please enter the company URL.</storeUrlEmpty>
+        <storeChargeNmEmpty>Please enter the name of your company administrator.</storeChargeNmEmpty>
+        <sotreIntrcnEmpty>Please enter a company introduction.</sotreIntrcnEmpty>
+        <categoryEmpty>Please select categories of interest.</categoryEmpty>
+        <passwordSame>You may not change your password to your current password or any of your previous passwords.</passwordSame>
+        <passwordCheck1>Passwords may not include any personal information\, four or more consecutive identical characters or numbers.</passwordCheck1>
+        <passwordCheck2>Please enter 10~15 characters as a combination of English letters\, numbers\, and/or special characters for your password.</passwordCheck2>
+        <dupSbscrbTyCdCnt>Your registration information already exists.</dupSbscrbTyCdCnt>
+
+        <biznoCrtfc>Your business registration number verification has been completed.</biznoCrtfc>
+        <emptyCmpnyNm>Please enter your business name (company name).</emptyCmpnyNm>
+        <emptyBizno>Please enter your business registration number.</emptyBizno>
+        <biznoAvailable>You can use this business registration number.</biznoAvailable>
+        <smsCrtfc>SMS verification has been completed.</smsCrtfc>
+        <ipinCrtfc>I-PIN verification has been completed.</ipinCrtfc>
+
+        <!-- 서비스관리 -->
+        <goodsDisplay>One or more items that you selected are already shown. Please select only hidden items.</goodsDisplay>
+        <goodsHidden>One or more items that you selected are already hidden. Please select only shown items.</goodsHidden>
+        <goodsTag>You can enter up to 10 tags.</goodsTag>
+        <goodsRegistCancel>Would you like to cancel product registration?</goodsRegistCancel>
+        <goodsTempSave>Save temporarily? You can view the temporarily saved products in the product registration waiting list.</goodsTempSave>
+        <goodsRegist>Would you like to submit your registration application? Products can be displayed after the manager reviews and approves them.</goodsRegist>
+        <goodsLangChk>Unchecking the selected "language" will delete all the information you have entered. Uncheck it?</goodsLangChk>
+        <goodsDelete>Would you like to delete the product?</goodsDelete>
+        <goodsDeleteDeny>The product cannot be deleted because there is a purchase currently in progress.</goodsDeleteDeny>
+        <goodsModify>Submit edit application? Products can be displayed after the manager reviews and approves them.</goodsModify>
+        <goodsModifyDeny>Edit application is possible only if the product is "Hidden." Please change the display status to "Hidden."</goodsModifyDeny>
+        <goodsCnsltTempSave>Save temporarily? You can see temporarily saved products in the consulting registration waiting list.</goodsCnsltTempSave>
+        <goodsChangeStatus>The product status has already been changed. Please check again.</goodsChangeStatus>
+
+        <!-- 관심목록등록  -->
+        <watchOk>added to watchlist.</watchOk>
+        <watchFail>unsuccessful at adding to watchlist.</watchFail>
+        <watchDelete>Do you want to cancel the interest setting for the selected product?</watchDelete>
+        <watchDeleteOk>Product of interest registration for this product has been disabled.</watchDeleteOk>
+        <watchDeleteFail>Failed to disable the registration of interest.</watchDeleteFail>
+        <watchOverlap>already added to watchlist.</watchOverlap>
+
+        <sell01>Would you like to change the selling method processing state?</sell01>
+
+        <!-- 구매신청  -->
+        <orderOk>Application has been submitted to the administrator. Thank you.</orderOk>
+        <orderDown>This solution (service) is a downloadable product. Please click the [Download] button below to download it. Would you like to download it?</orderDown>
+
+        <!-- Board -->
+        <noPosts>There are no posts in the message board.</noPosts>
+        <fileCheck>There must be at least one file.</fileCheck>
+        <maxLengthTitle>You can enter up to 150 characters for the subject.</maxLengthTitle>
+        <minLengthTitle>Please enter at least 3 characters for the subject.</minLengthTitle>
+        <maxLengthSarchWord>You may enter up to 18 characters for a single search word.</maxLengthSarchWord>
+        <deleteConfirm>Deleting the data will also delete all attached files and comments. Would you like to delete?</deleteConfirm>
+        <deleteFileConfirm>Would you like to delete the selected file? It cannot be recovered after deletion.</deleteFileConfirm>
+        <deleteFileFail>Failed to delete the file.</deleteFileFail>
+        <fileCannotUplaod>is a file extension that cannot be uploaded.</fileCannotUplaod>
+        <fileAlreadyUpload>has been already added!</fileAlreadyUpload>
+        <fileSelected>selected file</fileSelected>
+        <fileToomany>Too many files selected. ( max</fileToomany>
+        <noUserBoard>This is not your post.</noUserBoard>
+        <selProduct>Please select a product.</selProduct>
+        <selctgCd>Please select a classification.</selctgCd>
+        <chkEndDt>Please check the end date.</chkEndDt>
+        <chkEndDtAfterToday>The end date must be later than today's date.</chkEndDtAfterToday>
+        <chkProduct>You cannot post a message because you do not have any product order information.</chkProduct>
+        <chkbizMactingOk>You have been selected as a Bizmatching subject.</chkbizMactingOk>
+        <chkbizMactingNo>Selection failed.</chkbizMactingNo>
+        <chkbizMactingSelect>Would you like to choose the selected match?</chkbizMactingSelect>
+        <commentAllDelete>Would you like to completely delete the opinion post?\nIt cannot be restored once it is deleted.</commentAllDelete>
+        <biz01>Category</biz01>
+        <biz02>Select</biz02>
+        <biz03>Bizmatching Category Select</biz03>
+        <prdouct01>Product Select</prdouct01>
+
+        <!-- Comment -->
+        <commentInsertOk>comment has been successfully posted.</commentInsertOk>
+        <commentUpdateOk>comment has been successfully modified.</commentUpdateOk>
+        <commentDeleteOk>comment has been successfully deleted</commentDeleteOk>
+        <commentDeleteNo>Failed to delete the reply.</commentDeleteNo>
+        <commentCharacters>exceeding maximum characters.</commentCharacters>
+        <notifyInsertOK>It has been successfully reported.</notifyInsertOK>
+        <notifyFail>Report registration failed.</notifyFail>
+        <deletePostingConfirm>would you like to delete the posting? Deleted posting will be marked as "Deleted by user"</deletePostingConfirm>
+        <notifyInsertOK>posting has been successfully reported.</notifyInsertOK>
+        <notifyFail>report unsuccessful.</notifyFail>
+
+        <!--  CM BOARD-->
+        <noNextWriting>no next posting.</noNextWriting> 
+        <noPrevWriting>no previous posting.</noPrevWriting>
+        <searchValCont>Search words can be separated with a comma and can have up to 10 words entered.</searchValCont>
+
+        <!--  CM BOARD alert-->
+        <chkSearchVal>please input search word.</chkSearchVal>
+        <chkFile>execution file can not be uploaded.</chkFile>
+        <chkTitle>please input title.</chkTitle>
+        <chkFileCapacity>exceeding maximum file capacity.</chkFileCapacity>
+        <chkImage>requires at least 1 representative image.</chkImage>
+        <fileDeleteY>file deleted.</fileDeleteY>
+        <fileDeleteN>unable to delete file.</fileDeleteN>
+        <chkImageExt>incorrect image file extension. Jpg or png files only.</chkImageExt>
+        <chkImageWidth>incorrect image width.</chkImageWidth>
+        <chkImageHeight>incorrect image height.</chkImageHeight>
+        <chkImageError>error while checking file. Please select file again.</chkImageError>
+        <chknNotImage>can not verify image.</chknNotImage>
+        <chkInsert>would you like to register posting?</chkInsert>
+        <chkContent>please input content.</chkContent>
+        <chkFileDelete>would you like to delete the selected files? restoration impossible after deletion.</chkFileDelete>
+        <chkModify>would you like to modify posting?</chkModify>
+        <chkMsDelete>would you like to delete posting?</chkMsDelete>
+        <chkLike>would you like to press like for this posting?</chkLike>
+        <chkNotify>would you like to report this posting?</chkNotify>
+        <chkImg>please select image file.</chkImg>
+
+        <!-- Event -->
+        <chkEventAnswer>You have already entered for this event.</chkEventAnswer>
+        <eventApplcn>You have successfully entered for this event.</eventApplcn>
+        <eventModi>Your event entry has been successfully edited.</eventModi>
+        <eventConf>Would you like to cancel your event entry?</eventConf>
+        <eventDel>Event entry has been successfully cancelled.</eventDel>
+        <eventComment>Replies to event entries must be 5 characters or longer and less than 2000 characters.</eventComment>
+
+        <!-- store -->
+        <incCommentChk>Review/posting is allowed for only one product per person.</incCommentChk>
+        <incCommentInsertOk>Your comment has been successfully posted.</incCommentInsertOk>
+        <incCmmentUpdateOk>Your comment has been successfully modified.</incCmmentUpdateOk>
+        <incCommentDeleteOk>Your comment has been successfully deleted.</incCommentDeleteOk>
+        <incCommentStringMin>A review post must be 5 characters or more and less than 300 characters long.</incCommentStringMin>
+        <incCommentDel>Would you like to delete the comment?</incCommentDel>
+
+        <incInquiryInsertOk>Your inquiry has been successfully registered.</incInquiryInsertOk>
+        <incInquiryUpdateOk>Your inquiry has been successfully modified.</incInquiryUpdateOk>
+        <incInquiryDeleteOk>Your inquiry has been successfully deleted.</incInquiryDeleteOk>
+        <incInquiryCheck>We received your report already.</incInquiryCheck>
+
+        <!-- community  -->
+        <chkCmOpenInsertNotForm>There are one or more empty fields.</chkCmOpenInsertNotForm>
+        <chkCmOpenInsertAllNotForm>Please try again after filling all the fields.</chkCmOpenInsertAllNotForm>
+        <cmOpenInsertOk>Your community establishment application has been submitted.</cmOpenInsertOk>
+        <cmOpenInsertOk2>Progress and results can be viewed in My Page > Established Community Menu.</cmOpenInsertOk2>
+        <chkCmOpenInsert>Would you like to submit a community establishment application?</chkCmOpenInsert>
+        <chkCmOpenFormNmUrl>You have not performed an availability check for a community address.</chkCmOpenFormNmUrl>
+        <chkCmOpenFormNmCheck>You have not performed an availability check for a community address.</chkCmOpenFormNmCheck>
+        <chkCmNcnmFormCheck>You have not performed an availability check for a community nickname.</chkCmNcnmFormCheck>
+
+        <chkCmNcnmForm>Please enter a community nickname.</chkCmNcnmForm> 
+        <chkCmNcnmFail>This nickname is not available. Please enter another nickname.</chkCmNcnmFail> 
+        <chkCmNcnmOk>You can use this community nickname.</chkCmNcnmOk>
+
+        <chkCmOpenFormAddr>Please enter a community address.</chkCmOpenFormAddr>
+        <chkCmOpenFormNm>Please enter a community name.</chkCmOpenFormNm>
+        <chkCmOpenFormSpecial>You cannot use special characters.</chkCmOpenFormSpecial>
+        <chkCmOpenFormSpecial2>You cannot enter special characters\, except commas.</chkCmOpenFormSpecial2>
+        <chkCmOpenFormDc>Please enter a community description.</chkCmOpenFormDc>
+        <chkFormByteUntill>Up to __ bytes can be entered.</chkFormByteUntill>
+        <chkFormByteOver>At least __ bytes must be entered.</chkFormByteOver>
+        <chkCmUrlOk>You can use this community address.</chkCmUrlOk>
+        <chkCmNmOk>You can use this community name.</chkCmNmOk>
+        <chkCmUrlFail>This community address is not available. Please enter another community address.</chkCmUrlFail> 
+        <chkCmNmFail>This community name is not available. Please enter another community name.</chkCmNmFail> 
+        <cmOpenCmNm> Community name: </cmOpenCmNm>
+        <cmOpenCmUrl> Community address: </cmOpenCmUrl>
+        <CommunityMenu>Community Menu</CommunityMenu>
+
+        <chkCmInfoUpdate>Would you like to edit the community information?</chkCmInfoUpdate>
+        <chkCmInfoUpdateOk>The community information has been modified.</chkCmInfoUpdateOk>
+        <chkCmInfoUpdateFail>Failed to modify the community information.</chkCmInfoUpdateFail>
+
+        <chkCmClsResn>Please write a reason for closing!</chkCmClsResn>
+        <chkCmMemberApprovalOk>Your membership has been approved.</chkCmMemberApprovalOk>
+        <chkCmMemberRefusalOk>Your membership has been rejected.</chkCmMemberRefusalOk>
+        <chkCmMemberWithdrawOk>Your membership has been withdrawn.</chkCmMemberWithdrawOk>
+        <chkCmCkMultiBox>You must check at least one item.</chkCmCkMultiBox>
+        <chkStatDate>Please enter the reference date for statistics.</chkStatDate>
+        <chkCmConfirmRefusalOK>Your request for joining the community was rejected.</chkCmConfirmRefusalOK>
+        <chkCmReentrance>You have withdrawn from this community. Would you like to join again?</chkCmReentrance>
+        <chkCmConfrimWithdraw>Would you like to withdraw from the community?</chkCmConfrimWithdraw>
+        <chkCmConfrimWithdrawOk>Your withdrawal from the community has been completed.</chkCmConfrimWithdrawOk>
+        <chkCmMember>Would you like to join the community as member?</chkCmMember>
+        <chkCmMemberNo>An error occurred while processing your community membership.</chkCmMemberNo>
+
+        <!--  커뮤니티 board -->
+        <chkCmBoardbbscttSj>You did not enter a subject.</chkCmBoardbbscttSj>
+        <chkCmBoardbbscttCn>You did not enter any information.</chkCmBoardbbscttCn>
+        <chkCmBoardAnswerCn>You did not enter any content for the response.</chkCmBoardAnswerCn>
+
+        <chkCmBoardFileExt>This file format is not supported.</chkCmBoardFileExt>
+        <chkCmBoardFileSize10>Files less than 10 MB in size can be uploaded as attachments.</chkCmBoardFileSize10>
+        <chkCmBoardFileEnd>You can upload up to 5 attachment files.</chkCmBoardFileEnd>
+        <chkCmBoardFormAgain>Please check and try again.</chkCmBoardFormAgain>
+        <chkCmBoardInsertOk>The message has been posted.</chkCmBoardInsertOk>
+        <chkCmBoardUpdateOk>The message has been modified.</chkCmBoardUpdateOk>
+        <chkCmBoardDeleteOk>The message has been deleted.</chkCmBoardDeleteOk>
+
+        <chkCmBoardCmt>Delete the reply?</chkCmBoardCmt>
+        <chkCmBoardAnswerInsert>Post response?</chkCmBoardAnswerInsert>
+        <chkCmBoardAnswerInsertOk>Response has been posted.</chkCmBoardAnswerInsertOk>
+        <chkCmBoardADelete>Would you like to delete the response?</chkCmBoardADelete>
+        <chkCmBoardADeleteOk>Response has been deleted.</chkCmBoardADeleteOk>
+        <chkCmBoardQDelete>If you delete the question\, the responses will also be deleted. Would you like to delete it?</chkCmBoardQDelete>
+
+        <chkCmMemberOk>Only community members can view this post.</chkCmMemberOk>
+        <chkCmOptFormOk>Only the manager is allowed to post messages.</chkCmOptFormOk>
+
+        <chkCmClose>Would you like to close the community?</chkCmClose>
+        <chkCmCloseOk>The community has been closed.</chkCmCloseOk>
+        <chkCmCancle>Would you like to cancel the community closure?</chkCmCancle>
+        <chkCmCancleOk>The community closure has been cancelled.</chkCmCancleOk>
+
+        <chkTagOverLap>There are duplicate tags.</chkTagOverLap>
+        <chkCm1001>This community has not been approved.</chkCm1001>
+        <chkCm1004>This community has been closed.</chkCm1004>
+        <chkCmNull>This community has not been established.</chkCmNull>
+        <chkCmRegist>The community member registration has been suspended.</chkCmRegist>
+        <chkCmConfirmCancle>Would you like to Cancelling membership application?</chkCmConfirmCancle>
+        <chkCmConfirmCancleOk>Cancelling membership application.</chkCmConfirmCancleOk>
+        
+        <!-- 사용자 서비스 등록/수정 -->
+        <chkGoodsDate01>The start date format is invalid.</chkGoodsDate01>
+        <chkGoodsDate02>The end date format is invalid.</chkGoodsDate02>
+        <chkGoodsDate03>There is no start date.</chkGoodsDate03>
+        <chkGoodsDate04>There is no end date.</chkGoodsDate04>
+        <chkGoodsDate05>The end date is earlier than the start date.</chkGoodsDate05>
+        <chkGoodsDate06>Please enter the start date.</chkGoodsDate06>
+        <chkGoodsDate07>Please enter the end date.</chkGoodsDate07>
+        <chkGoodsDate08>Please enter the hour between 00 and 12.</chkGoodsDate08>
+        <chkGoodsDate09>Please enter the minutes between 00 and 59.</chkGoodsDate09>
+        
+        <chkGoods01>Please select more items.</chkGoods01>
+        <chkGoods02>Would you like to show (hide) the selected items?</chkGoods02>
+        <chkGoods03>There must be one or more categories.</chkGoods03>
+        <chkGoods04>Please select a category.</chkGoods04>
+        <chkGoods05>Please select a supporting file for the selected verification information.</chkGoods05>
+        <chkGoods06>Please select the verification information check box.</chkGoods06>
+        <chkGoods07>Please fill in the license field.</chkGoods07>
+        <chkGoods08>Please fill in the supported language field.</chkGoods08>
+        <chkGoods09>Please fill in the supported OS field.</chkGoods09>
+        <chkGoods10>Architecture is a mandatory field.</chkGoods10>
+        <chkGoods11>Please fill in the A/S field.</chkGoods11>
+        <chkGoods12>Please enter a correct e-mail address.</chkGoods12>
+        <chkGoods13>Please select a country.</chkGoods13>
+        <chkGoods14>Please enter correct contact information.</chkGoods14>
+        <chkGoods15>Please fill in the tag field.</chkGoods15>
+        <chkGoods16>Please enter the main features.</chkGoods16>
+        <chkGoods17>Please enter the reference information.</chkGoods17>
+        <chkGoods18>Please register an instruction manual file.</chkGoods18>
+        <chkGoods19>Please enter a description of the instruction manual.</chkGoods19>
+        <chkGoods21>This image format is not supported. Only jpg\, gif\, and png formats are allowed.</chkGoods21>
+        <chkGoods22>Would you like to delete the product?</chkGoods22>
+        <chkGoods23>Would you like to delete the tag?</chkGoods23>
+        <chkGoods24>Please fill in the retained licenses field.</chkGoods24>
+        <chkGoods25>Please enter the expected effects.</chkGoods25>
+        <chkImage01>The image ratio (4:3) is not right.</chkImage01>
+        <chkImage02>The image ratio (2:1) is not right.</chkImage02>
+
+        <!-- 엑셀 -->
+        <excelTitle1>Purchase management</excelTitle1>
+        <excelTitle2>IT Expert Services</excelTitle2>
+        <excelHeader0>No</excelHeader0>
+        <excelHeader1>Product code(Language)</excelHeader1>
+        <excelHeader2>Category</excelHeader2>
+        <excelHeader3>Product name</excelHeader3>
+        <excelHeader4>Price</excelHeader4>
+        <excelHeader5>View count</excelHeader5>
+        <excelHeader6>Number of purchase inquiries(applications)</excelHeader6>
+        <excelHeader7>Number of registered products of interest</excelHeader7>
+        <excelHeader8>Number of reviews</excelHeader8>
+        <excelHeader9>Product code</excelHeader9>
+        <excelHeader10>Date and time of order</excelHeader10>
+        <excelHeader11>Language</excelHeader11>
+        <excelHeader12>Purchaser</excelHeader12>
+        <excelHeader13>Selling method</excelHeader13>
+        <excelHeader14>Process</excelHeader14>
+        <excelHeader15>Application contents</excelHeader15>
+        <excelHeader16>application</excelHeader16>
+        <excelHeader17>Download</excelHeader17>
+        <excelHeader18>Confirm</excelHeader18>
+        <excelHeader19>Unconfirmed</excelHeader19>
+    </englishMsg>
+    <spanishMsg>
+        <!-- jquery.validate.messages.js -->
+        <required>Este campo es obligatorio.</required>
+        <email>Ingrese una dirección de correo electrónico válida.</email>
+        <url>Ingrese la URL con el prefijo http://.</url>
+        <date>Ingrese una fecha válida (AAAA-MM-DD).</date>
+        <formatDate>Ingrese una fecha válida (AAAAMMDD).</formatDate>
+        <number>Ingrese un número válido.</number>
+        <digits>Ingrese un número válido.</digits>
+        <equalTo>Debe ingresar valores idénticos.</equalTo>
+        <maxlength>No puede tener más de {0}bytes (caracteres coreanos: 3 bytes\, caracteres ingleses:1 byte)</maxlength>
+        <minlength>Debe tener al menos {0}bytes (caracteres coreanos: 3 bytes\, caracteres ingleses:1 byte)</minlength>
+        <rangelength>Ingrese un valor con {0} ~ {1}dígitos.</rangelength>
+        <range>Ingrese un valor entre {0} ~ {1}.</range>
+        <max>Ingrese un valor igual o menor a {0}.</max>
+        <min>Ingrese un valor igual o mayor a {0}.</min>
+        <maxByte>No puede tener más de {0}bytes (caracteres coreanos: 3 bytes\, caracteres ingleses:1 byte)</maxByte>
+        <mixByte>Debe tener al menos {0}bytes (caracteres coreanos: 3 bytes\, caracteres ingleses:1 byte)</mixByte>
+        <alphabetic>Ingrese únicamente letras del alfabeto inglés.</alphabetic>
+        <alphalower>Ingrese únicamente letras del alfabeto inglés (en minúsculas).</alphalower>
+        <alphanumeric>Ingrese únicamente letras del alfabeto inglés o números.</alphanumeric>
+        <alphaupper>Ingrese únicamente letras del alfabeto inglés (en mayúsculas).</alphaupper>
+        <nowhitespace>No se admiten espacios.</nowhitespace>
+        <pattern>No es una expresión regular.</pattern>
+        <remote>El valor no es válido.</remote>
+
+        <dateISO>Ingrese una fecha válida (YYYY-MM-DD)</dateISO>
+        <creditcard>Ingrese un número de tarjeta de crédito válido.</creditcard>
+        <accept>El valor no es válido.</accept>
+
+        <!-- common -->
+        <noData>No hay datos</noData>
+        <numberOnly>Solo se pueden ingresar números.</numberOnly>
+        <exactlyEnter>Ingrese un valor válido.</exactlyEnter>
+
+        <!-- 글자제한 -->
+        <characters10>Ingrese 10 o más caracteres.</characters10>
+        <characters20>Ingrese 20 o más caracteres.</characters20>
+        <characters30>Ingrese 30 o más caracteres.</characters30>
+        <characters100>Ingrese 100 o más caracteres.</characters100>
+        <characters200>Ingrese 200 o más caracteres.</characters200>
+        <characters500>Ingrese 500 o más caracteres.</characters500>
+
+        <!-- alert message -->
+        <chkDt>La fecha de inicio no puede ser posterior a la fecha de finalización.</chkDt>
+        <chkCont>Ingrese la información aquí.</chkCont>
+        <chkDelete>¿Desea eliminar el archivo? No podrá recuperarlo.</chkDelete>
+
+        <!-- SUCCESS -->
+        <insertOk>La información se agregó con éxito.</insertOk>
+        <updateOk>La información se modificó con éxito.</updateOk>
+        <deleteOk>La información se eliminó con éxito.</deleteOk>
+        <processOk>El proceso solicitado se realizó con éxito.</processOk>
+
+        <!-- FAIL -->
+        <validateFail>La información no se ingresó correctamente.</validateFail>
+        <processFail>No se pudo procesar la solicitud.</processFail>
+        <invalidParam>La información que se ingresó no es válida (error de conformidad de los datos)</invalidParam>
+
+        <!-- ERROR -->
+        <processError>Ocurrió un error al procesar la solicitud.</processError>
+
+        <!-- CONDITION -->
+        <illegalRequest>La información que se solicitó no es válida.</illegalRequest>
+        <hasPersonalInfo>La información que ingresó contiene información personal. Elimine la información personal e inténtelo nuevamente.</hasPersonalInfo>
+        <fileSizeOver>El tamaño del archivo adjunto supera el máximo permitido.</fileSizeOver>
+        <noAuth>No tiene los permisos necesarios.</noAuth>
+
+        <!-- uniSearch -->
+        <enterSrchWrd>Ingrese las palabras que desea buscar.</enterSrchWrd>
+
+        <!-- login -->
+        <loginAlready>Ya ha iniciado sesión.</loginAlready>
+        <requiredLogin>Inicie sesión antes de continuar.</requiredLogin>
+        <emptyId>Ingrese su ID.</emptyId>
+        <emptyPwd>Ingrese su contraseña.</emptyPwd>
+        <wrongPwd>Ingrese su contraseña.</wrongPwd>
+        <noUseId>Este ID no está en uso.</noUseId>
+        <noUseDeptIn>Pertenece a un departamento que no está en uso.</noUseDeptIn>
+        <noUseIdAndDept>El ID no está en uso o pertenece a un departamento que no está en uso.</noUseIdAndDept>
+        <wrongId>El formato del ID no es válido.</wrongId>
+        <notFoundId>No existe ningún ID que concuerde con la información ingresada.</notFoundId>
+        <notMatchPwd>Las contraseñas no coinciden (distinguen minúsculas y mayúsculas)</notMatchPwd>
+        <notMatchLogin>El ID o la contraseña son incorrectos.</notMatchLogin>
+        <limitTry>Ha ingresado información de inicio de sesión incorrecta tres veces seguidas.</limitTry>
+        <noSession>La información de inicio de sesión se ha eliminado por motivos de protección de la privacidad. Inicie sesión nuevamente.</noSession>
+        <emptyUserNm>Ingrese su nombre.</emptyUserNm>
+        <emptyBirth>Ingrese su fecha de nacimiento.</emptyBirth>
+        <userLoginCheck>Debe iniciar sesión para usar este servicio. ¿Desea ir a la página de inicio de sesión?</userLoginCheck>
+        <pwdTooOld>Han pasado 90 días desde la última vez que restableció su contraseña. Haga clic en Aceptar para ir a la página de edición de la información de miembro. </pwdTooOld>
+        <emptyMobile>Ingrese su número de teléfono móvil.</emptyMobile>
+        <mobileNumberOnly>Solo puede ingresar números como parte de su número de teléfono móvil.</mobileNumberOnly>
+        <mobileExactlyEnter>Ingrese su número de teléfono móvil en el formato correcto.</mobileExactlyEnter>
+        <mobileChar>Ingrese 3 o 4 dígitos.</mobileChar>
+        <emptyEmail>Ingrese su dirección de correo electrónico.</emptyEmail>
+        <selectUserTy>Seleccione un tipo de membresía.</selectUserTy>
+        <selectGender>Seleccione su género.</selectGender>
+        <sendMailSucc>Se le ha enviado un correo electrónico.</sendMailSucc>
+        <sendMailFail>No se pudo enviar el correo electrónico.</sendMailFail>
+        <notMatchDi>La información de identificación personal no coincide. Inténtelo nuevamente.</notMatchDi>
+        <noneDiInfo>Su información de identificación personal no está registrada en el sistema. Solo se pueden verificar los miembros que se hayan registrado con autenticación de identidad.</noneDiInfo>
+        <decDiFail>No se pudo decodificar el valor de verificación. Inténtelo nuevamente.</decDiFail>
+        <noCertfyInfo>No ha ingresado la información de verificación. Inténtelo nuevamente.</noCertfyInfo>
+        <notMatchBizno>La información de identificación de la empresa no coincide. Inténtelo nuevamente.</notMatchBizno>
+        <notMatchBizno2>La información no coincide con la información existente del operador comercial. La información se modificará para que coincida con la información verificada del operador comercial.</notMatchBizno2>
+        <noneBiznoInfo>La información de identificación de la empresa no está registrada en el sistema. Solo se pueden verificar los miembros que se hayan registrado con identificación comercial.</noneBiznoInfo>
+        <bizNoFail>No se pudo verificar el número de registro de empresa.</bizNoFail>
+        <bizNoIncorrect>El número de registro de empresa no es válido. Inténtelo nuevamente.</bizNoIncorrect>
+        <certfyErrorBizNo>Inténtelo nuevamente más tarde.</certfyErrorBizNo>
+        <noRegBizNo>La información de la empresa no está en los registros de NICE Information Service Co.\, Ltd.</noRegBizNo>
+        <noAuth1>Nuestros servicios son exclusivos para miembros.</noAuth1>
+
+        <!-- register -->
+        <pwdIncorrect>La contraseña es incorrecta.</pwdIncorrect>
+        <captchaRetype>Ingrese los caracteres de comprobación nuevamente.</captchaRetype>
+        <reLogin>Inicie sesión nuevamente.</reLogin>
+        <moveMemModifyPage>Redirigiendo a la página de edición de la información de miembro.</moveMemModifyPage>
+        <moveWithdrawPage>Redirigiendo a la página de baja de la membresía.</moveWithdrawPage>
+        <successRegist>Se ha completado el registro de la membresía.</successRegist>
+        <memberModify>Se ha editado la información de la membresía.</memberModify>
+        <registFail>El registro no se pudo completar.</registFail>
+        <checkBirth>Verifique la fecha de nacimiento.</checkBirth>
+        <checkDupID>Verifique que el ID no esté duplicado.</checkDupID>
+        <checkDupEmail>Verifique que el E-mail no esté duplicado.</checkDupEmail>
+        <agreeTerms>Acepte los términos y las condiciones.</agreeTerms>
+        <checkTerms>Acepte los términos y las condiciones.</checkTerms>
+        <pwdLongerChar>La contraseña debe tener 10 o más caracteres.</pwdLongerChar>
+        <availableEmail>Esta dirección de correo electrónico está disponible.</availableEmail>
+        <dupEmail>Esta dirección de correo electrónico ya está en uso.</dupEmail>
+        <validEmail>Esta dirección de correo electrónico no es válida.</validEmail>
+        <idAvailable>El ID que ingresó está disponible.</idAvailable>
+        <idNotAvailable>El ID que ingresó no se puede utilizar.</idNotAvailable>
+        <confirmWithdraw>¿Desea darse de baja? No podrá recuperar su información luego de la baja.</confirmWithdraw>
+        <doneWithdraw>Se ha completado la baja de la membresía. Gracias por usar nuestro servicio.</doneWithdraw> 
+        <withdrawFail1>No puede dar de baja su membresía en este momento porque tiene uno o más productos en venta. Elimine los productos que tiene a la venta.</withdrawFail1>
+        <withdrawFail2>Usted es administrador de una comunidad. Debe cerrar su comunidad antes de dar de baja su membresía.</withdrawFail2>
+        <withdrawFail3>No puede cancelar su membresía en este momento porque tiene una compra en curso. Podrá cancelar su membresía cuando se complete el proceso de compra.</withdrawFail3>
+        <emailCrtfcsuccess>Se ha completado la verificación de su correo electrónico.</emailCrtfcsuccess>
+        <emailCrtfcAgain>El plazo para verificar su correo electrónico ha vencido. Vuelva a realizar el procedimiento desde el comienzo.</emailCrtfcAgain>
+        <emailCrtcDelete>Se ha cancelado la verificación de su correo electrónico.</emailCrtcDelete>
+        <dupEmailCrtfc>Se ha enviado un correo electrónico de verificación. Revise su casilla de correo electrónico.</dupEmailCrtfc>
+        <memberAlready>Ya es un miembro.</memberAlready>
+        <dupChk>Verifique que la información no esté duplicada.</dupChk>
+        <bizrnoAlready>Este número de registro de empresa ya está en uso.</bizrnoAlready>
+        <storeNmAlready>Este nombre de empresa ya está en uso. Ingrese otro nombre de empresa.</storeNmAlready>
+        <storeNmAvailable>Puede usar este nombre de empresa.</storeNmAvailable>
+        <storeNmEmpty>Por favor introduzca el nombre de la empresa más de 2 caracteres.</storeNmEmpty>
+        <storeNmDupChk>Verifique que el nombre de la empresa no esté duplicado.</storeNmDupChk>
+        <storeChoice>Debe seleccionar uno o más idiomas de servicio para acceder a la información de venta en múltiples idiomas.</storeChoice>
+        <telnoEmpty>Ingrese su número de teléfono.</telnoEmpty>
+        <storeUrlEmpty>Ingrese la URL de la empresa.</storeUrlEmpty>
+        <storeChargeNmEmpty>Ingrese el nombre del administrador de la empresa.</storeChargeNmEmpty>
+        <sotreIntrcnEmpty>Ingrese una presentación de la empresa.</sotreIntrcnEmpty>
+        <categoryEmpty>Seleccione las categorías de interés.</categoryEmpty>
+        <passwordSame>La nueva contraseña no puede ser su contraseña actual ni ninguna de las anteriores.</passwordSame>
+        <passwordCheck1>Las contraseñas no pueden incluir información personal ni cuatro o más caracteres o números idénticos consecutivos.</passwordCheck1>
+        <passwordCheck2>Ingrese una contraseña que tenga entre 10 y 15 caracteres e incluya letras del alfabeto inglés\, números o caracteres especiales.</passwordCheck2>
+        <dupSbscrbTyCdCnt>La información de registro ya existe.</dupSbscrbTyCdCnt>
+
+        <biznoCrtfc>Se ha completado la verificación de su número de registro de empresa.</biznoCrtfc>
+        <emptyCmpnyNm>Ingrese el nombre comercial (nombre de la empresa).</emptyCmpnyNm>
+        <emptyBizno>Ingrese el número de registro de la empresa.</emptyBizno>
+        <biznoAvailable>Puede usar este número de registro de empresa.</biznoAvailable>
+        <smsCrtfc>Se ha completado la verificación por SMS.</smsCrtfc>
+        <ipinCrtfc>Se ha completado la verificación del I-PIN.</ipinCrtfc>
+
+        <!-- 서비스관리 -->
+        <goodsDisplay>Entre los elementos seleccionados hay uno o más que ya están visibles. Seleccione únicamente elementos ocultos.</goodsDisplay>
+        <goodsHidden>Entre los elementos seleccionados hay uno o más que ya están ocultos. Seleccione únicamente elementos visibles.</goodsHidden>
+        <goodsTag>Puede ingresar hasta 10 etiquetas.</goodsTag>
+        <goodsRegistCancel>¿Desea cancelar el registro del producto?</goodsRegistCancel>
+        <goodsTempSave>¿Desea guardar el producto temporalmente? Puede ver los productos guardados temporalmente en la lista de registros de productos pendientes.</goodsTempSave>
+        <goodsRegist>¿Desea enviar su solicitud de registro? Los productos se mostrarán luego de que el gerente los revise y apruebe.</goodsRegist>
+        <goodsLangChk>Desmarcar el "idioma" seleccionado eliminará toda la información que haya ingresado. ¿Desea desmarcarlo?</goodsLangChk>
+        <goodsDelete>¿Desea eliminar el producto?</goodsDelete>
+        <goodsDeleteDeny>El producto no se pudo eliminar porque hay una compra en curso.</goodsDeleteDeny>
+        <goodsModify>¿Desea enviar la solicitud editada? Los productos se mostrarán luego de que el gerente los revise y apruebe.</goodsModify>
+        <goodsModifyDeny>Solo se puede editar la solicitud si el producto está oculto. Cambie el estado de visualización a "Oculto".</goodsModifyDeny>
+        <goodsCnsltTempSave>¿Desea guardar el producto temporalmente? Puede ver los productos guardados temporalmente en la lista de registros de consultoría pendientes.</goodsCnsltTempSave>
+        <goodsChangeStatus>El estado del producto ya se cambió. Inténtelo nuevamente.</goodsChangeStatus>
+
+        <!-- 관심목록등록  -->
+        <watchOk>El elemento se ha agregado a la lista de intereses. ¿Ir a la página de productos de interés?</watchOk>
+        <watchFail>No se pudo agregar el elemento a la lista de intereses.</watchFail>
+        <watchDelete>¿Desea cancelar el ajuste de interés del producto seleccionado?</watchDelete>
+        <watchDeleteOk>Se ha deshabilitado el registro de este producto como producto de interés.</watchDeleteOk>
+        <watchDeleteFail>No se pudo deshabilitar el registro de intereses.</watchDeleteFail>
+        <watchOverlap>Ya está registrado en la lista de intereses.</watchOverlap>
+
+        <sell01>¿Desea cambiar el estado de procesamiento del método de venta?</sell01>
+
+        <!-- 구매신청  -->
+        <orderOk>La solicitud se ha enviado al administrador. Gracias.</orderOk>
+        <orderDown>Esta solución (servicio) es un producto que se puede descargar. Haga clic en el botón [Descargar] para descargarla. ¿Desea descargarla?</orderDown>
+
+        <!-- Board -->
+        <noPosts>No hay publicaciones en el panel de mensajes.</noPosts>
+        <fileCheck>Debe haber al menos un archivo.</fileCheck>
+        <maxLengthTitle>Puede ingresar hasta 150 caracteres en el asunto.</maxLengthTitle>
+        <minLengthTitle>Ingrese al menos 3 caracteres en el asunto.</minLengthTitle>
+        <maxLengthSarchWord>Puede ingresar hasta 18 caracteres por cada palabra de búsqueda.</maxLengthSarchWord>
+        <deleteConfirm>Si elimina los datos\, también se eliminarán todos los comentarios y los archivos adjuntos. ¿Desea eliminarlos?</deleteConfirm>
+        <deleteFileConfirm>¿Desea eliminar el archivo seleccionado? No podrá recuperarlo.</deleteFileConfirm>
+        <deleteFileFail>No se pudo eliminar el archivo.</deleteFileFail>
+        <fileCannotUplaod>es una extensión de archivo no admitida.</fileCannotUplaod>
+        <fileAlreadyUpload>ya se ha agregado.</fileAlreadyUpload>
+        <fileSelected>archivo seleccionado</fileSelected>
+        <fileToomany>There are too many attachment files. (maximum</fileToomany>
+        <noUserBoard>Esta no es su publicación.</noUserBoard>
+        <selProduct>Seleccione un producto.</selProduct>
+        <selctgCd>Seleccione una clasificación.</selctgCd>
+        <chkEndDt>Seleccione la fecha de finalización.</chkEndDt>
+        <chkEndDtAfterToday>La fecha de finalización debe ser posterior a la fecha de hoy.</chkEndDtAfterToday>
+        <chkProduct>No puede publicar un mensaje porque no tiene información sobre pedidos de productos.</chkProduct>
+        <chkbizMactingOk>Ha sido seleccionado como sujeto para un encuentro comercial.</chkbizMactingOk>
+        <chkbizMactingNo>No se pudo completar la selección.</chkbizMactingNo>
+        <chkbizMactingSelect>¿Desea elegir el encuentro seleccionado? </chkbizMactingSelect>
+        <commentAllDelete>¿Desea eliminar la publicación de opinión?\nNo podrá recuperarla.</commentAllDelete>
+        <biz01>Categoría</biz01>
+        <biz02>Seleccionar</biz02>
+        <biz03>Encuentro comercial Categoría Seleccionar</biz03>
+        <prdouct01>Producto Seleccionar</prdouct01>
+
+        <!-- Comment -->
+        <commentInsertOk>Se ha publicado con éxito su respuesta.</commentInsertOk>
+        <commentUpdateOk>Se ha modificado con éxito su respuesta.</commentUpdateOk>
+        <commentDeleteOk>Se ha eliminado con éxito su respuesta.</commentDeleteOk>
+        <commentDeleteNo>No se pudo eliminar la respuesta.</commentDeleteNo>
+        <commentCharacters>Ha superado la cantidad máxima de caracteres.</commentCharacters>
+        <notifyInsertOK>Ingrese su respuesta.</notifyInsertOK>
+        <notifyFail>Ya se ha registrado el encuentro comercial. Podrá publicarlo nuevamente luego de eliminar una publicación.</notifyFail>
+        <deletePostingConfirm>¿Desea eliminar la respuesta? Si la elimina\, se mostrará como [Publicación eliminada por el usuario] en la pantalla de usuario.</deletePostingConfirm>
+        <notifyInsertOK>El informe se ha enviado con éxito.</notifyInsertOK>
+        <notifyFail>No se pudo registrar el informe.</notifyFail>
+
+        <!--  CM BOARD-->
+        <noNextWriting>No hay más publicaciones.</noNextWriting> 
+        <noPrevWriting>No hay publicaciones anteriores.</noPrevWriting>
+        <searchValCont>Puede ingresar hasta 10 palabras para buscar separadas por comas.</searchValCont>
+
+        <!--  CM BOARD alert-->
+        <chkSearchVal>Ingrese una o más palabras para buscar.</chkSearchVal>
+        <chkFile>No se pueden subir archivos ejecutables.</chkFile>
+        <chkTitle>Ingrese el asunto.</chkTitle>
+        <chkFileCapacity>El archivo es demasiado grande.</chkFileCapacity>
+        <chkImage>Debe haber al menos una imagen representativa.</chkImage>
+        <fileDeleteY>El archivo se ha eliminado.</fileDeleteY>
+        <fileDeleteN>No se pudo eliminar el archivo.</fileDeleteN>
+        <chkImageExt>No se admite este formato de imagen. Solo se admiten imágenes .jpg y .png.</chkImageExt>
+        <chkImageWidth>La imagen no cabe horizontalmente.</chkImageWidth>
+        <chkImageHeight>La imagen no cabe verticalmente.</chkImageHeight>
+        <chkImageError>Ocurrió un error durante la verificación del archivo. Seleccione el archivo nuevamente.</chkImageError>
+        <chknNotImage>La imagen no se ha verificado.</chknNotImage>
+        <chkInsert>¿Desea registrarla?</chkInsert>
+        <chkContent>Ingrese la información aquí.</chkContent>
+        <chkFileDelete>¿Desea eliminar el archivo seleccionado? No podrá recuperarlo.</chkFileDelete>
+        <chkModify>would you like to modify posting?</chkModify>
+        <chkMsDelete>¿Desea eliminarla?</chkMsDelete>
+        <chkLike>¿Desea recomendar esta publicación?</chkLike>
+        <chkNotify>¿Desea enviar un informe?</chkNotify>
+        <chkImg>Inserte un archivo de imagen.</chkImg>
+
+        <!-- Event -->
+        <chkEventAnswer>Ya se ha registrado para este evento.</chkEventAnswer>
+        <eventApplcn>Se ha registrado con éxito para este evento.</eventApplcn>
+        <eventModi>Se ha editado con éxito el evento.</eventModi>
+        <eventConf>¿Desea cancelar el evento?</eventConf>
+        <eventDel>ESe ha cancelado con éxito el evento.</eventDel>
+        <eventComment>Las respuestas a eventos deben tener entre 5 y 2000 caracteres.</eventComment>
+
+        <!-- store -->
+        <incCommentChk>Cada persona puede reseñar o publicar un solo producto.</incCommentChk>
+        <incCommentInsertOk>Se ha publicado con éxito su comentario.</incCommentInsertOk>
+        <incCmmentUpdateOk>Se ha modificado con éxito su comentario.</incCmmentUpdateOk>
+        <incCommentDeleteOk>Se ha eliminado con éxito su comentario.</incCommentDeleteOk>
+        <incCommentStringMin>Una reseña debe tener entre 5 y 300 caracteres.</incCommentStringMin>
+        <incCommentDel>¿Desea eliminar el comentario?</incCommentDel>
+        
+        <incInquiryInsertOk>Se ha registrado con éxito su consulta.</incInquiryInsertOk>
+        <incInquiryUpdateOk>Se ha modificado con éxito su consulta.</incInquiryUpdateOk>
+        <incInquiryDeleteOk>Se ha eliminado con éxito su consulta.</incInquiryDeleteOk>
+        <incInquiryCheck>Ya hemos recibido el informe.</incInquiryCheck>
+
+        <!-- community  -->
+        <chkCmOpenInsertNotForm>Hay uno o más campos vacíos.</chkCmOpenInsertNotForm>
+        <chkCmOpenInsertAllNotForm>Inténtelo nuevamente luego de completar todos los campos.</chkCmOpenInsertAllNotForm>
+        <cmOpenInsertOk>Se ha enviado su solicitud de crear una comunidad.</cmOpenInsertOk>
+        <cmOpenInsertOk2>Puede ver el avance y los resultados en Mi página > Menú de comunidades creadas.</cmOpenInsertOk2>
+        <chkCmOpenInsert>¿Desea enviar una solicitud para crear una comunidad?</chkCmOpenInsert>
+        <chkCmOpenFormNmUrl>No ha verificado que la dirección de la comunidad esté disponible.</chkCmOpenFormNmUrl>
+        <chkCmOpenFormNmCheck>No ha verificado que la dirección de la comunidad esté disponible.</chkCmOpenFormNmCheck>
+        <chkCmNcnmFormCheck>No ha verificado que el sobrenombre de la comunidad esté disponible.</chkCmNcnmFormCheck>
+        
+        <chkCmNcnmForm>Ingrese un sobrenombre para la comunidad.</chkCmNcnmForm> 
+        <chkCmNcnmFail>Este sobrenombre no está disponible. Ingrese otro.</chkCmNcnmFail> 
+        <chkCmNcnmOk>Puede usar este sobrenombre para la comunidad.</chkCmNcnmOk>
+        
+        <chkCmOpenFormAddr>Ingrese una dirección para la comunidad.</chkCmOpenFormAddr>
+        <chkCmOpenFormNm>Ingrese un nombre para la comunidad.</chkCmOpenFormNm>
+        <chkCmOpenFormSpecial>No puede usar caracteres especiales.</chkCmOpenFormSpecial>
+        <chkCmOpenFormSpecial2>No puede usar caracteres especiales\, excepto comas.</chkCmOpenFormSpecial2>
+        <chkCmOpenFormDc>Ingrese una descripción de la comunidad.</chkCmOpenFormDc>
+        <chkFormByteUntill>Se pueden ingresar hasta __ bytes.</chkFormByteUntill>
+        <chkFormByteOver>Se deben ingresar al menos __ bytes.</chkFormByteOver>
+        <chkCmUrlOk>Puede usar esta dirección para la comunidad.</chkCmUrlOk>
+        <chkCmNmOk>Puede usar este nombre para la comunidad.</chkCmNmOk>
+        <chkCmUrlFail>Esta dirección de comunidad no está disponible. Ingrese otra.</chkCmUrlFail> 
+        <chkCmNmFail>Este nombre de comunidad no está disponible. Ingrese otro.</chkCmNmFail> 
+        <cmOpenCmNm> Nombre de la comunidad: </cmOpenCmNm>
+        <cmOpenCmUrl> Dirección de la comunidad: </cmOpenCmUrl>
+        <CommunityMenu>menú de la comunidad</CommunityMenu>
+
+        <chkCmInfoUpdate>¿Desea editar la información de la comunidad?</chkCmInfoUpdate>
+        <chkCmInfoUpdateOk>Se ha modificado la información de la comunidad.</chkCmInfoUpdateOk>
+        <chkCmInfoUpdateFail>No se pudo modificar la información de la comunidad.</chkCmInfoUpdateFail>
+
+        <chkCmClsResn>Escriba un motivo de cierre.</chkCmClsResn>
+        <chkCmMemberApprovalOk>Se ha aprobado su membresía.</chkCmMemberApprovalOk>
+        <chkCmMemberRefusalOk>Se ha rechazado su membresía.</chkCmMemberRefusalOk>
+        <chkCmMemberWithdrawOk>Se ha dado de baja su membresía.</chkCmMemberWithdrawOk>
+        <chkCmCkMultiBox>Debe marcar al menos un elemento.</chkCmCkMultiBox>
+        <chkStatDate>Ingrese la fecha de referencia (solo con fines estadísticos).</chkStatDate>
+        <chkCmConfirmRefusalOK>Se rechazó su solicitud para unirse a la comunidad.</chkCmConfirmRefusalOK>
+        <chkCmReentrance>Se ha dado de baja en esta comunidad. ¿Desea unirse a la comunidad nuevamente?</chkCmReentrance>
+        <chkCmConfrimWithdraw>¿Desea darse de baja en la comunidad?</chkCmConfrimWithdraw>
+        <chkCmConfrimWithdrawOk>Se ha completado su baja de la comunidad.</chkCmConfrimWithdrawOk>
+        <chkCmMember>¿Desea unirse a la comunidad como miembro?</chkCmMember>
+        <chkCmMemberNo>Ocurrió un error al procesar su registro en la comunidad.</chkCmMemberNo>
+
+        <!--  커뮤니티 board -->
+        <chkCmBoardbbscttSj>No ha ingresado un asunto.</chkCmBoardbbscttSj>
+        <chkCmBoardbbscttCn>No ha ingresado ninguna información.</chkCmBoardbbscttCn>
+        <chkCmBoardAnswerCn>No ha ingresado el cuerpo de la respuesta.</chkCmBoardAnswerCn>
+
+        <chkCmBoardFileExt>No se admite este formato de archivo.</chkCmBoardFileExt>
+        <chkCmBoardFileSize10>Se pueden cargar archivos adjuntos de hasta 10 MB.</chkCmBoardFileSize10>
+        <chkCmBoardFileEnd>Puede cargar hasta 5 archivos adjuntos.</chkCmBoardFileEnd>
+        <chkCmBoardFormAgain>Revise la información e inténtelo nuevamente.</chkCmBoardFormAgain>
+        <chkCmBoardInsertOk>El mensaje se ha publicado.</chkCmBoardInsertOk>
+        <chkCmBoardUpdateOk>El mensaje se ha modificado.</chkCmBoardUpdateOk>
+        <chkCmBoardDeleteOk>El mensaje se ha eliminado.</chkCmBoardDeleteOk>
+
+        <chkCmBoardCmt>¿Desea eliminar la respuesta?</chkCmBoardCmt>
+        <chkCmBoardAnswerInsert>¿Desea publicar la respuesta?</chkCmBoardAnswerInsert>
+        <chkCmBoardAnswerInsertOk>La respuesta se ha publicado.</chkCmBoardAnswerInsertOk>
+        <chkCmBoardADelete>¿Desea eliminar la respuesta?</chkCmBoardADelete>
+        <chkCmBoardADeleteOk>Se ha eliminado la respuesta.</chkCmBoardADeleteOk>
+        <chkCmBoardQDelete>Si elimina la pregunta\, se eliminarán también las respuestas. ¿Desea eliminarla?</chkCmBoardQDelete>
+
+        <chkCmMemberOk>Solo los miembros de la comunidad pueden ver esta publicación.</chkCmMemberOk>
+        <chkCmOptFormOk>Solo el gerente puede publicar mensajes.</chkCmOptFormOk>
+
+        <chkCmClose>¿Desea cerrar la comunidad?</chkCmClose>
+        <chkCmCloseOk>Se ha cerrado la comunidad.</chkCmCloseOk>
+        <chkCmCancle>¿Desea cancelar el cierre de la comunidad?</chkCmCancle>
+        <chkCmCancleOk>Se ha cancelado el cierre de la comunidad.</chkCmCancleOk>
+
+        <chkTagOverLap>Hay etiquetas duplicadas.</chkTagOverLap>
+        <chkCm1001>No se ha aprobado la comunidad.</chkCm1001>
+        <chkCm1004>Esta comunidad se ha cerrado.</chkCm1004>
+        <chkCmNull>Esta comunidad no se ha creado.</chkCmNull>
+        <chkCmRegist>Se ha suspendido el registro de miembro de la comunidad.</chkCmRegist>
+        <chkCmConfirmCancle>¿Le gustaría que cancela la solicitud de adhesión?</chkCmConfirmCancle>
+        <chkCmConfirmCancleOk>Cancelar la solicitud de membresía.</chkCmConfirmCancleOk>
+        
+        <!-- 사용자 서비스 등록/수정 -->
+        <chkGoodsDate01>El formato de la fecha de inicio no es válido.</chkGoodsDate01>
+        <chkGoodsDate02>El formato de la fecha de finalización no es válido.</chkGoodsDate02>
+        <chkGoodsDate03>No hay una fecha de inicio.</chkGoodsDate03>
+        <chkGoodsDate04>No hay una fecha de finalización.</chkGoodsDate04>
+        <chkGoodsDate05>La fecha de finalización es anterior a la fecha de inicio.</chkGoodsDate05>
+        <chkGoodsDate06>Ingrese la fecha de inicio.</chkGoodsDate06>
+        <chkGoodsDate07>Ingrese la fecha de finalización.</chkGoodsDate07>
+        <chkGoodsDate08>Ingrese una hora entre las 00 y las 12.</chkGoodsDate08>
+        <chkGoodsDate09>Ingrese una cantidad de minutos entre 00 y 59.</chkGoodsDate09>
+        
+        <chkGoods01>Seleccione elementos.</chkGoods01>
+        <chkGoods02>¿Desea mostrar(ocultar) el elementos seleccionados?</chkGoods02>
+        <chkGoods03>Debe haber al menos una categoría.</chkGoods03>
+        <chkGoods04>Seleccione una categoría.</chkGoods04>
+        <chkGoods05>Seleccione un documento que respalde la información de verificación seleccionada.</chkGoods05>
+        <chkGoods06>Marque la casilla de información de verificación.</chkGoods06>
+        <chkGoods07>Complete el campo de licencia.</chkGoods07>
+        <chkGoods08>Complete el campo de idiomas admitidos.</chkGoods08>
+        <chkGoods09>Complete el campo de SO compatibles.</chkGoods09>
+        <chkGoods10>El campo de arquitectura es obligatorio.</chkGoods10>
+        <chkGoods11>Complete el campo de posventa.</chkGoods11>
+        <chkGoods12>Ingrese una dirección de correo electrónico válida.</chkGoods12>
+        <chkGoods13>Seleccione un país.</chkGoods13>
+        <chkGoods14>Ingrese la información de contacto.</chkGoods14>
+        <chkGoods15>Complete el campo de etiquetas.</chkGoods15>
+        <chkGoods16>Ingrese las características principales.</chkGoods16>
+        <chkGoods17>Ingrese la información de referencia.</chkGoods17>
+        <chkGoods18>Registre un archivo con el manual de instrucciones.</chkGoods18>
+        <chkGoods19>Ingrese una descripción del manual de instrucciones.</chkGoods19>
+        <chkGoods21>No se admite este formato de imagen. Solo se admiten imágenes .jpg\, .gif\, .png.</chkGoods21>
+        <chkGoods22>¿Desea eliminar el producto?</chkGoods22>
+        <chkGoods23>¿Desea eliminar la etiqueta?</chkGoods23>
+        <chkGoods24>Complete el campo de licencias retenidas.</chkGoods24>
+        <chkGoods25>Ingrese los efectos esperados.</chkGoods25>
+        <chkImage01>La relación de aspecto (4:3) de la imagen no es la correcta.</chkImage01>
+        <chkImage02>La relación de aspecto (2:1) de la imagen no es la correcta.</chkImage02>
+
+        <!-- 엑셀 -->
+        <excelTitle1>Gestión de compras y solicitudes</excelTitle1>
+        <excelTitle2>Gestión de solicitudes de consultoría</excelTitle2>
+        <excelHeader0>Numero</excelHeader0>
+        <excelHeader1>Código de producto(idioma)</excelHeader1>
+        <excelHeader2>Categoria</excelHeader2>
+        <excelHeader3>Nombre del producto</excelHeader3>
+        <excelHeader4>Precio</excelHeader4>
+        <excelHeader5>Cantidad de visualizaciones</excelHeader5>
+        <excelHeader6>Cantidad de consultas de compra (solicitudes)</excelHeader6>
+        <excelHeader7>Cantidad de productos de interés registrados</excelHeader7>
+        <excelHeader8>Cantidad de revisiones</excelHeader8>
+        <excelHeader9>Número de compra(idioma)</excelHeader9>
+        <excelHeader10>Fecha y hora del pedido</excelHeader10>
+        <excelHeader11>idioma</excelHeader11>
+        <excelHeader12>Comprador</excelHeader12>
+        <excelHeader13>Método de venta</excelHeader13>
+        <excelHeader14>Proceso</excelHeader14>
+        <excelHeader15>Contenido de la solicitud</excelHeader15>
+        <excelHeader16>aplicación</excelHeader16>
+        <excelHeader17>descargar</excelHeader17>
+        <excelHeader18>confirmada</excelHeader18>
+        <excelHeader19>No confirmada</excelHeader19>
+    </spanishMsg>
+</configuration>

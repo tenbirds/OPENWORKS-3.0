@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_dvyfgInfo">
+    
+    <select id="dvyfgInfoCheck" parameterType="dvyfgInfoVO" resultType="int">
+    	/* _dvyfgInfo.dvyfgInfoCheck */
+        SELECT COUNT(1) 
+          FROM TCN_DVYFG_INFO_L
+         WHERE DELIVERY_NUM = #{deliveryNum}
+    </select>
+  	
+   <insert id="dvyfgInfoInsertAction" parameterType="dvyfgInfoVO" >
+    	/* _dvyfgInfo.dvyfgInfoInsertAction */
+		INSERT INTO TCN_DVYFG_INFO_L (
+			   DELIVERY_NUM
+			 , DELIVERY_ORDER 
+			 , ITEM_NUM
+			 , DELIVER_DATE
+			 , ITEM_CLASS_IDENTIFIER 
+			 , ITEM_IDENTIFIER
+			 , ITEM_NAME
+			 , ITEM_ENG_NAME
+			 , ITEM_DESPTN
+			 , ITEM_QUANTITY 
+			 , UNIT_PRICE
+			 , ITEM_UNIT
+			 , ITEM_AMOUNT
+			 , DELIVERY_DATE
+			 , DELIVERY_PLACE
+			 , ISSUE_DATE
+			 , SHOP_BASKET
+			 , CLOUD_STORE_USE
+			 , PUBLIC_ORGANIZATION
+			 , SUPPLIER_ORGANIZATION
+		) 
+		VALUES 
+		(	   #{deliveryNum} 
+			 , #{deliveryOrder}
+			 , #{itemNum}
+			 , #{deliverDate}
+			 , #{itemClassIdentifier}
+			 , #{itemIdentifier}			
+			 , #{itemName}
+			 , #{itemEngName}
+			 , #{itemDesptn}
+			 , #{itemQuantity}
+			 , #{unitPrice}
+			 , #{itemUnit}
+			 , #{itemAmount}
+			 , #{deliveryDate}
+			 , #{deliveryPlace}
+			 , SYSDATETIME
+			 , #{shopBasket}
+			 , #{cloudStoreUser}
+			 , #{publicOrganization}
+			 , #{supplierOrganization}
+		)
+    </insert>
+    
+    <update id="dvyfgInfoUpdateAction" parameterType="dvyfgInfoVO">
+    	/* _dvyfgInfo.dvyfgInfoUpdateAction */
+        UPDATE TCN_DVYFG_INFO_L
+           SET  DELIVERY_ORDER  	 = #{deliveryOrder}
+			 , ITEM_NUM				 = #{itemNum}	
+			 , DELIVER_DATE			 = #{deliverDate}
+			 , ITEM_CLASS_IDENTIFIER = #{itemClassIdentifier}
+			 , ITEM_IDENTIFIER		 = #{itemIdentifier}
+			 , ITEM_NAME	     	 = #{itemName}
+			 , ITEM_ENG_NAME		 = #{itemEngName}
+			 , ITEM_DESPTN			 = #{itemDesptn}
+			 , ITEM_QUANTITY 		 = #{itemQuantity}
+			 , UNIT_PRICE			 = #{unitPrice}
+			 , ITEM_UNIT			 = #{itemUnit}
+			 , ITEM_AMOUNT			 = #{itemAmount}
+			 , DELIVERY_DATE		 = #{deliveryDate}
+			 , DELIVERY_PLACE		 = #{deliveryPlace}
+			 , EDIT_DATE	 		 = SYSDATETIME
+			 , SHOP_BASKET		     = #{shopBasket}
+			 , CLOUD_STORE_USE		 = #{cloudStoreUser}
+			 , PUBLIC_ORGANIZATION	 = #{publicOrganization}
+			 , SUPPLIER_ORGANIZATION = #{supplierOrganization}
+         WHERE DELIVERY_NUM = #{deliveryNum}
+            AND TO_NUMBER(DELIVERY_ORDER) &lt; TO_NUMBER(#{deliveryOrder})
+    </update>     
+    
+ 
+</mapper>

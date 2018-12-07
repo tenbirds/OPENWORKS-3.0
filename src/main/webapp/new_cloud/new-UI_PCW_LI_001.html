@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					//로그인 전 -->
+
+					<!-- 로그인 후 -->
+					<ul>
+					<li><a href="#">홍길동님</a></li>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="buy-history"><a href="#">구매기록<span>ON</span></a></li>
+					<!-- <li class="prd"><a href="#">12</a></li> -->
+					</ul>
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- left -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>SaaS</h2>
+					<ul>
+					<li class="on"><a href="#">전체</a></li><!-- 선택되었을때 클래스 on 적용 -->
+					<li><a href="#">IT 서비스</a></li>
+					<li><a href="#">비즈니스</a></li>
+					<li><a href="#">마케팅</a></li>
+					<li><a href="#">산업</a></li>
+					<li><a href="#">기타</a></li>
+					</ul>
+				</div>
+				<!-- search -->
+				<div class="search">
+					<ul>
+					<!-- 중소기업 -->
+					<li>
+						<p><a href="#">중소기업</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>list01</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list02</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list03</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list04</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list05</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list06</label></li>
+							<li><input type="checkbox" id="" name="" /><label>list07</label></li>
+						</ul>
+					</li>
+					<!-- //중소기업 -->
+					<!-- 원산지 -->
+					<li>
+						<p><a href="#">원산지</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>원산지</label></li>
+						</ul>
+					</li>
+					<!-- //원산지 -->
+					<!-- 무료/체험 -->
+					<li>
+						<p><a href="#">무료/체험</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>무료/체험</label></li>
+						</ul>
+					</li>
+					<!-- //무료/체험 -->
+					<!-- 계약단위 -->
+					<li>
+						<p><a href="#">계약단위</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>유료</label></li>
+							<li><input type="checkbox" id="" name="" /><label>무료</label></li>
+						</ul>
+					</li>
+					<!-- //계약단위 -->
+					<!-- 인증 -->
+					<li>
+						<p><a href="#">인증</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>인증</label></li>
+						</ul>
+					</li>
+					<!-- //인증 -->
+					<!-- 서비스 관리 -->
+					<li>
+						<p><a href="#">서비스 관리</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>서비스 관리</label></li>
+						</ul>
+					</li>
+					<!-- //서비스 관리 -->
+					<!-- 호환성(표준) -->
+					<li>
+						<p><a href="#">호환성(표준)</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>호환성(표준)</label></li>
+						</ul>
+					</li>
+					<!-- //호환성(표준) -->
+					<!-- 구축방식 -->
+					<li>
+						<p><a href="#">구축방식</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>구축방식</label></li>
+						</ul>
+					</li>
+					<!-- //구축방식 -->
+					<!-- 지원언어 -->
+					<li>
+						<p><a href="#">지원언어</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>지원언어</label></li>
+						</ul>
+					</li>
+					<!-- //지원언어 -->
+					<!-- CSQC Level -->
+					<li>
+						<p><a href="#">CSQC Level</a></p>
+						<ul>
+							<li><input type="checkbox" id="" name="" /><label>CSQC Level</label></li>
+						</ul>
+					</li>
+					<!-- //CSQC Level -->
+					</ul>
+					<span><a href="#">선택초기화</a></span>
+					<a href="#" class="b-btn-apply"><strong><span>적용</span></strong></a>
+				</div>
+				<!-- //search -->
+			</div>
+			<!-- //left -->
+
+			<!-- contents -->
+			<div class="contents">
+				
+				<!-- section -->
+				<div class="section bor-b">
+					
+					<dl class="search-result">
+						<!-- 결과 갯수 영역 -->
+						<dt>
+							<a href="#" class="b-btn fr type6"><strong><span>구매희망목록에 담기</span></strong></a>
+							<a href="#" class="b-btn fr disabled"><strong><span>구매희망목록에 담기</span></strong></a>
+							<span><strong>137</strong>개의 SaaS</span><a href="#">전체</a><a href="#">운영체제</a>
+							<div>
+								<p><strong>중소기업</strong> / <strong>체험상품</strong> 적용 결과 입니다.</p>
+							</div>
+						</dt>
+						<!-- //결과 갯수 영역 -->
+						<dd>
+							<ul>
+							<li class="on"><a href="#">전체</a></li>
+							<li><a href="#">데이터 관리</a></li>
+							<li><a href="#">IT 관리</a></li>
+							<li><a href="#">프로젝트 관리</a></li>
+							<li><a href="#">소프트웨어 개발 도구</a></li>
+							<li><a href="#">전자 문서/기록 관리 (EDRM)</a></li>
+							<li><a href="#">협업도구</a></li>
+							<li><a href="#">보안</a></li>
+							<li><a href="#">크리에이티브&디자인</a></li>
+							</ul>
+							<!-- sorting -->
+							<p class="select-box">
+								<label for="list">최신 등록순</label>
+								<select class="list">
+									<option selected="selected">최신 등록순</option>
+									<option>조회순</option>
+									<option>구매 문의순</option>
+								</select>
+							</p>
+							<!-- //sorting -->
+						</dd>
+					</dl>
+
+				</div>
+				<!-- //section -->
+				
+				<!-- section -->
+				<div class="section mt30">
+					<!-- list -->
+					<div class="type-prd-list">					
+						<table>
+							<colgroup>
+							<col style="width:50px" />
+							<col style="width:180px" />
+							<col style="width:*" />
+							<col style="width:100px" />
+							<col style="width:100px" />
+							</colgroup>
+
+							<thead>
+								<th><input type="checkbox" /></th>
+								<th>제품명/제조사</th>
+								<th>설명</th>
+								<th>카테고리</th>
+								<th>상품등록일</th>
+							</thead>
+							<tbody>
+								<tr>
+									<td><input type="checkbox" /></td>
+									<th>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">Bizbox Cloud</a>
+										<a href="#" class="dis-block">주식회사 더존비즈온</a>
+										
+									</th>
+									<td>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">스마트하게 통합된 혁신의 도구상자 클라우드 기반의 그룹웨어이므로 서버운영 및 관리에 대한 부담이 없습니다. Phone, Tablet, PC 어디에서나 ..</a>
+										<!-- 마크 이미지 있을경우 -->
+										<div class="img-mark">
+											<ul>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark02.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark03.gif" alt="" /></li>
+											</ul>
+										</div>
+										<!-- //마크 이미지 있을경우 -->
+									</td>
+									<td class="txt-word">운영관리</td>
+									<td class="txt-word">2015.05.25</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" /></td>
+									<th>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">Bizbox Cloud</a>
+										<a href="#" class="dis-block">주식회사 더존비즈온</a>
+										
+									</th>
+									<td>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">스마트하게 통합된 혁신의 도구상자 클라우드 기반의 그룹웨어이므로 서버운영 및 관리에 대한 부담이 없습니다. Phone, Tablet, PC 어디에서나 ..</a>
+										<!-- 마크 이미지 있을경우 -->
+										<div class="img-mark">
+											<ul>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											</ul>
+										</div>
+										<!-- //마크 이미지 있을경우 -->
+									</td>
+									<td class="txt-word">운영관리</td>
+									<td class="txt-word">2015.05.25</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" /></td>
+									<th>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">Bizbox Cloud</a>
+										<a href="#" class="dis-block">주식회사 더존비즈온</a>
+										
+									</th>
+									<td>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">스마트하게 통합된 혁신의 도구상자 클라우드 기반의 그룹웨어이므로 서버운영 및 관리에 대한 부담이 없습니다. Phone, Tablet, PC 어디에서나 ..</a>
+										<!-- 마크 이미지 있을경우 -->
+										<div class="img-mark">
+											<ul>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											</ul>
+										</div>
+										<!-- //마크 이미지 있을경우 -->
+									</td>
+									<td class="txt-word">운영관리</td>
+									<td class="txt-word">2015.05.25</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" /></td>
+									<th>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">Bizbox Cloud</a>
+										<a href="#" class="dis-block">주식회사 더존비즈온</a>
+										
+									</th>
+									<td>
+										<a href="/new_cloud/UI_PCW_LI_001_003.html">스마트하게 통합된 혁신의 도구상자 클라우드 기반의 그룹웨어이므로 서버운영 및 관리에 대한 부담이 없습니다. Phone, Tablet, PC 어디에서나 ..</a>
+										<!-- 마크 이미지 있을경우 -->
+										<div class="img-mark">
+											<ul>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											<li><img src="/new_cloud/images/sub/sam-mark01.gif" alt="" /></li>
+											</ul>
+										</div>
+										<!-- //마크 이미지 있을경우 -->
+									</td>
+									<td class="txt-word">운영관리</td>
+									<td class="txt-word">2015.05.25</td>
+								</tr>
+							</tbody>
+						</table>
+
+					</div>
+					<!-- //list -->
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+				<!-- //section -->
+
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<? include $_SERVER["DOCUMENT_ROOT"]."/new_cloud/include/footer.html" ?>
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

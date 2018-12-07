@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_wiki">
+	<!--
+     * SQL 명      : _wiki.wikiView
+     * 기능(설명)  : 등록 위키 최신정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-06
+    -->
+    <resultMap id="wikiMap" type="map">
+        <result property="wikiSn"     column="WIKI_SN"/>
+        <result property="wikiCn"     column="WIKI_CN"/>
+        <result property="registerNm" column="REGISTER_NM"/>
+        <result property="registId"   column="REGIST_ID"/>
+        <result property="registDt"   column="REGIST_DT"/>
+    </resultMap>
+    <select id="wikiView" parameterType="map" resultMap="wikiMap">
+        SELECT WIKI_SN                                 AS WIKI_SN        /*위키순번*/
+             , WIKI_CN                                 AS WIKI_CN        /*위키내용*/
+             , REGISTER_NM                             AS REGISTER_NM    /*등록자명*/
+             , REGIST_ID                               AS REGIST_ID      /*등록자ID*/
+             , TO_CHAR(REGIST_DT,'YYYY-MM-DD HH24:MI') AS REGIST_DT      /*등록일자*/
+          FROM TCM_WIKI_INFO_I
+         WHERE 1=1
+         <if test="p_wikiSn != null  and p_wikiSn != ''">
+           AND WIKI_SN = #{p_wikiSn}
+         </if>
+         ORDER BY WIKI_SN DESC
+         LIMIT 1
+    </select>
+    
+    
+    
+	<!--
+     * SQL 명      : _wiki.wikiRegist
+     * 기능(설명)  : 위키 등록 처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-06
+    -->
+    <update id="wikiRegist">
+        INSERT INTO TCM_WIKI_INFO_I (WIKI_SN
+                                   , WIKI_CN
+                                   , REGISTER_NM
+                                   , REGIST_ID
+                                   , REGIST_DT)
+        VALUES((SELECT NVL(MAX(A.WIKI_SN),0) + 1
+                  FROM TCM_WIKI_INFO_I A)
+             , #{p_wikiCn}
+             , (SELECT USER_NM
+                  FROM OP_USER
+                 WHERE USER_ID = #{p_userId})
+             , #{p_userId}
+             , SYSDATETIME)
+    </update>
+
+    
+    
+    
+	<!--
+     * SQL 명      : _wiki.wikiHistoryCount
+     * 기능(설명)  : 위키 항목 작성이력 게시물 갯수 페이져용
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-06
+    -->
+	<select id="wikiHistoryCount" parameterType="java.util.Map" resultType="int"> 
+        SELECT COUNT(1) AS totalCount
+          FROM TCM_WIKI_INFO_I
+    </select>
+
+	<!--
+     * SQL 명      : _wiki.wikiHistoryList
+     * 기능(설명)  : 위키 항목 작성이력 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-06
+    -->
+    <resultMap id="wikiHistoryListMap" type="map">
+        <result property="rowNo"      column="ROW_NO"/>
+        <result property="wikiSn"     column="WIKI_SN"/>
+        <result property="wikiCn"     column="WIKI_CN"/>
+        <result property="registerNm" column="REGISTER_NM"/>
+        <result property="registId"   column="REGIST_ID"/>
+        <result property="registDt"   column="REGIST_DT"/>
+    </resultMap>
+    <select id="wikiHistoryList" parameterType="map" resultMap="wikiHistoryListMap">
+        SELECT ROWNUM                                  AS ROW_NO         /*행번호*/
+             , WIKI_SN                                 AS WIKI_SN        /*위키순번*/
+             , WIKI_CN                                 AS WIKI_CN        /*위키내용*/
+             , REGISTER_NM                             AS REGISTER_NM    /*등록자명*/
+             , REGIST_ID                               AS REGIST_ID      /*등록자ID*/
+             , TO_CHAR(REGIST_DT,'YYYY-MM-DD HH24:MI') AS REGIST_DT      /*등록일자*/
+          FROM TCM_WIKI_INFO_I
+         ORDER BY WIKI_SN DESC
+    </select>
+    
+    
+	<!--
+     * SQL 명      : _wiki.wikiUndoContents
+     * 기능(설명)  : 위키 되돌리기 처리
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2016-01-06
+    -->
+    <update id="wikiUndoContents">
+        UPDATE TCM_WIKI_INFO_I SET WIKI_SN = (SELECT NVL(MAX(A.WIKI_SN),0) + 1
+                                                FROM TCM_WIKI_INFO_I A)
+                                 , REGISTER_NM = (SELECT USER_NM
+                                                    FROM OP_USER
+                                                   WHERE USER_ID = #{p_userId})
+                                 , REGIST_ID = #{p_userId}
+                                 , REGIST_DT = SYSDATETIME
+                                 , UPDT_ID   = #{p_userId}
+                                 , UPDT_DT   = SYSDATETIME
+         WHERE WIKI_SN = #{p_wikiSn}
+    </update>
+</mapper>

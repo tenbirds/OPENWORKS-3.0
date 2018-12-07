@@ -1,0 +1,778 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://www.openworks.kr/jsp/jstl" prefix="op"%>
+<%@ taglib uri="http://www.openworks.kr/jsp/validate" prefix="valid"%>
+<%@ page import="java.util.*"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+    <title>대시보드</title>
+    <op:jsTag type="spi" items="validate,ui,form" />
+    <op:jsTag type="openworks" items="ui" />
+    <!-- 기능별 스크립트 정의 -->
+	<link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_cmm.css' />
+    <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+    <script src="/cloud_ver2/new_cloud/js/Chart.bundle.js"></script>
+    <script src="/cloud_ver2/new_cloud/js/utils.js"></script>
+    
+    <!--// 기능별 스크립트 정의 -->
+    <script type="text/javascript">
+    //<![CDATA[
+               
+        $().ready(function() {
+            /* parent.contentPanel.loadClass('대시보드_', '/intra/explorer/BD_dashboard.do?highMenuCd=26', '26', ''); */
+        });
+
+        //바로가기
+        function makeTab(title, href, nid, flag) {
+            parent.contentPanel.loadClass(title, href, nid, flag);
+        }
+    
+        //승인반려사유보기팝업
+        var jsRegistBack = function(el, goodsCode) {
+            $(el).colorbox({
+                title : "승인반려사유보기",
+                href : "/korean/pt/sale/goods/PD_returnReasonPop.do?goodsCode="+goodsCode+"&exmntConfmCd=1005",
+                width : "700",
+                height : "400",
+                overlayClose : false,
+                escKey : false,
+                iframe : true
+            });
+        };
+        
+        //커뮤니티 개설신청 정보 팝업 view
+        var jsView = function(el, q_agremstat, q_agremstat2) {
+            $(el).colorbox({
+				title 	: "기본협약관리",         
+     			href  	: "/intra/bassAgremManage/BD_index.do?q_agremstat="+q_agremstat+"&q_agremstat2="+q_agremstat2,
+     			width 	: "1200px",
+     	        height 	: "600px",
+               	iframe 	: true
+           	});
+        };
+        
+        //커뮤니티 개설신청 정보 팝업 view
+        var jsPopupView = function(el, cmmntyId, langCode, userId) {
+            $(el).colorbox({
+				title 	: "커뮤니티 개설신청 정보",         
+     			href  	: "/intra/cmMgmt/cmManage/PD_openInfoView.do?cmmntyId="+cmmntyId+"&langCode="+langCode+"&userId="+userId,
+     			width 	: "1200px",
+     	        height 	: "600px",
+               	iframe 	: true
+           	});
+        };
+        
+        
+
+        // 사유입력 커뮤니티 거절 view 
+        var jsPopupReject = function(cmmntyId, langCode, userId) {
+            $.colorbox({
+              	title 	: "커뮤니티 거절",         
+    			href    : "/intra/cmMgmt/cmManage/PD_openInfoReject.do?cmmntyId="+cmmntyId+"&langCode="+langCode+"&userId="+userId,
+    			width 	: "590px",
+    	        height 	: "400px",
+              	iframe 	: true
+          }); 
+        };
+    //]]>
+    </script>
+</head>
+<body>
+  <!-- dashboard -->
+	     <div class="dasharea">
+	         <div class="dashHead">
+	             <div class="clearfix">
+	                 <div class="col-5-2">
+	                     <table>
+	                         <caption>서비스등록 현황</caption>
+	                         <thead>
+	                             <tr>
+	                                 <th colspan="3">서비스등록 현황</th>
+	                                 <th colspan="3" class="rig">총<span>168</span>개</th>
+	                             </tr>
+	                         </thead>
+	                         <tbody>
+	                             <tr>
+	                                 <td>전시</td>
+	                                 <td class="rig"><span>166</span>개</td>
+	                                 <td class="border-right">(<span>+2</span>)</td>
+	                                 <td>비전시</td>
+	                                 <td class="rig"><span>9</span>개</td>
+	                                 <td>(<span>-1</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>SaaS</td>
+	                                 <td class="rig"><span>87</span>개</td>
+	                                 <td class="border-right">(<span>+1</span>)</td>
+	                                 <td>SaaS</td>
+	                                 <td class="rig"><span>4</span>개</td>
+	                                 <td>(<span>-1</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>PaaS</td>
+	                                 <td class="rig"><span>5</span>개</td>
+	                                 <td class="border-right">(<span>-</span>)</td>
+	                                 <td>PaaS</td>
+	                                 <td class="rig"><span>3</span>개</td>
+	                                 <td>(<span>-</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>IaaS</td>
+	                                 <td class="rig"><span>64</span>개</td>
+	                                 <td class="border-right">(<span>+1</span>)</td>
+	                                 <td>IaaS</td>
+	                                 <td class="rig"><span>2</span>개</td>
+	                                 <td>(<span>-</span>)</td>
+	                             </tr>
+	                         </tbody>
+	                     </table>
+	                 </div>
+	                 <div class="col-5-1">
+	                     <table>
+	                         <caption>협약서비스 현황</caption>
+	                         <thead>
+	                             <tr>
+	                                 <th colspan="3">협약서비스 현황</th>
+	                             </tr>
+	                         </thead>
+	                         <tbody>
+	                             <tr>
+	                                 <td>협약기업</td>
+	                                 <td class="rig"><span>116</span>개</td>
+	                                 <td>(<span>+1</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>체결대기</td>
+	                                 <td></td>
+	                                 <td><a href="#">1</a></td>
+	                             </tr>
+	                             <tr>
+	                                 <td>검토서비스</td>
+	                                 <td></td>
+	                                 <td><a href="#">1</a></td>
+	                             </tr>
+	                             <tr>
+	                                 <td>승인서비스</td>
+	                                 <td></td>
+	                                 <td><a href="#">1</a></td>
+	                             </tr>
+	                         </tbody>
+	                     </table>
+	                 </div>
+	                 <div class="col-5-1">
+	                     <table>
+	                         <caption>회원현황</caption>
+	                         <thead>
+	                             <tr>
+	                                 <th colspan="3">회원현황</th>
+	                             </tr>
+	                         </thead>
+	                         <tbody>
+	                             <tr>
+	                                 <td>회원</td>
+	                                 <td class="rig"><span>${userSttusByDayList[0].totGnrlMmbCnt  + userSttusByDayList[0].totSuplerMmbCnt + userSttusByDayList[0].totGnrlMmbCnt}</span>명</td>
+	                                 <td>(<span>+1</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>공공기관</td>
+	                                 <td class="rig"><span>${userSttusByDayList[0].totPbMmbCnt}</span>명</td>
+	                                 <td>(<span>+${userSttusByDayList[0].todayPbMmbCnt}</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>기업회원</td>
+	                                 <td class="rig"><span>${userSttusByDayList[0].totSuplerMmbCnt}</span>명</td>
+	                                 <td>(<span>+${userSttusByDayList[0].todaySuplerMmbCnt}</span>)</td>
+	                             </tr>
+	                             <tr>
+	                                 <td>개인회원</td>
+	                                 <td class="rig"><span> ${userSttusByDayList[0].totGnrlMmbCnt}</span>명</td>
+	                                 <td>(<span>+${userSttusByDayList[0].todayGnrlMmbCnt}</span>)</td>
+	                             </tr>
+	                         </tbody>
+	                     </table>
+	                 </div>
+	                 <div class="col-5-1">
+	                     <div>
+	                         <table>
+	                             <caption>게시물현황</caption>
+	                             <thead>
+	                                 <tr>
+	                                     <th colspan="2">게시물현황</th>
+	                                 </tr>
+	                             </thead>
+	                             <tbody>
+	                                 <tr>
+	                                     <td>묻고답하기 답변대기</td>
+	                                     <td class="cen"><a href="#">${todayWorkList[0].replyWaitCnt}</a></td>
+	                                 </tr>
+	                                 <tr>
+	                                     <td>비즈매칭 답변대기</td>
+	                                     <td class="cen"><a href="#">0</a></td>
+	                                 </tr>
+	                             </tbody>
+	                         </table>
+	                     </div>
+	                     <div>
+	                         <table>
+	                             <caption>서비스현황</caption>
+	                             <thead>
+	                                 <tr>
+	                                     <th colspan="2">서비스현황</th>
+	                                 </tr>
+	                             </thead>
+	                             <tbody>
+	                                 <tr>
+	                                     <td>서비스 URL 상태</td>
+	                                     <td class="cen"><a href="#">이상</a></td>
+	                                     <!-- <td class="cen"><a href="#">정상</a></td> -->
+	                                 </tr>
+	                             </tbody>
+	                         </table>
+	                     </div>
+	                 </div>
+	             </div>
+	         </div>
+	         <div class="dashCont">
+	             <div class="clearfix">
+	                 <div> 
+	                     <dl class="dash_title">
+	                         <dt class="dast_txt_title">계약현황</dt>
+	                         <dd>총 계약금액 <strong>77,560,000,000</strong>원 (<span>116</span>건)</dd>
+	                     </dl>
+	                     <p class="dash_sel">
+	                         <span>조회기간</span>
+	                         <span class="sel_box">
+	                             <select>
+	                             <option>2018</option>
+	                             <option>2017</option>
+	                             <option>2016</option>
+	                             <option>2015</option>
+	                             </select>
+	                         </span>
+	                         <a href="#" class="btns st3">월</a>
+	                         <a href="#" class="btns st3">분기</a>
+	                     </p>
+	                 </div>
+	                 <div class="clearfix">
+	                     <div class="col-2-1 float_l">
+	                         <div class="barCharArea">
+	                             <p class="chart_title">
+	                                 계약금액현황
+	                                 <span>(단위: 억 원)</span>
+	                             </p>
+	                             <canvas id="barChart01"></canvas>
+	                             <script>
+	                                 var ctx = document.getElementById("barChart01").getContext('2d');
+	                                 var barChart01 = new Chart(ctx, {
+	                                     type: 'bar',
+	                                     data: {
+	                                         labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+	                                         datasets:  [{
+	                                             label: 'SaaS',
+	                                             backgroundColor: window.chartColors.red,
+	                                             data: [
+	                                                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+	                                             ]
+	                                         }, {
+	                                             label: 'PaaS',
+	                                             backgroundColor: window.chartColors.orange,
+	                                             data: [
+	                                                 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
+	                                             ]
+	                                         }, {
+	                                             label: 'IaaS',
+	                                             backgroundColor: window.chartColors.green,
+	                                             data: [
+	                                                 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
+	                                             ]
+	                                         }]
+	                                     },
+	                                     options: {
+	                                         tooltips: {
+	                                             mode: 'index',
+	                                             intersect: false
+	                                         },
+	                                         scales: {
+	                                             xAxes: [{
+	                                                 stacked: true,
+	                                             }],
+	                                             yAxes: [{
+	                                                 stacked: true
+	                                             }]
+	                                         }
+	                                     }
+	                                 });
+	                             </script>
+	                         </div>
+	                         <div class="doughnutArea">
+	                             <canvas id="doughnut01"></canvas>
+	                             <script>
+	                                 var ctx = document.getElementById("doughnut01").getContext('2d');
+	                                 var doughnut01 = new Chart(ctx, {
+	                                     type: 'doughnut',
+	                                     data: {
+	                                         datasets: [{
+	                                             data: [
+	                                                 20,
+	                                                 60,
+	                                                 80,
+	                                             ],
+	                                             backgroundColor: [
+	                                                 window.chartColors.red,
+	                                                 window.chartColors.orange,
+	                                                 window.chartColors.blue,
+	                                             ],
+	                                             label: 'Dataset 1'
+	                                         }],
+	                                         labels: [
+	                                             "SaaS",
+	                                             "PaaS",
+	                                             "IaaS"
+	                                         ]
+	                                     },
+	                                     options: {
+	                                         responsive: true,
+	                                         legend: {
+	                                             position: 'bottom',
+	                                         },
+	                                         title: {
+	                                             display: true,
+	                                             text: '계약금액 서비스 비율'
+	                                         },
+	                                         animation: {
+	                                             animateScale: true,
+	                                             animateRotate: true
+	                                         }
+	                                     }
+	                                 });
+	                             </script>
+	                         </div>
+	                         <div class="rankArea">
+	                             <div class="scrollArea_dash">
+	                                 <table>
+	                                     <caption>계약금액 TOP 10</caption>
+	                                     <thead>
+	                                         <tr>
+	                                             <th colspan="3" class="cen">계약금액 TOP 10</th>
+	                                         </tr>
+	                                     </thead>
+	                                     <tbody>
+	                                         <tr>
+	                                             <td>1</td>
+	                                             <td>한국언론진흥재단</td>
+	                                             <td><span>2,889,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>2</td>
+	                                             <td>한국정보화진흥원</td>
+	                                             <td><span>1,210,584,390</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>3</td>
+	                                             <td>울산미포산업단지</td>
+	                                             <td><span>297,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>4</td>
+	                                             <td>국토교통과학기술진흥원</td>
+	                                             <td><span>187,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>5</td>
+	                                             <td>한국항공우주연구원</td>
+	                                             <td><span>177,200,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>6</td>
+	                                             <td>서울사이버대학교</td>
+	                                             <td><span>151,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>7</td>
+	                                             <td>서울사이버대학교</td>
+	                                             <td><span>151,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>8</td>
+	                                             <td>한국수자원공사</td>
+	                                             <td><span>135,000,000</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>9</td>
+	                                             <td>한국인터넷진흥원</td>
+	                                             <td><span>130,229,700</span>원</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>10</td>
+	                                             <td>동북아역사재단</td>
+	                                             <td><span>92,667,588</span>원</td>
+	                                         </tr>
+	                                     </tbody>
+	                                 </table>
+	                             </div>
+	                         </div>
+	                     </div>
+	                     <div class="col-2-1 float_l">
+	                         <div class="barCharArea">
+	                             <p class="chart_title">
+	                                 계약건수현황
+	                                 <span>(단위: 건수)</span>
+	                             </p>
+	                             <canvas id="barChart02"></canvas>
+	                             <script>
+	                                 var ctx = document.getElementById("barChart02").getContext('2d');
+	                                 var barChart02 = new Chart(ctx, {
+	                                     type: 'bar',
+	                                     data: {
+	                                         labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+	                                         datasets:  [{
+	                                             label: 'SaaS',
+	                                             backgroundColor: window.chartColors.red,
+	                                             data: [
+	                                                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+	                                             ]
+	                                         }, {
+	                                             label: 'PaaS',
+	                                             backgroundColor: window.chartColors.orange,
+	                                             data: [
+	                                                 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
+	                                             ]
+	                                         }, {
+	                                             label: 'IaaS',
+	                                             backgroundColor: window.chartColors.green,
+	                                             data: [
+	                                                 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
+	                                             ]
+	                                         }]
+	                                     },
+	                                     options: {
+	                                         tooltips: {
+	                                             mode: 'index',
+	                                             intersect: false
+	                                         },
+	                                         scales: {
+	                                             xAxes: [{
+	                                                 stacked: true,
+	                                             }],
+	                                             yAxes: [{
+	                                                 stacked: true
+	                                             }]
+	                                         }
+	                                     }
+	                                 });
+	                             </script>
+	                         </div>
+	                         <div class="doughnutArea">
+	                             <canvas id="doughnut02"></canvas>
+	                             <script>
+	                                 var ctx = document.getElementById("doughnut02").getContext('2d');
+	                                 var doughnut02 = new Chart(ctx, {
+	                                     type: 'doughnut',
+	                                     data: {
+	                                         datasets: [{
+	                                             data: [
+	                                                 20,
+	                                                 60,
+	                                                 80,
+	                                             ],
+	                                             backgroundColor: [
+	                                                 window.chartColors.red,
+	                                                 window.chartColors.orange,
+	                                                 window.chartColors.blue,
+	                                             ],
+	                                             label: 'Dataset 2'
+	                                         }],
+	                                         labels: [
+	                                             "SaaS",
+	                                             "PaaS",
+	                                             "IaaS"
+	                                         ]
+	                                     },
+	                                     options: {
+	                                         responsive: true,
+	                                         legend: {
+	                                             position: 'bottom',
+	                                         },
+	                                         title: {
+	                                             display: true,
+	                                             text: '계약건수 서비스 비율'
+	                                         },
+	                                         animation: {
+	                                             animateScale: true,
+	                                             animateRotate: true
+	                                         }
+	                                     }
+	                                 });
+	                             </script>
+	                         </div>
+	                         <div class="rankArea">
+	                             <div class="scrollArea_dash">
+	                                 <table>
+	                                     <caption>계약건수 TOP 10</caption>
+	                                     <thead>
+	                                         <tr>
+	                                             <th colspan="3" class="cen">계약건수 TOP 10</th>
+	                                         </tr>
+	                                     </thead>
+	                                     <tbody>
+	                                         <tr>
+	                                             <td>1</td>
+	                                             <td>한국정보화진흥원</td>
+	                                             <td><span>9</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>2</td>
+	                                             <td>한국교육학술정보원</td>
+	                                             <td>7</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>3</td>
+	                                             <td>한국인터넷진흥원</td>
+	                                             <td>6</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>4</td>
+	                                             <td>정보통신산업지흥원</td>
+	                                             <td>5</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>5</td>
+	                                             <td>전자부품연구원</td>
+	                                             <td>5</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>6</td>
+	                                             <td>국립공원관리공단</td>
+	                                             <td>5</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>7</td>
+	                                             <td>한국전자통신연구원</td>
+	                                             <td>3</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>8</td>
+	                                             <td>동북아역사재단</td>
+	                                             <td>2</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>9</td>
+	                                             <td>한국연구재단</td>
+	                                             <td>2</td>
+	                                         </tr>
+	                                         <tr>
+	                                             <td>10</td>
+	                                             <td>세종대학교</td>
+	                                             <td>2</td>
+	                                         </tr>
+	                                     </tbody>
+	                                 </table>
+	                             </div>
+	                         </div>
+	                     </div>
+	                 </div>
+	             </div>
+	         </div>
+	     </div>
+	     <!-- dashboard -->
+<%-- 
+	<!-- dashboard -->
+	<div class="dash">
+		<!--  좌측 영역 -->
+		<div class="dash_lef">
+			<!-- 오늘의 할 일  -->
+	 		<h3>오늘의 할 일</h3>
+			<div class="todayDo">
+				<dl>
+					<dt>답변대기 <b>게시물</b></dt>
+					<dd>${todayWorkList[0].replyWaitCnt}</dd>
+				</dl>
+				<dl>
+					<dt>승인대기 <b>게시물</b></dt>
+					<dd>${todayWorkList[0].confmWaitCnt}</dd>
+				</dl>
+				<dl>
+					<dt>체결대기 <b>협약</b></dt>
+                        <c:if test="${todayWorkList[0].cnclsWaitCnt ne 0 }">
+                       		<!-- <a href="#" onclick="jsView(this,1001,1007);"> -->
+                       		<a href="#" onclick="makeTab('기본협약관리', '/intra/bassAgremManage/BD_index.do?menuCd=241&q_agremstat=1001,1002,1007', '241', 'UPDATE');">
+                      			<dd><u>${todayWorkList[0].cnclsWaitCnt}</u></dd>
+                      		</a>
+                        </c:if>
+                        <c:if test="${todayWorkList[0].cnclsWaitCnt eq 0 }">
+                        		<dd>${todayWorkList[0].cnclsWaitCnt}</dd>
+                        </c:if>
+				</dl>
+			</div>
+			<!--// 오늘의 할 일  -->
+			
+			<!-- 오늘의 서비스변동  -->
+			<h3>
+				<i>전시(비전시)</i>
+				오늘의 서비스변동(전월대비)
+			</h3>
+			<div>
+				<dl>
+					<dt>SaaS</dt>
+					<dd>${serviceProvsChangeList[0].dispSaasCnt}(${serviceProvsChangeList[0].nonDispSaasCnt})</dd>
+				</dl>
+				<dl>
+					<dt>PaaS</dt>
+					<dd>${serviceProvsChangeList[0].dispPaasCnt}(${serviceProvsChangeList[0].nonDispPaasCnt})</dd>
+				</dl>
+				<dl>
+					<dt>IaaS</dt>
+					<dd>${serviceProvsChangeList[0].dispIaasCnt}(${serviceProvsChangeList[0].nonDispIaasCnt})</dd>
+				</dl>		
+			</div>
+			<!--// 오늘의 서비스변동  -->		
+		
+			<!-- 비전시 서비스현황  -->
+			<h3>비전시 서비스현황(총&nbsp;${nonDspGoodsTotal}건)</h3>
+			<div>
+			    <c:forEach items="${typeOfGoodsList}" var="typeOfGoodsList" varStatus="status">
+                    <c:choose>
+                        <c:when test="${typeOfGoodsList.ctgryCd ne '9009'}">
+						    <dl>
+							    <dt>${typeOfGoodsList.ctgryNm}</dt>
+							    <dd>${typeOfGoodsList.nondspyCnt}</dd>
+						    </dl>
+                        </c:when>
+                    </c:choose>
+			    </c:forEach>
+			</div>
+			<!--// 비전시 서비스현황  -->
+	
+			<!-- 회원현황  -->			
+			<h3>
+				<i>금일가입/총회원</i>
+				회원현황
+			</h3>
+			<div>
+				<dl>
+					<dt>일반</dt>
+					<dd>${userSttusByDayList[0].todayGnrlMmbCnt} / ${userSttusByDayList[0].totGnrlMmbCnt}</dd>
+				</dl>
+				<dl>
+					<dt>공공</dt>
+					<dd>${userSttusByDayList[0].todayPbMmbCnt} / ${userSttusByDayList[0].totPbMmbCnt}</dd>
+				</dl>
+				<dl>
+					<dt>공급자</dt>
+					<dd>${userSttusByDayList[0].todaySuplerMmbCnt} / ${userSttusByDayList[0].totSuplerMmbCnt}</dd>
+				</dl>		
+			</div>
+			<!--// 회원현황  -->			
+			
+	 	</div>
+		<!--//  좌측 영역 -->
+		
+		<!-- 우측 영역 -->
+		<div class="dash_rig">
+			<h3>
+				<span>
+					<i class="fc_b">상세정보(견적)</i>  
+					<i class="fc_y">입찰공고</i>  
+					<i class="fc_g">종합쇼핑몰</i>  
+					<i class="fc_p">계약체결</i>
+				</span>
+				구매활동 일동향
+			</h3>
+			
+			<table class="buy">
+				<tr>
+				    <c:forEach items="${buyActTrendByDayList}" var="buyTrendList" varStatus="status">
+						<td>
+							<!-- 높이 = 개수 / 총개수 -->
+							<span>${buyTrendList.buyTrendBuyReqCnt}<i style="height:${buyTrendList.buyTrendBuyReqRate}px"></i></span>
+							<span>${buyTrendList.buyTrendBidCnt}<i style="height:${buyTrendList.buyTrendBidRate}px"></i></span>
+							<span>${buyTrendList.buyTrendCntrCnt}<i style="height:${buyTrendList.buyTrendCntrRate}px"></i></span>
+							<span>${buyTrendList.buyTrendIssueCnt}<i style="height:${buyTrendList.buyTrendIssueRate}px"></i></span>
+						</td>
+				    </c:forEach>
+				    
+				</tr>
+				<tr>
+			        <c:forEach items="${buyActTrendByDayList}" var="buyActTrendByDayTitle" varStatus="status">
+                        <c:choose>
+                            <c:when test="${buyActTrendByDayTitle.todayYn eq 'Y'}">
+                            <th class="today">${buyActTrendByDayTitle.cntrDt}&nbsp;(${buyActTrendByDayTitle.cntrSw})</th>
+                            </c:when>
+                            <c:otherwise>
+                            <th class="noData">${buyActTrendByDayTitle.cntrDt}&nbsp;(${buyActTrendByDayTitle.cntrSw})</th>
+                            </c:otherwise>
+                        </c:choose>
+			        </c:forEach>
+	
+				</tr>
+			</table>
+		
+			<h3>
+				<span>
+	 				<i class="fc_b">SaaS</i>
+					<i class="fc_g">Paas</i>
+					<i class="fc_y">IaaS</i>  
+				</span>
+				서비스전시 총동향(총&nbsp;${dspGoodsTotal}건)
+			</h3>
+			
+			<table class="display">
+				<tr>
+
+				    <c:forEach items="${serviceDispTrendList}" var="serviceDispTrendList" varStatus="status">
+						<td>
+							<!-- 높이 = 개수 / 총개수 -->
+							<span>${serviceDispTrendList.saasCnt}<i style="height:${serviceDispTrendList.saasRate}px"></i></span>
+							<span>${serviceDispTrendList.paasCnt}<i style="height:${serviceDispTrendList.paasRate}px"></i></span>
+							<span>${serviceDispTrendList.iaasCnt}<i style="height:${serviceDispTrendList.iaasRate}px"></i></span>
+						</td>
+				    </c:forEach>
+				</tr>
+				<tr>
+			        <c:forEach items="${serviceDispTrendList}" var="serviceDispTrendTitle" varStatus="status">
+                        <c:choose>
+                            <c:when test="${serviceDispTrendTitle.todayYn eq 'Y'}">
+                            <th class="today">${serviceDispTrendTitle.cntrDt}&nbsp;(${serviceDispTrendTitle.cntrSw})</th>
+                            </c:when>
+                            <c:otherwise>
+                            <th class="noData">${serviceDispTrendTitle.cntrDt}&nbsp;(${serviceDispTrendTitle.cntrSw})</th>
+                            </c:otherwise>
+                        </c:choose>
+			        </c:forEach>
+				</tr>
+			</table>
+		
+			<h3>
+				<i>계약건수/금액(천원)</i>		
+				계약 일동향(총 ${cntrTotAmountList[0].cntrTotCnt}건/<fmt:formatNumber value="${cntrTotAmountList[0].cntrTotAmount}" groupingUsed="true"/>천원)
+			</h3>
+			
+			<table class="contract">
+				<tr>
+			        <c:forEach items="${cntrAmountList}" var="cntrAmountData" varStatus="status">
+			            <td><em>${cntrAmountData.cntrCnt}</em>/<fmt:formatNumber value="${cntrAmountData.cntrAmount}" groupingUsed="true"/></td>
+			        </c:forEach>
+				</tr>
+				<tr>
+			        <c:forEach items="${cntrAmountList}" var="cntrAmountTitle" varStatus="status">
+                        <c:choose>
+                            <c:when test="${cntrAmountTitle.todayYn eq 'Y'}">
+                            <th class="today">${cntrAmountTitle.cntrDt}&nbsp;(${cntrAmountTitle.cntrSw})</th>
+                            </c:when>
+                            <c:otherwise>
+                            <th class="noData">${cntrAmountTitle.cntrDt}&nbsp;(${cntrAmountTitle.cntrSw})</th>
+                            </c:otherwise>
+                        </c:choose>
+			        </c:forEach>
+				</tr>
+			</table>		
+		</div>
+		<!--// 우측 영역 -->	
+	</div>
+	<!-- dashboard -->	 --%>
+</body>
+</html>

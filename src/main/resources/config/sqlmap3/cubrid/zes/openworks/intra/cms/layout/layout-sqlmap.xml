@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    ========================================================= 
+    * Description : Layout 관리 sqlmap 정의 파일 
+    * Create : xanadu 
+    * $Id: layout-sqlmap.xml 382 2010-02-16 11:10:05Z xanadu $ 
+    ======================================================== 
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="intra.cms.layout">
+
+    <select id="getLayout" parameterType="layoutVO" resultType="layoutVO">
+		/* intra.cms.layout.getLayout */
+        SELECT
+            A.DOMAIN_CD AS domainCd,
+            (SELECT DOMAIN_DC FROM OP_DOMAIN WHERE DOMAIN_CD = A.DOMAIN_CD) AS domainNm,
+            A.LAYOUT_CODE AS layoutCode,
+            A.LAYOUT_DC AS layoutDesc,
+            A.LAYOUT_CNTNTS AS layoutContent,
+            A.LAYOUT_FILE_PATH AS filePath,
+            A.REGIST_ID AS regId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.REGIST_ID) AS regNm,
+            TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS regDt,
+            A.UPDT_ID AS modId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = A.UPDT_ID) AS modNm,
+            TO_CHAR(A.UPDT_DT, 'YYYY-MM-DD') AS modDt
+        FROM
+            OP_USER_MENU_LAYOUT A
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND A.LAYOUT_CODE = #{layoutCode}
+    </select>
+
+    <select id="getLayoutList" parameterType="layoutVO" resultType="layoutVO">
+		/* intra.cms.layout.getLayoutList */
+        SELECT
+            DOMAIN_CD AS domainCd,
+            (SELECT DOMAIN_DC FROM OP_DOMAIN WHERE DOMAIN_CD = OP_USER_MENU_LAYOUT.DOMAIN_CD) AS domainNm,
+            LAYOUT_CODE AS layoutCode,
+            LAYOUT_DC AS layoutDesc,
+            LAYOUT_FILE_PATH AS filePath,
+            REGIST_ID AS regId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU_LAYOUT.REGIST_ID) AS regNm,
+            TO_CHAR(REGIST_DT, 'YYYY-MM-DD') AS regDt,
+            UPDT_ID AS modId,
+            (SELECT MNGR_NM FROM OP_MNGR WHERE MNGR_ID = OP_USER_MENU_LAYOUT.UPDT_ID) AS modNm,
+            TO_CHAR(UPDT_DT, 'YYYY-MM-DD') AS modDt
+        FROM
+            OP_USER_MENU_LAYOUT
+        <where>
+            <if test="domainCd != null  and domainCd != ''">AND
+                DOMAIN_CD = #{domainCd}
+            </if>
+            <if test="layoutCode != null  and layoutCode != ''">AND
+                LAYOUT_CODE = #{layoutCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="getLayoutListCount" parameterType="layoutVO" resultType="int">
+		/* intra.cms.layout.getLayoutListCount */
+        SELECT
+            COUNT(LAYOUT_CODE) AS cnt
+        FROM
+            OP_USER_MENU_LAYOUT
+        <where>
+            <if test="domainCd != null and domainCd != ''">AND
+                DOMAIN_CD = #{domainCd}
+            </if>
+            <if test="layoutCode != null and layoutCode != ''">AND
+                LAYOUT_CODE = #{layoutCode}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertLayout" parameterType="layoutVO">
+		/* intra.cms.layout.insertLayout */
+        INSERT INTO OP_USER_MENU_LAYOUT (
+            DOMAIN_CD,
+            LAYOUT_CODE,
+            LAYOUT_DC,
+            LAYOUT_CNTNTS,
+            LAYOUT_FILE_PATH,
+            REGIST_ID,
+            REGIST_DT
+        ) VALUES (
+            #{domainCd},
+            #{layoutCode},
+            #{layoutDesc},
+            #{layoutContent},
+            #{filePath},
+            #{regId},
+            SYS_DATETIME
+        )
+    </insert>
+
+    <update id="updateLayout" parameterType="layoutVO">
+		/* intra.cms.layout.updateLayout */
+        UPDATE OP_USER_MENU_LAYOUT SET
+            LAYOUT_CODE = #{layoutCode},
+            LAYOUT_DC = #{layoutDesc},
+            LAYOUT_CNTNTS = #{layoutContent},
+            LAYOUT_FILE_PATH = #{filePath},
+            UPDT_ID = #{modId},
+            UPDT_DT = SYS_DATETIME
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND LAYOUT_CODE = #{layoutCode}
+    </update>
+
+    <delete id="deleteLayout" parameterType="layoutVO">
+		/* intra.cms.layout.deleteLayout */
+        DELETE FROM OP_USER_MENU_LAYOUT
+        WHERE
+                DOMAIN_CD = #{domainCd}
+            AND LAYOUT_CODE = #{layoutCode}
+    </delete>
+
+</mapper>

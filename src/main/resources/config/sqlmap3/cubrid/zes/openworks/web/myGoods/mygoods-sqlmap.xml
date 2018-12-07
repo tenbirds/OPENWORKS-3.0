@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_mygoods">
+
+   <sql id="dynamicWhere">
+   
+            <if test="q_searchVal != null  and q_searchVal != ''">
+<!-- 
+                AND ((LOWER(B.GOODS_NM) LIKE '%' || LOWER(#{q_searchVal}) || '%') OR
+                     (LOWER(B.GOODS_SUMRY) LIKE '%' || LOWER(#{q_searchVal}) || '%'))
+-->
+                AND (LOWER(B.GOODS_NM) LIKE '%' || LOWER(#{q_searchVal}) || '%')                
+            </if>
+            
+            <choose>
+            <when test="q_goodsTyCd != null  and q_goodsTyCd != ''">
+                AND A.GOODS_CODE IN
+                            ( SELECT  C.GOODS_CODE
+                                FROM  TST_GOOD_CATE_I C, TST_CATE_MGMT_M D
+                               WHERE  C.CTGRY_CODE = D.CTGRY_CODE                         
+                                 AND  D.LANG_CODE = #{q_langCode}
+                                 AND  D.CTGRY_CL_CD IN 
+                                 <foreach item="item" index="index" collection="q_goodsTyCd" open="(" separator=", " close=")">TRIM(#{item})</foreach>
+                            GROUP BY  C.GOODS_CODE )
+            </when>
+            <otherwise>
+               AND 1=1
+            </otherwise>
+            </choose>            
+            <if test="q_beginDate != null  and q_beginDate != ''">
+                AND A.ORDER_DT BETWEEN
+                    TO_DATE(#{q_beginDate},'YYYY-MM-DD') 
+                AND TO_DATE(#{q_endDate},'YYYY-MM-DD') + 1
+            </if>
+    </sql>
+
+    <select id="shoppingList" parameterType="map" resultType="myGoodsVO">
+    /*_mygoods.shoppingList*/
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+				SELECT A.GOODS_CODE AS goodsCode,
+				       B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+				       A.PURCHS_NO AS purchsNo, B.GOODS_NM AS goodsNm,
+				       B.GOODS_PC AS goodsPc,
+				       B.SLE_MTHD_CD AS sleMthdCd,
+				       DECODE(A.ORDER_CNFIRM_AT,'Y','확인','N','미확인') AS orderCnfirmAt,
+				       A.DLIV_MSSAGE AS dlivMssage,
+				       B.USER_ID AS userId,
+				       ( SELECT
+				            (CASE WHEN OP_USER.USER_TY_CD=1002 THEN
+                                 (SELECT CMPNY_NM FROM OP_USER_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                                  WHEN OP_USER.USER_TY_CD=2002 THEN 
+                                 (SELECT CMPNY_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                             END)
+                         FROM OP_USER
+                        WHERE USER_ID = B.USER_ID) AS cmpnyNm,				       
+				       (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS storeNm,
+				       (SELECT CMMNTY_ID
+				          FROM TCM_CMNT_INFO_I
+				         WHERE MNGR_CLS_AT = 'N'
+				           AND CMMNTY_STTUS_CD = '1002'
+				           AND LANG_CODE = B.LANG_CODE
+				           AND USER_ID = B.USER_ID
+				      ORDER BY CONFM_DT DESC
+				         LIMIT 1) AS cmmntyId,
+				       TO_CHAR(A.ORDER_DT, 'YYYY.MM.DD HH24:MI') AS orderDt
+				 FROM TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+				WHERE A.GOODS_CODE = B.GOODS_CODE
+				  AND A.ORDRR_ID = #{q_userId}
+				  <include refid="dynamicWhere"/>
+				ORDER BY A.ORDER_DT DESC
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}				
+    </select>
+    
+    <select id="shoppingListCount" parameterType="map" resultType="int">
+    /*_mygoods.shoppingListCount*/
+         SELECT
+                COUNT(1) AS totalCount
+           FROM TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+          WHERE A.GOODS_CODE = B.GOODS_CODE
+            AND A.ORDRR_ID = #{q_userId}
+            <include refid="dynamicWhere"/>
+    </select>
+    
+    <sql id="dynamicWhere2">
+   
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND ((LOWER(B.GOODS_NM) LIKE '%' || LOWER(#{q_searchVal}) || '%') OR
+                     (LOWER(B.GOODS_SUMRY) LIKE '%' || LOWER(#{q_searchVal}) || '%'))
+                
+            </if>
+            
+            <choose>
+            <when test="q_goodsTyCd != null  and q_goodsTyCd != ''">
+                AND A.GOODS_CODE IN
+                            ( SELECT  C.GOODS_CODE
+                                FROM  TST_GOOD_CATE_I C, TST_CATE_MGMT_M D
+                               WHERE  C.CTGRY_CODE = D.CTGRY_CODE                         
+                                 AND  D.LANG_CODE = #{q_langCode}
+                                 AND  D.CTGRY_CL_CD IN 
+                                 <foreach item="item" index="index" collection="q_goodsTyCd" open="(" separator=", " close=")">TRIM(#{item})</foreach>
+                            GROUP BY  C.GOODS_CODE )
+            </when>
+            <otherwise>
+               AND 1=1
+            </otherwise>
+            </choose>            
+            <if test="q_beginDate != null  and q_beginDate != ''">
+                AND A.INTRST_SETUP_DT BETWEEN
+                    TO_DATE(#{q_beginDate},'YYYY-MM-DD') 
+                AND TO_DATE(#{q_endDate},'YYYY-MM-DD') + 1
+            </if>
+            <if test="q_goodsCode != null and q_goodsCode != ''">
+                AND A.GOODS_CODE = #{q_goodsCode}
+            </if>
+    </sql>
+    
+    <select id="intrstList" parameterType="map" resultType="myGoodsVO">
+    /*_mygoods.intrstList*/
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT A.GOODS_CODE AS goodsCode,
+                       B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+                       B.GOODS_NM AS goodsNm, 
+                       B.GOODS_PC AS goodsPc,
+                       (SELECT FORMAT(COUNT(GOODS_CODE), 0) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt,
+                       (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore,
+                       B.USER_ID AS userId,
+                       ( SELECT
+                            (CASE WHEN OP_USER.USER_TY_CD=1002 THEN
+                                 (SELECT CMPNY_NM FROM OP_USER_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                                  WHEN OP_USER.USER_TY_CD=2002 THEN 
+                                 (SELECT CMPNY_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                             END)
+                         FROM OP_USER
+                        WHERE USER_ID = B.USER_ID) AS cmpnyNm,                     
+                       (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS storeNm,
+                       (SELECT CMMNTY_ID
+                          FROM TCM_CMNT_INFO_I
+                         WHERE MNGR_CLS_AT = 'N'
+                           AND CMMNTY_STTUS_CD = '1002'
+                           AND LANG_CODE = B.LANG_CODE
+                           AND USER_ID = B.USER_ID
+                      ORDER BY CONFM_DT DESC
+                         LIMIT 1) AS cmmntyId,
+                       TO_CHAR(A.INTRST_SETUP_DT , 'YYYY.MM.DD HH24:MI') AS intrstSetupDt,
+                        (CASE WHEN ((B.goods_regist_sttus = 1007) OR (B.mngr_delete_at = 'Y') OR (B.goods_actvty_at = 'N')) THEN 'Y' ELSE 'N' END) AS sellStop
+                 FROM TUM_ITST_GOOD_I A, TST_GOOD_INFO_I B
+                WHERE A.GOODS_CODE = B.GOODS_CODE
+                  AND A.USER_ID = #{q_userId}
+                  <include refid="dynamicWhere2"/>
+                ORDER BY A.INTRST_SETUP_DT DESC
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}               
+    </select>
+    
+    <select id="intrstListCount" parameterType="map" resultType="int">
+    /*_mygoods.intrstListCount*/
+         SELECT
+                COUNT(1) AS totalCount
+           FROM TUM_ITST_GOOD_I A, TST_GOOD_INFO_I B
+          WHERE A.GOODS_CODE = B.GOODS_CODE
+            AND A.USER_ID = #{q_userId}
+            <include refid="dynamicWhere2"/>
+    </select>
+    
+    <delete id="intrstDelete" parameterType="myGoodsVO">
+        DELETE FROM TUM_ITST_GOOD_I
+        WHERE GOODS_CODE = #{goodsCode}
+          AND USER_ID = #{userId} 
+    </delete>
+    
+    <select id="recentList" parameterType="map" resultType="myGoodsVO">
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT A.GOODS_CODE AS goodsCode,
+                       B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+                       B.GOODS_NM AS goodsNm,
+                       B.GOODS_PC AS goodsPc, 
+                       (SELECT FORMAT(COUNT(GOODS_CODE), 0) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt,
+                       (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore,
+                       B.USER_ID AS userId,
+                       ( SELECT
+                            (CASE WHEN OP_USER.USER_TY_CD=1002 THEN
+                                 (SELECT CMPNY_NM FROM OP_USER_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                                  WHEN OP_USER.USER_TY_CD=2002 THEN 
+                                 (SELECT CMPNY_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID=OP_USER.USER_ID)
+                             END)
+                         FROM OP_USER
+                        WHERE USER_ID = B.USER_ID) AS cmpnyNm,                     
+                       (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS storeNm,
+                       (SELECT CMMNTY_ID
+                          FROM TCM_CMNT_INFO_I
+                         WHERE MNGR_CLS_AT = 'N'
+                           AND CMMNTY_STTUS_CD = '1002'
+                           AND LANG_CODE = B.LANG_CODE
+                           AND USER_ID = B.USER_ID
+                      ORDER BY CONFM_DT DESC
+                         LIMIT 1) AS cmmntyId,
+                       TO_CHAR(A.INQIRE_DT , 'YYYY.MM.DD HH24:MI') AS inqireDt,
+                        (CASE WHEN ((B.GOODS_REGIST_STTUS = 1007) OR (B.MNGR_DELETE_AT = 'Y') OR (B.GOODS_ACTVTY_AT = 'N')) THEN 'Y' ELSE 'N' END) AS sellStop
+                 FROM TUM_RCNT_GOOD_I A, TST_GOOD_INFO_I B
+                WHERE A.GOODS_CODE = B.GOODS_CODE
+                  AND A.INQIRE_DT BETWEEN SYSDATE - 6 AND SYSDATE + 1
+                  AND B.GOODS_ACTVTY_AT = 'Y' AND B.MNGR_DELETE_AT = 'N' AND B.GOODS_REGIST_STTUS = 1006
+                  AND A.USER_ID = #{q_userId}                  
+                ORDER BY A.INQIRE_DT DESC
+                LIMIT 30
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}               
+    </select>
+    
+    <select id="selectGoodsPPS" parameterType="map" resultType="GoodsPPSVO">
+    /*_mygoods.selectGoodsPPS*/
+        SELECT CNTR_UNUM				 as cntrUnum
+             , CNTR_NUM					 as cntrNum	
+             , LINE_NUM					 as lineNum
+             , ITEM_NAME				 as itemName
+             , ITEM_UNIT				 as itemUnit
+             , UNIT_PRIC				 as unitPric             
+          FROM TST_GOOD_INFO_I AS A,
+          	   TCN_PPS_GOOD_INFO_L AS B
+		  WHERE A.GOODS_CODE = B.GOODS_CODE
+		  	AND A.GOODS_CODE = #{goodsCode}
+		  	AND B.ITEM_USE ='Y'
+		  	AND B.ITEM_DELETE ='N'
+		  	AND B.ITEM_DEALSTOP ='N'
+		  	AND B.ITEM_ORDER_BLOCK ='N'
+		  	AND B.UNIT_PRIC > 0
+	</select>
+</mapper>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+<script>
+$(document).ready(function(){
+	/*
+	var layer_pop = $('.layer-pop .pop-cont.orange');
+	var title_h = $('.layer-pop .pop-cont.orange h3').height();
+	var post_search_h = $('.layer-pop .pop-cont.orange.post-area .post-search').height() + 25 + 35;
+	var table_h = $('.layer-pop .pop-cont.orange table').height();
+	var layer_pop_cont_h = title_h + post_search_h +table_h;
+	var layer_pop_position = ($(window).height() - layer_pop_cont_h) / 2;
+	layer_pop.css({
+		top : layer_pop_position ,
+		bottom : layer_pop_position
+	});
+	*/
+});
+</script>
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="join-wrap">
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>해외 개인 판매회원 가입</h2>
+					<div class="step">                    
+						<span class="step01"><em>인증</em></span>                    
+						<span class="step02"><em>약관 동의</em></span>
+						<span class="step03 on"><em>정보 입력</em></span>
+						<span class="step04"><em>가입 완료</em></span>
+					</div>
+				</div>
+				<!-- //title-area -->
+								
+				<!-- section : 개인정보 -->
+				<div class="section">
+					<div class="txt-info">
+						<h4>개인 정보</h4>
+						<span class="txt-add"><strong>*</strong>으로 표시된 항목은 필수 입력 사항입니다.</span>
+					</div>
+
+					<div class="join-area">					
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span class="point">아이디</span></th>
+										<td colspan="3">
+											<input type="text" class="w304" /><a href="#" class="b-btn ml10 type1"><strong><span>중복 확인</span></strong></a>
+											<!-- tooltip -->
+											<span class="tooltip">
+												<a href="#" class="s-btn ml10 w20 tooltip type1"><strong><span>?</span></strong></a>
+												<div class="tooltip-box">
+													<strong>타이틀</strong>
+													<p>내용이 들어가는곳</p>
+												</div>
+											</span>
+											<!-- //tooltip -->
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">비밀번호</span></th>
+										<td>
+											<input type="password" class="w304" />
+											<!-- tooltip -->
+											<span class="tooltip">
+												<a href="#" class="s-btn ml10 w20 tooltip type1"><strong><span>?</span></strong></a>
+												<div class="tooltip-box">
+													<strong>타이틀</strong>
+													<p>내용이 들어가는곳</p>
+												</div>
+											</span>
+											<!-- //tooltip -->
+											<!-- 비밀번호 입력했을 때 나오는 문구 -->
+											<!-- <p class="txt-import">10 ~ 16자리 이내의 값을 입력하세요.</p> -->
+											<!-- <p class="txt-import">필수입력 항목입니다.</p> -->
+											<!-- //비밀번호 입력했을 때 나오는 문구 -->
+										</td>
+										<th><span class="point">비밀번호 확인</span></th>
+										<td>
+											<input type="password" class="w304" />
+											<!-- 비밀번호 확인 입력했을 때 나오는 문구 -->
+											<!-- <p class="txt-import">비밀번호 확인을 입력해주세요.</p> -->
+											<!-- //비밀번호 확인 입력했을 때 나오는 문구 -->
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이름</span></th>
+										<td><input type="text" class="w304" /></td>
+										<th><span class="point">국가</span></th>
+										<td><input type="text" class="w304" /></td>
+									</tr>
+									<tr>
+										<th><span class="point">성별</span></th>
+										<td colspan="3">
+											<!-- static select -->
+											<div class="select-area">
+												<!-- select box -->
+												<div class="sech_form">
+													<div class="cont_wrap">
+
+														<div class="selected">
+															<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>-- 선택 --</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+																<option value="">남자</option>
+																<option value="">여자</option>
+																<option value="">기타</option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<!-- //select box -->
+											</div>
+											<!-- //static select -->										
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">생년월일</span></th>
+										<td colspan="3"><input type="text" class="w124" /><span class="caption ml10">예) 20140101</span></td>
+									</tr>
+									<tr>
+										<th><span>전화번호</span></th>
+										<td colspan="3">
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+											<span class="caption ml20">내선</span><input type="text" class="w124 ml10" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">휴대전화</span></th>
+										<td colspan="3">
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+											<span class="caption ml20">이벤트/정보 SMS</span><input type="radio" class="ml20" id="" /> <label for="">수신동의</label><input type="radio" class="ml10" id="" /> <label for="">수신거부</label>
+											<p class="caption mt10">※ 개인정보 변경, 상품등록/상태 변경, 전문가상담 등과 관련된 내용은 수신동의 여부와 관계없이 SMS가 발송됩니다.</p>
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이메일 주소</span></th>
+										<td colspan="3">
+											<input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" /><a href="#" class="b-btn ml10 type1"><strong><span>중복 확인</span></strong></a>
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이메일 수신동의</span></th>
+										<td colspan="3">
+											<ul class="check-list">
+											<li>
+												<strong>광고홍보 이메일</strong>
+												<span>
+													<input type="radio" id="" /> <label for="">수신동의</label><input type="radio" class="ml10" id="" /> <label for="">수신거부</label>
+												</span>
+											</li>
+											<li>
+												<strong>뉴스레터/세미나 이메일</strong>
+												<span>
+													<input type="radio" id="" /> <label for="">수신동의</label><input type="radio" class="ml10" id="" /> <label for="">수신거부</label>
+												</span>
+											</li>
+											<li>
+												<strong>입찰공고 이메일</strong>
+												<span>
+													<input type="radio" id="" /> <label for="">수신동의</label><input type="radio" class="ml10" id="" /> <label for="">수신거부</label>
+												</span>
+											</li>
+											</ul>
+											<p class="mt20 caption">※ 개인정보 변경, 상품등록/상태 변경, 전문가상담 등과 관련된 내용은 수신동의 여부와 관계없이 이메일이 발송됩니다.</p>
+										</td>
+									</tr>
+									<tr>
+										<th><span>주소</span></th>
+										<td colspan="3"><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /><a href="#" class="b-btn ml10 post type1"><strong><span>우편번호</span></strong></a><br /><input type="text" class="w404 mt10" /><input type="text" class="w404 mt10 ml10" /></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>
+				<!-- //section : 개인 정보 -->
+				<!-- section 회사 정보 -->
+				<div class="section">
+					<div class="txt-info">
+						<h4>회사 정보</h4>
+					</div>
+
+					<div class="join-area">					
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span>회사명</span></th>
+										<td>
+											<input type="text" class="w304" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 대표자 이름</span></th>
+										<td>
+											<input type="text" class="w304" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>사업자 등록번호</span></th>
+										<td>
+											<input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 대표번호</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+											<span class="caption ml20">내선</span><input type="text" class="w124 ml10" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 전화번호</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사팩스</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 이메일 주소</span></th>
+										<td>
+											<input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" />
+											<!-- static select -->
+											<div class="select-area">
+												<!-- select box -->
+												<div class="sech_form">
+													<div class="cont_wrap">
+													
+														<div class="selected">
+															<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>직접입력</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+																<option value=""></option>
+																<option value=""></option>
+																<option value=""></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<!-- //select box -->
+											</div>
+											<!-- //static select -->
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 URL</span></th>
+										<td>
+											<input type="text" class="w304" />
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 주소</span></th>
+										<td>
+											<input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /><a href="#" class="b-btn ml10 post type1"><strong><span>우편번호</span></strong></a><br /><input type="text" class="w404 mt10" /><input type="text" class="w404 mt10 ml10" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>
+				<!-- //section 회사 정보 -->				
+				<!-- section 다국어 판매정보 -->
+				<div class="section">
+					<div class="txt-info">
+						<h4>다국어 판매정보</h4>
+					</div>
+
+					<div class="join-area">					
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span class="point">언어선택</span></th>
+										<td>
+											<input type="radio" id="" /> <label for="">한국어</label><input type="radio" class="ml20" id="" /> <label for="">영어</label><input type="radio" class="ml20" id="" /> <label for="">스페인어</label>
+										</td>
+									</tr>
+									<tr>
+										<th><span>회사 로고</span></th>
+										<td>
+											<div class="company-logo">
+												<span class="no-img">
+													<img src="/new_cloud/images/sub/img-logo-noimg.jpg" alt="회사 로고 이미지" /><!-- 114*85 -->
+												</span>
+												<div class="desc ml10">
+													<a href="#" class="s-btn w20 type1"><strong><span>X</span></strong></a><a href="#" class="b-btn ml10 type1"><strong><span>파일선택</span></strong></a>
+													<p class="caption mt10">※ JPG , GIF 형식의 10MB 미만 파일만 업로드 가능합니다.</p>
+													<p class="caption">※ 이미지 사이즈는 200 x 100를 권장합니다.</p>
+													<p class="caption">※ 이미지 미등록시 기본이미지가 노출됩니다.</p>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- //section 다국어 판매정보 -->
+				<!-- section 한국어 -->
+				<div class="section language-list">
+					<div class="txt-info">
+						<h4>한국어</h4>
+						<button class="btn-toggle close">닫기</button>
+					</div>
+
+					<div class="join-area korean">
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span class="point">회사명(한국어)</span></th>
+										<td>
+											<input type="text" class="w304" /><a href="#" class="b-btn ml10 type1"><strong><span>중복 확인</span></strong></a>
+											<!-- tooltip -->
+											<span class="tooltip">
+												<a href="#" class="s-btn ml10 w20 tooltip type1"><strong><span>?</span></strong></a>
+												<div class="tooltip-box">
+													<strong>타이틀</strong>
+													<p>내용이 들어가는곳</p>
+												</div>
+											</span>
+											<!-- //tooltip -->
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">회사소개</span></th>
+										<td>
+											<textarea></textarea>											
+										</td>
+									</tr>
+									<tr>
+										<th colspan="2">
+											<input type="radio" id="" /> <label for=""><strong>동일 정보 적용 (담당자, 회사 대표번호, 회사 이메일 주소, 회사 URL)</strong></label>
+										</th>
+									</tr>
+									<tr>
+										<th><span class="point">담당자</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">전화번호</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이메일 주소</span></th>
+										<td>
+											<input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" />
+											<!-- static select -->
+											<div class="select-area">
+												<!-- select box -->
+												<div class="sech_form">
+													<div class="cont_wrap">
+
+														<div class="selected">
+															<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>직접입력</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+																<option value=""></option>
+																<option value=""></option>
+																<option value=""></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<!-- //select box -->
+											</div>
+											<!-- //static select -->
+										</td>
+									</tr>
+									<tr>
+										<th><span>URL(홈/블로그)</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- //section 한국어 -->
+				<!-- section 영어 -->
+				<div class="section language-list">
+					<div class="txt-info">
+						<h4>영어</h4>
+						<button class="btn-toggle open">열기</button>
+					</div>
+
+					<div class="join-area english">
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span class="point">회사명(영어)</span></th>
+										<td>
+											<input type="text" class="w304" /><a href="#" class="b-btn ml10 type1"><strong><span>중복 확인</span></strong></a>
+											<!-- tooltip -->
+											<span class="tooltip">
+												<a href="#" class="s-btn ml10 w20 tooltip type1"><strong><span>?</span></strong></a>
+												<div class="tooltip-box">
+													<strong>타이틀</strong>
+													<p>내용이 들어가는곳</p>
+												</div>
+											</span>
+											<!-- //tooltip -->
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">회사소개</span></th>
+										<td>
+											<textarea></textarea>											
+										</td>
+									</tr>
+									<tr>
+										<th colspan="2">
+											<input type="radio" id="" /> <label for=""><strong>동일 정보 적용 (담당자, 회사 대표번호, 회사 이메일 주소, 회사 URL)</strong></label>
+										</th>
+									</tr>
+									<tr>
+										<th><span class="point">담당자</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">전화번호</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이메일 주소</span></th>
+										<td>
+											<input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" />
+											<!-- static select -->
+											<div class="select-area">
+												<!-- select box -->
+												<div class="sech_form">
+													<div class="cont_wrap">
+														
+														<div class="selected">
+															<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>직접입력</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+																<option value=""></option>
+																<option value=""></option>
+																<option value=""></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<!-- //select box -->
+											</div>
+											<!-- //static select -->
+										</td>
+									</tr>
+									<tr>
+										<th><span>URL(홈/블로그)</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- //section 영어 -->
+				<!-- section 스페인어 -->
+				<div class="section language-list">
+					<div class="txt-info">
+						<h4>스페인어</h4>
+						<button class="btn-toggle-other open">열기</button>
+					</div>
+
+					<div class="join-area spanish">
+						<div class="type-write">
+							<table>
+								<colgroup>
+									<col style="width:150px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><span class="point">회사명(스페인어)</span></th>
+										<td>
+											<input type="text" class="w304" /><a href="#" class="b-btn ml10 type1"><strong><span>중복 확인</span></strong></a>
+											<!-- tooltip -->
+											<span class="tooltip">
+												<a href="#" class="s-btn ml10 w20 tooltip type1"><strong><span>?</span></strong></a>
+												<div class="tooltip-box">
+													<strong>타이틀</strong>
+													<p>내용이 들어가는곳</p>
+												</div>
+											</span>
+											<!-- //tooltip -->
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">회사소개</span></th>
+										<td>
+											<textarea></textarea>											
+										</td>
+									</tr>
+									<tr>
+										<th colspan="2">
+											<input type="radio" id="" /> <label for=""><strong>동일 정보 적용 (담당자, 회사 대표번호, 회사 이메일 주소, 회사 URL)</strong></label>
+										</th>
+									</tr>
+									<tr>
+										<th><span class="point">담당자</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">전화번호</span></th>
+										<td>
+											<input type="text" class="w124 bg" /><input type="text" class="w124 ml10" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" />
+										</td>
+									</tr>
+									<tr>
+										<th><span class="point">이메일 주소</span></th>
+										<td>
+											<input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" />
+											<!-- static select -->
+											<div class="select-area">
+												<!-- select box -->
+												<div class="sech_form">
+													<div class="cont_wrap">
+														
+														<div class="selected">
+															<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>직접입력</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+																<option value=""></option>
+																<option value=""></option>
+																<option value=""></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<!-- //select box -->
+											</div>
+											<!-- //static select -->
+										</td>
+									</tr>
+									<tr>
+										<th><span>URL(홈/블로그)</span></th>
+										<td>
+											<input type="text" class="w404" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- //section 스페인어 -->
+				<!-- section 관심분야 -->
+				<div class="section">
+					<div class="txt-info">
+						<h4>관심분야(다중선택 가능)</h4>
+						<a href="#" class="b-btn ml10 type1"><strong><span>선택</span></strong></a>						
+					</div>
+
+					<div class="join-area">					
+						<div class="type-write multi-select">
+							<table>
+								<colgroup>
+									<col style="width:220px;" />
+									<col style="width:;" />
+								</colgroup>
+								<tbody>									
+									<tr>
+										<th><span>· 솔루션/서비스</span></th>
+										<td>
+											<ul class="multi-list">
+												<li><span>솔루션/서비스</span><span> > 기술 > 시스템 ></span><span> 운영체제</span></li>
+												<li><span>솔루션/서비스</span><span> > 기술 > 시스템 ></span><span> 운영체제</span></li>
+												<li><span>솔루션/서비스</span><span> > 기술 > 시스템 ></span><span> 운영체제</span></li>
+											</ul>
+										</td>
+									</tr>
+									<tr>
+										<th><span>· IT전문가서비스</span></th>
+										<td>
+											<ul class="multi-list">
+												<li><span>솔루션/서비스</span><span> > 기술 > 시스템 ></span><span> 운영체제</span></li>
+											</ul>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- //section 관심분야 -->
+				<!-- btn -->
+				<div class="btn-area">
+					<a href="#" class="b-btn cancel fl type1"><strong><span>취 소</span></strong></a>			
+					<a href="#" class="b-btn write fr type2"><strong><span>정보 입력하기</span></strong></a>
+				</div>
+				<!-- //btn -->
+
+			</div>
+			<!-- //contents -->
+
+			<!-- layer popup -->
+			<div class="layer-pop">
+				<div class="bg"></div>
+				<div class="pop-cont orange post-area">
+					<button class="btn-close">닫기</button>
+					<h3>주소찾기</h3>
+					<!-- 번지 검색 -->
+					<div class="post-search">
+						<dl class="searching">
+							<dt>· 시도</dt>
+							<dd>
+								<!-- static select -->
+								<div class="select-area">
+									<!-- select box -->
+									<div class="sech_form">
+										<div class="cont_wrap">
+
+											<div class="selected">
+												<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>-- 선택 --</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+													<option value=""></option>
+													<option value=""></option>
+													<option value=""></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<!-- //select box -->
+								</div>
+								<!-- //static select -->
+							</dd>
+							<!-- 동(읍/면/리)명 + 지번 -->
+							<dd>
+								<!-- static select -->
+								<div class="select-area">
+									<!-- select box -->
+									<div class="sech_form">
+										<div class="cont_wrap">
+											
+											<div class="selected">
+												<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>동(읍/면/리)명 + 지번</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+													<option value=""></option>
+													<option value=""></option>
+													<option value=""></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<!-- //select box -->
+								</div>
+								<!-- //static select -->
+							</dd>
+							<dd>
+								<input type="text" class="w124" /><input type="text" class="w74 ml5" /><span class="space">-</span><input type="text" class="w74" /><span class="ml5">번지</span><a href="#" class="b-btn ml10 type1"><strong><span>검색</span></strong></a>
+							</dd>
+							<!-- //동(읍/면/리)명 + 지번 -->
+							<!-- 도로명 + 건물번호 - dd에 style display:none 빼면 도로명+ 건물번호일때 폼 나옴 -->
+							<dd style="display:none">
+								<!-- static select -->
+								<div class="select-area">
+									<!-- select box -->
+									<div class="sech_form">
+										<div class="cont_wrap">
+											
+											<div class="selected">
+												<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>동(읍/면/리)명 + 지번</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+													<option value=""></option>
+													<option value=""></option>
+													<option value=""></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<!-- //select box -->
+								</div>
+								<!-- //static select -->
+							</dd>
+							<dd style="display:none">
+								<input type="text" class="w74" /><span class="space">건물번호(본-부)</span><input type="text" class="w74 ml5" /><span class="space">-</span><input type="text" class="w74" /><span class="ml5"></span><a href="#" class="b-btn ml5 type1"><strong><span>검색</span></strong></a>
+							</dd>
+							<!-- //도로명 + 건물번호 - dd에 style display:none 빼면 도로명+ 건물번호일때 폼 나옴 -->
+							<!-- 건물명 - dd에 style display:none 빼면 건물명일때 폼 나옴 -->
+							<dd style="display:none">
+								<!-- static select -->
+								<div class="select-area">
+									<!-- select box -->
+									<div class="sech_form">
+										<div class="cont_wrap">
+											
+											<div class="selected">
+												<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>동(읍/면/리)명 + 지번</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+													<option value=""></option>
+													<option value=""></option>
+													<option value=""></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<!-- //select box -->
+								</div>
+								<!-- //static select -->
+							</dd>
+							<dd style="display:none">
+								<input type="text" class="w124" /><input type="text" class="w74 ml5" /><span class="space">-</span><input type="text" class="w74" /><a href="#" class="b-btn ml10 type1"><strong><span>검색</span></strong></a>
+							</dd>
+							<!-- //건물명 - dd에 style display:none 빼면 건물명일때 폼 나옴 -->
+						</dl>
+						<!-- //시도 선택 -->
+						<!-- 검색방법 -->
+						<dl class="txt-searching">
+							<dt>* 검색방법</dt>
+							<dd>
+								<ul>
+								<li>- 동(읍/면/리)명+지번
+									<ul>
+									<li>서울시 중구 <strong>충무로1가 21-1</strong> 예) '<strong>충무로1가</strong>(동명) <strong>21-1</strong>(지번)'</li>
+									</ul>
+								</li>
+								<li>- 도로명(~로, ~길) + 건물번호
+									<ul>
+									<li>서울시 중구 <strong>소공로 70</strong> 예) '<strong>소공로</strong>(도로명) <strong>70</strong>(건물번호)'</li>
+									</ul>
+								</li>
+								<li>- 시/도 및 시/군/구 선택 후 건물명 입력
+									<ul>
+									<li>서울시 중구 <strong>중앙우체국</strong> 예) '<strong>서울</strong>' 및 '<strong>중구</strong>' 선택 후 '<strong>중앙우체국(건물명)</strong>'</li>
+									</ul>
+								</li>
+								</ul>
+							</dd>
+						</dl>
+						<!-- //검색방법 -->
+					</div>
+					<!-- //번지 검색 -->
+					
+					<!-- 우편번호 지번주소 도로명주소 -->
+					<div class="section">
+						<table>
+							<colgroup>
+								<col style="width:20%;" />
+								<col style="width:40%;" />
+								<col style="width:*;" />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>우편번호</th>
+									<th>지번주소</th>
+									<th>도로명주소</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="no-search">
+									<td colspan="3">- 검색어를 입력하십시오 -</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- //우편번호 지번주소 도로명주소 -->
+				</div>
+			</div>
+			<!-- //layer popup -->
+
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

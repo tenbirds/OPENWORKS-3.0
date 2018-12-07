@@ -1,0 +1,1010 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_before">
+
+    <!-- 입찰공고정보 공고차수 채번 -->
+    <select id="selectBeforeEsteNotifySeq" parameterType="TcnBeforeNotifyVO" resultType="int">
+     	
+     	/*_before.selectBeforeEsteNotifySeq*/
+     	      
+        SELECT NVL(MAX(NOTIFY_SEQ), 0) + 1
+          FROM TCN_BEFORE_ESTE_NOFY
+         WHERE NOTIFY_NUM = #{notifyNum}
+         
+    </select>
+
+    <!--
+     * SQL 명        : _before.insertBeforeEsteNotify
+     * 기능(설명)    : 사전견적서 정보 등록
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeEsteNotify" parameterType="TcnBeforeNotifyVO">
+		/*_before.insertBeforeEsteNotify*/
+        INSERT INTO TCN_BEFORE_ESTE_NOFY 
+        (
+           NOTIFY_NUM
+         , NOTIFY_SEQ
+         , BID_GBN_CD
+         , GOOD_KND_CD
+         , USER_ID
+         , GRP_SEQ
+         , NOFY_DT
+         <if test="splyDt != null  and splyDt != ''">
+         , SPLY_DT
+         </if>
+         <if test="useFromDt != null  and useFromDt != ''">
+         , USE_FROM_DT      
+         </if> 
+         <if test="useToDt != null  and useToDt != ''">
+         , USE_TO_DT        
+         </if>
+         , PUCH_BUDGET_AMT
+         , HOPE_PUCH_AMT
+         , VAT_GBN
+         <if test="delyDt != null  and delyDt != ''">
+         , DELY_DT
+         </if>
+         , TALK_GBN
+         <if test="rplyDt != null  and rplyDt != ''">
+         , RPLY_DT
+         </if>
+         , DELY_PLAC
+         , DELY_FILE
+         , ADD_CONT
+         , GOODS_CHARGER_NM 
+         , GOODS_CHARGER_CTTPC 
+         , REAL_DMND_ORGN
+         , ORGN_CODE
+         , BUSEO_CODE
+         , USER_POSITION 
+         , USER_EMAIL
+         , USER_TELNO 
+         , ENTR_DT
+        ) 
+        VALUES 
+        ( 
+           TO_CHAR(SYSDATE,'YYYYMMDD')
+	       , #{notifySeq}
+	       , #{bidGbnCd}
+	       , #{goodKndCd}
+	       , #{userId}
+	       , #{grpSeq}
+	       , TO_CHAR(SYSDATE,'YYYYMMDD')
+	       <if test="splyDt != null  and splyDt != ''">
+	       , #{splyDt}
+	       </if>
+	       <if test="useFromDt != null  and useFromDt != ''">
+	       , #{useFromDt}       
+	       </if>
+	       <if test="useToDt != null  and useToDt != ''">
+	       , #{useToDt}       
+	       </if>
+	       , #{puchBudgetAmt} 
+	       , #{hopePuchAmt}
+	       , #{vatGbn}
+	       <if test="delyDt != null  and delyDt != ''">
+	       , TO_DATETIME(#{delyDt}||#{delyTime}, 'YYYY-MM-DDHH24')
+	       </if>
+	       , #{talkGbn}
+	       <if test="rplyDt != null  and rplyDt != ''">
+	       , #{rplyDt}
+	       </if>
+	       , #{delyPlac}
+	       , #{delyFile}
+	       , #{addCont}
+	       , #{goodsChargerNm} 
+	       , #{goodsChargerCttpc} 
+	       , #{realDmndOrgn}
+	       , #{realDmndOrgnCd}
+	       , #{realDmndBuseoCd}
+	       , #{userPosition} 
+	       , #{userEmail}
+	       , #{userTelno} 
+	       , SYSDATETIME
+	      )
+    </insert>
+    
+
+    <!-- 입찰정보 수정 -->
+    <update id="updateBeforeEsteNotify" parameterType="TcnBeforeNotifyVO">
+		/*_before.updateBeforeEsteNotify*/
+		UPDATE TCN_BEFORE_ESTE_NOFY 
+		   SET BID_GBN_CD       = #{bidGbnCd}
+			 , GOOD_KND_CD      = #{goodKndCd}
+			 , BID_KND_CD       = #{bidKndCd}
+			 , USER_ID			= #{userId}
+			 , GRP_SEQ			= #{grpSeq}
+			 , NOFY_DT			= #{nofyDt}
+			 , SPLY_DT			= #{splyDt}
+			 , HOPE_PUCH_AMT    = #{hopePuchAmt}
+		     , VAT_GBN          = #{vatGbn}
+		     <if test='!delyDt.equals("")'>
+			 , DELY_DT = TO_DATETIME(#{delyDt}||#{delyTime}, 'YYYY-MM-DDHH24')
+			 </if>
+			 <if test='delyDt.equals("")'>
+			 , DELY_DT = NULL
+			 </if>
+		     , TALK_GBN 		= #{talkGbn}
+		     , RPLY_DT  		= #{rplyDt}
+		     , DELY_PLAC 		= #{delyPlac}
+		     , DELY_FILE 		= #{delyFile}
+		     , ADD_CONT 		= #{addCont}
+		     , REAL_DMND_ORGN	= #{realDmndOrgn}
+		     , USER_TELNO		= #{userTelno}
+		     , USER_POSITION	= #{userPosition}
+		     , UPDT_DT			= SYSDATETIME
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+    </update>
+
+    <!-- 입찰공고 공급자 확인정보 등록 -->
+    <insert id="insertNotifySply" parameterType="TcnBeforeNotifyVO">
+    
+        /*_before.insertNotifySply*/
+        
+        INSERT INTO TCN_BEFORE_ESTE_SPLY ( NOTIFY_NUM
+                                          ,NOTIFY_SEQ
+                                          ,USER_ID
+                                          ,GOODS_CODE
+                                          ,CONFM_GBN
+                                          ,ASK_APPLY_CD
+                                         )
+                                  SELECT A.NOTIFY_NUM  AS NOTIFY_NUM
+                                        ,A.NOTIFY_SEQ  AS NOTIFY_SEQ
+                                        ,C.USER_ID     AS USER_ID     /* 서비스 제공자쪽 ID */
+                                        ,C.GOODS_CODE  AS GOODS_CODE
+                                        ,'N'           AS CONFM_GBN
+                                        ,'1005'        AS ASK_APPLY_CD /* 2043 : 접수*/
+                                    FROM TCN_BEFORE_ESTE_NOFY A
+                              INNER JOIN TCM_WISHORDER_DETAIL_L B
+                                      ON B.USER_ID = A.USER_ID
+                                     AND B.GRP_SEQ = A.GRP_SEQ 
+                                     <if test="goodsCodeList != null  and goodsCodeList != ''">
+                                     AND B.GOODS_CODE IN ( <foreach collection="goodsCodeList" item="item" separator=", ">#{item}</foreach>)
+                                     </if>
+                              INNER JOIN TST_GOOD_INFO_I C
+                                      ON C.GOODS_CODE = B.GOODS_CODE 
+                                   WHERE A.NOTIFY_NUM = #{notifyNum}
+                                     AND A.NOTIFY_SEQ = #{notifySeq}
+
+    </insert>
+
+    <!-- 입찰공고 SaaS 정보 등록 -->
+    <insert id="insertBeforeSaas" parameterType="BeforeSaasInfoVO">
+		/*_before.insertBeforeSaas*/
+		INSERT INTO TCN_BEFORE_SAAS_I(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , APPLY_GBN
+		                         , UNIT_SYS
+		                         , ETC_UNIT_SYS
+		                         , CAPTY_SYS
+		                         , AMOUNT_SYS
+		                         , SPLY_MOTH_SYS)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , 'N'
+		     , #{unitSys}
+		     , #{etcUnitSys}
+		     , #{captySys}
+		     , #{amountSys}
+		     , #{splyMothSys}
+		     )
+    </insert>
+
+    <!--
+     * SQL 명        : _before.insertBeforeSaas2
+     * 기능(설명)    : 입찰공고 SaaS2 정보 등록  
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->    
+    <insert id="insertBeforeSaas2" parameterType="BeforeSaas2InfoVO">
+	
+	/*_before.insertBeforeSaas2*/		
+
+    INSERT INTO TCN_BEFORE_SAAS2_I 
+            SET NOTIFY_NUM            = #{notifyNum}
+               ,NOTIFY_SEQ            = #{notifySeq}
+               ,USER_ID               = #{userId}
+               ,APPLY_GBN             = 'N' 
+               ,SUPPORT_METHOD        = #{supportMethod}
+               ,USER_MANAGER_SEPARATE = #{userManagerSeparate}
+               ,SERVICE_SUPPLY_METHOD = #{serviceSupplyMethod}
+               ,ENCRYPTION            = #{encryption}
+               ,MULTIPLATFORM         = #{multiPlatform}
+
+    </insert>
+
+    <!-- 입찰공고 SaaS 정보 수정 -->
+    <update id="updateBeforeSaas" parameterType="BeforeSaasInfoVO">
+		/*_before.updateBeforeSaas*/
+		UPDATE TCN_BEFORE_SAAS_I SET UNIT_SYS      = #{unitSys}
+		                        , ETC_UNIT_SYS  = #{etcUnitSys}
+		                        , CAPTY_SYS     = #{captySys}
+		                        , AMOUNT_SYS    = #{amountSys}
+		                        , SPLY_MOTH_SYS = #{splyMothSys}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+
+    <!-- 입찰공고 SaaS 상세정보 등록 -->
+    <insert id="insertBeforeSaasDetail" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BEFORE_SAAS_D
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_before.insertBeforeSaasDetail*/
+		INSERT INTO TCN_BEFORE_SAAS_D
+		      (NOTIFY_NUM
+             , NOTIFY_SEQ
+             , USER_ID
+             , APPLY_SEQ
+             , OPTION_NM
+             , UNIT_ITEM
+             , CAPTY_ITEM
+             , AMOUNT_ITEM
+             , CMNT_ITEM)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{optionNm}
+		     , #{unitItem}
+		     , #{captyItem}
+		     , #{amountItem}
+		     , #{cmntItem}
+		     )
+    </insert>
+    
+    
+    <!--
+     * SQL 명        : _before.updateBeforeSaas2Need
+     * 기능(설명)    : SaaS2 (추가사항)대표필요정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <update id="updateBeforeSaas2Need" parameterType="map">
+    
+        /*_before.updateBeforeSaas2Need*/
+        
+        UPDATE TCN_BEFORE_SAAS2_I 
+           SET NEED_FUNCTIONNAME = #{functionName} 
+              ,NEED_AMOUNT       = #{amount}
+              ,NEED_UNITCODE     = #{unitCode}
+                            
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND APPLY_GBN  = 'N'
+           
+    </update>
+            
+            
+    <!--
+     * SQL 명        : _before.insertBeforeSaas2Need
+     * 기능(설명)    : SaaS2 필요정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeSaas2Need" parameterType="map">
+    
+        <selectKey order="BEFORE" keyProperty="needSeq" resultType="int">
+            SELECT NVL(MAX(NEED_SEQ), 0) + 1
+              FROM TCN_BEFORE_SAAS2_DN
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+        
+		/*_before.insertBeforeSaas2Need*/
+		
+        INSERT INTO TCN_BEFORE_SAAS2_DN  
+                SET NOTIFY_NUM   = #{notifyNum}
+                   ,NOTIFY_SEQ   = #{notifySeq}
+                   ,USER_ID      = #{userId}
+                   ,NEED_SEQ     = #{needSeq}
+                   ,FUNCTIONNAME = #{functionName}
+                   ,AMOUNT       = #{amount}
+                   ,UNITCODE     = #{unitCode}
+                   
+    </insert>
+    
+    <!-- Insert된 SaaS2 필요정보의 현재 NEED_SEQ을 구한다. -->
+    <select id="selectBeforeSaas2NeedSeq" parameterType="map" resultType="int">
+     	
+     	/*_before.selectBeforeSaas2NeedSeq*/
+     	      
+        SELECT NVL(MAX(NEED_SEQ), 0)
+          FROM TCN_BEFORE_SAAS2_DN
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND USER_ID    = #{userId}
+           
+    </select>
+    
+    
+    <!--
+     * SQL 명        : _before.updateBeforeSaas2Option 
+     * 기능(설명)    : SaaS2 (추가사항)대표옵션정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <update id="updateBeforeSaas2Option" parameterType="map">
+    
+        /*_before.updateBeforeSaas2Option*/
+        
+        UPDATE TCN_BEFORE_SAAS2_I 
+           SET OPTION_FUNCTIONNAME = #{functionName} 
+              ,OPTION_AMOUNT       = #{amount}
+              ,OPTION_UNITCODE     = #{unitCode}
+                            
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND APPLY_GBN  = 'N'
+           
+    </update>
+
+    <!--
+     * SQL 명        : SaaS2 옵션정보 등록 
+     * 기능(설명)    : _before.insertBeforeSaas2Option 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeSaas2Option" parameterType="map">
+    
+        <selectKey order="BEFORE" keyProperty="optionSeq" resultType="int">
+            SELECT NVL(MAX(OPTION_SEQ), 0) + 1
+              FROM TCN_BEFORE_SAAS2_DO
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+               AND NEED_SEQ   = #{needSeq}
+        </selectKey>
+        
+        /*_before.insertBeforeSaas2Option*/
+        
+        INSERT INTO TCN_BEFORE_SAAS2_DO 
+                SET NOTIFY_NUM   = #{notifyNum}
+                   ,NOTIFY_SEQ   = #{notifySeq}
+                   ,USER_ID      = #{userId}
+                   ,NEED_SEQ     = #{needSeq}
+                   ,OPTION_SEQ   = #{optionSeq}
+                   ,FUNCTIONNAME = #{functionName}
+                   ,AMOUNT       = #{amount}
+                   ,UNITCODE     = #{unitCode}
+
+    </insert>
+    
+    <!-- 입찰공고 IaaS 정보 등록 -->
+    <insert id="insertBeforeIaas" parameterType="BeforeIaasInfoVO">
+		/*_before.insertBeforeIaas*/
+		INSERT INTO TCN_BEFORE_IAAS_I( NOTIFY_NUM
+			                         , NOTIFY_SEQ
+			                         , USER_ID
+			                         , APPLY_GBN
+			                         , CDN_TRANS_VLMN
+			                         , CDN_REQU_CNT
+			                         , WEB_GOODS_KIND
+			                         , WEB_ACCESS
+			                         , MNTING_VM
+			                         , MNTING_ID_CNT
+			                         , BAKUP_CNT
+			                         , BAKUP_STORG
+			                         , MANG_FUNC
+			                         , SECTY_VPN
+			                         , SECTY_SSLVPN
+			                         , TECH_SUPT
+			                         , FUNC_DMND1
+			                         , FUNC_DMND2
+			                         , FUNC_DMND3
+			                         , FUNC_DMND4
+			                         , INTERFACE_DMND
+			                         , SECTY_DMND1
+			                         , SECTY_DMND2
+			                         , SECTY_DMND3
+			                         , SECTY_DMND4
+			                         , SECTY_DMND5
+			                         , QUTY_DMND1
+			                         , QUTY_DMND2
+			                         , OPTN_DMND1
+			                         , OPTN_DMND2
+			                         , PRJT_DMND1
+			                         , PRJT_DMND2
+			                         , PRJT_DMND3
+			                         , ETC_DMND)
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     ,'N'
+		     , #{cdnTransVlmn}
+		     , #{cdnRequCnt}
+		     , #{webGoodsKind}
+		     , #{webAccess}
+		     , #{mntingVm}
+		     , #{mntingIdCnt}
+		     , #{bakupCnt}
+		     , #{bakupStorg}
+		     , #{mangFunc}
+		     , #{sectyVpn}
+		     , #{sectySslvpn}
+		     , #{techSupt}
+		     , #{funcDmnd1}
+		     , #{funcDmnd2}
+		     , #{funcDmnd3}
+		     , #{funcDmnd4}
+		     , #{interfaceDmnd}
+		     , #{sectyDmnd1}
+		     , #{sectyDmnd2}
+		     , #{sectyDmnd3}
+		     , #{sectyDmnd4}
+		     , #{sectyDmnd5}
+		     , #{qutyDmnd1}
+		     , #{qutyDmnd2}
+		     , #{optnDmnd1}
+		     , #{optnDmnd2}
+		     , #{prjtDmnd1}
+		     , #{prjtDmnd2}
+		     , #{prjtDmnd3}
+		     , #{etcDmnd}
+		     )
+    </insert>
+
+    
+    <!--
+     * SQL 명        : _before.insertBeforeIaas2
+     * 기능(설명)    : 입찰공고 IaaS2 정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeIaas2" parameterType="BeforeIaas2InfoVO">
+    
+        /*_before.insertBeforeIaas2*/
+        
+        INSERT INTO TCN_BEFORE_IAAS2_I ( NOTIFY_NUM
+                                        ,NOTIFY_SEQ
+                                        ,USER_ID
+                                        ,APPLY_GBN
+                                        
+                                        ,CHK_DB
+										,CHK_STORAGE
+										,CHK_CDN
+										,CHK_WEBFIREWALL
+										,CHK_MONITORING
+										,CHK_BACKUP
+										,CHK_ADDEDSERVICE
+                                        
+                                        ,SERVER_IP
+                                        ,SERVER_NETWORK
+                                        ,SERVER_GSLB
+                                        ,SERVER_LDBL
+                                        ,SERVER_SNAP
+                                        ,SERVER_IMG
+                                        ,DB_IP
+                                        ,DB_NETWORK
+                                        ,DB_ADDDISK
+                                        ,DB_BACKSTORG
+                                        ,DB_STORG_SPACE
+                                        ,DB_TRANS_VLMN
+                                        ,CDN_TRANS_VLMN
+                                        ,CDN_REQU_CNT
+                                        ,WEB_GOODS_KIND
+                                        ,WEB_ACCESS
+                                        ,MNTING_VM
+                                        ,MNTING_ID_CNT
+                                        ,BAKUP_CNT
+                                        ,BAKUP_STORG
+                                        ,MANG_FUNC
+                                        ,SECTY_VPN
+                                        ,SECTY_SSLVPN
+                                        ,ADDED_ETC 
+                                       )
+                                VALUES ( #{notifyNum}
+							            ,#{notifySeq}
+							            ,#{userId}
+							            ,'N' 
+							            
+							            ,#{chkDb}
+										,#{chkStorage}
+										,#{chkCdn}
+										,#{chkWebFirewall}
+										,#{chkMonitoring}
+										,#{chkBackup}
+										,#{chkAddedService}                                        							            
+							            
+                                        ,#{serverIp} 
+                                        ,#{serverNetwork} 
+                                        ,#{serverGslb} 
+                                        ,#{serverLdbl} 
+                                        ,#{serverSnap} 
+                                        ,#{serverImg}
+                                        ,#{dbIp} 
+                                        ,#{dbNetwork} 
+                                        ,#{dbAddDisk} 
+                                        ,#{dbBackStorg} 
+                                        ,#{dbStorgSpace} 
+                                        ,#{dbTransVlmn}
+                                        ,#{cdnTransVlmn} 
+                                        ,#{cdnRequCnt} 
+                                        ,#{webGoodsKind} 
+                                        ,#{webAccess} 
+                                        ,#{mntingVm} 
+                                        ,#{mntingIdCnt} 
+                                        ,#{bakupCnt} 
+                                        ,#{bakupStorg} 
+                                        ,#{mangFunc} 
+                                        ,#{sectyVpn} 
+                                        ,#{sectySslvpn} 
+                                        ,#{addedEtc} 
+                                       )
+                                       
+    </insert>
+
+    <!-- 입찰공고 IaaS 정보 수정 -->
+    <insert id="updateBeforeIaas" parameterType="BeforeIaasInfoVO">
+		/*_before.updateBeforeIaas*/
+		UPDATE TCN_BEFORE_IAAS_I SET CDN_TRANS_VLMN = #{cdnTransVlmn}
+		                        , CDN_REQU_CNT   = #{cdnRequCnt}
+		                        , WEB_GOODS_KIND = #{webGoodsKind}
+		                        , WEB_ACCESS     = #{webAccess}
+		                        , MNTING_VM      = #{mntingVm}
+		                        , MNTING_ID_CNT  = #{mntingIdCnt}
+		                        , BAKUP_CNT      = #{bakupCnt}
+		                        , BAKUP_STORG    = #{bakupStorg}
+		                        , MANG_FUNC      = #{mangFunc}
+		                        , SECTY_VPN      = #{sectyVpn}
+		                        , SECTY_SSLVPN   = #{sectySslvpn}
+		                        , TECH_SUPT      = #{techSupt}
+		                        , FUNC_DMND1     = #{funcDmnd1}
+		                        , FUNC_DMND2     = #{funcDmnd2}
+		                        , FUNC_DMND3     = #{funcDmnd3}
+		                        , FUNC_DMND4     = #{funcDmnd4}
+		                        , INTERFACE_DMND = #{interfaceDmnd}
+		                        , SECTY_DMND1    = #{sectyDmnd1}
+		                        , SECTY_DMND2    = #{sectyDmnd2}
+		                        , SECTY_DMND3    = #{sectyDmnd3}
+		                        , SECTY_DMND4    = #{sectyDmnd4}
+		                        , SECTY_DMND5    = #{sectyDmnd5}
+		                        , QUTY_DMND1     = #{qutyDmnd1}
+		                        , QUTY_DMND2     = #{qutyDmnd2}
+		                        , OPTN_DMND1     = #{optnDmnd1}
+		                        , OPTN_DMND2     = #{optnDmnd2}
+		                        , PRJT_DMND1     = #{prjtDmnd1}
+		                        , PRJT_DMND2     = #{prjtDmnd2}
+		                        , PRJT_DMND3     = #{prjtDmnd3}
+		                        , ETC_DMND       = #{etcDmnd}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(서버) 등록 -->
+    <insert id="insertBeforeIaasServer" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BEFORE_IAAS_DS
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_before.insertBeforeIaasServer*/
+		INSERT INTO TCN_BEFORE_IAAS_DS(NOTIFY_NUM
+		                          , NOTIFY_SEQ
+		                          , USER_ID
+		                          , APPLY_SEQ
+		                          , SERVER_USE
+		                          , SERVER_OS
+		                          , SERVER_CPU
+		                          , SERVER_MEMORY
+		                          , SERVER_DISK
+		                          , SERVER_QNTY
+		                          , SERVER_IP
+		                          , SERVER_NETWORK
+		                          , SERVER_GSLB
+		                          , SERVER_LDBL
+		                          , SERVER_SNAP
+		                          , SERVER_IMG)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{serverUse}
+		     , #{serverOs}
+		     , #{serverCpu}
+		     , #{serverMemory}
+		     , #{serverDisk}
+		     , #{serverQnty}
+		     , #{serverIp}
+		     , #{serverNetwork}
+		     , #{serverGslb}
+		     , #{serverLdbl}
+		     , #{serverSnap}
+		     , #{serverImg}
+		     )
+    </insert>
+    
+    <!--
+     * SQL 명        : _before.updateBeforeIaas2Ds
+     * 기능(설명)    : IaaS2 (추가사항)대표서버정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <update id="updateBeforeIaas2Ds" parameterType="map">
+    
+        /*_before.updateBeforeIaas2Ds*/
+        
+        UPDATE TCN_BEFORE_IAAS2_I 
+           SET SERVER_USE        = #{serverUse}
+              ,SERVER_OS         = #{serverOs}
+              ,SERVER_CPU        = #{serverCpu}
+              ,SERVER_MEMORY     = #{serverMemory}
+              ,SERVER_DISK       = #{serverDisk}
+              ,SERVER_QNTY       = #{serverQnty}
+                            
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND APPLY_GBN  = 'N'
+           
+    </update>
+
+    <!--
+     * SQL 명        : _before.insertBeforeIaas2Ds
+     * 기능(설명)    : 입찰공고 IaaS2 상세정보(서버) 등록  
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeIaas2Ds" parameterType="map">
+        
+        <selectKey order="BEFORE" keyProperty="serverSeq" resultType="int">
+            SELECT NVL(MAX(server_seq), 0) + 1
+              FROM tcn_before_iaas2_ds
+             WHERE notify_num = #{notifyNum}
+               AND notify_seq = #{notifySeq}
+               AND user_id    = #{userId}
+        </selectKey>
+		
+		/*_before.insertBeforeIaas2Ds*/
+		
+		INSERT INTO TCN_BEFORE_IAAS2_DS ( NOTIFY_NUM
+				                         ,NOTIFY_SEQ
+				                         ,USER_ID
+				                         ,SERVER_SEQ
+				                         ,SERVER_USE
+				                         ,SERVER_OS
+				                         ,SERVER_CPU
+				                         ,SERVER_MEMORY
+				                         ,SERVER_DISK
+				                         ,SERVER_QNTY
+				                        )		                          
+		                         VALUES ( #{notifyNum}
+									     ,#{notifySeq}
+									     ,#{userId}
+									     ,#{serverSeq}
+									     ,#{serverUse}
+									     ,#{serverOs}
+									     ,#{serverCpu}
+									     ,#{serverMemory}
+									     ,#{serverDisk}
+									     ,#{serverQnty}
+									    )
+									    
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(서버) 삭제 -->
+    <update id="deleteBeforeIaasServer" parameterType="map">
+		/*_before.deleteBeforeIaasServer*/
+		DELETE
+		  FROM TCN_BEFORE_IAAS_DS
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+
+    <!-- 입찰공고 IaaS 상세정보(DB) 등록 -->
+    <insert id="insertBeforeIaasDb" parameterType="map">
+        <selectKey order="BEFORE" keyProperty="applySeq" resultType="int">
+            SELECT NVL(MAX(APPLY_SEQ), 0) + 1
+              FROM TCN_BEFORE_IAAS_DD
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+		/*_before.insertBeforeIaasDb*/
+		INSERT INTO TCN_BEFORE_IAAS_DD( NOTIFY_NUM
+			                          , NOTIFY_SEQ
+			                          , USER_ID
+			                          , APPLY_SEQ
+			                          , DB_USE
+			                          , DB_OS
+			                          , DB_CPU
+			                          , DB_MEMORY
+			                          , DB_DISK
+			                          , DB_QNTY
+			                          , DB_IP
+			                          , DB_NETWORK
+			                          , DB_ADD_DISK
+			                          , DB_BACK_STORG
+			                          , DB_STORG_SPACE
+			                          , DB_TRANS_VLMN)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{applySeq}
+		     , #{dbUse}
+		     , #{dbOs}
+		     , #{dbCpu}
+		     , #{dbMemory}
+		     , #{dbDisk}
+		     , #{dbQnty}
+		     , #{dbIp}
+		     , #{dbNetwork}
+		     , #{dbAddDisk}
+		     , #{dbBackStorg}
+		     , #{dbStorgSpace}
+		     , #{dbTransVlmn}
+		     )
+    </insert>
+
+
+    
+    <!--
+     * SQL 명        : _before.updateBeforeIaas2Dd
+     * 기능(설명)    : IaaS2 (추가사항)대표DB정보 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <update id="updateBeforeIaas2Dd" parameterType="map">
+    
+        /*_before.updateBeforeIaas2Dd*/
+        
+        UPDATE TCN_BEFORE_IAAS2_I 
+           SET DB_USE            = #{dbUse}
+              ,DB_OS             = #{dbOs}
+              ,DB_CPU            = #{dbCpu}
+              ,DB_MEMORY         = #{dbMemory}
+              ,DB_DISK           = #{dbDisk}
+              ,DB_QNTY           = #{dbQnty}
+              
+         WHERE NOTIFY_NUM = #{notifyNum}
+           AND NOTIFY_SEQ = #{notifySeq}
+           AND APPLY_GBN  = 'N'
+           
+    </update>
+
+
+    <!--
+     * SQL 명        : _before.insertBeforeIaas2Dd
+     * 기능(설명)    : 입찰공고 IaaS2 상세정보(DB) 등록 
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeIaas2Dd" parameterType="map">
+        
+        <selectKey order="BEFORE" keyProperty="dbSeq" resultType="int">
+            SELECT NVL(MAX(DB_SEQ), 0) + 1
+              FROM TCN_BEFORE_IAAS2_DD
+             WHERE NOTIFY_NUM = #{notifyNum}
+               AND NOTIFY_SEQ = #{notifySeq}
+               AND USER_ID    = #{userId}
+        </selectKey>
+        
+		/*_before.insertBeforeIaas2Dd*/
+
+		INSERT INTO TCN_BEFORE_IAAS2_DD ( NOTIFY_NUM
+			                             ,NOTIFY_SEQ
+			                             ,USER_ID
+			                             ,DB_SEQ
+			                             ,DB_USE
+			                             ,DB_OS
+			                             ,DB_CPU
+			                             ,DB_MEMORY
+			                             ,DB_DISK
+			                             ,DB_QNTY
+			                            )		                            
+		                         VALUES ( #{notifyNum}
+										 ,#{notifySeq}
+										 ,#{userId}
+										 ,#{dbSeq}
+										 ,#{dbUse}
+										 ,#{dbOs}
+										 ,#{dbCpu}
+										 ,#{dbMemory}
+										 ,#{dbDisk}
+										 ,#{dbQnty}
+										)
+										
+    </insert>
+
+    <!-- 입찰공고 IaaS 상세정보(DB) 삭제 -->
+    <insert id="deleteBeforeIaasDb" parameterType="map">
+		/*_before.deleteBeforeIaasDb*/
+		DELETE
+		  FROM TCN_BEFORE_IAAS_DD
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+    <!-- 입찰공고 PaaS 정보 등록 -->
+    <insert id="insertBeforePaas" parameterType="BeforePaasInfoVO">
+		/*_before.insertBeforePaas*/
+		INSERT INTO TCN_BEFORE_PAAS_I(NOTIFY_NUM
+		                         , NOTIFY_SEQ
+		                         , USER_ID
+		                         , LANG_SYS
+		                         , FRAMEWORK_SYS
+		                         , CACHE_SYS
+		                         , DBMS_SYS
+		                         , FAST_DEPLOY_SYS
+		                         , ETC_SYS)
+		                          
+		VALUES(#{notifyNum}
+		     , #{notifySeq}
+		     , #{userId}
+		     , #{langSys}
+		     , #{frameworkSys}
+		     , #{cacheSys}
+		     , #{dbmsSys}
+		     , #{fastDeploySys}
+		     , #{etcSys}
+		     )
+    </insert>
+
+    <!--
+     * SQL 명        : _before.insertBeforePaas2
+     * 기능(설명)    : 입찰공고 PaaS2 정보 등록
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforePaas2" parameterType="BeforePaas2InfoVO">
+
+        /*_before.insertBeforePaas2*/
+
+        INSERT INTO TCN_BEFORE_PAAS2_I ( NOTIFY_NUM
+                                        ,NOTIFY_SEQ
+                                        ,USER_ID
+                                        ,APPLY_GBN
+                                        ,HOSTINGMETHOD
+                                        ,SCALING
+                                        ,PLATFORM
+                                        ,RUNTIMES
+                                        ,MIDDLEWARE
+                                        ,FRAMEWORKS
+                                        ,SERVICES
+                                        ,ADDONS
+                                        ,EXTENDFUNCTION
+                                        ,GEOLOCATIONS  
+                                       )
+                                VALUES ( #{notifyNum}
+							            ,#{notifySeq}
+							            ,#{userId}
+							            ,#{applyGbn}
+							            ,#{hostingMethod}
+                                        ,#{scaling}
+                                        ,#{platform}
+                                        ,#{runtimes}
+                                        ,#{middlewares}
+                                        ,#{frameworks}
+                                        ,#{services}
+                                        ,#{addons}
+                                        ,#{extendFunction}
+                                        ,#{geolocations}
+							           )
+							           
+    </insert>
+
+    <!-- 입찰공고 PaaS 정보 수정 -->
+    <insert id="updateBeforePaas" parameterType="BeforePaasInfoVO">
+		/*_before.updateBeforePaas*/
+		UPDATE TCN_BEFORE_PAAS_I SET LANG_SYS        = #{langSys}
+		                        , FRAMEWORK_SYS   = #{frameworkSys}
+		                        , CACHE_SYS       = #{cacheSys}
+		                        , DBMS_SYS        = #{dbmsSys}
+		                        , FAST_DEPLOY_SYS = #{fastDeploySys}
+		                        , ETC_SYS         = #{etcSys}
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </insert>
+
+    <!--
+     * SQL 명        : _before.insertBeforeScs2
+     * 기능(설명)    : 입찰공고 PaaS2 정보 등록
+     * 작   성   자  : 이홍석
+     * 작   성   일  : 2018-03
+    -->
+    <insert id="insertBeforeScs2" parameterType="BeforeScs2InfoVO">
+
+        /*_before.insertBeforeScs2*/
+
+        INSERT INTO TCN_BEFORE_SCS2_I ( NOTIFY_NUM
+                                      , NOTIFY_SEQ
+                                      , USER_ID
+                                      , APPLY_GBN
+                                      
+                                      , CNSL_RELM
+                                      , CNSL_RELM_ETC
+                                      , CNSL_SCOPE
+                                      , EXC_AREA
+                                      , INDC_WHOLE
+                                      , SETUP_MGR
+                                      , OPER
+                                      , QLITY_TEST
+                                      , SCRTY
+                                      , EDUCATION 
+                                      )
+                               VALUES ( #{notifyNum}
+                                      , #{notifySeq}
+                                      , #{userId}                                       
+                                      , #{applyGbn}
+                                      
+                                      , #{cnslRelm}
+                                      , #{cnslRelmEtc}
+                                      , #{cnslScope}
+                                      , #{excArea}
+                                      , #{indcWhole}
+                                      , #{setupMgr}                                      
+                                      , #{oper}
+                                      , #{qlityTest}
+                                      , #{scrty}
+                                      , #{education}
+                                       )
+                                       
+    </insert>
+
+    <!--
+     * SQL 명      : _before.selectSuplerList
+     * 기능(설명)  : 입찰공고 공급자 확인정보 조회
+     * 작   성   자  : (주)엔키소프트
+     * 작   성   일  : 2017-01-05
+    -->
+    <select id="selectSuplerList" parameterType="map" resultType="BeforeSuplerListVO">
+        /*_before.selectSuplerList*/
+        SELECT A.NOTIFY_NUM  AS NotifyNum
+             , A.NOTIFY_SEQ  AS NotifySeq
+             , A.USER_ID     AS suplerId
+             , B.USER_ID     AS userId
+             , C.USER_NM   	 AS suplerName
+             , ''  AS bidNotifyNm
+             , DECRYPT(C.EMAIL ,'P008')      AS suplerEmail
+             , DECRYPT(C.MBTLNUM ,'P007')    AS suplerMbtlnum
+          FROM TCN_BEFORE_ESTE_SPLY A
+             , TCN_BEFORE_ESTE_NOFY B
+             , OP_USER C
+         WHERE 1=1
+           AND A.NOTIFY_NUM = B.NOTIFY_NUM
+           AND A.NOTIFY_SEQ = B.NOTIFY_SEQ
+           AND A.NOTIFY_NUM = #{notifyNum}
+           AND A.NOTIFY_SEQ = #{notifySeq}
+        <if test="suplerId == null  and userId == null">
+           AND A.USER_ID    = C.USER_ID
+        </if>
+           
+        <if test="suplerId != null  and suplerId != ''">
+           AND B.USER_ID    = C.USER_ID
+           AND A.USER_ID    = #{suplerId}
+        </if>
+        <if test="userId != null  and userId != ''">
+           AND A.USER_ID    = C.USER_ID
+           AND B.USER_ID    = #{userId}
+        </if>
+    </select>   
+    
+    <!-- 입찰공고 SaaS 상세정보 삭제 -->
+    <update id="deleteBeforeSaasDetail" parameterType="BeforeSaasInfoVO">
+		/*_before.deleteBeforeSaasDetail*/
+		DELETE 
+		  FROM TCN_BEFORE_SAAS_D
+		 WHERE NOTIFY_NUM = #{notifyNum}
+		   AND NOTIFY_SEQ = #{notifySeq}
+		   AND USER_ID    = #{userId}
+    </update>
+    
+</mapper>

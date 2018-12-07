@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-right">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="detail-right">					
+					<div class="group">
+						<p><img src="/new_cloud/images/sub/sam-detail-thumb.gif" alt="opentask" /></p>
+						<ul class="mark-list">
+							<li><img src="/new_cloud/images/sub/sam-detail-mark01.gif" alt="eGovFrame" /></li>
+							<li><img src="/new_cloud/images/sub/sam-detail-mark01.gif" alt="eGovFrame" /></li>
+							<li><img src="/new_cloud/images/sub/sam-detail-mark01.gif" alt="eGovFrame" /></li>
+							<li><img src="/new_cloud/images/sub/sam-detail-mark01.gif" alt="eGovFrame" /></li>
+							<li><img src="/new_cloud/images/sub/sam-detail-mark01.gif" alt="eGovFrame" /></li>
+						</ul>
+					</div>
+					<div class="group">
+						<div class="experience">
+							<strong>체험 신청</strong>
+							<div>
+								<a href="#" target="_blank" title="새창으로 이동하기"><img src="/new_cloud/images/sub/img-olleh.jpg" alt="olleh ucloud biz" /></a>
+							</div>
+						</div>
+
+						<ul class="btn-list">
+							<li><a href="/new_cloud/UI_PCW_LI_001_004.html" target="_blank" class="write">구매문의</a></li>
+							<li><a href="/new_cloud/UI_PCW_LI_001_007.html" class="list">판매자 상품</a></li>
+							<li><a href="#" class="add">관심등록</a></li>
+							<li><a href="#" class="link">웹사이트</a></li>
+							<li><a href="#" class="link">상품상세</a></li>
+							<li><a href="#" class="orange detail">상품 소개서</a></li>
+							<li><a href="#" class="orange detail">사용자 매뉴얼</a></li>
+						</ul>
+					</div>
+					<div class="group">
+						<div class="prd-list info">
+							<ul>
+								<li><span>Q&amp;A</span><a href="/new_cloud/UI_PCW_LI_001_010.html" target="_blank" class="arrow right btn-qna">32</a></li>
+								<li><span>리뷰</span><a href="/new_cloud/UI_PCW_LI_001_012.html" target="_blank" class="arrow right">152</a></li>
+								<li><span>납품실적</span><a href="/new_cloud/UI_PCW_LI_001_013.html" target="_blank" class="arrow right">32</a></li>
+								<li><span>연관상품</span><a href="/new_cloud/UI_PCW_LI_001_015.html" target="_blank" class="arrow right">32</a></li>
+							</ul>
+						</div>
+						<div class="prd-list intro">
+							<ul>
+								<li>
+									<strong>소개영상</strong>
+									<a href="/new_cloud/UI_PCW_LI_001_014.html" target="_blank">
+										<img src="/new_cloud/images/sub/sam-intro01.jpg" alt="소개영상" class="img-thumb" /><!-- //132*75 -->
+										<img src="/new_cloud/images/icon-btn/btn-play.png" alt="재생" class="btn-play" />
+									</a>
+								</li>
+								<li>
+									<strong>사용화면</strong>
+									<a href="/new_cloud/UI_PCW_LI_001_012.html" target="_blank">
+										<img src="/new_cloud/images/sub/sam-intro01.jpg" alt="사용화면" class="img-thumb" /><!-- //132*75 -->
+										<img src="/new_cloud/images/icon-btn/btn-img-more.png" alt="더보기" class="btn-play" />
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="group">
+						<div class="tel">
+							<h4>연락처</h4>
+							<ul>
+								<li><span>이대기</span></li>
+								<li><span><a href="#" class="mailto:talkbox@opentask.co.kr">talkbox@opentask.co.kr</a></span></li>
+								<li><span>02-1577-4318</span></li>
+							</ul>
+						</div>
+						<div class="add-file-list">
+							<h4>첨부파일</h4>
+							<div>
+								<ul>
+									<li><a href="#">2015/08/01_00156028302-(계약예규) 물품구매(제조)계약일반조건(2015.1.1).hwp</a></li>
+									<li><a href="#">2015/08/01_00156028302-(계약예규) 물품구매(제조)계약일반조건(2015.1.1).hwp</a></li>
+									<li><a href="#">2015/08/01_00156028302-(계약예규) 물품구매(제조)계약일반조건(2015.1.1).hwp</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="sns">
+							<h4>공유하기</h4>
+							<ul>
+								<li class="facebook"><a href="#" target="_blank" title="페이스북 새창으로 열기">페이스북</a></li>
+								<li class="twitter"><a href="#" target="_blank" title="트위터 새창으로 열기">트위터</a></li>
+								<li class="naver"><a href="naver" target="_blank" title="네이버 새창으로 열기">네이버</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<p class="local"><span>Home</span><span>SaaS</span><span>응용</span><span>커뮤니케이션</span><strong>오픈태스크</strong></p>
+				
+				<!-- 상품목록이동 -->
+				<a href="" class="sbtn back"><strong><span>상품목록이동</span></strong></a>
+				<!-- //상품목록이동 -->
+
+				<!-- title-area -->
+				<div class="title-area">
+					<h2 class="detail-title">오픈태스크</h2>
+					<a href="#" class="sbtn blue view" target="_blank"><strong><span>종합쇼핑몰</span></strong></a>
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section txt-14">SNS형 그룹웨어 Opentask는 주제, 프로젝트별 커뮤니티 그룹을 생성하여 정보 및 업무를 타임라인 (Timeline)으로 실시간 공유할 수 있으며 완벽한 모바일 환경 지원으로 언제,어디서든 필요한 정보를 공유할 수 있는 스마트한 업무환경을 구축해드립니다. 또한, 전자결재, 이메일, 공유일정관리 등 기업에서 필요로 하는 핵심 업무시스템을 제공함으로써 기업의 경쟁력 향상과 성공적인 프로젝트 수행을 지원합니다.</div>
+				<!-- //section -->
+				
+				<!-- section -->
+				<h3>특장점</h3>
+				<div class="section txt-14">
+					<ul class="list">
+					<li>Windows PC, MAC PC, Linux PC 등, 사용자가 어떤 PC를 사용하든 동일한 서비스를 제공합니다.</li>
+					<li>회사에서 확인했던 파일과 메시지를 PC로, 테블릿PC로, 스마트폰으로 언제, 어디서든 확인할 수 있습니다.</li>
+					<li>인터넷 익스플로러(Internet Explorer)는 물론 크롬(Chrome), 사파리(safari), 파이어폭스(firefox)에서도 사용 가능합니다.</li>
+					<li>SNS포털을 통해 요약된 정보제공으로 업무파악이 한눈에 이루어 집니다.</li>
+					<li>워크플로우(workflow) 기능 제공으로 양식별 결재라인을 세팅할 수 있어 결재라인 설정이 간편해 집니다.</li>
+					<li>커뮤니티 SNS 게시판을 통해 부서, 프로젝트별 정보를 빠르고 쉽게 공유할 수 있습니다.</li>
+					<li>모바일APP 기본제공으로 보다 편리한 UI에서 필요한 정보를 손쉽게 찾을 수 있습니다.</li>
+					<li>기업 전용 모바일 메신저가 제공되어 사내 히스토리 관리와 정보보안이 강화됩니다.</li>
+					</ul>
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<h3>대상고객</h3>
+				<div class="section txt-14">
+					<ul class="list">
+					<li>글로벌 기업으로 세계 각국의 지사, 사무소 등과 통합 커뮤니케이션 환경 구축을 통해 경영 효율성 제고가 필요한 고객</li>
+					<li>통합 커뮤니케이션 시스템을 도입하고 싶으나 IT 초기 투자비용이 부담이 되는 기업</li>
+					<li>전사적 커뮤니케이션 시스템 도입을 검토 중이나 서비스 운영, 유지보수가 부담스러운 기업</li>
+					<li>기업 업무 프로세스에 효과적으로 커뮤니케이션 환경을 적용할 수 있는 토털 컨설팅이 필요한 기업</li>
+					<li>공개 소프트웨어를 이용하고 있으나 만족스럽지 못한 고객</li>
+					</ul>
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<h3>주요기능</h3>
+				<div class="section more-view txt-14">
+					<div>
+						● PC, 태블릿, 스마트폰 등 다양한 디바이스에서 가장 최적의 화면을 제공합니다 ! <br>
+						● One Souce Nulti Use 지원으로 다양한 환경의 웹UI를 단 하나의 도구로 개발 <br>
+						● 뛰어난 개발 생산성과 편의성을 고려한 WYSIVVYG 방식의 통합개발환경 제공<br>
+
+						● PC, 태블릿, 스마트폰 등 다양한 디바이스에서 가장 최적의 화면을 제공합니다 ! <br>
+						● One Souce Nulti Use 지원으로 다양한 환경의 웹UI를 단 하나의 도구로 개발 <br>
+						● 뛰어난 개발 생산성과 편의성을 고려한 WYSIVVYG 방식의 통합개발환경 제공<br>
+
+						● PC, 태블릿, 스마트폰 등 다양한 디바이스에서 가장 최적의 화면을 제공합니다 ! <br>
+						● One Souce Nulti Use 지원으로 다양한 환경의 웹UI를 단 하나의 도구로 개발 <br>
+						● 뛰어난 개발 생산성과 편의성을 고려한 WYSIVVYG 방식의 통합개발환경 제공<br>
+
+						● PC, 태블릿, 스마트폰 등 다양한 디바이스에서 가장 최적의 화면을 제공합니다 ! <br>
+						● One Souce Nulti Use 지원으로 다양한 환경의 웹UI를 단 하나의 도구로 개발 <br>
+						● 뛰어난 개발 생산성과 편의성을 고려한 WYSIVVYG 방식의 통합개발환경 제공<br>
+						● PC, 태블릿, 스마트폰 등 다양한 디바이스에서 가장 최적의 화면을 제공합니다 ! <br>
+						● One Souce Nulti Use 지원으로 다양한 환경의 웹UI를 단 하나의 도구로 개발 <br>
+						● 뛰어난 개발 생산성과 편의성을 고려한 WYSIVVYG 방식의 통합개발환경 제공<br>
+						● 강력하고 다양한 자체 컴포넌트 제공은 물론 오픈 아키텍처로 외부 라이브러리를 자유롭게 활용하여 풍부한 UX구현과 개발 유연성을 극대화
+						
+						<!-- <ul class="list">
+						<li>타임라인 기반: 글 등록, 메일, 댓글, 결재 등 다양한 알림 시간별 제공</li>
+						<li>개인정보 설정: 프로필 영역을 통해 각 개인의 활동 내역 별도 조회 및 관리</li>
+						<li>SSO(Single Sign On)</li>
+						<li>Restful(연동 API 제공)</li>
+						<li>계정정보 동기화</li>
+						<li>업무바로가기</li>
+						<li>그룹생성 및 협업관리</li>
+						<li>통합검색</li>
+						<li>업무 히스토리 관리</li>
+						<li>지식공감/공유/스크랩</li>
+
+						<li>타임라인 기반: 글 등록, 메일, 댓글, 결재 등 다양한 알림 시간별 제공</li>
+						<li>개인정보 설정: 프로필 영역을 통해 각 개인의 활동 내역 별도 조회 및 관리</li>
+						<li>SSO(Single Sign On)</li>
+						<li>Restful(연동 API 제공)</li>
+						<li>계정정보 동기화</li>
+						<li>업무바로가기</li>
+						<li>그룹생성 및 협업관리</li>
+						<li>통합검색</li>
+						<li>업무 히스토리 관리</li>
+						<li>지식공감/공유/스크랩</li>
+						</ul> -->
+					</div>
+					<p><a href="#" class="arrow bottom">기능 더보기</a></p>
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<h3>규격</h3>
+				<div class="section">
+					<div class="info-table">
+						<table>
+							<caption>테이블 정보</caption>
+							<colgroup>
+							<col style="width:180px;"/>
+							<col style="width:*;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>대분류</th>
+									<td><a href="#" class="arrow right">SaaS</a></td>
+								</tr>
+								<tr>
+									<th>중분류</th>
+									<td><a href="#" class="arrow right">시스템</a></td>
+								</tr>
+								<tr>
+									<th>소분류</th>
+									<td><a href="#" class="arrow right">커뮤니케이션</a></td>
+								</tr>
+								<tr>
+									<th>판매자</th>
+									<td><a href="#" class="arrow right">오픈태스크</a></td>
+								</tr>
+								<tr>
+									<th>기업구분</th>
+									<td><a href="#" class="arrow right">중소기업</a></td>
+								</tr>
+								<tr>
+									<th>원산지</th>
+									<td><a href="#" class="arrow right">국산 (대한민국)</a></td>
+								</tr>
+								<tr>
+									<th>출시일</th>
+									<td>2015. 08. 13</td>
+								</tr>
+								<tr>
+									<th>무료/체험</th>
+									<td><a href="#" class="arrow right">체험상품</a></td>
+								</tr>
+								<tr>
+									<th>가격</th>
+									<td><a href="#" class="arrow right">교육/공공기관 우대 상품</a></td>
+								</tr>
+								<tr>
+									<th>계약단위</th>
+									<td><a href="#" class="arrow right">월 단위</a></td>
+								</tr>
+								<tr>
+									<th>서비스 관리</th>
+									<td><a href="#" class="arrow right">클러스터링</a><a href="#" class="arrow right">부하분산처리</a><a href="#" class="arrow right">자동 확장</a></td>
+								</tr>
+								<tr>
+									<th>호환성(표준)</th>
+									<td><a href="#" class="arrow right">다중플랫폼</a></td>
+								</tr>
+								<tr>
+									<th>지원언어</th>
+									<td><a href="#" class="arrow right">한국어</a><a href="#" class="arrow right">영어</a><a href="#" class="arrow right">일어</a></td>
+								</tr>
+								<tr>
+									<th>구축방식</th>
+									<td><a href="#" class="arrow right">Hybrid</a></td>
+								</tr>
+								<tr>
+									<th>인증정보</th>
+									<td><a href="#" class="arrow right">KACI 인증</a></td>
+								</tr>
+								<tr>
+									<th>A/S</th>
+									<td><a href="#" class="arrow right">업그레이드 시 패치 제공</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<h3 class="type-info">입찰정보</h3>
+				<div class="section">
+					<ul class="list-type1">
+					<li>공고명: 망분리사업 관련 보안소프트웨어 3종구입</li>
+					<li>게시일시 (입찰마감일시): 2015/10/02 4:30  / (2015/10/12 4:00)</li>
+					<li>공고기관: ㈜한국도시가스기술공사</li>
+					<li>수요기관: ㈜한국도시가스기술공사</li>
+					</ul>					
+					<div class="detail-view bor-t mt10">
+						<p><a href="#" class="sbtn blue view"><strong><span>상세보기</span></strong></a></p>
+					</div>
+										
+					<ul class="list-type1">
+					<li>공고명: 2016년 사이버연수원 위탁운영 용역</li>
+					<li>게시일시 (입찰마감일시): 2015/11/24 19:38 (2015/12/11 12:00)</li>
+					<li>공고기관: 한국석유공사</li>
+					</ul>					
+					<div class="detail-view bor-t mt10">
+						<p><a href="#" class="sbtn blue view"><strong><span>상세보기</span></strong></a></p>
+					</div>
+
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<h3 class="type-info">계약현황</h3>
+				<div class="section">
+					<ul class="list-type1">
+					<li>계약건명: 2015년 서버보안소프트웨어 유지보수 용역</li>
+					<li>계역금액: 13,000,000</li>
+					<li>계약기관: 경상남도 거제시</li>
+					<li>수요기관: 경상남도 거제시, 청파초등학교</li>
+					</ul>					
+					<div class="detail-view bor-t mt10">
+						<p><a href="#" class="sbtn blue view"><strong><span>상세보기</span></strong></a></p>
+					</div>
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

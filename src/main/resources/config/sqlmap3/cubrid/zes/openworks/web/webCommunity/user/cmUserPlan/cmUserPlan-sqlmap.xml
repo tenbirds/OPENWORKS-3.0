@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmUserPlan">
+	
+	<!-- 일정관리 달력  -->
+	<select id="cmUserPlanCalList"  parameterType="cmUserPlanVO" resultType="cmUserPlanVO" >
+		/* cmUserPlan-sqlmap.xml  _cmUserPlan.cmUserPlanCalList */
+		SELECT 
+			LANG_CODE					AS langCode
+			, CMMNTY_ID					AS cmmntyId
+			, CMMNTY_MENU_CODE	AS cmmntyMenuCode
+			, SCHDUL_SEQ				AS schdulSeq
+			, SCHDUL_SJ					AS schdulSj
+			, BEGIN_DATE					AS beginDate
+			, END_DATE					AS endDate
+			, SCHDUL_CN					AS schdulCn
+			, REPTIT_TY_CD				AS reptitTyCd
+			, REGIST_ID						AS registId
+			, TO_CHAR( REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+			, UPDT_ID						AS updtId
+			, TO_CHAR( UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 			
+			, TO_NUMBER(SUBSTR(BEGIN_DATE,0,4))           	AS      sY
+	        , TO_NUMBER(SUBSTR(BEGIN_DATE,5,2))-1        	AS      sM
+	        , TO_NUMBER(SUBSTR(BEGIN_DATE,7))             	AS      sD
+	        , TO_NUMBER(SUBSTR(END_DATE,0,4))             	AS      eY
+	        , TO_NUMBER(SUBSTR(END_DATE,5,2))-1           	AS      eM
+	        , TO_NUMBER(SUBSTR(END_DATE,7))               	AS      eD
+	        , BEGIN_TIME_SE						AS beginTimeSe
+	        , END_TIME_SE						AS endTimeSe
+	        , BEGIN_HM							AS beginHm
+	        , END_HM								AS endHm
+	        , OTHBC_SETUP_CD					AS othbcSetupCd
+		FROM 
+			TCM_CMNT_SCHD_M 
+         WHERE 
+         LANG_CODE = #{langCode}
+         AND CMMNTY_ID = #{cmmntyId}
+         AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+         AND BEGIN_DATE BETWEEN #{start} and #{end}
+         ORDER BY BEGIN_DATE, DECODE(BEGIN_TIME_SE, 'A', 0, 1), BEGIN_HM 
+	</select>
+	
+	<!--  일정관리 상세 -->
+	<select id="cmUserPlanCalView"  parameterType="cmUserPlanVO" resultType="cmUserPlanVO" >
+			/* cmUserPlan-sqlmap.xml  _cmUserPlan.cmUserPlanCalView */
+		SELECT 
+			LANG_CODE					AS langCode			
+			, CMMNTY_ID					AS cmmntyId		
+			, CMMNTY_MENU_CODE	AS cmmntyMenuCode
+			, SCHDUL_SEQ				AS schdulSeq				/* 일련번호 */
+			, SCHDUL_SJ					AS schdulSj				/* 제목 */
+			, BEGIN_DATE					AS beginDate				/* 시작일 */
+			, END_DATE					AS endDate				/* 종료일 */
+			, SCHDUL_CN					AS schdulCn				/* 일정 내용 */
+			, REPTIT_TY_CD				AS reptitTyCd				/* 반복유형코드 */
+			, REGIST_ID						AS registId					
+			, TO_CHAR( REGIST_DT, 'YYYY-MM-DD HH24:MI') 			AS registDt 			
+			, UPDT_ID						AS updtId					
+			, TO_CHAR( UPDT_DT, 'YYYY-MM-DD HH24:MI') 			AS updtDt 		
+			, TO_NUMBER(SUBSTR(BEGIN_DATE,0,4))           	AS      sY				/* 시작년 */
+	        , TO_NUMBER(SUBSTR(BEGIN_DATE,5,2))-1        	AS      sM				/* 시작월 */
+	        , TO_NUMBER(SUBSTR(BEGIN_DATE,7))             	AS      sD				/* 시작일 */
+	        , TO_NUMBER(SUBSTR(END_DATE,0,4))             	AS      eY				/* 종료년 */
+	        , TO_NUMBER(SUBSTR(END_DATE,5,2))-1           	AS      eM				/* 종료월 */
+	        , TO_NUMBER(SUBSTR(END_DATE,7))               	AS      eD				/* 종료일 */
+	        , BEGIN_TIME_SE						AS beginTimeSe   /* 시작시간 시간구분(A, P) */
+	        , END_TIME_SE						AS endTimeSe		/* 종료시간 시간구분 (A, P) */								
+	        , BEGIN_HM							AS beginHm		/* 시작시간 */
+	        , END_HM								AS endHm			/* 종료시간 */
+	        , OTHBC_SETUP_CD					AS othbcSetupCd	/* 공개구분 */
+		FROM 
+			TCM_CMNT_SCHD_M 
+         WHERE 
+         SCHDUL_SEQ = #{schdulSeq}
+         AND LANG_CODE = #{langCode}
+         AND CMMNTY_ID = #{cmmntyId}
+         AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+	</select>
+	
+	<!-- 일정 등록 -->
+	<insert id="cmUserPlanCalInsert" parameterType="cmUserPlanVO" >
+		/* cmUserPlan-sqlmap.xml  _cmUserPlan.cmUserPlanCalInsert */
+		INSERT INTO TCM_CMNT_SCHD_M (
+				LANG_CODE
+				, CMMNTY_ID
+				, CMMNTY_MENU_CODE
+				, SCHDUL_SEQ
+				, SCHDUL_SJ
+				, BEGIN_DATE
+				, END_DATE
+				, BEGIN_TIME_SE
+				, END_TIME_SE
+				, SCHDUL_CN
+				, BEGIN_HM
+				, END_HM
+				, OTHBC_SETUP_CD
+				, REGIST_ID
+				, REGIST_DT
+		)VALUES (
+				#{langCode}
+				, #{cmmntyId}
+				, #{cmmntyMenuCode}
+				,  (	SELECT NVL(MAX(SCHDUL_SEQ),0)+1
+					FROM TCM_CMNT_SCHD_M
+					WHERE 
+						CMMNTY_ID = #{cmmntyId}
+						AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+						AND LANG_CODE = #{langCode} )
+				, #{schdulSj}
+				, #{beginDate}
+				, #{endDate}
+				, #{beginTimeSe}
+				, #{endTimeSe}
+				, #{schdulCn}
+				, #{beginHm}
+				, #{endHm}
+				, #{othbcSetupCd}
+				, #{registId}
+				, SYSDATETIME
+		)
+	</insert>
+	<!-- 일정 수정 -->
+	<update id="cmUserPlanCalUpdate" parameterType="cmUserPlanVO">
+	/* cmUserPlan-sqlmap.xml  _cmUserPlan.cmUserPlanCalUpdate */
+	UPDATE TCM_CMNT_SCHD_M 
+	SET 
+		SCHDUL_SJ = #{schdulSj} 
+		, BEGIN_DATE = #{beginDate}  
+		, END_DATE = #{endDate}  
+		, BEGIN_TIME_SE = #{beginTimeSe} 
+		, END_TIME_SE = #{endTimeSe}  
+		, SCHDUL_CN = #{schdulCn}  
+		, BEGIN_HM = #{beginHm} 
+		, END_HM = #{endHm} 
+		, OTHBC_SETUP_CD = #{othbcSetupCd}  
+		, UPDT_ID = #{updtId}  
+		, UPDT_DT = SYSDATETIME
+	WHERE 
+		LANG_CODE = #{langCode}  
+		AND CMMNTY_ID = #{cmmntyId}  
+		AND CMMNTY_MENU_CODE = #{cmmntyMenuCode} 
+		AND SCHDUL_SEQ = #{schdulSeq}  
+	</update>
+	<!-- 일정 삭제 -->
+	<delete  id="cmUserPlanCalDelete" parameterType="cmUserPlanVO">
+	/* cmUserPlan-sqlmap.xml  _cmUserPlan.cmUserPlanCalDelete */
+		DELETE 
+		FROM 
+			TCM_CMNT_SCHD_M 
+		WHERE 
+			LANG_CODE = #{langCode}  
+			AND CMMNTY_ID = #{cmmntyId}  
+			AND CMMNTY_MENU_CODE = #{cmmntyMenuCode} 
+			AND SCHDUL_SEQ = #{schdulSeq}  
+	</delete>
+</mapper>

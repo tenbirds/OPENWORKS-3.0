@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_wishorder">
+    
+  <!--
+   * SQL 명      : _wishorder.wishOrderCount
+   * 기능(설명)  : 구매희망
+   * 작   성   자  : (주)엔키소프트
+   * 작   성   일  : 2016-02-01
+  -->
+    
+  <select id="wishOrderCount" parameterType="map" resultType="int">
+
+  /*_wishorder.wishOrderCount*/
+
+        SELECT COUNT(A.GOODS_CODE) AS totalCount
+          FROM TCM_WISHORDER_DETAIL_L A
+         WHERE GRP_SEQ    = #{grpSeq} 
+           AND GOODS_CODE = #{goodsCode}
+           AND USER_ID    = #{userId}
+
+  </select>
+ 
+  <insert id="inforInsert" parameterType="WishOrderVO">
+  
+  /*_wishorder.inforInsert*/
+  
+         <selectKey order="BEFORE" keyProperty="grpSeq" resultType="int">
+            SELECT NVL(MAX(GRP_SEQ), 0) + 1
+              FROM TCM_WISHORDER_INFO_I
+             WHERE USER_ID = #{userId}
+        </selectKey>  
+         
+        INSERT INTO TCM_WISHORDER_INFO_I
+                  ( USER_ID
+                  , GRP_SEQ
+                  , AUDITLOG_NM
+                  , GOODS_TYCD
+                  , CTGRY_CODE
+                  , FILTER_CON
+                  , KEY_WORD
+                  , SRC_DT 
+                  ) 
+             VALUES 
+                  ( #{userId}
+                  , #{grpSeq}
+                  , #{auditlogNm}
+                  , #{goodsTyCd}
+                  , #{ctgryCode}
+                  , #{filterCon}
+                  , #{keyWord}             
+                  , SYS_DATETIME
+                  ) 
+  </insert>
+   
+  <insert id="goodsListInsert" parameterType="map">
+    
+  /*_wishorder.goodsListInsert*/
+    
+        INSERT INTO TCM_WISHORDER_DETAIL_L 
+                  ( USER_ID
+                  , GRP_SEQ
+                  , GOODS_CODE
+                  , SEL_CHK
+                  , REG_DT
+                  )
+             VALUES 
+                  ( #{userId}
+                  , #{grpSeq}
+                  , #{goodsCode}
+                  , #{selChk}
+                  , SYSDATETIME
+                  )
+                   
+  </insert> 
+   
+  <insert id="searchHistoryInsert" parameterType="map">
+    
+  /*_wishorder.searchHistoryInsert*/
+  /* 검색정보(키워드,필터)를 저장한다. id별,상품코드별 */
+    
+        INSERT INTO TST_GOOD_SEACH_HISTORY 
+                  ( USER_ID
+                  , GOODS_CODE
+                  , KEYWORD
+                  , FILTERCON
+                  , REGIST_DT
+                  )
+             VALUES 
+                  ( #{userId}
+                  , #{goodsCode}
+                  , #{keyword}
+                  , #{filterCon}
+                  , SYSDATETIME
+                  )
+                   
+  </insert> 
+        
+</mapper>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="join-wrap">
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>사이트맵</h2>
+				</div>
+				<!-- //title-area -->
+								
+				<!-- section -->
+				<div class="section">
+					<div class="join-area">
+						<!-- sitemap -->
+						<div class="sitemap">
+							<div class="fl">
+								<!-- SaaS -->
+								<dl>
+									<dt>SaaS</dt>
+									<dd>
+										<ul>
+										<li><a href="#">IT 서비스</a></li>
+										<li><a href="#">비즈니스</a></li>
+										<li><a href="#">마케팅</a></li>
+										<li><a href="#">산업</a></li>
+										<li><a href="#">기타</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //SaaS -->
+								<!-- PaaS -->
+								<dl>
+									<dt>PaaS</dt>
+									<dd>
+										<ul>
+										<li><a href="#">시스템 보안</a></li>
+										<li><a href="#">DBMS</a></li>
+										<li><a href="#">팀웨어</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //PaaS -->
+								<!-- IaaS -->
+								<dl>
+									<dt>IaaS</dt>
+									<dd>
+										<ul>
+										<li><a href="#">컴퓨팅</a></li>
+										<li><a href="#">스토리지</a></li>
+										<li><a href="#">네트워크</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //IaaS -->
+								<!-- 소개 -->
+								<dl>
+									<dt>소개</dt>
+									<dd>
+										<ul>
+										<li><a href="#">씨앗클라우드</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //소개 -->
+								<!-- 공지사항 -->
+								<dl>
+									<dt>공지사항</dt>
+									<dd>
+										<ul>
+										<li><a href="/new_cloud/UI_PCW_ET_003.html">공지사항</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //공지사항 -->
+								<!-- 고객센터 -->
+								<dl>
+									<dt>고객센터</dt>
+									<dd>
+										<ul>
+										<li><a href="/new_cloud/UI_PCW_ET_002.html">자주찾는 질문</a></li>
+										<li><a href="/new_cloud/qna.html">묻고 답하기</a></li>
+										<li><a href="/new_cloud/event.html">이벤트</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //고객센터 -->
+								<!-- 지식 -->
+								<dl>
+									<dt>지식</dt>
+									<dd>
+										<ul>
+										<li><a href="#">지식맵</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_002.html">지식나눔</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_003.html">행사 및 이벤트</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_004.html">나라장터 입찰정보</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_005.html">기타 입찰정보</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_006.html">성공스토리</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_007.html">뉴스레터</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_009.html">클라우드위키</a></li>
+										<li><a href="/new_cloud/UI_PCW_LI_003_008.html">커뮤니티</a></li>
+										</ul>
+									</dd>
+								</dl>
+								<!-- //지식 -->
+							</div>							
+							
+							<div class="fr">
+								<!-- 마이페이지 -->
+								<dl>
+									<dt>마이페이지</dt>
+									<dd>
+										<!-- 구매문의 -->
+										<dl>
+											<dt><a href="#">구매문의</a></dt>											
+										</dl>
+										<!-- //구매문의 -->
+										<!-- 관심목록 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-002-001-list.html">관심목록</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/Mypage-002-001-list.html">관심상품</a></li>
+												<li><a href="/new_cloud/Mypage-002-002-list.html">최근 본 상품</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //관심목록 -->
+										<!-- 나의 활동내역 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-003-001-list.html">나의 활동내역</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/Mypage-003-001-list.html">상품Q&amp;A</a></li>
+												<li><a href="/new_cloud/Mypage-003-002-list.html">묻고 답하기</a></li>
+												<li><a href="/new_cloud/Mypage-003-003-list.html">내가 쓴글</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //나의 활동내역 -->
+										<!-- 전문가상담 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-004-001-list.html">전문가상담</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/Mypage-004-001-list.html">전문가상담 내역</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //전문가상담 -->
+										<!-- 커뮤니티 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-005-001-list.html">커뮤니티</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/Mypage-005-001-list.html">가입 커뮤니티</a></li>
+												<li><a href="/new_cloud/Mypage-005-002-list.html">개설 커뮤니티</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //커뮤니티 -->
+										<!-- 이벤트 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-006-001-list.html">이벤트</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/Mypage-006-001-list.html">응모이벤트 내역</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //이벤트 -->
+										<!-- 회원정보 변경 -->
+										<dl>
+											<dt><a href="/new_cloud/Mypage-007-001-list.html">회원정보 변경</a></dt>											
+										</dl>
+										<!-- //회원정보 변경 -->
+									</dd>
+								</dl>
+								<!-- //마이페이지 -->
+
+								<!-- 판매하기 -->
+								<dl>
+									<dt>판매하기</dt>
+									<dd>
+										<!-- 상품관리 -->
+										<dl>
+											<dt><a href="/new_cloud/UI_PCW_MY_002_002.html">상품관리</a></dt>
+											<dd>
+												<ul>
+												<li><a href="/new_cloud/UI_PCW_MY_002_002.html">상품관리</a></li>
+												<li><a href="/new_cloud/UI_PCW_MY_002_003.html">상품 등록 대기</a></li>
+												<li><a href="/new_cloud/UI_PCW_MY_002_003_1.html">상품 등록</a></li>
+												<li><a href="/new_cloud/UI_PCW_MY_002_004.html">상품 삭제 목록</a></li>
+												<li><a href="#">상품 상세</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //상품관리 -->										
+										<!-- 문의관리 -->
+										<dl>
+											<dt><a href="#">문의관리</a></dt>											
+										</dl>
+										<!-- //문의관리 -->
+										<!-- 고객지원 -->
+										<dl>
+											<dt><a href="#">고객지원</a></dt>
+											<dd>
+												<ul>
+												<li><a href="#">Q&amp;A관리</a></li>
+												<li><a href="#">상품평</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //고객지원 -->
+										<!-- 통계 -->
+										<dl>
+											<dt><a href="#">통계</a></dt>
+											<dd>
+												<ul>
+												<li><a href="#">구매문의 통계</a></li>
+												</ul>
+											</dd>
+										</dl>
+										<!-- //통계 -->
+									</dd>
+								</dl>
+								<!-- //판매하기 -->
+							</div>
+						</div>
+						<!-- //sitemap -->
+					</div>
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

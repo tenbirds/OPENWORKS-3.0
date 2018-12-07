@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_banner">
+
+    <sql id="dynamicWhere">        
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND A.BANNER_TITLE LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_domainCd != null  and q_domainCd != ''">
+                AND A.BANNER_SN  IN (SELECT BANNER_SN FROM OP_BANNER_DOMAIN WHERE DOMAIN_CD = #{q_domainCd})
+            </if>
+            <if test="bannerTyCd != null  and bannerTyCd != ''">
+                AND A.BANNER_TY_CD = #{bannerTyCd}
+            </if>
+        
+        AND BANNER_DELETE_AT = 'N'
+         
+    </sql>
+
+     <select id="bannerList" parameterType="map" resultType="bannerVO">
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT
+                    A.BANNER_SN AS bannerSn,
+                    A.BANNER_TITLE AS bannerTitle,
+                    A.IMAGE_ALT     AS  imageAlt,
+                    A.BEGIN_DATE AS beginDate,
+                    A.END_DATE AS endDate,
+                    (SELECT B.INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ B 
+                      WHERE B.LANG_CODE = <if test="langCode != null and langCode != ''">#{lang_Code}</if><if test="langCode == null or langCode == ''">'00'</if>
+                        AND B.GROUP_CD = 40 AND B.INDVDLZ_CD = A.BANNER_TY_CD) AS bannerTyNm,
+                    A.BANNER_FILE_PATH AS bannerFilePath,
+                    DECODE(
+                        SIGN(A.BEGIN_DATE - TO_CHAR(SYSDATE,'YYYYMMDD'))
+                         +
+                        SIGN(A.END_DATE - TO_CHAR(SYSDATE,'YYYYMMDD'))
+                        ,-2,0,2,2,1) AS gubun,
+                    TO_CHAR(A.REGIST_DT, 'YYYY-MM-DD') AS registDt,
+                    A.USE_YN AS useYn,
+                    A.REGIST_ID AS registId
+                  , A.ADVRTS_CLIENT_CD   AS advrtsClientCd
+                  , B.indvdlz_cd_nm  AS advrtsClientNm
+                FROM OP_BANNER A, op_code_indvdlz B
+               WHERE A.ADVRTS_CLIENT_CD = B.INDVDLZ_CD (+)
+                 AND 80 = B.GROUP_CD(+)
+                <include refid="dynamicWhere"/>
+                ORDER BY A.BANNER_SN DESC
+            ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="bannerCount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(A.BANNER_SN) AS totalCount
+        FROM
+            OP_BANNER A
+       WHERE 1=1
+        <include refid="dynamicWhere"/>
+    </select>
+
+    <insert id="bannerInsert" parameterType="bannerVO">
+        <selectKey order="BEFORE" keyProperty="bannerSn" resultType="int">
+            SELECT NVL(MAX(BANNER_SN) + 1,1) FROM OP_BANNER 
+        </selectKey>
+        INSERT INTO OP_BANNER (
+            BANNER_SN,
+            BANNER_TITLE,
+            BEGIN_DATE,
+            END_DATE,
+            USE_YN,
+            LINK_TY_CD,
+            BANNER_TY_CD,
+            LINK_URL,
+            IMAGE_ALT,
+            BANNER_DC,
+            BANNER_FILE_PATH,
+            REGIST_ID,
+            REGIST_DT,
+            ADVRTS_CLIENT_CD
+        ) VALUES (
+            #{bannerSn},
+            #{bannerTitle},
+            #{beginDate},
+            #{endDate},
+            #{useYn},
+            #{linkTyCd},
+            #{bannerTyCd},
+            #{linkUrl},
+            #{imageAlt},
+            #{bannerDc},
+            #{bannerFilePath},
+            #{registId},
+            SYSDATETIME,
+            #{advrtsClientCd}
+        )
+    </insert>
+
+    <select id="bannerUpdateForm" parameterType="bannerVO" resultType="bannerVO">
+       SELECT 
+               BANNER_SN AS bannerSn
+             , BANNER_TITLE AS bannerTitle
+             , BEGIN_DATE AS beginDate
+             , END_DATE AS endDate
+             , USE_YN AS useYn
+             , LINK_TY_CD AS linkTyCd
+             , BANNER_TY_CD AS bannerTyCd
+             , LINK_URL AS linkUrl
+             , IMAGE_ALT AS imageAlt
+             , BANNER_DC AS bannerDc
+             , BANNER_FILE_PATH AS bannerFilePath
+             , REGIST_ID AS registId
+             , ADVRTS_CLIENT_CD advrtsClientCd
+             , BANNER_CLICK_CO bannerClickCo
+          FROM OP_BANNER
+         WHERE BANNER_SN = #{bannerSn}
+    </select>
+
+    <update id="delfile" parameterType="bannerVO">
+        UPDATE    OP_BANNER
+        SET
+        BANNER_FILE_PATH = ''
+        WHERE BANNER_SN = #{bannerSn}
+    </update>
+
+    <select id="bannerFilePath" parameterType="bannerVO" resultType="string">
+        SELECT BANNER_FILE_PATH AS bannerFilePath
+        FROM OP_BANNER
+        WHERE BANNER_SN = #{bannerSn}
+    </select>
+
+    <update id="bannerUpdate" parameterType="bannerVO">
+        UPDATE OP_BANNER
+        SET
+             BANNER_TITLE     =#{bannerTitle},
+             BEGIN_DATE       =#{beginDate},
+             END_DATE         =#{endDate},
+             <if test="useYn != null  and useYn != ''">
+             USE_YN         =#{useYn},
+             </if>
+             <if test="linkTyCd != null  and linkTyCd != ''">
+             LINK_TY_CD      =#{linkTyCd},
+             </if>
+             <if test="bannerTyCd != null  and bannerTyCd != ''">
+             BANNER_TY_CD    =#{bannerTyCd},
+             </if>
+             <if test="linkUrl != null  and linkUrl != ''">
+             LINK_URL       =#{linkUrl},
+             </if>
+             <if test="imageAlt != null  and imageAlt != ''">
+             IMAGE_ALT        =#{imageAlt},
+             </if>
+             <if test="bannerDc != null  and bannerDc != ''">
+             BANNER_DC    =#{bannerDc},
+             </if>
+             <if test="bannerFilePath != null  and bannerFilePath != ''">
+             BANNER_FILE_PATH      =#{bannerFilePath},
+             </if>
+             ADVRTS_CLIENT_CD      =#{advrtsClientCd},
+             UPDT_ID         =#{updtId},
+             UPDT_DT        =SYSDATE
+       WHERE BANNER_SN = #{bannerSn}
+     </update>
+
+    <select id="domainList" parameterType="bannerVO" resultType="bannerVO">
+         SELECT  DOMAIN_CD AS domainCd,
+                DOMAIN_NM AS domainNm,
+                DOMAIN_DC  AS domainDc,
+                (SELECT DOMAIN_CD FROM OP_BANNER_DOMAIN WHERE A.DOMAIN_CD =  DOMAIN_CD AND BANNER_SN = #{bannerSn}) AS checkYn
+            FROM OP_DOMAIN A
+            WHERE USE_YN = 'Y'
+              AND DOMAIN_CD  != 1
+            ORDER BY  DOMAIN_CD
+    </select>
+
+    <select id="bannerLcSeList"  parameterType="bannerVO" resultType="bannerVO">
+          SELECT 
+               INDVDLZ_CD AS bannerLcSeCd
+              ,INDVDLZ_CD_NM AS bannerLcSeNm
+              ,(SELECT BANNER_LC_SE_CD FROM OP_BANNER_LC_INFO WHERE A.INDVDLZ_CD = BANNER_LC_SE_CD AND BANNER_SN = #{bannerSn}) AS checkYn
+         FROM OP_CODE_INDVDLZ A
+        WHERE GROUP_CD = 1004 
+          AND USE_YN = 'Y'
+        ORDER BY A.CD_SORT_NO
+    </select>
+
+    <select id="orderList" parameterType="bannerVO" resultType="bannerVO">
+        SELECT  A.BANNER_TITLE AS bannerTitle,
+                B.DOMAIN_CD AS domainCd,
+                B.BANNER_SORT_NO AS bannerSortNo,
+                B.BANNER_SN AS bannerSn,
+                DECODE(
+                        SIGN(A.BEGIN_DATE - TO_CHAR(SYSDATE,'YYYYMMDD'))
+                         +
+                        SIGN(A.END_DATE - TO_CHAR(SYSDATE,'YYYYMMDD'))
+                        ,-2,0,2,2,1) AS gubun,
+                A.USE_YN AS useYn
+            FROM OP_BANNER A,OP_BANNER_DOMAIN B
+            WHERE A.BANNER_TY_CD = #{bannerTyCd}
+            AND   B.DOMAIN_CD = #{domainCd}
+            AND   A.BANNER_SN = B.BANNER_SN
+            AND   A.USE_YN = 'Y'
+            AND   (A.BEGIN_DATE &gt;= TO_CHAR(SYSDATE,'YYYYMMDD')
+            OR A.END_DATE &gt;= TO_CHAR(SYSDATE,'YYYYMMDD'))
+            ORDER BY B.BANNER_SORT_NO
+    </select>
+
+    <insert id="bannerInsertDomainCd" parameterType="bannerVO">
+        <selectKey order="BEFORE" keyProperty="domainSn" resultType="int">
+            SELECT NVL(MAX(DOMAIN_SN) + 1,1) FROM OP_BANNER_DOMAIN 
+        </selectKey>
+
+        INSERT INTO OP_BANNER_DOMAIN(
+                DOMAIN_SN
+               ,BANNER_SN 
+               ,DOMAIN_CD
+               ,BANNER_SORT_NO)
+        VALUES(
+                #{domainSn}
+            <if test="bannerSn == null or bannerSn == ''">
+                ,(SELECT NVL(MAX(BANNER_SN), 1) FROM OP_BANNER)
+            </if>
+            <if test="bannerSn != null  and bannerSn != ''">
+                ,#{bannerSn}
+            </if>
+               ,#{domainCd}
+            ,(SELECT NVL(MAX(BANNER_SORT_NO), 0) + 1 FROM OP_BANNER_DOMAIN WHERE DOMAIN_CD = #{domainCd})
+        )
+    </insert>
+    
+      <insert id="bannerInsertLsSeCd" parameterType="bannerVO">
+        <selectKey order="BEFORE" keyProperty="lcSeSn" resultType="int">
+            SELECT NVL(MAX(LC_SE_SN) + 1,1) FROM OP_BANNER_LC_INFO 
+        </selectKey>
+      
+        INSERT INTO OP_BANNER_LC_INFO(
+             LC_SE_SN
+            ,BANNER_SN
+            ,BANNER_LC_SE_CD
+        ) VALUES (
+              #{lcSeSn}
+        <if test="bannerSn == null or bannerSn == ''">
+            , (SELECT NVL(MAX(BANNER_SN), 1) FROM OP_BANNER)
+        </if>
+        <if test="bannerSn != null  and bannerSn != ''">
+            , #{bannerSn}
+        </if>
+            , #{bannerLcSeCd}
+        )
+    </insert>
+
+     <update id="bannerAtDel" parameterType="bannerVO">
+        UPDATE OP_BANNER SET
+                BANNER_DELETE_AT = 'Y'
+              , UPDT_ID              = #{updtId}
+              , UPDT_DT              = SYSDATE
+        WHERE BANNER_SN = #{bannerSn}
+    </update>    
+
+    
+    <delete id="bannerDel" parameterType="bannerVO">
+        DELETE OP_BANNER
+        WHERE BANNER_SN = #{bannerSn}
+    </delete>    
+
+    <delete id="bannerDomainDel" parameterType="bannerVO">
+        DELETE OP_BANNER_DOMAIN
+        WHERE BANNER_SN = #{bannerSn}
+    </delete>
+    
+    <delete id="bannerLcInfoDel" parameterType="bannerVO">
+        DELETE OP_BANNER_LC_INFO
+        WHERE BANNER_SN = #{bannerSn}
+    </delete>
+    
+
+    <select id="bannerDomainList" parameterType="bannerVO" resultType="bannerVO">
+        SELECT  DOMAIN_CD AS domainCd,
+                (SELECT DOMAIN_DC FROM OP_DOMAIN  WHERE A.DOMAIN_CD =  DOMAIN_CD) AS domainDc
+            FROM OP_BANNER_DOMAIN A
+            WHERE BANNER_SN = #{bannerSn}
+            ORDER BY DOMAIN_CD
+    </select>
+
+	<insert id="orderUpdate" parameterType="bannerVO">
+    	<selectKey order="BEFORE" keyProperty="domainSn" resultType="int">
+            SELECT NVL(MAX(DOMAIN_SN) + 1,1) FROM OP_BANNER_DOMAIN 
+    	</selectKey>
+        INSERT INTO OP_BANNER_DOMAIN(
+             DOMAIN_SN
+            ,BANNER_SN
+            ,DOMAIN_CD
+            ,BANNER_SORT_NO
+        )VALUES(
+             #{domainSn}
+            ,#{bannerSn}
+            ,#{domainCd}
+            ,(SELECT NVL(MAX(BANNER_SORT_NO), 0) + 1 FROM OP_BANNER_DOMAIN WHERE DOMAIN_CD = #{domainCd})
+        )
+    </insert>
+
+    <update id="useYnUpdate">
+        UPDATE OP_BANNER
+        SET
+            <if test="useYn != null  and useYn != ''">
+                USE_YN = #{useYn},
+            </if>
+            UPDT_DT = SYSDATE,
+            UPDT_ID = #{updtId}
+        WHERE BANNER_SN = #{bannerSn}
+    </update>
+
+    <delete id="orderDelete" parameterType="bannerVO">
+        DELETE OP_BANNER_DOMAIN
+         WHERE BANNER_SN = #{bannerSn}
+           AND DOMAIN_CD = #{domainCd}
+    </delete>
+
+    <select id="PopupZoneListToday" parameterType="map" resultType="bannerVO">
+            /* 메인팝업 및 팝업존, 광고배너 */    
+        SELECT 
+               A.BANNER_TITLE     AS bannerTitle 
+             , A.LINK_TY_CD       AS linkTyCd 
+             , A.LINK_URL         AS linkUrl 
+             , A.IMAGE_ALT        AS imageAlt 
+             , A.BANNER_FILE_PATH AS bannerFilePath 
+             , A.BANNER_DC        AS bannerDc 
+          FROM OP_BANNER A 
+             , OP_BANNER_DOMAIN B 
+         WHERE A.BANNER_TY_CD = #{bannerTyCd}
+           AND B.DOMAIN_CD = #{domainCd}
+           AND A.BANNER_SN = B.BANNER_SN 
+           AND A.USE_YN = 'Y' 
+           AND (A.BEGIN_DATE &gt;= TO_CHAR(SYSDATE, 'YYYYMMDD') 
+               OR A.END_DATE &gt;= TO_CHAR(SYSDATE, 'YYYYMMDD')
+               ) 
+         ORDER BY B.BANNER_SORT_NO 
+    </select>
+</mapper>

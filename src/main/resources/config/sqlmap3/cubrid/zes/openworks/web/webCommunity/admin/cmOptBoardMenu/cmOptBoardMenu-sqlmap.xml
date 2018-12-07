@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmOptBoardMenu">
+
+
+	<!-- 커뮤니티 사용자 메뉴 리스트 -->
+	<select 	id="cmOptBoardMenuTreeList"  parameterType="cmOptBoardMenuVO"  resultType="treeVO">
+	/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuTreeList */
+		SELECT 
+		
+				CMMNTY_MENU_CODE			AS id		
+				, CMMNTY_MENU_NM				AS text		 
+				, LANG_CODE							AS langCode	
+				, ''											AS cls	
+				, '1'										AS leaf
+				, CMMNTY_MENU_URL				AS href		
+				, '0'										AS [depth]
+				, CMMNTY_ID							AS cmmntyId
+				, MENU_BBS_SE						AS menuBbsSe			
+				, ESSNTL_MENU_AT					AS essntlMenuAt			
+				, SORT_ORDR							AS sortOrdr				
+				, CMMNTY_MENU_FOLDER_NM	AS cmmntyMenuFolderNm	
+				, MENU_CHARCT_CD				AS menuCharctCd	
+				, CMMNTY_MENU_DC				AS cmmntyMenuDc
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2002
+						AND opcode.INDVDLZ_CD = MENU_CHARCT_CD) 	AS menuCharctNm   				
+				, CMMNTY_BBS_TY_CD				AS cmmntyBbsTyCd		
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2001
+						AND opcode.INDVDLZ_CD = CMMNTY_BBS_TY_CD) 	AS cmmntyBbsTyNm  
+				, CMMNTY_BBS_CD					AS cmmntyBbsCd	
+		FROM 
+			TCM_MBER_MENU_I
+		WHERE 
+			LANG_CODE = #{langCode}
+			AND CMMNTY_ID = #{cmmntyId}
+			ORDER BY   SORT_ORDR ASC
+	</select>
+	
+	<!-- 커뮤니티 사용자 메뉴 상세-->
+	<select 	id="cmOptBoardMenuTreeView"  parameterType="cmOptBoardMenuVO"  resultType="cmOptBoardMenuVO">
+	/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.ccmOptBoardMenuTreeView */
+		SELECT 
+				LANG_CODE							AS langCode			
+				, CMMNTY_ID							AS cmmntyId
+				, CMMNTY_MENU_CODE			AS cmmntyMenuCode		
+				, MENU_BBS_SE						AS menuBbsSe			
+				, ESSNTL_MENU_AT					AS essntlMenuAt			
+				, SORT_ORDR							AS sortOrdr				
+				, CMMNTY_MENU_FOLDER_NM	AS cmmntyMenuFolderNm	
+				, CMMNTY_MENU_URL				AS cmmntyMenuUrl		
+				, CMMNTY_MENU_NM				AS cmmntyMenuNm		
+				, CMMNTY_MENU_DC				AS cmmntyMenuDc
+				, MENU_CHARCT_CD				AS menuCharctCd	
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2002
+						AND opcode.INDVDLZ_CD = MENU_CHARCT_CD) 	AS menuCharctNm   				
+				, CMMNTY_BBS_TY_CD				AS cmmntyBbsTyCd		
+				, (	SELECT 
+						opcode.INDVDLZ_CD_NM 
+					FROM OP_CODE_INDVDLZ opcode
+					WHERE 
+						opcode.LANG_CODE = #{langCode} 
+						AND opcode.GROUP_CD = 2001
+						AND opcode.INDVDLZ_CD = CMMNTY_BBS_TY_CD) 	AS cmmntyBbsTyNm  
+				, CMMNTY_BBS_CD					AS cmmntyBbsCd	
+		FROM 
+			TCM_MBER_MENU_I
+		WHERE 
+			LANG_CODE = #{langCode}
+			AND CMMNTY_ID = #{cmmntyId}
+			AND CMMNTY_MENU_CODE = #{cmmntyMenuCode}
+	</select>
+	<!-- 사용자 메뉴 추가 코드 생성-->
+	<select id="getCmmntyMberMenuCode"  parameterType="cmOptBoardMenuVO"  resultType="String" >
+		/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.getCmmntyMberMenuCode */
+		SELECT	
+			NVL(max(CMMNTY_MENU_CODE)+10, 2011)
+		FROM 
+			TCM_MBER_MENU_I
+		WHERE 
+			LANG_CODE = #{langCode}
+			AND CMMNTY_ID = #{cmmntyId}
+	</select>
+	<!-- 사용자 메뉴 추가 코드 생성-->
+	<select id="getCmmntyBBSCd"  parameterType="cmOptBoardMenuVO"  resultType="int" >
+	/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.getCmmntyBBSCd */
+		SELECT	
+			NVL(max(CMMNTY_BBS_CD)+10, 1011)
+		FROM 
+			TCM_MBER_MENU_I
+		WHERE 
+			LANG_CODE = #{langCode}
+			AND CMMNTY_ID = #{cmmntyId}
+	</select>
+	 	<!-- 커뮤니티 사용자 최초 생성 메뉴  저장-->
+	<insert  id="cmOptBoardMenuInsert" parameterType="cmOptBoardMenuVO" >
+	/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuInsert */
+		INSERT INTO TCM_MBER_MENU_I (
+		   LANG_CODE
+		   , CMMNTY_ID
+		   , CMMNTY_MENU_CODE
+		   , MENU_BBS_SE
+		   , ESSNTL_MENU_AT
+		   , SORT_ORDR
+		   , CMMNTY_MENU_FOLDER_NM
+		   , CMMNTY_MENU_URL
+		   , CMMNTY_MENU_NM
+		   , MENU_CHARCT_CD
+		   , CMMNTY_BBS_TY_CD
+		   , CMMNTY_BBS_CD
+		   , CMMNTY_MENU_DC
+		   ) VALUES (
+			#{langCode}	
+			, #{cmmntyId}			
+			, #{cmmntyMenuCode}	
+			, #{menuBbsSe}			/* 2 */
+			, #{essntlMenuAt}
+			, (SELECT NVL(MAX(SORT_ORDR),0)+1
+				       		FROM TCM_MBER_MENU_I
+						WHERE 
+							CMMNTY_ID = #{cmmntyId}
+							AND LANG_CODE = #{langCode})		
+			, #{cmmntyMenuFolderNm}
+			, #{cmmntyMenuUrl}		
+			, #{cmmntyMenuNm}		
+			, #{menuCharctCd}		 /* 1002*/
+			, #{cmmntyBbsTyCd}	/* 커뮤니티게시판유형코드  1001 기본형, 1002 FAQ형, 1003 갤러리형, 1004 답변형 */	
+			, #{cmmntyBbsCd}
+			, #{cmmntyMenuDc}
+		   )
+	</insert>
+	
+	<!-- 커뮤니티 사용자 메뉴 수정 -->
+	<update id="cmOptBoardMenuUpdate"  parameterType="cmOptBoardMenuVO" >
+	/* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuUpdate */
+		UPDATE 
+			TCM_MBER_MENU_I
+		SET    
+			 CMMNTY_MENU_NM 						= #{cmmntyMenuNm}
+			, CMMNTY_MENU_DC						= #{cmmntyMenuDc}
+		WHERE 
+			CMMNTY_ID 							= #{cmmntyId} 
+			AND LANG_CODE             		= #{langCode}
+			AND CMMNTY_MENU_CODE 	=#{cmmntyMenuCode}
+			 
+	</update>
+	
+	<!--  정렬 정보 리스트  -->
+	 <select id="cmOptBoardMenuSortOrdrList" parameterType="cmOptBoardMenuVO" resultType="cmOptBoardMenuVO">
+	 /* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuSortOrdrList */
+        SELECT   
+        		CMMNTY_ID							AS cmmntyId
+        		, CMMNTY_MENU_CODE			AS cmmntyMenuCode	
+               	, SORT_ORDR							AS sortOrdr
+         FROM 
+			TCM_MBER_MENU_I
+		WHERE 
+			LANG_CODE = #{langCode}
+			AND CMMNTY_ID = #{cmmntyId}
+			AND CMMNTY_MENU_CODE  NOT IN (#{cmmntyMenuCode})
+         	ORDER BY SORT_ORDR ASC
+    </select>
+     <!--  새정렬정보 수정  -->
+   <update id="cmOptBoardMenuSortOrdrUpdate" parameterType="cmOptBoardMenuVO">
+   	 /* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuSortOrdrUpdate */
+        UPDATE TCM_MBER_MENU_I
+           SET SORT_ORDR     = #{sortOrdr}
+         WHERE
+         	LANG_CODE 								= #{langCode}
+			AND CMMNTY_ID 						= #{cmmntyId}
+         	AND CMMNTY_MENU_CODE      = #{cmmntyMenuCode}
+    </update>
+    <!-- 메뉴 삭제 -->
+    <delete id="cmOptBoardMenuDelete" parameterType="cmOptBoardMenuVO">
+     /* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardMenuDelete */
+          DELETE
+          FROM TCM_MBER_MENU_I
+          WHERE  
+         	LANG_CODE 								= #{langCode}
+			AND CMMNTY_ID 						= #{cmmntyId}
+         	AND CMMNTY_MENU_CODE      = #{cmmntyMenuCode} 
+    </delete>
+    <!-- 게시판 데이터 삭제 -->
+    <delete  id="cmOptBoardBBSDelete" parameterType="cmOptBoardMenuVO">
+     /* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardBBSDelete */
+    	  DELETE
+          FROM TCM_CMNT_NTT_I
+          WHERE  
+         	LANG_CODE 								= #{langCode}
+			AND CMMNTY_ID 						= #{cmmntyId}
+         	AND CMMNTY_MENU_CODE      = #{cmmntyMenuCode} 
+    </delete>
+     <!-- 게시판 댓글 삭제 -->
+    <delete  id="cmOptBoardCMTDelete" parameterType="cmOptBoardMenuVO">
+     /* cmOptBoardMenu-sqlmap.xml  _cmOptBoardMenu.cmOptBoardCMTDelete */
+    	  DELETE
+          FROM TCM_NTT_CMT_I
+          WHERE  
+         	LANG_CODE 								= #{langCode}
+			AND CMMNTY_ID 						= #{cmmntyId}
+         	AND CMMNTY_MENU_CODE      = #{cmmntyMenuCode} 
+    </delete>
+</mapper>

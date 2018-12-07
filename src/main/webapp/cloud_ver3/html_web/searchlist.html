@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ko">
+ <head>  
+  <meta charset="UTF-8" />
+  <title>검색결과 리스트</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body>
+	<!--header -->
+	<header id="gnb">
+		<div class="conWrap">
+			<h1>
+				<a href="#"><img
+					src="/cloud_ver3/html_web/images/logo_header.png" width="173"
+					height="47" alt="클라우드 스토어 씨앗" /></a>
+			</h1>
+
+			<!-- 상단 메뉴 -->
+			<aside>
+				<div>
+					<!-- 구글 사이트 번역 API -->
+					<div id="google_translate_element"></div>
+					<script type="text/javascript">
+						function googleTranslateElementInit() {
+							new google.translate.TranslateElement(
+				 					{
+										pageLanguage : 'ko',
+										layout : google.translate.TranslateElement.InlineLayout.SIMPLE
+									}, 'google_translate_element');
+						}
+					</script>
+					<script type="text/javascript"
+						src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!--// 구글 사이트 번역 API -->
+
+					<ul>
+						<li><i><a href="#">3</a></i></li>
+						<li><a href="#">로그아웃</a></li>
+						<li><a href="#">이용희망목록</a></li>
+						<li><a href="#">마이씨앗</a></li>
+						<li><a href="#">고객센터</a></li>
+					</ul>
+				</div>
+
+				<!-- 전체 검색 -->
+				<form>
+					<input type="text" accesskey="s" title="검색어" class="keyword"
+						placeholder="클라우드 서비스 검색"> <input type="image"
+						class="srchBtn" alt="검색"
+						src="/cloud_ver3/html_web/images/icon_Hsearch.gif">
+				</form>
+				<!--// 전체 검색 -->
+			</aside>
+			<!-- 상단 메뉴 -->
+		</div>
+
+		<!-- gnb -->
+		<nav>
+			<div class="conWrap">
+				<a href="#" class="view_allmenu"></a>
+				<ul>
+					<li><a href="#">SaaS</a> <!-- 해당 카테고리에 위치시 클래스명 now 추가 -->
+						<ul>
+							<li><a href="#">SaaS(Service as a Service)</a></li>
+							<li><a href="#">세일즈</a></li>
+							<li><a href="#">교육</a></li>
+							<li><a href="#">IT관리</a></li>
+							<li><a href="#">생산관리</a></li>
+							<li><a href="#">마케팅</a></li>
+							<li><a href="#">운송/물류</a></li>
+							<li><a href="#">프로젝트 관리</a></li>
+							<li><a href="#">회계/금융</a></li>
+							<li><a href="#">고객 관계 관리(CRM)</a></li>
+							<li><a href="#">에너지/환경</a></li>
+							<li><a href="#">소프트웨어 개발도구</a></li>
+							<li><a href="#">인적 자원 관리</a></li>
+							<li><a href="#">도서</a></li>
+							<li><a href="#">전자문서/기록관리(EDRM)</a></li>
+							<li><a href="#">법률</a></li>
+							<li><a href="#">협업도구</a></li>
+							<li><a href="#">문화</a></li>
+							<li><a href="#">크리에이티브&amp;디자인</a></li>
+							<li><a href="#">보안</a></li>
+							<li class="2dt"><a href="#">AIaaS(AI as a Service)</a></li>
+							<li><a href="#">인공지능</a></li>
+							<li class="2dt"><a href="#">DaaS(Data as a Service)</a></li>
+							<li><a href="#">데이터관리</a></li>
+							<li class="2dt"><a href="#">AaaS(Analytics as a Service)</a></li>
+							<li><a href="#">의사결정지원/분석</a></li>
+						</ul></li>
+					<li><a href="#">Paas</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+						</ul></li>
+					<li><a href="#">laaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">컴퓨팅</a></li>
+							<li><a href="#">스토리지</a></li>
+							<li><a href="#">네트워킹</a></li>
+							<li><a href="#">인공지능</a></li>
+						</ul></li>
+					<li><a href="#">클라우드 허브</a>
+						<ul>
+							<li><a href="#">정책동향</a></li>
+							<li><a href="#">시장동향</a></li>
+							<li><a href="#">해외동향</a></li>
+							<li><a href="#">관련법규</a></li>
+							<li><a href="#">비즈매칭</a></li>
+							<li><a href="#">공고</a></li>
+							<li><a href="#">관련사이트</a></li>
+							<li><a href="#">커뮤니티</a></li>
+						</ul></li>
+					<li><a href="#">씨앗소식</a>
+						<ul>
+							<li><a href="#">도입사례</a></li>
+							<li><a href="#">씨앗통계</a></li>
+							<li><a href="#">공지사항</a></li>
+							<li><a href="#">행사/세미나</a></li>
+							<li><a href="#">씨앗 블로그</a></li>
+							<li><a href="#">뉴스레터</a></li>
+						</ul></li>
+					<li><a href="#">이용안내</a>
+						<ul>
+							<li><a href="#">서비스 이용절차</a></li>
+							<li><a href="#">서비스 제공절차</a></li>
+							<li><a href="#">기본협약체결 안내</a></li>
+							<li><a href="#">서식 및 자료실</a></li>
+							<li><a href="#">고객센터</a></li>
+						</ul></li>
+					<li><a href="#">씨앗소개</a>
+						<ul>
+							<li><a href="#">씨앗소개</a></li>
+							<li><a href="#">Contact</a></li>
+							<li><a href="#">오시는길</a></li>
+						</ul></li>
+				</ul>
+			</div>
+
+			<!-- allmenu -->
+			<div class="all_menu">
+				<div class="conWrap">
+					<table>
+						<tr>
+							<th>SaaS</th>
+							<th>Paas</th>
+							<th>laas</th>
+							<th>클라우드 허브</th>
+							<th>씨앗소식</th>
+							<th>이용안내</th>
+							<th>씨앗소개</th>
+						</tr>
+						<tr>
+							<td>
+								<ul id="allmenu_item">
+									<li class="depth2"><a href="#">SaaS(Service as a
+											Service)</a>
+										<ul class="depth3">
+											<li><a href="#">세일즈</a></li>
+											<li><a href="#">교육</a></li>
+											<li><a href="#">IT관리</a></li>
+											<li><a href="#">생산관리</a></li>
+											<li><a href="#">마케팅</a></li>
+											<li><a href="#">운송/물류</a></li>
+											<li><a href="#">프로젝트 관리</a></li>
+											<li><a href="#">회계/금융</a></li>
+											<li><a href="#">고객 관계 관리(CRM)</a></li>
+											<li><a href="#">에너지/환경</a></li>
+											<li><a href="#">소프트웨어 개발도구</a></li>
+											<li><a href="#">인적 자원 관리</a></li>
+											<li><a href="#">도서</a></li>
+											<li><a href="#">전자문서/기록관리(EDRM)</a></li>
+											<li><a href="#">법률</a></li>
+											<li><a href="#">협업도구</a></li>
+											<li><a href="#">문화</a></li>
+											<li><a href="#">크리에이티브&amp;디자인</a></li>
+											<li><a href="#">보안</a></li>
+										</ul></li>
+									<li class="depth2"><a href="#">AIaaS(AI as a Service)</a>
+										<ul class="depth3">
+											<li><a href="#">인공지능</a></li>
+										</ul></li>
+									<li class="depth2"><a href="#">DaaS(Data as a Service)</a>
+										<ul class="depth3">
+											<li><a href="#">데이터관리</a></li>
+										</ul></li>
+									<li class="depth2"><a href="#">AaaS(Analytics as a
+											Service)</a>
+										<ul class="depth3">
+											<li><a href="#">의사결정지원/분석</a></li>
+										</ul></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">컴퓨팅</a></li>
+									<li><a href="#">스토리지</a></li>
+									<li><a href="#">네트워킹</a></li>
+									<li><a href="#">인공지능</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">정책동향</a></li>
+									<li><a href="#">시장동향</a></li>
+									<li><a href="#">해외동향</a></li>
+									<li><a href="#">관련법규</a></li>
+									<li><a href="#">비즈매칭</a></li>
+									<li><a href="#">공고</a></li>
+									<li><a href="#">관련사이트</a></li>
+									<li><a href="#">커뮤니티</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">도입사례</a></li>
+									<li><a href="#">씨앗통계</a></li>
+									<li><a href="#">공지사항</a></li>
+									<li><a href="#">행사/세미나</a></li>
+									<li><a href="#">씨앗 블로그</a></li>
+									<li><a href="#">뉴스레터</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">서비스 이용절차</a></li>
+									<li><a href="#">서비스 제공절차</a></li>
+									<li><a href="#">기본협약체결 안내</a></li>
+									<li><a href="#">서식 및 자료실</a></li>
+									<li><a href="#">고객센터</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">씨앗소개</a></li>
+									<li><a href="#">Contact</a></li>
+									<li><a href="#">오시는길</a></li>
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<th>마이씨앗</th>
+							<th>공급자씨앗</th>
+							<th>로그인</th>
+							<th>회원가입</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">구매내역</a></li>
+									<li><a href="#">공고관리</a>
+										<ul>
+											<li><a href="#">지명공고 등록</a></li>
+											<li><a href="#">수요공고</a></li>
+										</ul></li>
+									<li><a href="#">계약관리</a>
+										<ul>
+											<li><a href="#">수의계약 체결</a></li>
+											<li><a href="#">입찰계약대상 선정</a></li>
+										</ul></li>
+									<li><a href="#">견적서관리</a></li>
+									<li><a href="#">관심목록</a></li>
+									<li><a href="#">나의게시물</a></li>
+									<li><a href="#">커뮤니티</a></li>
+									<li><a href="#">회원정보 관리</a></li>
+									<li><a href="#">협약체결관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">공급자홈</a></li>
+									<li><a href="#">씨앗공지</a></li>
+									<li><a href="#">상세정보(견적)요청 답변관리</a></li>
+									<li><a href="#">사전견적답변관리</a></li>
+									<li><a href="#">공고참여현황</a></li>
+									<li><a href="#">공급현황</a></li>
+									<li><a href="#">공급서비스관리</a></li>
+									<li><a href="#">Q&amp;A 관리</a></li>
+									<li><a href="#">비즈매칭 관리</a></li>
+									<li><a href="#">마스터/서브관리</a></li>
+									<li><a href="#">공급자정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">아이디 찾기</a></li>
+									<li><a href="#">비밀번호 찾기</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">일반회원가입</a></li>
+									<li><a href="#">공공회원가입</a></li>
+									<li><a href="#">공급권한신청</a></li>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!--// allmenu -->
+		</nav>
+		<!--// gnb -->
+	</header>
+	<!--// header -->
+
+	<!-- content -->
+	<div class="conWrap new_schResult">
+		<div class="sch_area">
+			<div class="input_area">
+				<select>
+	              <option>통합검색</option>
+	              <option></option>
+	            </select>
+	            <input type="text" placeholder="검색어" />
+            </div>
+            <a href="#none" alt="">검색</a>
+		</div>
+        <!--필터검색-->
+		<div class="filter_area">
+			<p>필터검색</p>
+			<ul class="btn_top">
+				<li><a href="#" class="btns st3">초기화</a></li>
+				<li><a href="#" class="btns st5">적용</a></li>
+			</ul>
+			<div class="filter_St01 clearfix">
+				<h3>공공기관 이용 필터</h3>
+				<ul class="clearfix">
+					<li><label><input name="" type="checkbox" value="">클라우드 보안인증 (KISA)</label></li>
+					<li><label><input name="" type="checkbox" value="">데이터센터 국내위치</label></li>
+					<li><label><input name="" type="checkbox" value="">데이터센터 국외위치</label></li>
+					<li><label><input name="" type="checkbox" value="">나라장터종합쇼핑몰 서비스</label></li>
+				</ul>
+			</div>
+			<div class="filter_St01 clearfix">
+				<h3>클라우드 구축방식</h3>
+				<ul class="clearfix">
+					<li><label><input name="" type="checkbox" value="">Private Cloud</label></li>
+					<li><label><input name="" type="checkbox" value="">Public Cloud</label></li>
+					<li><label><input name="" type="checkbox" value="">Hybrid Cloud</label></li>
+					<li><label><input name="" type="checkbox" value="">나라장터종합쇼핑몰 서비스</label></li>
+				</ul>
+			</div>
+			<div class="filter_St01 clearfix">
+				<h3>클라우드 인증정보</h3>
+				<ul class="clearfix">
+					<li><label><input name="" type="checkbox" value="">IaaS 보안인증</label></li>
+					<li><label><input name="" type="checkbox" value="">클라우드서비스 품질인증</label></li>
+					<li><label><input name="" type="checkbox" value="">CC인증</label></li>
+					<li><label><input name="" type="checkbox" value="">GS인증</label></li>
+				</ul>
+			</div>
+			<a href="#none" class="btn_open">확장</a>
+			<div class="filter_close">					
+				<a href="#none" class="btn_close">숨김</a>
+				<div class="filter_St01 clearfix">
+					<h3>최소 계약단위</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">1시간</label></li>
+						<li><label><input name="" type="checkbox" value="">1일</label></li>
+						<li><label><input name="" type="checkbox" value="">1개월</label></li>
+						<li><label><input name="" type="checkbox" value="">1년</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>서비스관리</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">부하분산처리</label></li>
+						<li><label><input name="" type="checkbox" value="">클러스터링</label></li>
+						<li><label><input name="" type="checkbox" value="">자동확장</label></li>
+						<li><label><input name="" type="checkbox" value="">백업/복구</label></li>
+						<li><label><input name="" type="checkbox" value="">보안/암호화</label></li>
+						<li><label><input name="" type="checkbox" value="">무중단 배포</label></li>
+						<li><label><input name="" type="checkbox" value="">실시간 장애처리</label></li>
+						<li><label><input name="" type="checkbox" value="">SLA 적용</label></li>
+						<li><label><input name="" type="checkbox" value="">고객센터 운영</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>호환성 지원</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">다중플랫폼 강화</label></li>
+						<li><label><input name="" type="checkbox" value="">개방형 표준 지원</label></li>
+						<li><label><input name="" type="checkbox" value="">정부표준프레임워크 지원</label></li>
+						<li><label><input name="" type="checkbox" value="">오픈소스 SW지원</label></li>
+						<li><label><input name="" type="checkbox" value="">PaaS-Ta 지원</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>개발지원</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">소스공개</label></li>
+						<li><label><input name="" type="checkbox" value="">공급사 추가개발지원</label></li>
+						<li><label><input name="" type="checkbox" value="">제3자 추가개발지원</label></li>
+						<li><label><input name="" type="checkbox" value="">외부 API access지원</label></li>
+						<li><label><input name="" type="checkbox" value="">DB 마이그레이션</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>교육, 기술지원</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">정기교육</label></li>
+						<li><label><input name="" type="checkbox" value="">방문교육</label></li>
+						<li><label><input name="" type="checkbox" value="">매뉴얼 제공</label></li>
+						<li><label><input name="" type="checkbox" value="">방문 기술지원</label></li>
+						<li><label><input name="" type="checkbox" value="">온라인,이메일,전화 기술 지원</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>관리정보제공</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">실시간 관리 정보 제공</label></li>
+						<li><label><input name="" type="checkbox" value="">이벤트 관리 정보 제공</label></li>
+						<li><label><input name="" type="checkbox" value="">이용 로그 제공</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>기업구분</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">중소기업</label></li>
+						<li><label><input name="" type="checkbox" value="">중견기업</label></li>
+						<li><label><input name="" type="checkbox" value="">대기업</label></li>
+						<li><label><input name="" type="checkbox" value="">해외기업</label></li>
+					</ul>
+				</div>
+				<div class="filter_St01 clearfix">
+					<h3>체험판</h3>
+					<ul class="clearfix">
+						<li><label><input name="" type="checkbox" value="">무료 체험판 제공</label></li>
+					</ul>
+				</div>
+			</div>			
+		</div>
+		<!--필터검색 end-->
+
+		<div class="list_product">
+			<ul class="nav_list">
+				<li><a href="#none" class="select"><strong>전체</strong>(N+M건)</a></li>
+				<li><a href="#none"><strong>SaaS</strong>(N건)</a></li>
+				<li><a href="#none"><strong>PaaS</strong>(N건)</a></li>
+				<li><a href="#none"><strong>IaaS</strong>(N건)</a></li>
+				<li><a href="#none"><strong>지식</strong>(N건)</a></li>
+				<li><a href="#none"><strong>소개</strong>(N건)</a></li>
+				<li><a href="#none"><strong>비즈매칭</strong>(N건)</a></li>
+				<li><a href="#none"><strong>고객센터</strong>(N건)</a></li>
+				<li><a href="#none"><strong>공지사항</strong>(N건)</a></li>
+				<li><a href="#none"><strong>나라장터 입찰<br />정보</strong>(N건)</a></li>
+				<li><a href="#none"><strong>나라장터 계약<br />정보</strong>(N건)</a></li>
+				<li><a href="#none"><strong>입찰정보</strong>(N건)</a></li>
+			</ul>
+			<p class="tit">SaaS<span>(N건)</span></p>	
+			<!-- 필터 적용 결과 -->
+			<p class="filter_result">
+				<i>CC인증</i>
+				필터 적용 결과 입니다.
+			</p>
+			<!-- //필터 적용 결과 -->
+			<div class="btnArea">
+				<div class="f_l">
+					<a href="#" class="btns st5">비교</a>
+				</div>
+				<div class="f_r">
+					<a href="#" class="btns st1">이용희망목록 담기</a>
+					<span class="sel_box jqtransformdone" style="width: 121px;">
+						<div class="jq_sel" style="z-index: 50;">
+							<div><span>최신 등록순</span><span class="jqTransformSelectOpen" style="cursor: pointer;"></span></div>
+							<ul style="width: 121px; visibility: visible; display: block;">
+								<li><a href="#" index="0" class="selected">최신 등록순</a></li>
+								<li><a href="#" index="1">조회순</a></li>
+							</ul>
+							<span class="selectbox_title jq_sel_hide" style="width:75px;vertical-align:middle;display:none;cursor:pointer;"><strong>최신 등록순</strong></span>
+							<select name="q_searchKeyType" id="q_searchKeyType" onchange="selectSort(this.value,'1001');" class="jq_sel_hide" style="position: absolute; left: -100000px; display: none; height: auto;">
+								<option value="1" selected="selected">최신 등록순</option>
+								<option value="3">조회순</option>
+							</select>
+						</div>
+					</span>
+				</div>
+			</div>
+			<ul class="view_list">
+				<li>
+					<p class="name_product">
+						<input name="" type="checkbox" value="">
+						<a href="#">온라인 평가시스템</a> 
+						<img src="images/icon_confirm1.jpg" width="25" height="26">
+						<img src="images/icon_confirm2.jpg" width="26" height="26"></span>
+					</p>
+					<p class="name_company">
+						<a href="#">아이오시스</a><span>|</span>2017.07.28
+					</p>
+					<p class="txt_product">
+						<a href="#">㈜아이오시스의 온라인평가시스템은 다양한 온/오프라인 평가 서비스를 제공합니다. 문제은행 및
+							평가시스템의 구축 및 운영은 구입 비용부터 유지보수 및 시스템 운영 인력 유지 비용까지 많은 비용을 필요로 합니다.
+							이를 해결하기 위해,문제은행 및 다양한 평가/관리 서비스를 제공하는 최고의 솔루션인 TEAMS® 를 기반으로,
+							솔루션에서 제공할 수 있는 모든 서비스를 이용할 수 있는 저 비용 고 효율의 클라우드 서비스 기반의 SaaS
+							서비스입니다.</a>
+					</p>				
+				</li>
+				<li>	
+					<p class="name_product">
+						<input name="" type="checkbox" value=""><a href="#">웹
+							및 모바일 애플리케이션 보안 테스트 솔루션 - AppScan</a> <span><img
+							src="images/icon_confirm3.jpg"></span>
+					</p>
+					<p class="name_company">
+						<a href="#">한국IBM</a><span>|</span>2017.07.28
+					</p>
+					<p class="txt_product">
+						<a href="#">IBM AppScan은 수많은 보안 취약점들을 탐지함으로써, 기업의 웹과 모바일
+							애플리케이션을 보호합니다. 애플리케이션이 생산되거나 배치되기 전에 취약점을 제거합니다. 또한 편리하고 상세한 보고서로
+							사용자들이 더 안정적인 환경에서 애플리케이션을 이용할 수 있게 하는 동시에, 발견한 취약점에 효율적으로 대처할 수
+							있도록 지원합니다.</a>
+					</p>			
+				</li>
+				<li>	
+					<p class="name_product">
+						<input name="" type="checkbox" value=""><a href="#">온라인
+							평가시스템</a> <span><img src="images/icon_confirm1.jpg" width="25"
+							height="26"></span><span><img
+							src="images/icon_confirm2.jpg" width="26" height="26"></span>
+					</p>
+					<p class="name_company">
+						<a href="#">아이오시스</a><span>|</span>2017.07.28
+					</p>
+					<p class="txt_product">
+						<a href="#">㈜아이오시스의 온라인평가시스템은 다양한 온/오프라인 평가 서비스를 제공합니다. 문제은행 및
+							평가시스템의 구축 및 운영은 구입 비용부터 유지보수 및 시스템 운영 인력 유지 비용까지 많은 비용을 필요로 합니다.
+							이를 해결하기 위해,문제은행 및 다양한 평가/관리 서비스를 제공하는 최고의 솔루션인 TEAMS® 를 기반으로,
+							솔루션에서 제공할 수 있는 모든 서비스를 이용할 수 있는 저 비용 고 효율의 클라우드 서비스 기반의 SaaS
+							서비스입니다.</a>
+					</p>			
+				</li>
+				<li>	
+					<p class="name_product">
+						<input name="" type="checkbox" value=""><a href="#">웹
+							및 모바일 애플리케이션 보안 테스트 솔루션 - AppScan</a> <span><img
+							src="images/icon_confirm3.jpg"></span>
+					</p>
+					<p class="name_company">
+						<a href="#">한국IBM</a><span>|</span>2017.07.28
+					</p>
+					<p class="txt_product">
+						<a href="#">IBM AppScan은 수많은 보안 취약점들을 탐지함으로써, 기업의 웹과 모바일
+							애플리케이션을 보호합니다. 애플리케이션이 생산되거나 배치되기 전에 취약점을 제거합니다. 또한 편리하고 상세한 보고서로
+							사용자들이 더 안정적인 환경에서 애플리케이션을 이용할 수 있게 하는 동시에, 발견한 취약점에 효율적으로 대처할 수
+							있도록 지원합니다.</a>
+					</p>			
+				</li>
+<!-- 				<li>
+					<p class="no_content">검색결과가 없습니다.</p>
+				</li> -->
+			</div>
+			<!--서비스 비교-->
+			<div class="location_wrap">
+				<div class="compare_wrap search">
+					<p class="tit">서비스 비교<a href="#none" class="btn_compare"></a></p>
+					<!--img_select-->
+					<div class="img_select">
+						<div class="scrollarea">
+							<ul>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+								<li>
+									<span><label><input name="" type="checkbox" value=""></label></span>
+									<span>[SaaS]</span>
+									<span><a href="#">SINVAS CRY</a></span>
+									<span class="btn_delete"><a href="#">삭제</a></span>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!--img_select end-->                  
+					<ul class="btn_select">
+						<li><a href="#">전체선택/해제</a></li>
+						<li><a href="#">서비스비교</a></li>
+						<li><a href="#">전체 비우기</a></li>
+						<li><a href="#">선택상품담기</a></li>
+					</ul>                  
+				</div>
+			</div>
+            <!--서비스 비교 end-->
+            <!-- paging  -->
+			<div class="paging">
+				<a href="#" class="goFist">처음 페이지</a>
+				<span>
+					<a href="#" class="on">1</a>
+					<a href="#">2</a>
+					<a href="#">3</a>
+					<a href="#">4</a>
+					<a href="#">5</a>
+					<a href="#">6</a>
+				</span>
+				<a href="#" class="goLast">마지막 페이지</a>
+			</div>
+			<!--// paging  -->
+		</div>
+	</div>
+	<!--// content -->
+
+	
+
+	<!-- footer -->
+	<footer>
+		<div class="conWrap">
+			<img src="/cloud_ver2/new_cloud/images/logo_footer.png" alt="클라우드 스토어 씨앗" />
+			<span>
+				<a href="#">고객센터</a>
+				<a href="#">공지사항</a>
+				<a href="#">서비스 이용약관</a>
+				<a href="#">개인정보 보호정책</a>
+				<a href="#">이메일 수집거부</a>
+				<a href="#">기본협약</a>
+				<a href="#">오시는 길</a>
+			</span>
+
+			<address>
+				<span>
+					<b>대표전화 : 053-230-1787</b>
+					<b>이메일 : ceart@ceart.kr</b>
+					<b>개인정보보호 책임자 : 경영기획실장</b>
+				</span>
+				대구광역시 동구 첨단로 53 (41068) | 서울사무소 : 서울특별시 중구 청계천로 14 (04520)<br />
+				Copyright 2015 한국정보화진흥원 All Rights Reserved
+			</address>
+		</div>
+	</footer>
+	<!--// footer -->
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+    
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+     
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+   
+  <script type="text/javascript" src="/resources/web/analyze/tracking/js/detector.js"></script>
+
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>  
+  	<script>
+	  	$('.btn_open').on('click', function() {
+			$('.filter_close').css('display','block');
+		});
+	  	$('.btn_close').on('click', function() {
+			$('.filter_close').css('display','none');
+		});
+	</script>  	
+ </body>
+</html>

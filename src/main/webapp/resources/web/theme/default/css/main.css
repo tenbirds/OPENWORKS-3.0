@@ -1,0 +1,164 @@
+@charset "utf-8";
+
+/*--------------------------------------------------------------------------
+ * Main Page
+ *-------------------------------------------------------------------------*/
+
+/* -----mainContents----- */
+#main_container{
+	width:970px;
+	height:558px;
+}
+#main_container .visual{
+	float:left;
+	width:450px;
+	height:528px;
+	border-right:1px solid #dddddd;
+	background:#fafafa url('../images/main/openworks_visual.jpg') no-repeat right bottom;
+	padding:30px 0 0 40px;
+	position:relative;
+}
+#main_container .visual p{
+	position:absolute;
+	right:30px;
+	top:240px;
+}
+
+#main_container .r_contents{
+	width:415px;
+	padding:25px 30px;
+	float:left;
+}
+
+/*----- popupzone-----*/
+#popupzone{
+	width:405px;
+	position:relative;
+	margin-bottom:40px;
+	height:175px;
+}
+#popupzone h3{
+	margin-bottom:13px;
+}
+#popupzone .control{
+	position:absolute;
+	left:0;
+	bottom:0;
+}
+#popupzone #number{
+	position:absolute;
+	right:0;
+	bottom:0;
+}
+#popupzone #number li {
+	float:left;
+	padding-right:3px;
+}
+
+/* -----banner-----*/
+#banner{
+	width:940px;
+	border-top:3px solid #7b7b7b;
+	padding:15px 15px 10px 15px;
+}
+#banner ul li{
+	display:inline;
+	padding:0 9px 0 0;
+}
+#banner .banner_btn{
+	padding:3px 5px 0 0;
+}
+
+/* -------------------TabList----------------------- */
+
+.notice {
+	position:relative;
+	float:left;
+	width: 415px;
+	height:136px;
+	overflow:hidden;
+}
+.notice .more {
+	position:absolute;
+	top: -35px;
+	right:7px;
+}
+.notice .ctab { width: 100%; overflow:hidden; border-bottom:1px solid #dedede; }
+.notice li { float: left; }
+.notice li.on .notice-list { display: block; }
+.notice .notice-list {
+	display: none;
+	position: absolute;
+	top: 40px;
+	left: 0;
+}
+.notice .notice-list li {
+	float:none;
+	width:100%;
+	overflow:hidden;
+	line-height:15px;
+	height:20px;
+}
+.notice .notice-list li a {
+	float:left;
+	padding-left:12px;
+	background:url('../images/main/icon_dot.gif') no-repeat 0 6px;
+	color:#626262;
+	width:245px;
+}
+.notice .notice-list li span {
+	float:right;
+	color:#828282;
+}
+.notice .ctab li { float:left; margin-right:1px;}
+.notice .ctab li img { vertical-align:top;}
+
+
+.issue_hot{
+	float:left;
+	width:100%;
+	margin-top:20px;
+}
+.issue_hot h3{
+	margin-bottom:15px;
+	border-bottom:1px solid #dfdfdf;
+	padding-bottom:10px;
+}
+.issue li{
+	padding:0 0 2px 12px;
+	background:url('../images/main/icon_dot.gif') no-repeat 0 6px;}
+.issue{
+	position:relative;
+	width:50%;
+	float:left;
+/*	margin-right:20px; */
+}
+.hot{
+	position:relative;
+	width:40%;
+	float:left;
+}
+.hot li{padding-bottom:2px;}
+.issue a.more,.hot a.more{
+	position:absolute;
+	right:0;
+	top:3px;
+}
+
+/* 2012.05.22 */
+.m_sns{
+	overflow:auto;margin:20px 0 0 0;border:1px solid #dfdfdf;padding:5px;
+}
+.m_sns li{
+	border-bottom:1px solid #e8e8e8;
+	padding:3px 0;
+}
+
+.sns_go{
+	border-left:1px solid #e8e8e8;
+	border-right:1px solid #e8e8e8;
+	border-bottom:1px solid #e8e8e8;
+	background-color:#f0f0f0;
+	height:25px;
+	padding:5px 5px 0 0;
+}

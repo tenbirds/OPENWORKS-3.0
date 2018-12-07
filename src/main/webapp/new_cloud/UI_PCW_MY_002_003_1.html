@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+	<script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<script type="text/javascript" src="/resources/cmmnty/common/js/fakeselect.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/colobox/themes/theme5/colorbox.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/jquery.datepicker.css">
+	<script type="text/javascript" src="/new_cloud/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script-addon.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>판매하기</h2>
+					<ul>
+					<li><a href="#">상품관리</a>
+						<ul>
+						<li><a href="/new_cloud/UI_PCW_MY_002_002.html">- 상품관리</a></li>
+						<li><a href="/new_cloud/UI_PCW_MY_002_003.html">- 상품 등록대기</a></li>
+						<li class="on"><a href="/new_cloud/UI_PCW_MY_002_003_1.html">- 상품등록</a></li>
+						<li><a href="/new_cloud/UI_PCW_MY_002_004.html">- 상품 삭제목록</a></li>
+						</ul>
+					</li>
+					<li><a href="#">IT 서비스신청관리</a></li>
+					<li><a href="#">문의내역</a></li>
+					<li><a href="#">고객지원</a></li>
+					<li><a href="#">통계</a></li>
+					<li><a href="#">호환성 신청현황</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>상품 등록</h2>
+				</div>
+				<!-- //title-area -->
+
+				<!-- section -->
+				<div class="section">
+					<div class="border-box mt10">
+						<ul>
+						<li>※ 상품명 입력과 카테고리만 선택하시면 임시저장이 가능합니다. 임시저장은 입력작업 진행중에 계속 하실 수 있습니다.</li>
+						<li>※ 상품 등록신청을 위해서는 필수항목(*)을 모두 입력하셔야합니다.</li>
+						<li>※ 상품은 같지만 라이선스, 버전, A/S방침에 따라 상품 가격이 다르다면 각각 다른 상품으로 등록을 권합니다.</li>
+						</ul>
+					</div>
+					<div class="tab-search bor-t mt10">
+						<table>
+							<caption>상품등록</caption>
+							<colgroup>
+							<col style="width:140px;"/>
+							<col style="width:;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th><span><strong class="txt-point">상품명 입력</strong></th>
+									<td><span class="mr10">상품명</span><input type="text" class="w445" /></td>
+								</tr>
+								<tr>
+									<th><strong class="txt-point">카테고리 선택</strong></th>
+									<td><a href="#" class="s-btn radius type1"><strong><span>카테고리 선택</span></strong></a></td>
+								</tr>
+								<tr>
+									<th colspan="2">연결된 카테고리</th>
+								</tr>
+								<tr>
+									<th colspan="2">
+										<p class="local mt10 fl"><span>소프트웨어</span><span>소프트웨어</span></p>
+										<div class="btn-area"><a href="#" class="b-btn save2 fr type1"><strong><span>임시저장</span></strong></a></div>
+									</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<div class="section">
+					<div class="tab-search type-write">
+						<table>
+							<caption>상품등록</caption>
+							<colgroup>
+							<col style="width:140px;"/>
+							<col style="width:;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th colspan="2">
+										<strong class="txt-point mr20">상품 대표 이미지</strong><span class="caption">(*JPG, GIF 형식의 10MB 미만 파일만 업로드 가능합니다. 이미지 사이즈는 300 X 250px을 권장합니다.)</span>
+										<ul class="multi-section file-upload mt20">
+										<li>
+											<div>
+												<p class="thumb"><img src="/new_cloud/images/sub/sam-thumb.jpg" alt="" /></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										</ul>
+									</th>
+								</tr>
+								<tr>
+									<th colspan="2">
+										<strong class="txt-point mr20">사용화면 이미지 등록</strong><span class="caption">(*JPG, GIF 형식의 10MB 미만 파일만 업로드 가능합니다. 이미지 사이즈는 300 X 250px을 권장합니다.)</span>
+										<ul class="multi-section file-upload mt20">
+										<li>
+											<div>
+												<p class="thumb"><img src="/new_cloud/images/sub/sam-thumb.jpg" alt="" /></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										<li>
+											<div>
+												<p class="thumb"></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										<li>
+											<div>
+												<p class="thumb"></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										<li>
+											<div>
+												<p class="thumb"></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										<li>
+											<div>
+												<p class="thumb"></p>
+												<p class="ac">
+													<a href="#" class="s-btn type5"><strong><span>등록</span></strong></a>
+												</p>
+												<a href="#"><img src="/new_cloud/images/icon-btn/btn-close.png" alt="" /></a>
+											</div>
+										</li>
+										</ul>
+										<p class="mt10 fl"><span class="caption">※ 최소 1개 이상의 이미지를 등록해주시기 바랍니다. (단, 추가 클릭 시 최대 10개까지 추가 가능합니다.)</span></p>
+										<a href="#" class="s-btn radius mt10 fr type1"><strong><span>+ 추가</span></strong></a>
+									</th>
+								</tr>
+								<tr>
+									<th><span class="txt-point">체험판</span></th>
+									<td>
+										<div class="fr">
+											<p class="caption">※ 구매자가 다운로드 받는 상품일 경우 다운로드 받을 수 있는 URL 주소를 입력해주세요.</p>
+											<input type="text" id="" class="w550 mt5" />
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th><span class="txt-point">웹사이트</span></th>
+									<td><span class="fl mt20">웹사이트 URL</span>
+										<div class="fr ml20">
+											<p class="caption">※ 구매자가 다운로드 받는 상품일 경우 다운로드 받을 수 있는 URL 주소를 입력해주세요.</p>
+											<input type="text" class="w550" />
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th><span class="txt-point">상품상세</span></th>
+									<td><span class="fl mt20">상품상세 URL</span>
+										<div class="fr ml20">
+											<p class="caption">※ 구매자가 다운로드 받는 상품일 경우 다운로드 받을 수 있는 URL 주소를 입력해주세요.</p>
+											<input type="text" class="w550" />
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th><span class="txt-point">소개영상</span></th>
+									<td><span class="fl mt20">소개영상 URL</span>
+										<div class="fr ml20">
+											<p class="caption">※ 구매자가 다운로드 받는 상품일 경우 다운로드 받을 수 있는 URL 주소를 입력해주세요.</p>
+											<input type="text" class="w550" />
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th><span><strong class="txt-point">인증정보</strong></span></th>
+									<td>
+										<p class="caption">※ 인증서가 있는 경우 증빙자료 첨부(단, 표준프레임워크호환 서비스 등록은 "표준프레임워크 호환레벨 확인서" 첨부시에만 가능)</p>
+										<p class="caption">※ 조달청 나라장터 등록상품의 경우 종합쇼핑몰 제품상세정보 캡처화면 첨부</p>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<span class="fl mt10 ml20"><input type="checkbox" id="" /> CC</span>
+										<div class="fr">
+											<strong class="dis-block fl mt10 mr10">증빙 자료 업로드</strong>
+											<div class="file-area fr">											
+												<!-- file upload -->
+												<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+												<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+												<div class="fake_input">
+													<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+													<span id="mnlFile1Span">
+														<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+													</span>
+												</div>
+												<!-- //file upload -->
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<span class="fl mt10 ml20"><input type="checkbox" id="" /> KACI</span>
+										<div class="fr">
+											<strong class="dis-block fl mt10 mr10">증빙 자료 업로드</strong>
+											<div class="file-area fr">											
+												<!-- file upload -->
+												<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+												<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+												<div class="fake_input">
+													<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+													<span id="mnlFile1Span">
+														<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+													</span>
+												</div>
+												<!-- //file upload -->
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<span class="fl mt10 ml20"><input type="checkbox" id="" /> KISA</span>
+										<div class="fr">
+											<strong class="dis-block fl mt10 mr10">증빙 자료 업로드</strong>
+											<div class="file-area fr">											
+												<!-- file upload -->
+												<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+												<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+												<div class="fake_input">
+													<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+													<span id="mnlFile1Span">
+														<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+													</span>
+												</div>
+												<!-- //file upload -->
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<span class="fl mt10 ml20"><input type="checkbox" id="" /> 나라장터 종합 쇼핑몰</span>
+										<div class="ar">
+											<input type="text" id="" class="w445" />
+											<p class="mt10 caption">* 계약번호는 “-(하이픈)”을 제거하고 입력해주세요.</p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th colspan="2"><span><strong class="txt-point">기본정보 입력</strong></span></th>
+								</tr>
+								<tr>
+									<th><span>공급자</span></th>
+									<td><input type="text" class="w650" id="" /></td>
+								</tr>
+								<tr>
+									<th><span>출시일</span></th>
+									<td>
+										<input type="text" class="w650" id="" />
+										<p class="mt10 caption">※ 입력 예시 : 20150000</p>
+									</td>
+								</tr>
+								<tr>
+									<th><span>무료/체험 구분</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>무료상품</label><input type="checkbox" id="" /><label>체험상품</label></span></td>
+								</tr>
+								<tr>
+									<th><span>기업구분</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>중소기업</label></span></td>
+								</tr>
+								<tr>
+									<th><span>가격(￦)</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>개인무료</label><input type="checkbox" id="" /><label>공공/교육기관 우대상품</label><input type="checkbox" id="" /><label>문의요망</label><input type="checkbox" id="" /><label>유료상품</label><input type="text" id="" /></span></td>
+								</tr>
+								<tr>
+									<th><span>계약단위</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>시간단위</label><input type="checkbox" id="" /><label>일간</label><input type="checkbox" id="" /><label>월간</label><input type="checkbox" id="" /><label>연간</label><input type="checkbox" id="" /><label>기타</label><input type="text" id="" /></span></td>
+								</tr>
+								<tr>
+									<th><span>서비스 관리</span></th>
+									<td><a href="#" class="b-btn type1"><strong><span>선택</span></strong></a></td>
+								</tr>
+
+								<tr>
+									<th><span>구축방식</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>Private</label><input type="checkbox" id="" /><label>Public</label><input type="checkbox" id="" /><label>Hybrid</label></span></td>
+								</tr>
+
+								<tr>
+									<th><span>호환성(표준)</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>다중플랫폼</label><input type="checkbox" id="" /><label>API지원</label><input type="checkbox" id="" /><label>호환성(표준)지원</label><input type="checkbox" id="" /><label>오픈소스 SW 지원</label></span></td>
+								</tr>
+
+								<tr>
+									<th><span>지원언어</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>한국어</label><input type="checkbox" id="" /><label>영어</label><input type="checkbox" id="" /><label>스페인어</label><input type="checkbox" id="" /><label>중국어</label><input type="checkbox" id="" /><label>일어</label><input type="checkbox" id="" /><label>기타</label><input type="text" id="" /></span></td>
+								</tr>
+								<tr>
+									<th><span>CSQC Level</span></th>
+									<td>
+										<!-- static select -->
+										<div class="select-area">
+											<!-- select box -->
+											<div class="sech_form">
+												<div class="cont_wrap">
+													
+													<div class="selected">
+														<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>-- 검색선택 --</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+															<option value="">선택</option>
+														</select>
+													</div>														
+												</div>
+											</div>
+											<!-- //select box -->
+										</div>
+										<!-- //static select -->
+									</td>
+								</tr>
+								<tr>
+									<th><span>원산지</span></th>
+									<td><input type="text" id="" class="w650" /></td>
+								</tr>
+								<tr>
+									<th><span>A/S방침</span></th>
+									<td><a href="#" class="b-btn type1"><strong><span>선택</span></strong></a></td>
+								</tr>
+
+
+								<tr>
+									<th><span>지원OS</span></th>
+									<td><a href="#" class="b-btn type1"><strong><span>선택</span></strong></a></td>
+								</tr>
+								<tr>
+									<th><span>아키텍쳐</span></th>
+									<td><span class="agree"><input type="checkbox" id="" /><label>32-BIT</label><input type="checkbox" id="" /><label>64-BIT</label></span></td>
+								</tr>
+								
+								<tr>
+									<th colspan="2"><span><strong class="txt-point">판매자 정보 입력</strong></span></th>
+								</tr>
+								<tr>
+									<th><span>회사명</span></th>
+									<td><input type="text" id="" class="w650" /></td>
+								</tr>
+								<tr>
+									<th><span>담당자</span></th>
+									<td><input type="text" id="" class="w650" /></td>
+								</tr>
+								<tr>
+									<th><span>담당자 이메일</span></th>
+									<td><input type="text" class="w194" /><span class="space">@</span><input type="text" class="w194" /></td>
+								</tr>
+								<tr>
+									<th><span>담당자 연락처</span></th>
+									<td><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /></td>
+								</tr>
+								<tr>
+									<th><span>담당자 휴대폰</span></th>
+									<td><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /><span class="space">-</span><input type="text" class="w124" /></td>
+								</tr>
+								<tr>
+									<th><span>홈페이지 URL</span></th>
+									<td><input type="text" class="w650" id="" /></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //section -->
+
+				<!-- btn-area -->
+				<div class="btn-area mt10 ar">
+					<a href="#" class="b-btn save2 type1"><strong><span>임시저장</span></strong></a>
+				</div>
+				<!-- //btn-area -->
+
+				<!-- section -->
+				<div class="section">
+					<div class="tab-search type-write">
+						<table>
+							<caption>상품등록</caption>
+							<colgroup>
+							<col style="width:;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>
+										<p class="mb10"><strong class="txt-point">상세정보 입력</strong></p>
+										<span>상품개요</span>
+										<div class="mt5">
+											<textarea class="h167"></textarea>
+											<p class="ar mt5">
+												<strong class="txt-point">0</strong> <span class="caption">/ 3,000 Byte</span>
+											</p>
+										</div>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>태그</span>
+										<span class="caption">(※ 태그선택 또는 직접 입력으로 총 10개의 태그를 입력할 수 있습니다.)</span>
+										<div class="mt5 border-box">
+											<a href="#" class="b-btn type1"><strong><span>태그선택</span></strong></a>
+											<input type="text" id="" class="w650" />
+										</div>
+										<p class="mt5 caption">※ 등록하신 태그는 통합검색에 적용되기까지 최대 24시간이 소요됩니다.</p>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>특장점</span>
+										<div class="mt5">
+											<textarea class="h167"></textarea>
+											<p class="ar mt5">
+												<strong class="txt-point">0</strong> <span class="caption">/ 3,000 Byte</span>
+											</p>
+										</div>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>대상고객</span>
+										<div class="mt5">
+											<textarea class="h167"></textarea>
+											<p class="ar mt5">
+												<strong class="txt-point">0</strong> <span class="caption">/ 3,000 Byte</span>
+											</p>
+										</div>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>주요기능</span>
+										<div class="mt5">
+											<textarea class="h167"></textarea>
+											<p class="ar mt5">
+												<strong class="txt-point">0</strong> <span class="caption">/ 3,000 Byte</span>
+											</p>
+										</div>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>상품소개서</span>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<ul>
+										<li class="mt10">
+											<span class="fl ml10">파일명<input type="text" id="" class="ml10" /></span>
+											<div class="fr">
+												<strong class="dis-block fl mt10 mr10">파일 업로드</strong>
+												<div class="file-area fr">
+													<!-- file upload -->
+													<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+													<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+													<div class="fake_input">
+														<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+														<span id="mnlFile1Span">
+															<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+														</span>
+													</div>
+													<!-- //file upload -->
+												</div>
+											</div>
+										</li>
+										</ul>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<span>사용매뉴얼</span>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<ul>
+										<li class="mt10">
+											<span class="fl ml10">파일명<input type="text" id="" class="ml10" /></span>
+											<div class="fr">
+												<strong class="dis-block fl mt10 mr10">파일 업로드</strong>
+												<div class="file-area fr">
+													<!-- file upload -->
+													<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+													<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+													<div class="fake_input">
+														<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+														<span id="mnlFile1Span">
+															<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+														</span>
+													</div>
+													<!-- //file upload -->
+												</div>
+											</div>
+										</li>
+										</ul>
+									</th>
+								</tr>
+
+								<tr>
+									<th>
+										<span>기타 첨부파일 <span class="caption">(최대 5개)</span></span>
+									</th>
+								</tr>
+								<tr>
+									<th>
+										<ul>
+										<li class="mt10">
+											<span class="fl ml10">파일명<input type="text" id="" class="ml10" /></span>
+											<div class="fr">
+												<strong class="dis-block fl mt10 mr10">파일 업로드</strong>
+												<div class="file-area fr">
+													<!-- file upload -->
+													<input type="text" id="mnfileInput1" readonly="readonly" title="파일명" class="fileup">
+													<span class="file_del"><img onclick="jsInputFileReset('mnlFile1','mnfileInput1');" src="/new_cloud/images/icon-btn/btn-close.png" alt="삭제"></span>
+													<div class="fake_input">
+														<a href="#" class="b-btn type1"><strong><span>파일선택</span></strong></a>
+														<span id="mnlFile1Span">
+															<input type="file" name="mnlFile1" id="mnlFile1" class="mnlFile" title="파일찾기" onchange="jsFileChk('mnlFile1', 'mnfileInput1', 10240, '1', -1, 5);">
+														</span>
+													</div>
+													<!-- //file upload -->
+												</div>
+											</div>
+										</li>
+										</ul>
+									</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //section -->
+
+				<div class="btn-area mt20">
+					<p class="fl">
+						<a href="#" class="b-btn cancel mr10 ac type1"><strong><span>취 소</span></strong></a>
+						<a href="#" class="b-btn search2 type1"><strong><span>미리보기</span></strong></a>
+					</p>
+					<p class="fr">
+						<a href="#" class="b-btn save2 mr10 type1"><strong><span>임시저장</span></strong></a>
+						<a href="#" class="b-btn registry type2"><strong><span>등록신청</span></strong></a>
+					</p>
+				</div>
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

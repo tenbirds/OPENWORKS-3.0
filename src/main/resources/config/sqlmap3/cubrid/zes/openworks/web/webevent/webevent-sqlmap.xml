@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_webevent">
+
+    <sql id="dynamicWhere">
+    /*_webevent : dynamicWhere */
+        <where> 1=1
+            AND (<include refid="dynamicWhereEventStatus"/>) = #{q_flag}
+            <if test="q_domainCd != null  and q_domainCd != ''">
+                AND A.EVENT_SN IN (SELECT EVENT_SN FROM TRM_EVET_DOMN_I WHERE DOMAIN_CD = #{q_domainCd})
+            </if>
+            AND EVENT_DELETE_AT = 'N'
+        </where>
+    </sql>
+
+    <sql id="dynamicMypageWhere">
+        <where>
+            AND EVENT_SN IN ( SELECT EVENT_SN FROM TRM_EVET_PTCP_I WHERE WRTER_ID = #{q_registId})
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND (EVENT_TITLE LIKE '%' || #{q_searchVal} || '%' OR EVENT_CN LIKE '%' || #{q_searchVal} || '%' )                
+            </if>
+            
+            <if test="q_dateTy == '1001'">
+                <if test="q_beginDate != null  and q_beginDate != ''">
+                    AND BEGIN_DATE BETWEEN  REPLACE(#{q_beginDate},'-','') AND  REPLACE(#{q_endDate},'-','')
+                </if>
+            </if>
+            
+            <if test="q_dateTy == '1002' or q_dateTy == '1003'">
+                <if test="q_beginDate != null  and q_beginDate != ''">
+                    AND PRESNATN_DATE BETWEEN  REPLACE(#{q_beginDate},'-','') AND  REPLACE(#{q_endDate},'-','')
+                </if>
+            </if>
+            
+            <if test="q_eventStatus != null  and q_eventStatus != ''">
+                AND (CASE WHEN PRESNATN_DATE &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '1003'
+                            WHEN ENFRC_CLOS_AT = 'Y' THEN '1002'
+                            WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '1002'
+                            WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '1001'
+                    END)   
+                    <foreach collection="q_eventStatus" item="item" index="index" separator="," open="IN (" close=") ">
+                        TRIM(#{item})
+                    </foreach>
+            </if>
+            
+            <!-- 참여형만 조회 -->
+            AND EVENT_TY_CD IN ('1002','1003')
+            
+            AND EVENT_DELETE_AT = 'N'
+            
+        </where>
+    </sql>
+
+     <sql id="dynamicWhereEventStatus">
+       CASE WHEN EVENT_TY_CD = '1001' THEN 
+            CASE WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD') THEN 'Y'
+                     WHEN ENFRC_CLOS_AT = 'Y' THEN 'Y'
+                     WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN 'N'
+                     END
+            WHEN EVENT_TY_CD IN ('1002','1003') THEN
+            CASE WHEN PRESNATN_DATE &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN 'Y'
+                    WHEN ENFRC_CLOS_AT = 'Y' THEN 'Y'
+                    WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN 'Y'
+                    WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN 'N'
+                    END
+       END
+    </sql>
+
+    <sql id="dynamicSelectEventStatus">
+         , CASE WHEN EVENT_TY_CD = '1001' THEN 
+	         CASE WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD') THEN '마감'
+	                  WHEN ENFRC_CLOS_AT = 'Y' THEN '마감'
+	                  WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '진행중'                                        
+	                  END                                 
+	         WHEN EVENT_TY_CD IN ('1002','1003') THEN
+	         CASE WHEN PRESNATN_DATE &lt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '결과발표'
+	                 WHEN ENFRC_CLOS_AT = 'Y' THEN '응모종료'
+	                 WHEN END_DATE &lt; TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '응모종료'                                        
+	                 WHEN ENFRC_CLOS_AT = 'N' AND END_DATE &gt;= TO_CHAR(SYSDATETIME,'YYYYMMDD')  THEN '진행중'                          
+	                 END
+	    END AS eventStatus
+    </sql>
+
+    <select id="webEventList" parameterType="map" resultType="webEventVO">
+    /*_webevent : webEventList */
+        SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (
+    
+                SELECT 
+                      EVENT_SN AS eventSn
+                    , EVENT_TY_CD AS eventTyCd
+                    , EVENT_TITLE AS eventTitle
+                    , EVENT_CN AS eventCn
+                    , TO_CHAR(TO_DATE(BEGIN_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS beginDate
+                    , TO_CHAR(TO_DATE(END_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS endDate    
+                    , (SELECT FILE_URL FROM OP_FILE C WHERE C.FILE_SEQ = A.EVENT_THUMB_FILE_SEQ) AS eventFilePath
+                    , TO_CHAR(TO_DATE(PRESNATN_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS presnatnDate
+                    , TO_CHAR(TO_TIME(PRESNATN_HM,'HH24MI'),'HH24:MI') presnatnHm
+                    , IMAGE_ALT AS imageAlt
+                    , PRZWNER_CNFIRM_URL AS przwnerCnfirmUrl
+                 FROM TRM_EVET_MGMT_M A
+                 <include refid="dynamicWhere"/>
+                ORDER BY REGIST_DT DESC
+            
+        <choose>
+            <when test="q_flag.equalsIgnoreCase('N')">
+                 ) X WHERE ROWNUM &lt;= #{pagingEndNum}) Y WHERE NUM &gt;= #{pagingStartNum}
+            </when>
+            <when test="q_flag.equalsIgnoreCase('Y')">
+                 ) X WHERE ROWNUM &lt;= 9999           ) Y WHERE NUM &gt;= 0
+            </when>
+            <otherwise>
+                 ) X WHERE ROWNUM &lt;= 9999           ) Y WHERE NUM &gt;= 0
+            </otherwise>
+        </choose>
+    </select>
+    
+    
+    <select id="webEventCount" parameterType="map" resultType="int">
+          SELECT 
+                 COUNT(1) total
+                 FROM TRM_EVET_MGMT_M A
+                 <include refid="dynamicWhere"/>
+    </select>
+    
+    
+    <select id="webEventEntryList" parameterType="map" resultType="webEventVO">
+    /*_webevent : webEventEntryList */
+        SELECT Y.* FROM (
+               SELECT ROWNUM NUM, X.* FROM (
+         
+                     SELECT 
+                            EVENT_SN AS eventSn
+                          , EVENT_TY_CD AS eventTyCd
+                          , EVENT_TITLE AS eventTitle
+                          , EVENT_CN AS eventCn
+                            <include refid="dynamicSelectEventStatus"/>
+                          , (<include refid="dynamicWhereEventStatus"/>) AS flag
+                          , TO_CHAR (TO_DATE (BEGIN_DATE, 'YYYYMMDD'), 'YYYY-MM-DD') AS beginDate
+                          , TO_CHAR (TO_DATE (END_DATE, 'YYYYMMDD'), 'YYYY-MM-DD') AS endDate
+                          , TO_CHAR(TO_DATE(PRESNATN_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS presnatnDate
+                          , TO_CHAR(TO_TIME(PRESNATN_HM,'HH24MI'),'HH24:MI') presnatnHm
+                          , EVENT_RDCNT AS eventRdcnt
+                          , (SELECT COUNT(1) FROM TRM_EVET_PTCP_I WHERE EVENT_SN = A.EVENT_SN) commentRcnt
+                       FROM TRM_EVET_MGMT_M A
+                       <include refid="dynamicMypageWhere"/>
+                                    
+                      ORDER BY REGIST_DT DESC
+                      
+                      
+          ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+                ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    <select id="webEventEntryCount" parameterType="map" resultType="int">
+        SELECT 
+               COUNT(1) total
+          FROM TRM_EVET_MGMT_M A
+          <include refid="dynamicMypageWhere"/>
+    </select>
+    
+    <insert id="eventRdcntUpdateAction" parameterType="webEventVO">
+        UPDATE TRM_EVET_MGMT_M 
+           SET
+               EVENT_RDCNT           = (SELECT NVL(MAX(EVENT_RDCNT) + 1,1) FROM TRM_EVET_MGMT_M WHERE  EVENT_SN = #{eventSn})
+         WHERE  EVENT_SN            = #{eventSn}
+    </insert>
+    
+    <select id="eventView" parameterType="webEventVO" resultType="webEventVO">
+    /*_webevent : eventView */
+           SELECT * FROM (
+               SELECT 
+                      EVENT_SN AS eventSn
+                    , LEAD(EVENT_SN) OVER (ORDER BY EVENT_SN) nextSeq
+                    , LAG(EVENT_SN) OVER (ORDER BY EVENT_SN) preSeq
+                    , EVENT_TY_CD AS eventTyCd
+                    , EVENT_TITLE AS eventTitle
+                    , LEAD(EVENT_TITLE) OVER (ORDER BY EVENT_SN) nextTitle
+                    , LAG(EVENT_TITLE) OVER (ORDER BY EVENT_SN) preTitle
+                    , SUBSTRB(EVENT_CN, 0, 60)   AS eventSumry
+                    , EVENT_CN AS eventCn
+                    , TO_CHAR(TO_DATE(BEGIN_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS beginDate
+                    , TO_CHAR(TO_DATE(END_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS endDate
+                    , LEAD(TO_CHAR(REGIST_DT,'YYYY-MM-DD HH24:MI')) OVER (ORDER BY EVENT_SN) nextDate
+                    , LAG(TO_CHAR(REGIST_DT,'YYYY-MM-DD HH24:MI')) OVER (ORDER BY EVENT_SN) preDate
+                    , (SELECT FILE_URL FROM OP_FILE C WHERE C.FILE_SEQ = A.EVENT_THUMB_FILE_SEQ) AS eventFilePath
+                    , TO_CHAR(TO_DATE(PRESNATN_DATE,'YYYYMMDD'),'YYYY-MM-DD') AS presnatnDate
+                    , TO_CHAR(TO_TIME(PRESNATN_HM,'HH24MI'),'HH24:MI') presnatnHm
+                    , IMAGE_ALT AS imageAlt
+                    , PRZWNER_CNFIRM_URL AS przwnerCnfirmUrl
+                    , (<include refid="dynamicWhereEventStatus"/>) AS flag
+                    , TO_CHAR(REGIST_DT,'YYYY-MM-DD') AS registDt
+                 FROM TRM_EVET_MGMT_M A
+                 <where> 1=1
+		            AND (<include refid="dynamicWhereEventStatus"/>) = #{flag}
+		            <if test="domainCd != null  and domainCd != ''">
+		                AND A.EVENT_SN IN (SELECT EVENT_SN FROM TRM_EVET_DOMN_I WHERE DOMAIN_CD = #{domainCd})
+		            </if>
+		            AND EVENT_DELETE_AT = 'N'
+		        </where>
+                ORDER BY REGIST_DT DESC
+            )
+            WHERE eventSn = #{eventSn}
+    </select>
+    
+    <select id="webAnswerList" parameterType="map" resultType="webEventVO">
+    /*_webevent : webAnswerList */
+        SELECT Y.* FROM (SELECT ROWNUM NUM, X.* FROM (
+
+            SELECT EVENT_SN
+                 , EVENT_CMT_SEQ AS eventCmtSeq
+                 , EVENT_CMT_CN AS eventCmtCn     
+                 , CASE WHEN length(WRTER_ID) > 3 THEN
+                       SUBSTR(WRTER_ID,0,3) || LPAD('*',LENGTH(SUBSTR(WRTER_ID,4)),'*')
+                    ELSE  SUBSTR(WRTER_ID,0,2) || '*' END wrterId
+                 , WRTER_ID orgWrterId
+                 , B.USER_NM wrterNm
+                 , TO_CHAR(WRITNG_DT,'YYYY-MM-DD HH24:MI')    AS writngDt
+                 , WRTER_IP AS wrterIp
+              FROM TRM_EVET_PTCP_I A , OP_USER B
+             WHERE EVENT_SN = #{eventSn}
+               AND A.WRTER_ID = B.USER_ID
+            UNION ALL
+            SELECT EVENT_SN
+                 , EVENT_CMT_SEQ AS eventCmtSeq
+                 , EVENT_CMT_CN AS eventCmtCn     
+                 , CASE WHEN length(WRTER_NCNM) > 3 THEN
+                       SUBSTR(WRTER_NCNM,0,3) || LPAD('*',LENGTH(SUBSTR(WRTER_NCNM,4)),'*')
+                    ELSE  SUBSTR(WRTER_NCNM,0,2) || '*' END wrterId
+                 , WRTER_ID orgWrterId
+                 , WRTER_NCNM wrterNm
+                 , TO_CHAR(WRITNG_DT,'YYYY-MM-DD HH24:MI')    AS writngDt
+                 , WRTER_IP AS wrterIp
+              FROM TRM_EVET_PTCP_I A
+             WHERE EVENT_SN = #{eventSn}
+               AND A.WRTER_ID = 'guest'
+             ORDER BY writngDt DESC
+        ) X ) Y
+    </select>
+
+    <select id="webAnswerCount" parameterType="map" resultType="int">
+         SELECT COUNT(1)
+           FROM TRM_EVET_PTCP_I
+          WHERE EVENT_SN = #{eventSn}
+    </select>
+    
+    <insert id="answerInsertAction" parameterType="webEventVO">
+        
+         <selectKey order="BEFORE" keyProperty="eventCmtSeq" resultType="int">
+            SELECT SEQ_AUTO_PLUS.NEXTVAL
+        </selectKey>
+    
+        INSERT INTO TRM_EVET_PTCP_I (
+               EVENT_SN
+             , EVENT_CMT_SEQ
+             , EVENT_CMT_CN
+             , WRTER_ID
+             , WRTER_NCNM
+             , WRTER_PASSWORD
+             , WRITNG_DT
+             , WRTER_IP
+        ) 
+        VALUES (
+               #{eventSn}
+             , #{eventCmtSeq}
+             , #{eventCmtCn}
+             , #{wrterId}
+             , #{wrterNcnm}
+             , encrypt(#{wrterPassword}, 'P009')
+             , SYSDATETIME
+             , #{wrterIp}
+        )
+    </insert>
+    
+    <select id="answerCheck"  parameterType="webEventVO" resultType="int">
+        SELECT 
+               COUNT(1) 
+          FROM TRM_EVET_PTCP_I
+         WHERE EVENT_SN = #{eventSn}
+           AND WRTER_ID = #{wrterId}
+    </select>
+
+    <select id="passwordCheck"  parameterType="webEventVO" resultType="int">
+        SELECT 
+               COUNT(1) 
+          FROM TRM_EVET_PTCP_I
+         WHERE EVENT_CMT_SEQ = #{eventCmtSeq}
+           AND WRTER_ID = #{wrterId}
+           AND WRTER_PASSWORD = encrypt(#{wrterPassword}, 'P009')
+    </select>
+
+    <update id="answerUpdateAction" parameterType="webEventVO">
+         UPDATE TRM_EVET_PTCP_I
+         SET                
+             EVENT_CMT_CN = #{eventCmtCn}
+           , WRITNG_DT = SYSDATETIME
+           , WRTER_IP = #{wrterIp}
+       WHERE EVENT_CMT_SEQ = #{eventCmtSeq}
+    </update>
+    
+    <delete id="answerDeleteAction" parameterType="webEventVO">
+        DELETE FROM TRM_EVET_PTCP_I
+         WHERE EVENT_CMT_SEQ = #{eventCmtSeq}
+           AND WRTER_ID = #{wrterId}
+    </delete>
+    
+</mapper>

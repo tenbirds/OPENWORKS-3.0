@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	=========================================================
+	* Description : Code sqlmap 
+	* Create	  : wisepms
+	* $Id: code2-sqlmap.xml 50 2011-07-17 04:15:32Z oworks $
+	=========================================================
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_code">
+
+	<select id="grpCodeList" parameterType="codeVO" resultType="codeVO">
+		/* _code.grpCodeList */
+		SELECT LANG_CODE	AS langCode
+        	 , GROUP_CD   	AS grpCd
+             , GROUP_NM   	AS grpNm
+             , GROUP_DC 	AS grpDesc
+          FROM OP_CODE_GROUP
+         WHERE 1 = 1
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if>
+         ORDER BY GROUP_NM ASC
+	</select>
+
+	<select id="prvCodeList" parameterType="codeVO" resultType="codeVO">
+		/* _code.prvCodeList */
+		SELECT LANG_CODE		AS langCode
+        	 , INDVDLZ_CD   	AS prvCd
+             , INDVDLZ_CD_NM   	AS prvNm
+             , USE_YN   		AS useYn
+             , RELATION_CD   	AS relationCd
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if>
+           AND GROUP_CD = #{grpCd}
+		<trim>
+        	<if test="useYn != null and useYn != ''">
+           AND USE_YN = 'Y'
+        	</if>
+      	</trim>
+         ORDER BY CD_SORT_NO ASC
+	</select>
+	<select id="prvCodeList2" parameterType="codeVO" resultType="codeVO">
+		/* _code.prvCodeList2 */
+		SELECT LANG_CODE		AS langCode
+        	 , INDVDLZ_CD   	AS prvCd
+             , INDVDLZ_CD_NM   	AS prvNm
+             , USE_YN   		AS useYn
+             , RELATION_CD   	AS relationCd
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if>
+           AND GROUP_CD = #{grpCd}
+		<trim>
+        	<if test="useYn != null and useYn != ''">
+           AND USE_YN = 'Y'
+        	</if>
+      	</trim>
+         ORDER BY CD_SORT_NO ASC
+	</select>
+
+	<select id="prvNmList" parameterType="codeVO" resultType="string">
+		/* _code.prvNmList */
+		SELECT INDVDLZ_CD_NM AS prvNm
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if> 
+           AND GROUP_CD = #{grpCd}
+         ORDER BY CD_SORT_NO ASC
+	</select>
+
+	<select id="grpCodeView" parameterType="codeVO" resultType="codeVO">
+		/* _code.grpCodeView */
+		SELECT LANG_CODE	AS langCode,
+	           GROUP_CD   AS grpCd,
+	           GROUP_NM   AS grpNm,
+	           GROUP_DC AS grpDesc,
+	           GROUP_USE_YN AS grpUseYn
+	      FROM OP_CODE_GROUP
+	     WHERE 1 = 1 
+	 	<if test="langCode != null and langCode != ''">
+	       AND LANG_CODE = #{langCode}
+	   	</if>
+	    <if test="langCode == null or langCode == ''">
+	       AND LANG_CODE = '00'
+	    </if>
+		   AND GROUP_CD = #{grpCd}
+	</select>
+
+	<select id="prvCodeView" parameterType="codeVO" resultType="codeVO">
+		/* _code.prvCodeView */
+		SELECT 
+        	   LANG_CODE 		AS langCode,
+        	   INDVDLZ_CD   	AS prvCd,
+               INDVDLZ_CD_NM   	AS prvNm,
+               CD_SORT_NO 		AS orderNo,
+               USE_YN   		AS useYn,
+               GROUP_CD    		AS grpCd,
+               RELATION_CD		AS relationCd,
+               TO_CHAR(REGIST_DT, 'YYYY-MM-DD HH24:MI:SS') AS regDt,
+               TO_CHAR(UPDT_DT, 'YYYY-MM-DD HH24:MI:SS') AS modiDt
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if>
+           AND GROUP_CD = #{grpCd}
+           AND INDVDLZ_CD = #{prvCd}
+	</select>
+
+	<insert id="grpCodeInsert" parameterType="codeVO">
+		/* _code.grpCodeInsert */
+		INSERT INTO OP_CODE_GROUP (
+            LANG_CODE,     GROUP_CD,     GROUP_NM,     GROUP_DC,    GROUP_USE_YN
+        )
+        VALUES (
+            <if test="langCode != null and langCode != ''">
+            	#{langCode}
+            </if>
+            <if test="langCode == null or langCode == ''">
+            	'00'
+            </if>
+            ,    #{grpCd},    #{grpNm},    #{grpDesc},    #{grpUseYn}
+        )
+	</insert>
+
+	<insert id="prvCodeInsert" parameterType="codeVO">
+		/* _code.prvCodeInsert */
+		INSERT INTO OP_CODE_INDVDLZ (
+               LANG_CODE
+             , GROUP_CD
+             , INDVDLZ_CD
+             , INDVDLZ_CD_NM
+             , CD_SORT_NO
+        )
+        VALUES (
+        	<if test="langCode != null and langCode != ''">
+        		#{langCode}
+        	</if>
+        	<if test="langCode == null or langCode == ''">
+        		'00'
+        	</if>
+             , #{grpCd}
+             , #{prvCd}
+             , #{prvNm}
+             ,(SELECT NVL(MAX(CD_SORT_NO), 0) + 1
+                 FROM OP_CODE_INDVDLZ
+                WHERE 1 = 1 
+	        <if test="langCode != null and langCode != ''">
+	              AND LANG_CODE = #{langCode}
+	    	</if>
+	    	<if test="langCode == null or langCode == ''">
+	    	      AND LANG_CODE = '00'
+	    	</if>
+                  AND GROUP_CD = #{grpCd}
+               )
+        )
+	</insert>
+
+	<update id="grpCodeUpdate" parameterType="codeVO">
+		/* _code.grpCodeUpdate */
+		UPDATE OP_CODE_GROUP
+           SET
+               GROUP_NM     = #{grpNm}
+             , GROUP_DC   = #{grpDesc}
+             , GROUP_USE_YN = #{grpUseYn}
+             , GROUP_CD     = #{grpCd}
+            <if test="langCode != null and langCode != ''">
+             , LANG_CODE 	= #{langCode}
+	    	</if>
+	    	<if test="langCode == null or langCode == ''">
+	    	 , LANG_CODE 	= '00'
+	    	</if>
+         WHERE LANG_CODE    = #{oldLangCode} 
+           AND GROUP_CD     = #{oldGrpCd}
+	</update>
+
+	<update id="prvCodeUpdate" parameterType="codeVO">
+		/* _code.prvCodeUpdate */
+		UPDATE OP_CODE_INDVDLZ
+           SET
+               INDVDLZ_CD     = #{prvCd}
+             , INDVDLZ_CD_NM     = #{prvNm}
+             , USE_YN     = #{useYn}
+            <if test="langCode != null and langCode != ''">
+             , LANG_CODE 	= #{langCode}
+	    	</if>
+	    	<if test="langCode == null or langCode == ''">
+	    	 , LANG_CODE 	= '00'
+	    	</if>
+             , UPDT_DT     = SYS_DATETIME
+         WHERE LANG_CODE   = #{oldLangCode}
+           AND GROUP_CD    = #{grpCd}
+           AND INDVDLZ_CD  = #{oldPrvCd}
+	</update>
+	<!-- 20150901 개별코드 소트 수정 시작 -->
+	<select id="prvCodeSelectMaxOrder" parameterType="codeVO" resultType="Integer">
+        /* _code.prvCodeSelectMaxOrder */
+        SELECT MAX(CD_SORT_NO) FROM OP_CODE_INDVDLZ
+         WHERE LANG_CODE   = #{oldLangCode}
+           AND GROUP_CD    = #{grpCd}
+    </select>
+    
+    <update id="prvCodeUpdateOrderNoUp" parameterType="codeVO">
+        /* _code.prvCodeUpdateOrderNoUp */
+        UPDATE OP_CODE_INDVDLZ
+           SET
+               CD_SORT_NO  = CD_SORT_NO - 1
+             , UPDT_DT     = SYS_DATETIME
+         WHERE LANG_CODE   = #{oldLangCode}
+           AND GROUP_CD    = #{grpCd}
+           <![CDATA[
+           AND CD_SORT_NO <= #{orderNo}
+           AND CD_SORT_NO > #{orderNoBefore}
+           ]]>
+    </update>
+    
+    <update id="prvCodeUpdateOrderNoDown" parameterType="codeVO">
+        /* _code.prvCodeUpdateOrderNoDown */
+        UPDATE OP_CODE_INDVDLZ
+           SET
+               CD_SORT_NO  = CD_SORT_NO + 1
+             , UPDT_DT     = SYS_DATETIME
+         WHERE LANG_CODE   = #{oldLangCode}
+           AND GROUP_CD    = #{grpCd}
+           <![CDATA[
+           AND CD_SORT_NO >= #{orderNo}
+           AND CD_SORT_NO < #{orderNoBefore}
+           ]]>
+    </update>
+    
+    <update id="prvCodeUpdateOrderNo" parameterType="codeVO">
+        /* _code.prvCodeUpdateOrderNo */
+        UPDATE OP_CODE_INDVDLZ
+           SET
+               CD_SORT_NO  = #{orderNo}
+             , UPDT_DT     = SYS_DATETIME
+         WHERE LANG_CODE   = #{oldLangCode}
+           AND GROUP_CD    = #{grpCd}
+           AND INDVDLZ_CD  = #{prvCd}
+    </update>
+    <!-- 20150901 개별코드 소트 수정 끝 -->
+
+	<update id="prvCodeOrderUpdate" parameterType="codeVO">
+		/* _code.prvCodeOrderUpdate */
+		UPDATE OP_CODE_INDVDLZ 
+           SET CD_SORT_NO  = #{orderNo}
+         WHERE 1 = 1 
+	    <if test="langCode != null and langCode != ''">
+	       AND LANG_CODE = #{langCode}
+	   	</if>
+	   	<if test="langCode == null or langCode == ''">
+	   	   AND LANG_CODE = '00'
+	   	</if>
+           AND GROUP_CD    = #{grpCd}
+           AND INDVDLZ_CD  = #{prvCd}
+	</update>
+
+	<select id="sameLevelList" parameterType="codeVO" resultType="codeVO">
+		/* _code.sameLevelList */
+		SELECT 
+        		LANG_CODE		AS langCode,
+        		GROUP_CD      	AS grpCd,
+               	INDVDLZ_CD      AS prvCd,
+               	CD_SORT_NO    	AS orderNo,
+               	RELATION_CD 	AS relationCd
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1 
+	        <if test="langCode != null and langCode != ''">
+	       AND LANG_CODE 	= #{langCode}
+	    	</if>
+	    	<if test="langCode == null or langCode == ''">
+	       AND LANG_CODE 	= '00'
+	    	</if>
+           AND INDVDLZ_CD	!= #{prvCd}
+           AND GROUP_CD		= #{grpCd}
+         ORDER BY CD_SORT_NO ASC
+	</select>
+
+	<delete id="grpCodeDelete" parameterType="codeVO">
+		/* _code.grpCodeDelete */
+		DELETE
+	          FROM OP_CODE_GROUP
+	         WHERE LANG_CODE = #{langCode}
+               AND GROUP_CD = #{grpCd}
+	</delete>
+
+	<delete id="prvCodeDelete" parameterType="codeVO">
+		/* _code.prvCodeDelete */
+		DELETE
+          FROM OP_CODE_INDVDLZ
+         WHERE LANG_CODE = #{langCode}
+           AND GROUP_CD = #{grpCd}
+           AND INDVDLZ_CD = #{prvCd}
+	</delete>
+
+	<!-- OP_CODE_CTG -->
+	<select id="ctgCdView" parameterType="codeCtgVO" resultType="string">
+		/* _code.ctgCdView */
+		SELECT DISTINCT CODE_CTG
+          FROM OP_CODE_CTG         
+         WHERE 1 = 1 
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+   		</if>
+   		<if test="langCode == null or langCode == ''">
+   	       AND LANG_CODE = '00'
+   		</if>
+           AND GROUP_CD = #{grpCd}
+           AND CODE_CTG = #{ctgCd}
+	</select>
+
+	<select id="ctgCdList" parameterType="codeCtgVO" resultType="string">
+		/* _code.ctgCdList */
+		SELECT DISTINCT CODE_CTG
+          FROM OP_CODE_CTG
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+   	       AND LANG_CODE = '00'
+    	</if>
+           AND GROUP_CD = #{grpCd}
+         ORDER BY CODE_CTG ASC
+	</select>
+
+	<resultMap id="ctgMappingMap" type="codeCtgVO">
+		<result property="ctgCd" column="ctgCd"/>
+		<association property="prvCds" select="_code.ctgMappingList" column="{langCode=langCode, grpCd=grpCd, ctgCd=ctgCd}"/>
+	</resultMap>
+	<select id="ctgCdMap" parameterType="codeCtgVO" resultMap="ctgMappingMap">
+		/* _code.ctgCdMap */
+		SELECT DISTINCT GROUP_CD AS grpCd,
+               CODE_CTG AS ctgCd,
+               LANG_CODE	AS langCode
+          FROM OP_CODE_CTG
+         WHERE 1 = 1 
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if>
+	       AND GROUP_CD = #{grpCd}
+	     ORDER BY CODE_CTG ASC
+	</select>
+	<select id="ctgMappingList" parameterType="codeCtgVO" resultType="string">
+		/* _code.ctgMappingList */
+		SELECT B.INDVDLZ_CD_NM AS prvNm
+          FROM OP_CODE_CTG A, OP_CODE_INDVDLZ B
+         WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND A.LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND A.LANG_CODE = '00'
+    	</if>
+           AND A.GROUP_CD = #{grpCd}
+           AND A.CODE_CTG = #{ctgCd}
+           AND A.LANG_CODE = B.LANG_CODE
+           AND A.GROUP_CD = B.GROUP_CD
+           AND A.INDVDLZ_CD = B.INDVDLZ_CD
+         ORDER BY B.CD_SORT_NO
+	</select>
+
+	<select id="ctgAssignList" parameterType="codeCtgVO" resultType="string">
+		/* _code.ctgAssignList */
+		SELECT INDVDLZ_CD
+	      FROM OP_CODE_CTG
+	     WHERE 1 = 1 
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   AND LANG_CODE = '00'
+    	</if> 
+	       AND GROUP_CD = #{grpCd}
+	       AND CODE_CTG = #{ctgCd}
+	     ORDER BY INDVDLZ_CD ASC 
+	</select>
+
+	<insert id="ctgInsert" parameterType="codeCtgVO">
+		/* _code.ctgInsert */
+		INSERT INTO OP_CODE_CTG (
+	            LANG_CODE, GROUP_CD, INDVDLZ_CD, CODE_CTG
+	        )
+	        VALUES (
+	    <if test="langCode != null and langCode != ''">
+       			#{langCode}
+    	</if>
+    	<if test="langCode == null or langCode == ''">
+    	   		'00'
+    	</if>   
+	        	, #{grpCd}, #{prvCd}, #{ctgCd}
+	        ) 
+	</insert>
+
+	<delete id="ctgDelete" parameterType="codeCtgVO">
+		/* _code.ctgDelete */
+		    DELETE
+	          FROM OP_CODE_CTG
+	         WHERE 1 = 1
+	           AND LANG_CODE = #{langCode}
+	           AND GROUP_CD = #{grpCd}
+	           AND CODE_CTG = #{ctgCd}
+	</delete>
+
+	<select id="grpCodeSelect" parameterType="codeVO" resultType="codeVO">
+		/* _code.grpCodeSelect */
+		SELECT NVL(MAX(GROUP_CD), 0) + 1 AS grpCd
+          FROM OP_CODE_GROUP
+         WHERE 1 = 1
+    	<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+	</select>
+
+	<select id="prvCodeSelect" parameterType="codeVO" resultType="codeVO">
+		/* _code.prvCodeSelect */
+		SELECT NVL(MAX(INDVDLZ_CD), 1000) + 1 AS prvCd
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+           AND GROUP_CD = #{grpCd}
+	</select>
+
+	<select id="checkGrpCode" parameterType="codeVO" resultType="codeVO">
+		/* _code.checkGrpCode */
+		SELECT COUNT(GROUP_CD) AS codeCheckCount
+		  FROM OP_CODE_GROUP
+		 WHERE 1 = 1
+    	<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+      	   AND GROUP_CD = #{grpCd}
+	</select>
+
+	<select id="checkPrvCode" parameterType="codeVO" resultType="codeVO">
+		/* _code.checkPrvCode */
+		SELECT COUNT(INDVDLZ_CD) AS codeCheckCount
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>         
+           AND GROUP_CD = #{grpCd}
+           AND INDVDLZ_CD = #{prvCd}
+	</select>
+
+	<!-- -->
+	<resultMap id="totalCodeVO" type="codeVO">
+		<result property="langCode" column="langCode"/>
+		<result property="langNm" column="langNm"/>
+		<result property="grpCd" column="grpCd"/>
+		<result property="grpNm" column="grpNm"/>
+		<result property="grpUseYn" column="grpUseYn"/>
+		<association property="prvTotalCodeList" select="_code.prvTotalCodeList" column="{langCode=langCode,grpCd=grpCd}"/>
+	</resultMap>
+	<select id="grpTotalCodeList" parameterType="codeVO" resultMap="totalCodeVO">
+		/* _code.grpTotalCodeList */
+		SELECT A.LANG_CODE			AS langCode
+		     , (SELECT LANG_NM 
+		          FROM TCO_SVC_LANG_C 
+		         WHERE LANG_CODE = A.LANG_CODE
+		       ) 					AS langNm
+		     , A.GROUP_CD       	AS grpCd
+	         , A.GROUP_NM       	AS grpNm
+	         , A.GROUP_USE_YN   	AS grpUseYn
+	      FROM OP_CODE_GROUP A
+	     WHERE 1 = 1
+		<if test="langCode != null and langCode != &quot;&quot;">
+           AND A.LANG_CODE = #{langCode}
+      	</if>
+	     ORDER BY A.LANG_CODE, A.GROUP_NM ASC
+	</select>
+
+	<select id="prvTotalCodeList" resultType="codeVO">
+		/* _code.prvTotalCodeList */
+		SELECT LANG_CODE		AS langCode
+        	 , INDVDLZ_CD   	AS prvCd
+             , INDVDLZ_CD_NM   	AS prvNm
+             , USE_YN   		AS useYn
+             , RELATION_CD 		AS relationCd
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1
+  		<if test="langCode != null and langCode != &quot;&quot;">
+	       AND LANG_CODE = #{langCode}
+	    </if>
+           AND GROUP_CD = #{grpCd}
+         ORDER BY LANG_CODE, CD_SORT_NO ASC
+	</select>
+
+	<select id="ctgList" parameterType="codeCtgVO" resultType="codeCtgVO">
+		/* _code.ctgList */
+		SELECT DISTINCT CODE_CTG    AS ctgCd
+			 , LANG_CODE 			AS langCode
+             , GROUP_CD    			AS grpCd
+          FROM OP_CODE_CTG
+         WHERE 1= 1
+   		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+           AND GROUP_CD = #{grpCd}
+         ORDER BY CODE_CTG ASC
+	</select>
+
+	<select id="prvNmForCtgCd" parameterType="codeCtgVO" resultType="codeVO">
+		/* _code.prvNmForCtgCd */
+		SELECT B.LANG_CODE		AS langCode
+			 , B.INDVDLZ_CD_NM 	AS prvNm
+             , B.INDVDLZ_CD 	AS prvCd
+          FROM OP_CODE_CTG A, OP_CODE_INDVDLZ B
+         WHERE 1 = 1
+		<if test="langCode != null and langCode != ''">
+           AND A.LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND A.LANG_CODE = '00'
+      	</if>
+           AND A.GROUP_CD = #{grpCd}
+           AND A.CODE_CTG = #{ctgCd}
+           AND A.LANG_CODE = B.LANG_CODE
+           AND A.GROUP_CD = B.GROUP_CD
+           AND A.INDVDLZ_CD = B.INDVDLZ_CD
+         ORDER BY B.CD_SORT_NO
+	</select>
+
+	<select id="prvNmUseYnList" parameterType="codeVO" resultType="codeVO">
+		/* _code.prvNmUseYnList */
+		SELECT INDVDLZ_CD 		AS prvCd,
+               INDVDLZ_CD_NM 	AS prvNm,
+               RELATION_CD 	 	AS relationCd,
+               USE_YN 			AS useYn
+          FROM OP_CODE_INDVDLZ
+         WHERE 1 = 1
+    	<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+           AND GROUP_CD = #{grpCd}
+         ORDER BY CD_SORT_NO ASC
+	</select>
+
+	<update id="prvForGrpCodeUpdate" parameterType="codeVO">
+		/* _code.prvForGrpCodeUpdate */
+		UPDATE OP_CODE_INDVDLZ
+           SET GROUP_CD = #{grpCd}
+         WHERE GROUP_CD = #{oldGrpCd}
+        <if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+	</update>
+
+	<update id="ctgForGrpCodeUpdate" parameterType="codeVO">
+		/* _code.ctgForGrpCodeUpdate */
+		UPDATE OP_CODE_CTG
+           SET GROUP_CD = #{grpCd}
+         WHERE GROUP_CD = #{oldGrpCd}
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>          
+	</update>
+
+	<update id="ctgForPrvCodeUpdate" parameterType="codeVO">
+		/* _code.ctgForPrvCodeUpdate */
+		UPDATE OP_CODE_CTG
+           SET INDVDLZ_CD = #{prvCd}
+         WHERE INDVDLZ_CD = #{oldPrvCd}
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+	</update>
+
+	<insert id="logging" parameterType="loggingCodeVO">
+		/* _code.logging */
+		INSERT INTO OP_CODE_INDVDLZ_LOG (
+             LANG_CODE
+            ,LOG_DT
+            ,LOG_TY
+            ,GROUP_CD
+            ,INDVDLZ_CD
+            ,INDVDLZ_CD_NM
+            ,CD_SORT_NO
+            ,USE_YN
+            ,UPDT_ID
+        <if test='logType != "D"'>
+        ) SELECT LANG_CODE
+                ,SYS_DATETIME
+                ,#{logType}
+                ,GROUP_CD
+                ,INDVDLZ_CD
+                ,INDVDLZ_CD_NM
+                ,CD_SORT_NO
+                ,USE_YN
+                ,#{modId}
+            FROM OP_CODE_INDVDLZ
+           WHERE GROUP_CD = #{grpCd}
+            <if test="prvCd != null">
+             AND INDVDLZ_CD = #{prvCd}
+            </if>
+        </if>
+        <if test='logType == "D"'>
+        ) VALUES (
+            <if test="langCode != null and langCode != ''">
+            #{langCode}
+            </if>
+            <if test="langCode == null or langCode == ''">
+            '00'
+            </if>
+           ,SYS_DATETIME
+           ,#{logType}
+           ,#{grpCd}
+           ,#{prvCd}
+           ,''
+           ,''
+           ,''
+           ,#{modId}
+        )
+        </if>
+	</insert>
+
+	<select id="changeLogList" parameterType="map" resultType="loggingCodeVO">
+		/* _code.changeLogList */
+		SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.* FROM (
+                SELECT TO_CHAR(LOG_DT, 'YYYY-MM-DD HH24:MI:SS') AS logDt
+                      ,LOG_TY AS logType
+                      ,(SELECT SUBSTR(CASE WHEN (A.GROUP_CD   IS NULL AND X.GROUP_CD   IS NOT NULL) OR (A.GROUP_CD   != X.GROUP_CD  ) THEN ', 그룹코드'   END ||
+                                      CASE WHEN (A.INDVDLZ_CD   IS NULL AND X.INDVDLZ_CD   IS NOT NULL) OR (A.INDVDLZ_CD   != X.INDVDLZ_CD  ) THEN ', 개별코드'   END ||
+                                      CASE WHEN (A.INDVDLZ_CD_NM   IS NULL AND X.INDVDLZ_CD_NM   IS NOT NULL) OR (A.INDVDLZ_CD_NM   != X.INDVDLZ_CD_NM  ) THEN ', 개별코드명' END ||
+                                      CASE WHEN (A.CD_SORT_NO IS NULL AND X.CD_SORT_NO IS NOT NULL) OR (A.CD_SORT_NO != X.CD_SORT_NO) THEN ', 정렬순서'   END ||
+                                      CASE WHEN (A.USE_YN   IS NULL AND X.USE_YN   IS NOT NULL) OR (A.USE_YN   != X.USE_YN  ) THEN ', 사용여부'   END, 3)
+                          FROM OP_CODE_INDVDLZ_LOG X
+                         WHERE X.LANG_CODE = A.LANG_CODE
+                           AND X.GROUP_CD = A.GROUP_CD
+                           AND X.LOG_DT = (SELECT MIN(Z.LOG_DT)
+                                             FROM OP_CODE_INDVDLZ_LOG Z
+                                            WHERE Z.LOG_DT &gt; A.LOG_DT
+                                              AND Z.GROUP_CD = A.GROUP_CD
+                                              AND Z.LANG_CODE = A.LANG_CODE)
+                           AND ROWNUM = 1) AS changeType
+                      ,(SELECT SUBSTR(CASE WHEN (A.GROUP_CD   IS NULL AND X.GROUP_CD   IS NOT NULL) OR (A.GROUP_CD   != X.GROUP_CD  ) THEN ', ' || A.GROUP_CD   || ' -&gt; ' || X.GROUP_CD   END ||
+                                      CASE WHEN (A.INDVDLZ_CD   IS NULL AND X.INDVDLZ_CD   IS NOT NULL) OR (A.INDVDLZ_CD   != X.INDVDLZ_CD  ) THEN ', ' || A.INDVDLZ_CD   || ' -&gt; ' || X.INDVDLZ_CD   END ||
+                                      CASE WHEN (A.INDVDLZ_CD_NM   IS NULL AND X.INDVDLZ_CD_NM   IS NOT NULL) OR (A.INDVDLZ_CD_NM   != X.INDVDLZ_CD_NM  ) THEN ', ' || A.INDVDLZ_CD_NM   || ' -&gt; ' || X.INDVDLZ_CD_NM   END ||
+                                      CASE WHEN (A.CD_SORT_NO IS NULL AND X.CD_SORT_NO IS NOT NULL) OR (A.CD_SORT_NO != X.CD_SORT_NO) THEN ', ' || A.CD_SORT_NO || ' -&gt; ' || X.CD_SORT_NO END ||
+                                      CASE WHEN (A.USE_YN   IS NULL AND X.USE_YN   IS NOT NULL) OR (A.USE_YN   != X.USE_YN  ) THEN ', ' || A.USE_YN   || ' -&gt; ' || X.USE_YN   END, 3)
+                          FROM OP_CODE_INDVDLZ_LOG X
+                         WHERE X.LANG_CODE = A.LANG_CODE
+                           AND X.GROUP_CD = A.GROUP_CD
+                           AND X.LOG_DT = (SELECT MIN(Z.LOG_DT)
+                                             FROM OP_CODE_INDVDLZ_LOG Z
+                                            WHERE Z.LOG_DT &gt; A.LOG_DT
+                                              AND Z.GROUP_CD = A.GROUP_CD
+                                              AND Z.LANG_CODE = A.LANG_CODE)
+                           AND ROWNUM = 1) AS changeResutl
+                      ,UPDT_ID     AS modId
+                  FROM OP_CODE_INDVDLZ_LOG A
+                 WHERE GROUP_CD = #{grpCd}
+           		<if test="langCode != null and langCode != ''">
+                   AND LANG_CODE = #{langCode}
+      			</if>
+      			<if test="langCode == null or langCode == ''">
+           		   AND LANG_CODE = '00'
+      			</if>
+                 ORDER BY LOG_DT DESC
+                ) X
+                WHERE ROWNUM &lt;= #{pagingEndNum}
+            ) Y
+            WHERE NUM &gt;= #{pagingStartNum}
+	</select>
+
+	<select id="changeLogListCount" parameterType="map" resultType="int">
+		/* _code.changeLogListCount */
+		SELECT COUNT(*) AS cnt
+          FROM OP_CODE_INDVDLZ_LOG
+         WHERE GROUP_CD = #{grpCd}
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+      	<if test="langCode == null or langCode == ''">
+           AND LANG_CODE = '00'
+      	</if>
+	</select>
+
+	<select id="extChkLang" parameterType="String" resultType="int">
+		/* _code.extChkLang */
+		SELECT COUNT(*) AS cnt
+	      FROM TCO_SVC_LANG_C
+		 WHERE DOMAIN_CD IS NOT NULL
+		   AND LANG_CODE = #{value}
+	</select>
+
+	<select id="extChkGrp" parameterType="map" resultType="int">
+		/* _code.extChkGrp */
+		SELECT COUNT(*) AS cnt
+	      FROM OP_CODE_GROUP          
+	     WHERE GROUP_CD = #{grpCd}
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>      	     
+	</select>
+
+	<select id="dupChkPrv" parameterType="map" resultType="int">
+		/* _code.dupChkPrv */
+		SELECT COUNT(*) AS cnt
+          FROM OP_CODE_INDVDLZ
+         WHERE GROUP_CD = #{grpCd}
+		<if test="langCode != null and langCode != ''">
+           AND LANG_CODE = #{langCode}
+      	</if>
+           AND INDVDLZ_CD = #{prvCd}
+	</select>
+	<!-- 서비스언어코드 가져오기 -->
+	<select id="getLangCodeList" parameterType="CodeVO"  resultType="CodeVO">
+	 	/* _code.getLangCodeList*/
+		SELECT LANG_CODE 		AS langCode
+		 	 , LANG_NM 			AS langNm
+		 	 , LANG_ENG_ABRV 	AS langEngAbb
+		 	 , LANG_ENG_NM 		AS langEngNm
+		  FROM TCO_SVC_LANG_C
+		 WHERE DOMAIN_CD IS NOT NULL
+		<if test="langCode != null and langCode != '' ">
+		   AND LANG_CODE = #{langCode}  
+		</if>
+    </select>
+    <select id="langList" parameterType="CodeVO" resultType="CodeVO">
+        SELECT LANG_CODE AS langCode
+             , LANG_NM AS langNm
+          FROM TCO_SVC_LANG_C
+         WHERE DOMAIN_CD IS NOT NULL
+    </select>
+</mapper>

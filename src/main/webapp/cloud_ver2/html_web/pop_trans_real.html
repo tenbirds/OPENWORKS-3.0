@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>POPUP - 본공고로 전환</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_pop.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body class="winPopup">
+	<h2>본공고로 전환 <a href="#">닫기</a></h2>
+	<div>
+		<table class="tbl_st4 e2">
+			<tr>
+				<th>입찰공고명</th>
+				<td>정보보호 제품교육을 위한 교육용 가상화 웹방화벽 구매</td>
+			</tr>					
+			<tr>
+				<th>공고번호</th>
+				<td>20161124-1001</td>
+			</tr>					
+		</table>
+		
+		<h3>입찰 집행</h3>
+		<table class="tbl_st4 e4 term">
+			<tr>
+				<th class="requ">시작일시</th>
+				<td>
+					<input type="text" id="dPicker_1" />
+					<span class="sel_box">
+						<select>
+							<option>선택</option>
+						</select>
+					</span>
+				</td>
+				<th class="requ">마감일시</th>
+				<td>
+					<input type="text" id="dPicker_2" />
+					<span class="sel_box">
+						<select>
+							<option>선택</option>
+						</select>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<th class="requ">개찰일시</th>
+				<td>
+					<input type="text" id="dPicker_3" />
+					<span class="sel_box">
+						<select>
+							<option>선택</option>
+						</select>
+					</span>
+				</td>
+				<th class="requ">개찰장소</th>
+				<td class="w100p"><input type="text" /></td>
+			</tr>
+		</table>
+		
+		<div class="btnArea rig">
+			<a href="#" class="btns st1">등록</a>
+		</div>		
+	</div>
+
+ 
+  <script src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!-- datepicker -->
+  <link rel="stylesheet" href="/resources/openworks/spi/jquery/datepicker/jquery.datepicker.css" />
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.ui.core.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script.min.js"></script>
+  <script src="/resources/openworks/spi/jquery/datepicker/jquery.script-addon.js"></script>
+  <script src="/resources/openworks/spi/openworks/openworks.ui.js"></script>
+  <script>
+	$(document).ready(function() {
+	  $("#dPicker_1, #dPicker_2, #dPicker_3").datepicker({
+	          showOn: "both", 
+	          buttonImage: "/cloud_ver2/new_cloud/images/icn_calen.png", 
+	          buttonImageOnly: false,
+	          buttonText: "달력"
+	    });
+	});
+  </script>
+  <!--// datepicker -->
+  
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>  
+  
+ </body>
+</html>

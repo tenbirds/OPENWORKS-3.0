@@ -1,0 +1,6 @@
+@charset "utf-8";
+
+#header_ver2, #snb, #footer_ver2 { display:none; } /*출력을 원치 않는 영역을 모두 숨김*/
+.goRSite { display:none; }
+.quickBox { display:none; }
+.noPrint { display:none; }

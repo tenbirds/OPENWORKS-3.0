@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8" />
+  <title>상품 뷰</title>
+  <link rel='stylesheet' href='/cloud_ver2/new_cloud/css/v3_css.css' />
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="공공기관의 민간클라우드서비스를 위한 클라우드전문 마켓플레이스 클라우드스토어 씨앗" />
+ </head>
+
+ <body>
+	<!-- header -->
+	<header id="gnb">
+		<div class="conWrap">
+			<h1><a href="#"><img src="/cloud_ver2/new_cloud/images/logo.png" alt="클라우드 스토어 씨앗" /></a></h1>
+
+			<!-- 상단 메뉴 -->
+			<aside>
+				<div>
+					<!-- 구굴 사이트 번역 API -->
+					<div id="google_translate_element"></div>
+					<script type="text/javascript">
+						function googleTranslateElementInit() {
+						    new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+						    }
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!--// 구굴 사이트 번역 API -->
+	
+					<ul>
+						<li><a href="http://www.ceart.kr:8080/korean/pt/login/user/BD_index.do">로그인</a></li>
+						<li><a href="#">회원가입</a></li>
+						<li><a href="#">커뮤니티</a></li>
+					</ul>
+				</div>
+
+				<!-- 전체 검색 -->
+				<form>
+					<input type="text" placeholder="service search" />
+					<input type="image" src="/cloud_ver2/new_cloud/images/gnb_btn_search.png" alt="검색" />
+				</form>
+				<!--// 전체 검색 -->
+			</aside>
+			<!-- 상단 메뉴 -->
+		</div>
+
+		<!-- gnb -->
+		<nav>
+			<div class="conWrap">
+				<a href="#" class="view_allmenu"><img src="/cloud_ver2/new_cloud/images/gnb_allmenu.png" alt="전체메뉴" /></a>
+				<ul>
+					<li>
+						<a href="#">씨앗소개</a>
+						<ul>
+							<li><a href="#">스토어소개</a></li>
+							<li><a href="#">공급자 협약체결</a></li>
+							<li><a href="#">서비스 판매절차</a></li>
+							<li><a href="#">기타 공급자가이드</a></li>
+							<li><a href="#">표준계약서</a></li>
+							<li><a href="#">서비스 구매절차</a></li>
+							<li><a href="#">기타 수요자가이드</a></li>
+							<li><a href="#">공공기관 클라우드 이용가이드</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">SaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">IT서비스</a></li>
+							<li><a href="#">비즈니스</a></li>
+							<li><a href="#">마케팅</a></li>
+							<li><a href="#">산업</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+							<li><a href="#">기타</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">PaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">시스템보안</a></li>
+							<li><a href="#">DBMS</a></li>
+							<li><a href="#">기타 개발도구</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">IaaS</a>
+						<ul>
+							<li><a href="#">전체</a></li>
+							<li><a href="#">컴퓨팅</a></li>
+							<li><a href="#">스토리지</a></li>
+							<li><a href="#">네트워킹</a></li>
+							<li><a href="#">조달청등록상품</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">입찰공고</a>
+						<ul>
+							<li><a href="#">신규공고</a></li>
+							<li><a href="#">수의계약공고</a></li>
+							<li><a href="#">예비공고</a></li>
+							<li><a href="#">마감공고</a></li>
+							<li><a href="#">공고등록</a></li>
+							<li><a href="#">나라장터 입찰공고</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#">지식허브</a>
+						<ul>
+							<li><a href="#">전문가상담</a></li>
+							<li><a href="#">지식맵</a></li>
+							<li><a href="#">지식나눔</a></li>
+							<li><a href="#">행사 및 이벤트</a></li>
+							<li><a href="#">성공스토리</a></li>
+							<li><a href="#">뉴스레터</a></li>
+							<li><a href="#">씨앗워키</a></li>
+							<li><a href="#">해외 클라우드마켓 동향</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<!-- allmenu -->
+			<div class="all_menu">
+				<div class="conWrap">
+					<table>
+						<tr>
+							<th>씨앗소개</th>
+							<th>SaaS</th>
+							<th>PaaS</th>
+							<th>IaaS</th>
+							<th>입찰공고</th>
+							<th>지식허브</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">스토어소개</a></li>
+									<li><a href="#">공급자 협약체결</a></li>
+									<li><a href="#">서비스 판매절차</a></li>
+									<li><a href="#">기타 공급자가이드</a></li>
+									<li><a href="#">표준계약서</a></li>
+									<li><a href="#">서비스 구매절차</a></li>
+									<li><a href="#">기타 수요자가이드</a></li>
+									<li><a href="#">공공기관 클라우드 이용가이드</a></li>									
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li>IT서비스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 데이터 관리</a></li>
+											<li><a href="#">- IT 관리</a></li>
+											<li><a href="#">- 프로젝트 관리</a></li>
+											<li><a href="#">- 소프트웨어 개발 도구</a></li>
+											<li><a href="#">- 전자문서/기록관리(EDRM)</a></li>
+											<li><a href="#">- 협업도구</a></li>
+											<li><a href="#">- 크리에이티브&디자인</a></li>
+											<li><a href="#">- 보안</a></li>
+										</ul>
+									</li>
+									<li>비즈니스
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 의사결정지원/분석</a></li>
+											<li><a href="#">- 생산관리</a></li>
+											<li><a href="#">- 회계/금융</a></li>
+											<li><a href="#">- 인적 자원 관리</a></li>
+										</ul>
+									</li>
+									<li>마케팅
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 세일즈</a></li>
+											<li><a href="#">- 마케팅</a></li>
+											<li><a href="#">- 고객 관계 관리(CRM)</a></li>
+										</ul>
+									</li>
+									<li>산업
+										<ul>
+											<li><a href="#">- 전체</a></li>
+											<li><a href="#">- 교육</a></li>
+											<li><a href="#">- 운송/물류</a></li>
+											<li><a href="#">- 에너지/환경</a></li>
+											<li><a href="#">- 도서</a></li>
+											<li><a href="#">- 법률</a></li>
+											<li><a href="#">- 문화</a></li>
+										</ul>
+									</li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">시스템 보안</a></li>
+									<li><a href="#">DBMS</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+									<li><a href="#">기타 개발도구</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전체</a></li>
+									<li><a href="#">컴퓨팅</a></li>
+									<li><a href="#">스토리지</a></li>
+									<li><a href="#">네트워킹</a></li>
+									<li><a href="#">조달청등록상품</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">신규공고</a></li>
+									<li><a href="#">수의계약공고</a></li>
+									<li><a href="#">예비공고</a></li>
+									<li><a href="#">마감공고</a></li>
+									<li><a href="#">공고등록</a></li>
+									<li><a href="#">나라장터 입찰공고</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">전문가상담</a></li>
+									<li><a href="#">지식맵</a></li>
+									<li><a href="#">지식나눔</a></li>
+									<li><a href="#">행사 및 이벤트</a></li>
+									<li><a href="#">기타 입찰정보</a></li>
+									<li><a href="#">성공스토리</a></li>
+									<li><a href="#">뉴스레터</a></li>
+									<li><a href="#">씨앗워키</a></li>
+									<li><a href="#">해외 클라우드마켓 동향</a></li>
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<th>로그인</th>
+							<th>회원가입</th>
+							<th>마이씨앗</th>
+							<th>공급자씨앗</th>
+							<th>커뮤니티</th>
+							<th>고객센터</th>
+						</tr>
+						<tr>
+							<td>
+								<ul>
+									<li><a href="#">아이디 찾기</a></li>
+									<li><a href="#">비밀번호 찾기</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">일반회원가입</a></li>
+									<li><a href="#">공급자권한가입</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">구매내역 관리</a></li>
+									<li><a href="#">상세정보(견적)요청서 관리</a></li>
+									<li><a href="#">입찰공고 관리</a></li>
+									<li><a href="#">구매희망목록</a></li>
+									<li>관심목록
+										<ul>
+											<li><a href="#">- 관심서비스</a></li>
+											<li><a href="#">- 최근 본 서비스</a></li>
+										</ul>
+									</li>
+									<li><a href="#">전문가상담</a></li>
+									<li>나의게시물
+										<ul>
+											<li><a href="#">- 공급자문의</a></li>
+											<li><a href="#">- 운영자문의</a></li>
+											<li><a href="#">- 내가쓴 글</a></li>
+											<li><a href="#">- 응모이벤트</a></li>
+										</ul>
+									</li>
+									<li>커뮤니티
+										<ul>
+											<li><a href="#">- 가입 커뮤니티</a></li>
+											<li><a href="#">- 개설 커뮤니티</a></li>
+										</ul>
+									</li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">회원정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">데시보드</a></li>
+									<li><a href="#">씨앗공지</a></li>
+									<li><a href="#">구매요청 답변서관리</a></li>
+									<li><a href="#">입찰참여 현황</a></li>
+									<li><a href="#">판매현황</a></li>
+									<li>공급서비스 관리
+										<ul>
+											<li><a href="#">- 서비스목록</a></li>
+											<li><a href="#">- 서비스등록대기</a></li>
+											<li><a href="#">- 서비스등록</a></li>
+											<li><a href="#">- 서비스삭제목록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">Q &amp; A 관리</a></li>
+									<li><a href="#">전문가상담 관리</a></li>
+									<li>마스터/서브 관리
+										<ul>
+											<li><a href="#">- 의견공유</a></li>
+											<li><a href="#">- 서브등록</a></li>
+										</ul>
+									</li>
+									<li><a href="#">공급자정보 관리</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">커뮤니티</a></li>
+								</ul>
+							</td>
+							<td>
+								<ul>
+									<li><a href="#">고객센터</a></li>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!--// allmenu -->
+		</nav>
+		<!--// gnb -->
+	</header>
+	<!--// header -->
+
+	<!-- content -->
+	<div class="conWrap swView">
+		<aside>
+			<img src="/cloud_ver2/new_cloud/images/temp/thumb_7.png" alt="" />
+			
+			<div class="duct_list">
+				<a href="#" class="qaView moreV">Q&amp;A</a>				
+				<a href="#" class="goList">공급자서비스목록</a>
+				<span>구매건수:<i>00</i></span>
+			</div>
+			
+			<!--<div class="movie">
+				<em>소개영상</em>
+				<a href="#"><img src="/cloud_ver2/new_cloud/images/temp/yuotube.jpg" alt="소프트웨어 소개 영상" /></a>
+			</div> -->
+			
+			<div class="share">
+				<em>공유하기</em>
+				<a href="#"><img src="/cloud_ver2/new_cloud/images/btn_share_fb.png" alt="facebook" /></a>
+				<a href="#"><img src="/cloud_ver2/new_cloud/images/btn_share_tw.png" alt="twitter" /></a>
+				<a href="#"><img src="/cloud_ver2/new_cloud/images/btn_share_bl.png" alt="blog" /></a>
+			</div>
+			
+			<div class="tags">
+				<a href="#">#그룹웨어</a>
+				<a href="#">#SNS</a>
+				<a href="#">#Microsoft</a>
+				<a href="#">#마이크로소프트</a>
+				<a href="#">#애저</a>
+				<a href="#">#Azure</a>
+				<a href="#">#Microsoft Azure</a>
+				<a href="#">#클라우드플랫폼</a>
+				<a href="#">#MS클라우드</a>
+				<a href="#">#Microsoft Cloud</a>
+				<a href="#">#Microsoft 클라우드</a>
+				<a href="#">#마이크로소프트 클라우드</a>
+			</div>
+
+			<div class="relate_link">
+				<a href="#" class="site">서비스 안내</a>
+				<a href="#" class="spec">서비스규격서</a>
+				<a href="#" class="pric">서비스가격표</a>
+				<a href="#" class="menu">사용자메뉴얼</a>
+				<a href="#" class="demo">체 험 판</a>				
+			</div>
+		</aside>
+
+		<div class="summary">
+			<span>
+				<a href="#" class="favor">관심목록 추가</a>
+				<!-- 관심목록에 추가가 된 상품일 경우 
+				<a href="#" class="favor on">관심목록 추가</a>
+				//관심목록에 추가가 된 상품일 경우 -->				
+				<a href="#"><img src="/cloud_ver2/new_cloud/images/icn_print.png" alt="프린트" /></a>
+				<a href="#" class="listView">이전보기</a>
+			</span>
+
+			<h2>
+				Acronis Backup Advanced for VM(SPLA) Acronis Backup Advanced for VM(SPLA)
+			</h2>
+			<table class="tbl_st2">
+				<tr>
+					<th>서비스 분류</th>
+					<td colspan="3">PaaS > 시스템 보안 , PaaS > DBMS , PaaS > 기타 개발도구</td>
+				</tr>
+				<tr>
+					<th>공급자</th>
+					<td>한국마이크로소프트</td>
+					<th>기업구분</th>
+					<td></td>
+				</tr>
+				<tr>
+					<th>제조사</th>
+					<td>Microsoft</td>
+					<th>원산지</th>
+					<td>미국</td>
+				</tr>
+				<tr>
+					<th>출시일</th>
+					<td colspan="3">2010. 02. 01</td>
+				</tr>
+				<tr>
+					<th>서비스 관리기준</th>
+					<td colspan="3"></td>
+				</tr>
+				<tr>
+					<th>호환성</th>
+					<td colspan="3"></td>
+				</tr>
+				<tr>
+					<th>지원언어</th>
+					<td colspan="3">한국어</td>
+				</tr>
+				<tr>
+					<th>구축방식</th>
+					<td></td>
+					<th>서비스 유형</th>
+					<td>서비스형</td>
+				</tr>
+				<tr class="import">
+					<th>계약단위</th>
+					<td>월</td>
+					<th>단위</th>
+					<td>월 5천원 부터</td>
+				</tr>
+				<tr>
+					<th>담당자</th>
+					<td>권변준</td>
+					<th>Tel</th>
+					<td>02-2099-2311</td>
+				</tr>
+				<tr>
+					<th>e-mail</th>
+					<td colspan="3"><a href="mailto:#">saas@lgcns.com</a></td>
+				</tr>
+				<tr>
+					<th>아키텍처</th>
+					<td colspan="3">32-bit, 64-bit</td>
+				</tr>
+				<tr>
+					<th>A/S</th>
+					<td colspan="3">기타 A/S(문의 요망)</td>
+				</tr>
+				<tr>
+					<th>지원 O/S</th>
+					<td colspan="3" class="os">윈도우 비스타 , 윈도우7 , 윈도우8 , 맥 OS X 10.5 레오파드 , 맥 OS X 10.6 스노우 레오파드 , 맥 OS X 10.7 라이언 , OS X 10.8 마운틴 라이언 , OS X 10.9 매버릭스 , OS X 10.10 요세미티 , iOS 1 , iOS 2 , iOS 3 , iOS 4 , iOS 5 , iOS 6 , iOS 7 , iOS 8 , 안드로이드 1.0 애플파이 , 안드로이드 1.5 컵케이크 , 안드로이드 1.6 도넛 , 안드로이드 2.0 이클레어 , 안드로이드 2.1 이클레어 , 안드로이드 2.2 프로요 , 안드로이드 2.3 진저브레드 , 안드로이드 3.0 허니콤 , 안드로이드 3.1 허니콤 , 안드로이드 3.2 허니콤 , 안드로이드 4.0 아이스크림 샌드위치 , 안드로이드 4.1 젤리빈 , 안드로이드 4.2 젤리빈 , 안드로이드 4.3 젤리빈 , 안드로이드 4.4 킷캣 , 안드로이드 5.0 롤리팝 , 윈도우10 , IOS 9 , 안드로이드 6.0 마시멜로</td>
+				</tr>
+				<tr>
+					<th>인증정보</th>
+					<td colspan="3"></td>
+				</tr>
+				<tr>
+					<th>인증정보</th>
+					<td colspan="3"></td>
+				</tr>
+			</table>
+			<div class="btnArea rig">
+				<a href="#" class="btns icnCart">구매희망 목록 담기</a>
+			</div>
+		</div>
+		
+		<!-- 나라장터 등록상품일 경우 -->
+		<section class="naraMar">
+			<h3><i><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_g2b.png" alt="나라장터 종합쇼핑몰"></i></h3>
+			<ul class="option_view">
+				<li>
+					<i>선택된 옵션의 내용이 노출 됩니다 선택된 옵션의 내용이 노출 됩니다 선택된 옵션의 내용이 노출 됩니다 선택된 옵션의 내용이 노출 됩니다선택된 옵션의 내용이 노출 됩니다 선택된 옵션의 내용이 노출 됩니다선택된 옵션의 내용이 노출 됩니다 선택된 옵션의 내용이 노출 됩니다</i>
+					
+					<div>
+						<div class="in_de_btn">
+							<input type="text" value="1" /><a href="#" class="in_de_btn inc"></a><a href="#" class="in_de_btn dcc"></a>
+						</div>
+						<span>444,000원</span>
+						<a href="#" class="btn_del">삭제</a>								
+					</div>
+					
+				</li>
+				<li>
+					<i>옵션 옵션 옵션 옵션</i>
+	
+					<div>
+						<div class="in_de_btn">
+							<input type="text" value="1" /><a href="#" class="in_de_btn inc"></a><a href="#" class="in_de_btn dcc"></a>
+						</div>
+						<span>444,000원</span>
+						<a href="#" class="btn_del">삭제</a>
+					</div>								
+				</li>
+			</ul>
+			<div class="btnArea rig">
+				<a href="#" class="btns icnCart">나라장터에서 구매</a>
+			</div>	
+		</section>			
+		<!--// 나라장터 등록상품일 경우 -->
+					
+		<hr />
+
+		<div class="view_demo_img">
+			<ul class="slider_2">
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+				<li><a href="#" class="moreV"><img src="/cloud_ver2/new_cloud/images/temp/thumb_8.png" alt="" /></a></li>
+			</ul>
+		</div>
+
+		<section>
+			<h3><i>서비스 개요</i></h3>
+			<p>
+				티그리스는 소셜 테크놀러지를 활용하여 조직의 소통 문화와 일하는 방식을 혁신하는 서비스입니다. 게시판과 같은 정적인 정보 제공 방식을 뉴스피드와 푸시알림 등의 동적 구조로 변경하여 사용성을 획기적으로 개선하여 직원들간의 협업이 증대되어 업무생산성이 향상됩니다. <br /><br />
+				매시업플러스(www.mashup-plus.com)에서 구매하실 수 있습니다. 상세한 가격정보는 매시업플러스 홈페이지를 참고하시기 바랍니다.<br />
+			</p>
+			<h3><i>특장점</i></h3>
+			<p>
+				티그리스는 임대형 서비스인 경우에도 고객님 요청에 따라 데이터를 제공해 드립니다.또한 구축형으로 전환시 데이터 이관 서비스도 제공합니다.<br />
+				소셜웨어 티그리스는 웹과 모바일 앱 서비스를 동시에 이용하실 수 있으며, 앱의 기능이 수정되면 자동으로 앱이 업데이트됩니다.				
+			</p>
+			<h3><i>대상고객</i></h3>
+			<p>
+				모든 공공기관, R&D프로젝트, 기업 대상
+			</p>
+			<h3><i>주요기능</i></h3>
+			<p>
+				타임라인: 게시판 형태를 탈피하고 뉴스피드 방식의 타임라인 형식으로 소통함으로써 실시간 소통 가능<br />
+				커뮤니티: 조직정보에 따라 자동 구성되는 조직 커뮤니티와 목적별 자유로운 생성의 일반 커뮤니티가 있습니다. 학습조직, TFT, 직급, 근무위치, 취미, 동호회 등 다양한 커뮤니케이션 그룹을<br />
+				공개/비공개, 가입승인 절차, 멤버관리 등을 설정하여 자유롭게 운영<br />
+				메신저: 웹메신저와 모바일 앱 메신저는 실시간으로 동료들과 대화하며 정보 공유(파일첨부 및 모바일에서도 별도의 뷰어 없이 파일 미리보기 가능)<br />
+				설치형 메신저가 아닌 웹메신저 방식이라 어떤 디바이스에서도 업무적인 실시간 소통 가능<br />
+				소셜 플라워: 인맥(동료)과의 빠른 커뮤니케이션을 할 수 있는 통합 커뮤니케이션 도구로써 티그리스 내 어디서든 사진을 클릭하면 이메일, 메신저, 프로필보기, 커뮤니티 초대 등<br />
+				편리한 퀵메뉴 사용 가능<br />
+				소셜 검색: 통합검색기능으로 키워드 검색을 통해 글, 파일, 인적 정보를 검색할 수 있으며, 커뮤니티 별로 검색 기능을 제공하여 더욱 쉽게 원하는 정보 검색 가능
+			</p>
+		</section>
+		<div class="btnArea rig">
+			<a href="#" class="listView">이전보기</a>			
+		</div>
+
+		
+	</div>
+	<!--// content -->
+
+	<!-- 배너링크 -->
+	<div class="bnrArea">
+		<div class="conWrap">
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_nia.png" alt="한국정보화진흥원"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_cpcp.png" alt="공공클라우드지원센터"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_msip.png" alt="미래창조과학부"></a>
+			<a href="#"><img src="/cloud_ver2/new_cloud/images/bnr_mainFoot_g2b.png" alt="나라장터 종합쇼핑몰"></a>
+		</div>
+	</div>
+	<!--// 배너링크 -->
+	
+	<!-- footer -->
+	<footer>
+		<div class="conWrap">
+			<img src="/cloud_ver2/new_cloud/images/logo_footer.png" alt="클라우드 스토어 씨앗" />
+			<span>
+				<a href="#">고객센터</a>
+				<a href="#">공지사항</a>
+				<a href="#">서비스 이용약관</a>
+				<a href="#">개인정보 보호정책</a>
+				<a href="#">이메일 수집거부</a>
+				<a href="#">기본협약</a>
+				<a href="#">오시는 길</a>
+			</span>
+
+			<address>
+				<span>
+					<b>대표전화 : 053-230-1787</b>
+					<b>이메일 : ceart@ceart.kr</b>
+					<b>개인정보보호 책임자 : 경영기획실장</b>
+				</span>
+				대구광역시 동구 첨단로 53 (41068) | 서울사무소 : 서울특별시 중구 청계천로 14 (04520)<br />
+				Copyright 2015 한국정보화진흥원 All Rights Reserved
+			</address>
+		</div>
+	</footer>
+	<!--// footer -->
+
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <!--<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>-->
+  <script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+
+    
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+     
+  <script type="text/javascript" src="/resources/openworks/spi/jquery/cookie/jquery.cookie.js"></script>
+   
+  <script type="text/javascript" src="/resources/web/analyze/tracking/js/detector.js"></script>
+  
+  <script src='/cloud_ver2/new_cloud/js/jquery.mCustomScrollbar.min.js'></script>  
+  <script src='/cloud_ver2/new_cloud/js/v3_cmm.js'></script>  	
+ </body>
+</html>

@@ -1,0 +1,2048 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_premium">
+
+    <sql id="searchWhere">
+        <!-- 상세 검색 -->
+        <if test="q_searchVal != null  and q_searchVal != ''">
+            <choose>
+                <when test="q_searchKey == 1">
+                	/** 서비스명 **/
+                    AND (A.GOODS_NM LIKE  '%' || #{q_searchVal} || '%')
+                </when>
+                <when test="q_searchKey == 2">
+                	/** 스토어명 **/
+                    AND (A.USER_ID IN (SELECT USER_ID FROM TUM_SVC_STOR_I WHERE LANG_STORE_NM LIKE '%' || #{q_searchVal} || '%'))
+                </when>
+                <when test="q_searchKey == 3">
+                    AND (A.GOODS_CODE IN (
+                         SELECT GOODS_CODE FROM TST_GOOD_TAG_I WHERE GOODS_TAG_NM LIKE '%' || #{q_searchVal} || '%'
+						 UNION ALL
+						 SELECT AA.GOODS_CODE FROM TST_GOOD_META_I AA, OP_CODE_INDVDLZ BB
+						 WHERE AA.GROUP_CD = BB.GROUP_CD AND AA.INDVDLZ_CD = BB.INDVDLZ_CD AND AA.LANG_CD = BB.LANG_CODE AND BB.USE_YN = 'Y' AND AA.GROUP_CD = 1023
+						   AND BB.INDVDLZ_CD_NM LIKE '%' || #{q_searchVal} || '%')
+						)
+                </when>
+            </choose>
+        </if>
+    </sql>
+    
+    <sql id="listSort">
+    	<!-- 정렬-->
+        <choose>
+	        <when test="q_sortName == 1">
+	            ORDER BY CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="q_sortName == 2">
+	            ORDER BY evlScore DESC, CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="q_sortName == 3">
+	            ORDER BY goodsRdcnt DESC, CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="q_sortName == 4">
+	            ORDER BY sellCnt DESC, CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <when test="q_sortName == 5">
+	        	ORDER BY cntrctCnt DESC, CONFM_DT DESC, REGIST_DT DESC
+	        </when>
+	        <otherwise>
+	            ORDER BY CONFM_DT DESC, REGIST_DT DESC
+	            <!-- ORDER BY RANDOM() -->
+	        </otherwise>
+        </choose>
+    </sql>
+
+	<sql id="searchFilterWhere">
+	<!-- 필터검색 -->
+    	<if test="selectItem1 != null and selectItem1 != ''">
+            /**기업구분*/
+            AND A.SMLPZ_CHK <foreach collection="selectItem1" item="item" index="index" separator="," open="IN (" close=") ">TRIM(#{item})</foreach>
+        </if>
+        
+		<if test="selectItem4 != null and selectItem4 != ''">    
+			/** 인증   */     
+			 AND A.GOODS_CODE IN (SELECT GOODS_CODE
+						            FROM TST_GOOD_MARK_I A 
+						           WHERE A.MARK_CD <foreach collection="selectItem4" item="item" index="index" separator="," open="IN (" close=") ">TRIM(#{item})</foreach>)
+		</if>
+		<if test="selectItem13 != null and selectItem13 !='' ">    
+		/** 인증   */     
+			AND A.GOODS_CODE  IN (SELECT GOODS_CODE
+						            FROM TST_GOOD_MARK_I A 
+						           WHERE A.MARK_CD <foreach collection="selectItem13" item="item" index="index" separator="," open="IN (" close=") ">TRIM(#{item})</foreach>)
+		</if>
+		<if test='selectItem3 != "" and selectItem3 != null'>
+	    /*서비스 구분*/
+	    	AND A.CTGRY_CL_CD <foreach collection="selectItem3" item="item" index="index" separator="," open="IN (" close=") ">TRIM(#{item})</foreach>
+	   	</if>
+	   	
+	   	<if test="selectItem11 != null and selectItem11 != ''">
+	   	<!-- /** 고객지원 **/   -->
+	   		<if test="selectItem111 == '20591001' and selectItem112 == null">
+	   			AND A.cstmrCnterOperAt = 'Y'
+	   		</if>
+	   		<if test="selectItem111 == null and selectItem112 == '20591002'">
+	   			AND A.apiSportAt = 'Y'
+	   		</if>
+	   		<if test="selectItem111 == '20591001' and selectItem112 == '20591002'">
+	   			AND (A.cstmrCnterOperAt = 'Y' OR A.apiSportAt = 'Y')
+	   		</if>
+		</if>
+		
+		<if test="selectItem10 != null and selectItem10 != ''">
+		<!-- 관리정보제공 -->
+			<if test="selectItem101 == '20581001' and selectItem102 == null">
+	  			AND A.svcManageSttusInfoSuply = 'Y'
+	  		</if>
+			<if test="selectItem101 == null and selectItem102 == '20581002'">
+	  			AND A.svcUseLogSuplyAt = 'Y'
+	  		</if>
+	  		<if test="selectItem101 == '20581001' and selectItem102 == '20581002'">
+	  			AND (A.svcManageSttusInfoSuply = 'Y' OR A.svcUseLogSuplyAt = 'Y')
+	  		</if>
+		</if>
+		
+		<if test="selectItem9 != null and selectItem9 != ''">
+		<!-- 교육, 기술지원 -->
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == null and selectItem94 == null and selectItem95 == null">
+		 		AND A.userEdcSportAt = 'Y'
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == null and selectItem95 == null">
+		 		AND A.visitEdcSportAt = 'Y'
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == null">
+		 		AND A.userMnlSuplyAt = 'Y'
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND A.visitTchnlgySportAt = 'Y'
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == null and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND A.visitElseTchnlgySportAt = 'Y'
+		 	</if>
+		 	
+		 	
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == null and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == null and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == '20571004'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem91 == '20571001' and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.userMnlSuplyAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == null and selectItem95 == '20571005'">
+		 		AND (A.visitEdcSportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == null and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == null and selectItem95 == null">
+		 		AND (A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == null and selectItem92 == '20571002' and selectItem93 == null and selectItem94 == '20571004' and selectItem95 == null">
+		 		AND (A.visitEdcSportAt = 'Y' OR A.visitTchnlgySportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem91 == '20571001' and selectItem92 == '20571002' and selectItem93 == '20571003' and selectItem94 == '20571004' and selectItem95 == '20571005'">
+		 		AND (A.userEdcSportAt = 'Y' OR A.visitEdcSportAt = 'Y' OR A.userMnlSuplyAt = 'Y' OR A.visitTchnlgySportAt = 'Y' OR A.visitElseTchnlgySportAt = 'Y')
+		 	</if>
+		</if>
+		
+		<if test="selectItem8 != null and selectItem8 != ''">
+		<!-- 개발지원 -->
+			<if test="selectItem81 == '20561001' and selectItem82 == '20561002' and selectItem83 == '20561003'">
+				AND (A.sSourcOthbcAt = 'Y' OR A.sApiAccessSportAt = 'Y' OR A.sDbMigrationSportAt = 'Y')
+			</if>
+			<if test="selectItem81 == '20561001' and selectItem82 == null and selectItem83 == '20561003'">
+				AND (A.sSourcOthbcAt = 'Y' OR A.sDbMigrationSportAt = 'Y')
+			</if>
+			<if test="selectItem81 == null and selectItem82 == '20561002' and selectItem83 == '20561003'">
+				AND (A.sApiAccessSportAt = 'Y' OR A.sDbMigrationSportAt = 'Y')
+			</if>
+			<if test="selectItem81 == null and selectItem82 == null and selectItem83 == '20561003'">
+				AND A.sDbMigrationSportAt = 'Y'
+			</if>
+			<if test="selectItem81 == null and selectItem82 == '20561002' and selectItem83 == null">
+				AND A.sApiAccessSportAt = 'Y'
+			</if>
+			<if test="selectItem81 == '20561001' and selectItem82 == null and selectItem83 == null">
+				AND A.sSourcOthbcAt = 'Y'
+			</if>
+			
+			<if test="selectItem81 == '20561001' and selectItem82 == '20561002' and selectItem83 == null">
+				AND (A.sSourcOthbcAt = 'Y' OR A.sApiAccessSportAt = 'Y')
+			</if>
+		</if>
+		
+		<if test="selectItem7 != null and selectItem7 != ''">
+		<!-- 클라우드 구축방식 -->
+			<if test="selectItem71 == '20321003' and selectItem72 == '20321001' and selectItem73 == '20321002'">
+				AND (A.privateCloudAt = 'Y' OR A.publicCloudAt = 'Y' OR A.hybridCloudAt = 'Y')
+			</if>
+			
+			<if test="selectItem71 == '20321003' and selectItem72 == '20321001' and selectItem73 == null">
+				AND (A.privateCloudAt = 'Y' OR A.publicCloudAt = 'Y')
+			</if>
+			<if test="selectItem71 == '20321003' and selectItem72 == null and selectItem73 == '20321002'">
+				AND (A.privateCloudAt = 'Y' OR A.hybridCloudAt = 'Y')
+			</if>
+			<if test="selectItem71 == null and selectItem72 == '20321001' and selectItem73 == '20321002'">
+				AND (A.publicCloudAt = 'Y' OR A.hybridCloudAt = 'Y')
+			</if>
+			
+			<if test="selectItem71 == '20321003' and selectItem72 == null and selectItem73 == null">
+				AND A.privateCloudAt = 'Y'
+			</if>
+			<if test="selectItem71 == null and selectItem72 == '20321001' and selectItem73 == null">
+				AND A.publicCloudAt = 'Y'
+			</if>
+			<if test="selectItem71 == null and selectItem72 == null and selectItem73 == '20321002'">
+				AND A.hybridCloudAt = 'Y'
+			</if>
+		</if>
+		
+		<if test="selectItem6 != null and selectItem6 != ''">
+		<!-- /* 호환성 지원 */ -->
+<!--
+ 		20311001	//다중플랫폼 지원	sMultiPltfomSportAt
+		20311005	//개방형 표준 지원	sOpenStdSportAt
+		20311006	//정부표준프레임워크 지원	sGvrnFrmwrkSportAt
+		20311004	//오픈소스 SW 지원	sOpenSourcSwAt
+		20311007	//PaaS-Ta 지원 	sPaastaAt
+-->
+			<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+			<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == null and selectItem64 == null and selectItem65 == null">
+		 		AND A.sMultiPltfomSportAt = 'Y'
+		 	</if>
+			<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == null and selectItem65 == null">
+		 		AND A.sOpenStdSportAt = 'Y'
+		 	</if>
+			<if test="selectItem61 == null and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == null">
+		 		AND A.sGvrnFrmwrkSportAt = 'Y'
+		 	</if>
+			<if test="selectItem61 == null and selectItem62 == null and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND A.sOpenSourcSwAt = 'Y'
+		 	</if>
+			<if test="selectItem61 == null and selectItem62 == null and selectItem63 == null and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND A.sPaastaAt = 'Y'
+		 	</if>
+		 	
+
+			<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == null and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == null and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenStdSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == '20311001' and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == '20311001' and selectItem62 == nill and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sMultiPltfomSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == null">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sGvrnFrmwrkSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == null and selectItem62 == '20311005' and selectItem63 == null and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sOpenStdSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == '20311004' and selectItem65 == null">
+		 		AND (A.sGvrnFrmwrkSportAt = 'Y' OR A.sOpenSourcSwAt = 'Y')
+		 	</if>
+		 	<if test="selectItem61 == null and selectItem62 == null and selectItem63 == '20311006' and selectItem64 == null and selectItem65 == '20311007'">
+		 		AND (A.sGvrnFrmwrkSportAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem61 == null and selectItem62 == null and selectItem63 == null and selectItem64 == '20311004' and selectItem65 == '20311007'">
+		 		AND (A.sOpenSourcSwAt = 'Y' OR A.sPaastaAt = 'Y')
+		 	</if>
+		</if>
+		
+		<if test="selectItem5 != null and selectItem5 != ''">
+		<!-- 서비스기술지원 -->
+			
+			<if test="selectItem51 == '20301002' and selectItem52 == null and selectItem53 == null and selectItem54 == null">
+		 		AND A.clusteringSportAt = 'Y'
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == '20301003' and selectItem53 == null and selectItem54 == null">
+		 		AND A.atmcEstnSportAt = 'Y'
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == null and selectItem53 == '20301009' and selectItem54 == null">
+		 		AND A.slaApplcAt = 'Y'
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == null and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND A.sfsrvProvisioningSportAt = 'Y'
+		 	</if>
+		 	
+			<if test="selectItem51 == '20301002' and selectItem52 == '20301003' and selectItem53 == '20301009' and selectItem54 == '20301010'">
+		 		AND (A.clusteringSportAt = 'Y' OR A.atmcEstnSportAt = 'Y' OR A.slaApplcAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem51 == '20301002' and selectItem52 == '20301003' and selectItem53 == '20301009' and selectItem54 == null">
+		 		AND (A.clusteringSportAt = 'Y' OR A.atmcEstnSportAt = 'Y' OR A.slaApplcAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == '20301002' and selectItem52 == '20301003' and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND (A.clusteringSportAt = 'Y' OR A.atmcEstnSportAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == '20301002' and selectItem52 == null and selectItem53 == '20301009' and selectItem54 == '20301010'">
+		 		AND (A.clusteringSportAt = 'Y' OR A.slaApplcAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == '20301003' and selectItem53 == '20301009' and selectItem54 == '20301010'">
+		 		AND (A.atmcEstnSportAt = 'Y' OR A.slaApplcAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem51 == '20301002' and selectItem52 == '20301003' and selectItem53 == null and selectItem54 == null">
+		 		AND (A.clusteringSportAt = 'Y' OR A.atmcEstnSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == '20301002' and selectItem52 == null and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND (A.clusteringSportAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == '20301003' and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND (A.atmcEstnSportAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == null and selectItem53 == '20301009' and selectItem54 == '20301010'">
+		 		AND (A.slaApplcAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem51 == '20301002' and selectItem52 == null and selectItem53 == '20301009' and selectItem54 == null">
+		 		AND (A.clusteringSportAt = 'Y' OR A.slaApplcAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == '20301002' and selectItem52 == null and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND (A.clusteringSportAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		 	
+		 	<if test="selectItem51 == null and selectItem52 == '20301003' and selectItem53 == '20301009' and selectItem54 == null">
+		 		AND (A.atmcEstnSportAt = 'Y' OR A.slaApplcAt = 'Y')
+		 	</if>
+		 	<if test="selectItem51 == null and selectItem52 == '20301003' and selectItem53 == null and selectItem54 == '20301010'">
+		 		AND (A.atmcEstnSportAt = 'Y' OR A.sfsrvProvisioningSportAt = 'Y')
+		 	</if>
+		</if>
+
+		<if test="selectItems != null and selectItems != ''">
+        	AND A.GOODS_CODE  IN (SELECT A.GOODS_CODE
+						            FROM TST_GOOD_META_I A, 
+							             OP_CODE_INDVDLZ B 
+						           WHERE A.GROUP_CD = B.GROUP_CD 
+						             AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+						             AND A.LANG_CD = B.LANG_CODE
+						          <!-- -->  
+						          <if test="selectItem2 != null and selectItem2 != ''">
+					               /* 공공기관 이용 필터 */   
+					                  AND CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+						              <foreach collection="selectItem2" item="item" index="index" separator="," open="IN (" close=") ">
+								          TRIM(#{item})
+						              </foreach>
+					              </if>
+<!-- 					              
+						          <if test="selectItem3 != null and selectItem3 != ''">
+						          /*계약단위 */         
+						              AND CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+						              <foreach collection="selectItem3" item="item" index="index" separator="," open="IN (" close=") ">
+								          TRIM(#{item})
+						              </foreach>
+						          </if>
+-->
+						          <!-- -->
+<!-- 						          
+						          <if test="selectItem5 != null and selectItem5 != ''">    
+						           /* 서비스관리  */
+									AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+								     <foreach collection="selectItem5" item="item" index="index" separator="," open="IN (" close=") ">
+										  TRIM(#{item})
+								     </foreach>
+									</if>
+ -->									
+<!-- 						 
+									<if test="selectItem6 != null and selectItem6 != ''">
+								    /* 호환성(표준) */   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem6" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->			
+<!--  
+									<if test="selectItem7 != null and selectItem7 != ''">
+								    /* 구축방식 */   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem7" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->								    
+<!-- 								    
+									<if test="selectItem8 != null and selectItem8 != ''">
+								    /* 지원언어 */   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem8" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->								    
+<!-- 								    
+									<if test="selectItem9 != null and selectItem9 != ''">
+								    /* 교육, 기술지원 */   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem9" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->								    
+<!--
+									<if test="selectItem10 != null and selectItem10 != ''">
+								    /** 관리정보제공 **/   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem10" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->
+<!-- 								    
+									<if test="selectItem11 != null and selectItem11 != ''">
+								    /** 고객지원 **/   
+								    AND	CAST(A.GROUP_CD AS  VARCHAR)  + CAST(A.INDVDLZ_CD AS  VARCHAR) 
+									     <foreach collection="selectItem11" item="item" index="index" separator="," open="IN (" close=") ">
+											  TRIM(#{item})
+									     </foreach>
+								    </if>
+ -->								    
+									AND B.LANG_CODE = '00' 
+									AND B.USE_YN = 'Y'
+									GROUP BY A.GOODS_CODE
+					 )
+		    </if>
+   </sql>
+
+    <select id="ctgryNull" parameterType="premiumVO" resultType="String">
+    /*_premium.ctgryNull*/
+		SELECT  CTGRY_CODE
+		      , (SELECT COUNT(B.GOODS_CODE)
+	               FROM TST_GOOD_CATE_I B, TST_GOOD_INFO_I C
+	              WHERE B.GOODS_CODE=C.GOODS_CODE
+	                AND C.MNGR_DELETE_AT='N' AND C.GOODS_ACTVTY_AT='Y'
+	                AND C.GOODS_REGIST_STTUS = 1006
+	                AND B.CTGRY_CODE=A.CTGRY_CODE) AS CNT
+	      FROM  TST_CATE_MGMT_M A
+	     WHERE  LANG_CODE = #{langCode}
+	       AND CTGRY_USE_YN = 'Y'
+	       AND CTGRY_DELETE_AT = 'N'
+	       AND CTGRY_CL_CD = #{goodsTyCd}
+	       AND CTGRY_DP = 2
+	     ORDER BY (SELECT SORT_ORDR FROM TST_CATE_MGMT_M WHERE CTGRY_CODE = A.PARNTS_CTGRY_CODE), SORT_ORDR
+      LIMIT 1
+    </select>
+
+    <select id="ctgryInit" parameterType="premiumVO" resultType="String">
+    	/*_premium.ctgryInit*/	
+        SELECT DECODE(COUNT(CTGRY_CODE), 0, #{ctgryCode},
+                 (SELECT CTGRY_CODE
+                    FROM TST_CATE_MGMT_M
+                   WHERE PARNTS_CTGRY_CODE = #{ctgryCode}
+                ORDER BY SORT_ORDR LIMIT 1) )
+          FROM TST_CATE_MGMT_M
+         WHERE LANG_CODE = #{langCode}
+           AND CTGRY_DELETE_AT = 'N'
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_CL_CD = #{goodsTyCd}
+           AND PARNTS_CTGRY_CODE = #{ctgryCode}
+    </select>
+
+    <select id="ctgryPath" parameterType="premiumVO" resultType="Map">
+    		/*_premium.ctgryPath*/
+		    SELECT (SELECT INDVDLZ_CD_NM
+		              FROM OP_CODE_INDVDLZ
+		             WHERE LANG_CODE = C.LANG_CODE
+		               AND GROUP_CD = 1005
+		               AND INDVDLZ_CD = C.CTGRY_CL_CD) || SYS_CONNECT_BY_PATH(C.LANG_CTGRY_NM, ', ') AS fullPath, '0' || SYS_CONNECT_BY_PATH(C.CTGRY_CODE, ', ') AS fullPathCode
+	          FROM TST_CATE_MGMT_M C
+		     WHERE C.CTGRY_CODE =
+		     <choose>
+		     <when test='ctgryCode != null and ctgryCode != "" and ctgryCode != "0"'>#{ctgryCode}</when>
+             <otherwise>
+	          (
+	            SELECT  A.CTGRY_CODE
+	              FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+	             WHERE  A.GOODS_CODE = #{goodsCode}
+	               AND  A.CTGRY_CODE = B.CTGRY_CODE
+	               AND   B.CTGRY_CL_CD !='1001'				//SKYOU 215.12.14 프리미엄서비스 삭제 
+	          ORDER BY  DECODE(B.CTGRY_CL_CD,1004,1,1001,2,1002,3,1003,4), B.SORT_ORDR
+	             LIMIT 1
+	          )
+            </otherwise>
+            </choose>
+	        START WITH C.PARNTS_CTGRY_CODE = '0'
+	        CONNECT BY PRIOR C.CTGRY_CODE = C.PARNTS_CTGRY_CODE
+    </select>
+
+    <resultMap id="ctgryMap" type="map">
+        <result property="ctgryCode" column="CTGRY_CODE"/>
+        <result property="langCtgryNm" column="LANG_CTGRY_NM"/>
+<!--         <result property="goodsCnt" column="GOODSCNT"/> -->
+    </resultMap>
+    <select id="ctgry" parameterType="premiumVO" resultMap="ctgryMap">
+    /*_premium.ctgry*/
+    	SELECT  CTGRY_CODE
+              , SUB_CTGRY_CODE
+              , DECODE(CTGRY_CODE, '6202_343', '마케팅/세일즈'
+                                 , '6202_350', '산업'
+                                 , '6202_349', '산업'
+                                 , '6202_341', '산업'
+                                 , '6202_348', '교육/도서'
+                                 , '6202_351', '교육/도서'
+                                 , '6202_353', '방송/문화/콘텐츠'
+                                 , '6202_337', '방송/문화/콘텐츠'
+                                 , '6202_362', '인공지능'
+                                 , LANG_CTGRY_NM) AS LANG_CTGRY_NM
+              , SUB_LANG_CTGRY_NM
+              , SORT_ORDR
+          FROM  (SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344'
+    	                                    , '6202_349', '6202_350'
+    	                                    , '6202_341', '6202_350'
+    	                                    , '6202_351', '6202_348'
+    	                                    , '6202_337', '6202_353'
+    	                                    , '6202_363', '6202_362'
+    	                                    , '6202_357', '6202_362'
+    	                                    , A.CTGRY_CODE) AS CTGRY_CODE
+                       , A.CTGRY_CODE AS SUB_CTGRY_CODE
+                       , A.LANG_CTGRY_NM
+                       , NVL((SELECT LANG_CTGRY_NM
+                                FROM TST_CATE_MGMT_M
+                               WHERE CTGRY_CODE = A.PARNTS_CTGRY_CODE
+                                 AND NOT (SELECT COUNT(CTGRY_CODE)
+                                            FROM TST_CATE_MGMT_M
+                                           WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE)), LANG_CTGRY_NM) AS SUB_LANG_CTGRY_NM
+                        , A.SORT_ORDR
+                    FROM  TST_CATE_MGMT_M A
+                   WHERE LANG_CODE =  #{langCode}
+                   AND CTGRY_USE_YN = 'Y'
+                   AND CTGRY_DELETE_AT = 'N'
+                )
+          WHERE CTGRY_CODE = #{ctgryCode}
+          GROUP BY CTGRY_CODE
+          ORDER BY SORT_ORDR
+<!--           
+        SELECT  CTGRY_CODE
+              , LANG_CTGRY_NM
+              ,DECODE(CTGRY_CODE, '6202_343', '마케팅/세일즈'
+                                , '6202_350', '산업'
+                                , '6202_349', '산업'
+                                , '6202_341', '산업'
+                                , '6202_348', '교육/도서'
+                                , '6202_351', '교육/도서'
+                                , '6202_353', '방송/문화/콘텐츠'
+                                , '6202_337', '방송/문화/콘텐츠'
+                                , '6202_362', '인공지능'
+                                , LANG_CTGRY_NM) AS LANG_CTGRY_NM
+              , NVL((SELECT LANG_CTGRY_NM
+                       FROM TST_CATE_MGMT_M
+                      WHERE CTGRY_CODE = A.PARNTS_CTGRY_CODE
+                        AND NOT (SELECT COUNT(CTGRY_CODE)
+                                   FROM TST_CATE_MGMT_M
+                                  WHERE PARNTS_CTGRY_CODE = A.CTGRY_CODE)), LANG_CTGRY_NM) AS SUB_LANG_CTGRY_NM
+/*
+            (SELECT COUNT(B.GOODS_CODE)
+               FROM TST_GOOD_CATE_I B, TST_GOOD_INFO_I C
+              WHERE B.GOODS_CODE=C.GOODS_CODE
+                AND C.MNGR_DELETE_AT='N' AND C.GOODS_ACTVTY_AT='Y'
+                AND C.GOODS_REGIST_STTUS = 1006
+                AND B.CTGRY_CODE=A.CTGRY_CODE) AS GOODSCNT
+*/
+          FROM TST_CATE_MGMT_M A
+         WHERE LANG_CODE = #{langCode}
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_DELETE_AT = 'N'
+      AND CTGRY_CL_CD = #{goodsTyCd}
+           AND CTGRY_CODE = #{ctgryCode}
+      ORDER BY SORT_ORDR
+       -->
+    </select>
+
+    <resultMap id="ctgryListMap" type="map">
+        <result property="ctgryCode" column="CTGRY_CODE"/>
+        <result property="langCtgryNm" column="LANG_CTGRY_NM"/>
+        <result property="goodsCnt" column="GOODSCNT"/>
+        <result property="ctgryDp" column="CTGRY_DP"/>
+        <result property="parntsCtgryCode" column="PARNTS_CTGRY_CODE"/>
+        <result property="subCnt" column="SUB_CNT"/>
+        <result property="ctgryClCd" column="CTGRY_CL_CD"/>
+        <result property="ctgryCnt" column="CTGRY_CNT"/>
+    </resultMap>
+    
+    <select id="ctgryList" parameterType="premiumVO" resultMap="ctgryListMap">
+    /*_premium.ctgryList*/
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , DECODE(CTGRY_CODE, '6202_343', '마케팅/세일즈'
+    	                         , '6202_350', '산업'
+    	                         , '6202_349', '산업'
+    	                         , '6202_341', '산업'
+    	                         , '6202_348', '교육/도서'
+    	                         , '6202_351', '교육/도서'
+    	                         , '6202_353', '방송/문화/콘텐츠'
+    	                         , '6202_337', '방송/문화/콘텐츠'
+    	                         , '6202_362', '인공지능'
+    	                         , LANG_CTGRY_NM) AS LANG_CTGRY_NM
+    	      , CTGRY_CL_CD
+    	      , CTGRY_GROUP
+    	      , CTGRY_DP
+    	      , PARNTS_CTGRY_CODE
+    	      , SUB_CNT
+    	      , COUNT(CTGRYCODE) AS CTGRY_CNT
+    	      , SORT_ORDR
+    	  FROM  (SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344'
+    	                                    , '6202_349', '6202_350'
+    	                                    , '6202_341', '6202_350'
+    	                                    , '6202_351', '6202_348'
+    	                                    , '6202_337', '6202_353'
+    	                                    , '6202_363', '6202_362'
+    	                                    , '6202_357', '6202_362'
+    	                                    , A.CTGRY_CODE) AS CTGRY_CODE
+                       , A.LANG_CTGRY_NM
+                       , A.CTGRY_CL_CD
+                       , A.CTGRY_GROUP
+                       , A.CTGRY_DP
+                       , A.PARNTS_CTGRY_CODE
+                       , 0 AS SUB_CNT
+                       , B.CTGRY_CODE AS CTGRYCODE
+                       , A.SORT_ORDR
+                   FROM  TST_CATE_MGMT_M A, TST_GOOD_CATE_I B, TST_GOOD_INFO_I C
+                  WHERE  A.PARNTS_CTGRY_CODE &gt;= '0'
+                    AND  A.LANG_CODE = #{langCode}
+                    AND  A.CTGRY_DELETE_AT = 'N'
+                    AND  A.CTGRY_USE_YN = 'Y'
+                    AND  B.GOODS_CODE = C.GOODS_CODE
+                    AND  C.MNGR_DELETE_AT = 'N'
+                    AND  C.GOODS_ACTVTY_AT = 'Y'
+                    AND  C.GOODS_REGIST_STTUS = 1006
+                    AND  C.LANG_CODE = #{langCode}
+                    AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE)
+         GROUP  BY  CTGRY_CODE 
+        HAVING  COUNT(CTGRYCODE) &gt; 0
+         ORDER  BY SORT_ORDR
+
+<!--          ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM --> 
+    	
+<!--     	
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , CTGRY_CL_CD
+    	      , SUM(CTGRY_CNT) AS CTGRY_CNT
+    	      , CTGRY_GROUP
+    	  FROM  (SELECT A.CTGRY_CODE
+                       , DECODE(A.CTGRY_CODE, '6202_343', '6202_344', '6202_349', '6202_350', '6202_341', '6202_350', '6202_351', '6202_348', '6202_337', '6202_353', A.CTGRY_CODE) AS CTGRY_CODE_DC
+                       , DECODE(A.CTGRY_CODE, '6202_343', '마케팅/세일즈', '6202_350', '산업', '6202_349', '산업', '6202_341', '산업', '6202_348', '교육/도서', '6202_351', '교육/도서', '6202_353', '방송/문화/콘텐츠', '6202_337', '방송/문화/콘텐츠', A.LANG_CTGRY_NM) AS LANG_CTGRY_NM
+                       , A.CTGRY_CL_CD
+                       , (SELECT COUNT(*) FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE) GROUP BY ctgry_code ) AS CTGRY_CNT
+                       , A.CTGRY_GROUP
+                       , A.CTGRY_DP
+                   FROM  TST_CATE_MGMT_M A
+                  WHERE  A.PARNTS_CTGRY_CODE &gt;=  '0'
+                    AND  A.LANG_CODE = '00'
+                    AND  A.CTGRY_DELETE_AT = 'N'
+                    AND  A.CTGRY_USE_YN = 'Y')
+         WHERE  CTGRY_CNT &gt; 0
+         GROUP  BY CTGRY_CODE_DC
+         ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM
+ -->
+ <!-- 
+    	SELECT  CTGRY_CODE
+    	      , LANG_CTGRY_NM
+    	      , CTGRY_DP
+    	      , PARNTS_CTGRY_CODE
+    	      , CTGRY_CL_CD
+    	      , SUB_CNT
+    	      , CTGRY_CNT
+    	  FROM  (SELECT  A.CTGRY_CODE
+    	               , A.LANG_CTGRY_NM
+    	               , A.CTGRY_DP
+    	               , A.PARNTS_CTGRY_CODE
+    	               , A.CTGRY_CL_CD
+		               , (SELECT COUNT(*) 
+		                    FROM TST_CATE_MGMT_M B
+	       				   WHERE B.LANG_CODE = #{langCode}
+		            	     AND B.CTGRY_DP &gt; 1
+		            	     AND B.CTGRY_DELETE_AT = 'N'  
+		            	     AND B.CTGRY_USE_YN = 'Y'
+		            	     AND B.PARNTS_CTGRY_CODE = A.CTGRY_CODE) AS SUB_CNT 
+		               , (SELECT COUNT(*)
+	                        FROM TST_GOOD_INFO_I C
+	                       WHERE C.MNGR_DELETE_AT='N'
+	                         AND C.GOODS_ACTVTY_AT='Y'
+	                         AND C.GOODS_REGIST_STTUS = 1006
+	                         AND C.LANG_CODE = #{langCode}
+	                         AND C.GOODS_CODE IN ( SELECT D.GOODS_CODE
+	                                                 FROM TST_GOOD_CATE_I D, TST_CATE_MGMT_M E
+	                                                WHERE D.CTGRY_CODE = E.CTGRY_CODE
+	                                                  AND E.LANG_CODE = #{langCode}              
+	                                                  AND E.CTGRY_CL_CD = A.CTGRY_CL_CD
+	                                                  AND D.CTGRY_CODE IN (SELECT CTGRY_CODE 
+	                                                                         FROM TST_CATE_MGMT_M
+	                                                                        WHERE CTGRY_USE_YN='Y' 
+	                                                                          AND CTGRY_DELETE_AT='N' 
+	                                                                          AND LANG_CODE = #{langCode}
+	                                                                          AND CTGRY_CL_CD =  A.CTGRY_CL_CD
+	                                                                        START WITH ctgry_code = DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)
+	                                                                      CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE)   
+	                                                                        GROUP BY D.GOODS_CODE )
+ 	                     ) AS CTGRY_CNT
+	               FROM  TST_CATE_MGMT_M A
+	              WHERE  LANG_CODE = #{langCode}
+			        AND  CTGRY_USE_YN = 'Y'
+			        AND  CTGRY_DELETE_AT = 'N'
+			        AND  PARNTS_CTGRY_CODE &gt;= 0
+			   )
+ 		 WHERE CTGRY_CNT > 0
+ 		 ORDER  BY LANG_CTGRY_NM
+ -->
+    </select>
+
+    <resultMap id="bestResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <collection property="goodsMarkList" column="GOODS_CODE" ofType="map" select="goodsMarkImageList"/>
+        <collection property="cngdMarkList" column="{cntcInsttCd=CNTC_INSTT_CD}" ofType="map" select="cngdMarkImageList"/>
+    </resultMap>
+    <select id="bestList" parameterType="premiumVO" resultMap="bestResult">
+    	/*_premium.bestList*/
+		SELECT LPAD(ROW_NUMBER() OVER(ORDER BY CNT DESC, GOODS_RDCNT DESC), 2, '0') AS rankNum,
+		       GOODS_CODE, GOODS_NM AS goodsNm, GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+		       CNTC_INSTT_CD
+		  FROM
+	    (
+			SELECT
+			    A.GOODS_CODE,
+			    COUNT(A.GOODS_CODE) AS CNT,
+			    GOODS_RDCNT,
+			    B.GOODS_NM,
+			    B.GOODS_IMAGE_FILE_SEQ,
+			    B.CNTC_INSTT_CD
+			FROM
+			    TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+			WHERE A.GOODS_CODE = B.GOODS_CODE
+			AND A.ORDER_CNFIRM_AT = 'Y'
+			AND B.GOODS_ACTVTY_AT = 'Y'
+            AND B.MNGR_DELETE_AT = 'N'
+            AND B.GOODS_REGIST_STTUS = 1006
+            AND B.LANG_CODE = #{langCode}
+			AND A.ORDER_DT BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE + 1
+			AND A.GOODS_CODE  IN
+			                    ( SELECT  A.GOODS_CODE
+			                        FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+			                       WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+<!-- 			                         AND  B.CTGRY_CODE = #{ctgryCode} -->
+			                         AND  B.CTGRY_CL_CD = #{goodsTyCd}
+			                         AND  B.LANG_CODE = #{langCode}
+			                    GROUP BY  A.GOODS_CODE )
+			GROUP BY A.GOODS_CODE
+		)
+		LIMIT 10
+	</select>
+
+    <resultMap id="rcmdResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <collection property="goodsMarkList" column="GOODS_CODE" ofType="map" select="goodsMarkImageList"/>
+        <collection property="cngdMarkList" column="{cntcInsttCd=CNTC_INSTT_CD}" ofType="map" select="cngdMarkImageList"/>
+    </resultMap>
+    <select id="rcmdList" parameterType="premiumVO" resultMap="rcmdResult">	
+    	/*_premium.rcmdList*/
+		SELECT LPAD(ROW_NUMBER() OVER(ORDER BY PRIORT), 2, '0') AS rankNum,
+		       A.GOODS_CODE, B.GOODS_NM AS goodsNm, B.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq,
+		       B.CNTC_INSTT_CD
+		  FROM TST_RCMD_GOOD_M A, TST_GOOD_INFO_I B
+		 WHERE A.GOODS_CODE = B.GOODS_CODE
+		   AND A.RECOMEND_LC_SE_CD = 1002
+		   AND A.RECOMEND_SE_CD = #{goodsTyCd}
+		   AND B.GOODS_ACTVTY_AT = 'Y'
+		   AND B.MNGR_DELETE_AT = 'N'
+		   AND B.GOODS_REGIST_STTUS = 1006
+		   AND B.LANG_CODE = #{langCode}
+		LIMIT 10
+    </select>
+    <select id="goodsMarkImageList" resultType="map">
+    	/*_premium.goodsMarkImageList*/
+          SELECT   B.MARK_IMAGE_FILE_SEQ AS MARKIMAGEFILESEQ,
+                   B.MARK_NM AS markNm,
+                   A.MARK_CD AS markCd
+            FROM   TST_GOOD_MARK_I A, TST_GOOD_MARK_M B
+           WHERE   A.MARK_CD = B.MARK_CD
+             AND   A.GOODS_CODE = #{goodsCode}
+        ORDER BY   A.MARK_CD
+    </select>
+
+    <select id="cngdMarkImageList" resultType="map">
+    	/*_premium.cngdMarkImageList*/
+        SELECT CNTC_GOODS_NM, CNTC_GOODS_IMAGE_SEQ
+          FROM TST_CNGD_IMG_M
+         WHERE CNTC_INSTT_CD = #{cntcInsttCd}
+    </select>
+
+    <select id="bestSellerList" parameterType="premiumVO" resultType="premiumVO">
+    	/*_premium.bestSellerList*/
+        SELECT ROW_NUMBER() OVER (ORDER BY CNT DESC, GOODS_RDCNT DESC) AS rankNum, USER_ID AS userId, langStoreNm
+          FROM
+        (
+            SELECT
+                B.USER_ID,
+                (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = b.LANG_CODE) AS langStoreNm,
+                COUNT(B.USER_ID) AS CNT,
+                B.GOODS_RDCNT
+            FROM
+                TST_GOOD_ORDR_I A, TST_GOOD_INFO_I B
+            WHERE A.GOODS_CODE = B.GOODS_CODE
+            AND A.ORDER_CNFIRM_AT = 'Y'
+            AND B.GOODS_ACTVTY_AT = 'Y'
+            AND B.MNGR_DELETE_AT = 'N'
+            AND B.GOODS_REGIST_STTUS = 1006
+            AND A.GOODS_CODE  IN
+                                ( SELECT  A.GOODS_CODE
+                                    FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+                                   WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+                                     AND  B.LANG_CODE = #{langCode}
+                                     AND  B.CTGRY_CL_CD = #{goodsTyCd}
+                                GROUP BY  A.GOODS_CODE )
+            GROUP BY B.USER_ID
+        )
+        LIMIT 10
+    </select>
+
+
+
+    <resultMap id="goodsResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <result property="langCode" column="LANG_CODE"/>
+        <collection property="goodsMarkList" column="{goodsCode = GOODS_CODE, langCode = LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+        <collection property="cngdMarkList" column="{cntcInsttCd=CNTC_INSTT_CD}" ofType="map" select="cngdMarkImageList"/>
+    </resultMap>
+    <select id="goodsList" parameterType="map" resultMap="goodsResult">
+    /* _premium.goodsList  */
+    SELECT Y.* 
+      FROM (SELECT ROWNUM NUM, X.* 
+	  		  FROM (SELECT  CTGRY_CODE
+	  		              , DECODE(  CTGRY_CODE
+	  		                       , '6202_343', '마케팅/세일즈'
+	  		                       , '6202_350', '산업'
+	  		                       , '6202_349', '산업'
+	  		                       , '6202_341', '산업'
+	  		                       , '6202_348', '교육/도서'
+	  		                       , '6202_351', '교육/도서'
+	  		                       , '6202_353', '방송/문화/콘텐츠'
+	  		                       , '6202_337', '방송/문화/콘텐츠'
+	  		                       , '6202_362', '인공지능'
+	  		                       , LANG_CTGRY_NM) 					AS LANG_CTGRY_NM
+	  		              , CTGRY_CL_CD
+	  		              , CTGRY_GROUP
+	  		              , CTGRY_DP
+	  		              , PARNTS_CTGRY_CODE
+	  		              , SUB_CNT
+	  		              , GOODS_CODE
+	  		              , LANG_CODE
+	  		              , goodsNm
+	  		              , userId
+	  		              , goodsImageFileSeq
+	  		              , goodsSumry
+	  		              , goodsRdcnt
+	  		              , CNTC_INSTT_CD
+	  		              , REGIST_DT
+	  		              , CONFM_DT
+  		                  , (SELECT LANG_STORE_NM 
+  		                       FROM TUM_SVC_STOR_I 
+  		                      WHERE USER_ID = A.USER_ID 
+  		                        AND LANG_CODE = A.LANG_CODE) 			AS LANGSTORENM
+	  		              , TO_CHAR(A.CONFM_DT,'YYYY-MM-DD') 			AS REGISTDT
+	  		              , cntrctCnt
+	                      , cstmrCnterOperAt
+	                      , apiSportAt
+	                      , SMLPZ_CHK	//selectItem1
+	                      , svcManageSttusInfoSuply
+	                      , svcUseLogSuplyAt
+	                      , userEdcSportAt
+	                      , visitEdcSportAt 
+	                      , userMnlSuplyAt 
+	                      , visitTchnlgySportAt 
+	                      , visitElseTchnlgySportAt
+	                      , sSourcOthbcAt
+	                      , sApiAccessSportAt
+	                      , sDbMigrationSportAt
+	                      , sMultiPltfomSportAt 
+	                      , sOpenStdSportAt 
+	                      , sGvrnFrmwrkSportAt 
+	                      , sOpenSourcSwAt
+	                      , sPaastaAt
+	                      , clusteringSportAt 
+	                      , atmcEstnSportAt 
+	                      , slaApplcAt
+	                      , sfsrvProvisioningSportAt
+	                      , dataCnterLcInfo
+	                      , privateCloudAt
+	                      , publicCloudAt 
+	                      , hybridCloudAt
+	  		          FROM  (SELECT  DECODE(  A.CTGRY_CODE
+	  		                                , '6202_343', '6202_344'
+	  		                                , '6202_349', '6202_350'
+	  		                                , '6202_341', '6202_350'
+	  		                                , '6202_351', '6202_348'
+	  		                                , '6202_337', '6202_353'
+	  		                                , '6202_363', '6202_362'
+	  		                                , '6202_357', '6202_362'
+	  		                                , A.CTGRY_CODE) 			AS CTGRY_CODE
+	  		                       , A.LANG_CTGRY_NM
+	  		                       , A.CTGRY_CL_CD
+	  		                       , A.CTGRY_GROUP
+	  		                       , A.CTGRY_DP
+	  		                       , A.PARNTS_CTGRY_CODE
+	  		                       , 0 									AS SUB_CNT
+	  		                       , B.CTGRY_CODE 						AS CTGRYCODE
+	  		                       , C.GOODS_CODE
+	  		                       , C.LANG_CODE
+	  		                       , C.GOODS_NM 						AS goodsNm
+	  		                       , C.USER_ID 							AS userId
+	  		                       , C.GOODS_IMAGE_FILE_SEQ				AS goodsImageFileSeq
+	  		                       , C.GOODS_SUMRY						AS goodsSumry
+	  		                       , C.GOODS_RDCNT						AS goodsRdcnt
+	  		                       , C.CNTC_INSTT_CD
+	  		                       , C.REGIST_DT
+	  		                       , C.CONFM_DT
+	  		                       , C.USER_ID
+	  		                       , (SELECT COUNT(*) FROM TCM_CNTRCT_MANAGE_I WHERE GOODS_CODE = C.GOODS_CODE)	AS cntrctCnt
+	  		                       <!-- , C.SMLPZ_CHK 20181126 eulro 수정-->
+	  		                       , D.CSTMR_CNTER_OPER_AT 			AS cstmrCnterOperAt
+	  		                       , D.API_SPORT_AT 				AS apiSportAt
+	  		                       , NVL(  D.ENTRPRS_SE
+	  		                             , DECODE (  C.SMLPZ_CHK
+	  		                                       , 'Y','1003'
+	  		                                       , 'M','1002'
+	  		                                       , 'B','1001'
+	  		                                       , C.SMLPZ_CHK))	AS SMLPZ_CHK
+	  		                       , D.SVC_MANAGE_STTUS_INFO_SUPLY	AS svcManageSttusInfoSuply
+	  		                       , D.SVC_USE_LOG_SUPLY_AT			AS svcUseLogSuplyAt
+	  		                       , D.USER_EDC_SPORT_AT			AS userEdcSportAt
+	  		                       , D.VISIT_EDC_SPORT_AT			AS visitEdcSportAt 
+	  		                       , D.USER_MNL_SUPLY_AT			AS userMnlSuplyAt 
+	  		                       , D.VISIT_TCHNLGY_SPORT_AT		AS visitTchnlgySportAt 
+	  		                       , D.VISIT_ELSE_TCHNLGY_SPORT_AT	AS visitElseTchnlgySportAt
+	  		                       , D.S_SOURC_OTHBC_AT				AS sSourcOthbcAt
+	  		                       , D.S_API_ACCESS_SPORT_AT		AS sApiAccessSportAt
+	  		                       , D.S_DB_MIGRATION_SPORT_AT		AS sDbMigrationSportAt
+	  		                       , D.S_MULTI_PLTFOM_SPORT_AT		AS sMultiPltfomSportAt 
+	  		                       , D.S_OPEN_STD_SPORT_AT			AS sOpenStdSportAt 
+	  		                       , D.S_GVRN_FRMWRK_SPORT_AT		AS sGvrnFrmwrkSportAt 
+	  		                       , D.S_OPEN_SOURC_SW_AT			AS sOpenSourcSwAt
+	  		                       , D.S_PAASTA_AT					AS sPaastaAt
+	  		                       , D.CLUSTERING_SPORT_AT			AS clusteringSportAt 
+	  		                       , D.ATMC_ESTN_SPORT_AT			AS atmcEstnSportAt 
+	  		                       , D.SLA_APPLC_AT					AS slaApplcAt
+	  		                       , D.SFSRV_PROVISIONING_SPORT_AT	AS sfsrvProvisioningSportAt
+	  		                       , D.DATA_CNTER_LC_INFO			AS dataCnterLcInfo
+	  		                       , D.PRIVATE_CLOUD_AT				AS privateCloudAt
+	  		                       , D.PUBLIC_CLOUD_AT				AS publicCloudAt 
+	  		                       , D.HYBRID_CLOUD_AT				AS hybridCloudAt
+	  		                   FROM  TST_CATE_MGMT_M A
+	  		                       , TST_GOOD_CATE_I B
+	  		                       , TST_GOOD_INFO_I C
+	  		                       , TST_GOOD_SPEC_DESCRIBE_I D
+	  		                  WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+	  		                    AND  A.LANG_CODE = '00'
+	  		                    AND  A.CTGRY_DELETE_AT = 'N'
+	  		                    AND  A.CTGRY_USE_YN = 'Y'
+	  		                    AND  B.GOODS_CODE = C.GOODS_CODE
+	  		                    AND  C.MNGR_DELETE_AT = 'N'
+	  		                    AND  C.GOODS_ACTVTY_AT = 'Y'
+	  		                    AND  C.GOODS_REGIST_STTUS = 1006
+	  		                    AND  C.LANG_CODE =  '00'
+	  		                    AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+	  		                    AND  D.GOODS_CODE  (+) = C.GOODS_CODE
+	  		                )  AS A
+	  		            WHERE 1=1
+	  		            <if test='ctgryCode != null and ctgryCode != "" and ctgryCode != "0"'>
+	  		            	AND DECODE(CTGRY_CODE, '6202_343', '6202_344'
+	  		            	                     , '6202_349', '6202_350'
+	  		            	                     , '6202_341', '6202_350'
+	  		            	                     , '6202_351', '6202_348'
+	  		            	                     , '6202_337', '6202_353'
+	  		            	                     , '6202_363', '6202_362'
+	  		            	                     , '6202_363', '6202_362'
+	  		            	                     , '6202_357', '6202_362'
+	  		            	                     , CTGRY_CODE) = #{ctgryCode}
+	  		        	</if>
+	  		         <!-- ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM -->
+            		   <include refid="searchFilterWhere"/>
+            		   <!-- <include refid="searchNewFilterWhere"/> -->
+            		   <include refid="searchWhere"/>
+            		   GROUP BY GOODS_CODE
+            		   <include refid="listSort"/>
+	  		       ) X
+               WHERE ROWNUM &lt;= #{pagingEndNum}
+        	) Y
+      WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="goodsCount" parameterType="map" resultType="int">
+    /*_premium.goodsCount*/
+    SELECT COUNT(*) 
+      FROM (SELECT ROWNUM NUM, X.* 
+	  		  FROM (SELECT  CTGRY_CODE
+	  		              , DECODE(  CTGRY_CODE
+	  		                       , '6202_343', '마케팅/세일즈'
+	  		                       , '6202_350', '산업'
+	  		                       , '6202_349', '산업'
+	  		                       , '6202_341', '산업'
+	  		                       , '6202_348', '교육/도서'
+	  		                       , '6202_351', '교육/도서'
+	  		                       , '6202_353', '방송/문화/콘텐츠'
+	  		                       , '6202_337', '방송/문화/콘텐츠'
+	  		                       , '6202_362', '인공지능'
+	  		                       , LANG_CTGRY_NM) 					AS LANG_CTGRY_NM
+	  		              , CTGRY_CL_CD
+	  		              , CTGRY_GROUP
+	  		              , CTGRY_DP
+	  		              , PARNTS_CTGRY_CODE
+	  		              , SUB_CNT
+	  		              , GOODS_CODE
+	  		              , LANG_CODE
+	  		              , goodsNm
+	  		              , userId
+	  		              , goodsImageFileSeq
+	  		              , goodsSumry
+	  		              , goodsRdcnt
+	  		              , CNTC_INSTT_CD
+	  		              , REGIST_DT
+	  		              , CONFM_DT
+  		                  , (SELECT LANG_STORE_NM 
+  		                       FROM TUM_SVC_STOR_I 
+  		                      WHERE USER_ID = A.USER_ID 
+  		                        AND LANG_CODE = A.LANG_CODE) 			AS LANGSTORENM
+	  		              , TO_CHAR(A.CONFM_DT,'YYYY-MM-DD') 			AS REGISTDT
+	  		              , cntrctCnt
+	                      , cstmrCnterOperAt
+	                      , apiSportAt
+	                      , SMLPZ_CHK	//selectItem1
+	                      , svcManageSttusInfoSuply
+	                      , svcUseLogSuplyAt
+	                      , userEdcSportAt
+	                      , visitEdcSportAt 
+	                      , userMnlSuplyAt 
+	                      , visitTchnlgySportAt 
+	                      , visitElseTchnlgySportAt
+	                      , sSourcOthbcAt
+	                      , sApiAccessSportAt
+	                      , sDbMigrationSportAt
+	                      , sMultiPltfomSportAt 
+	                      , sOpenStdSportAt 
+	                      , sGvrnFrmwrkSportAt 
+	                      , sOpenSourcSwAt
+	                      , sPaastaAt
+	                      , clusteringSportAt 
+	                      , atmcEstnSportAt 
+	                      , slaApplcAt
+	                      , sfsrvProvisioningSportAt
+	                      , dataCnterLcInfo
+	                      , privateCloudAt
+	                      , publicCloudAt 
+	                      , hybridCloudAt
+	  		          FROM  (SELECT  DECODE(  A.CTGRY_CODE
+	  		                                , '6202_343', '6202_344'
+	  		                                , '6202_349', '6202_350'
+	  		                                , '6202_341', '6202_350'
+	  		                                , '6202_351', '6202_348'
+	  		                                , '6202_337', '6202_353'
+	  		                                , '6202_363', '6202_362'
+	  		                                , '6202_357', '6202_362'
+	  		                                , A.CTGRY_CODE) 			AS CTGRY_CODE
+	  		                       , A.LANG_CTGRY_NM
+	  		                       , A.CTGRY_CL_CD
+	  		                       , A.CTGRY_GROUP
+	  		                       , A.CTGRY_DP
+	  		                       , A.PARNTS_CTGRY_CODE
+	  		                       , 0 									AS SUB_CNT
+	  		                       , B.CTGRY_CODE 						AS CTGRYCODE
+	  		                       , C.GOODS_CODE
+	  		                       , C.LANG_CODE
+	  		                       , C.GOODS_NM 						AS goodsNm
+	  		                       , C.USER_ID 							AS userId
+	  		                       , C.GOODS_IMAGE_FILE_SEQ				AS goodsImageFileSeq
+	  		                       , C.GOODS_SUMRY						AS goodsSumry
+	  		                       , C.GOODS_RDCNT						AS goodsRdcnt
+	  		                       , C.CNTC_INSTT_CD
+	  		                       , C.REGIST_DT
+	  		                       , C.CONFM_DT
+	  		                       , C.USER_ID
+	  		                       <!-- , C.SMLPZ_CHK 20181126 eulro 수정-->
+	  		                       , D.CSTMR_CNTER_OPER_AT 			AS cstmrCnterOperAt
+	  		                       , D.API_SPORT_AT 				AS apiSportAt
+	  		                       , NVL(  D.ENTRPRS_SE
+	  		                             , DECODE (  C.SMLPZ_CHK
+	  		                                       , 'Y','1003'
+	  		                                       , 'M','1002'
+	  		                                       , 'B','1001'
+	  		                                       , C.SMLPZ_CHK))	AS SMLPZ_CHK	//selectItem1
+	  		                       , D.SVC_MANAGE_STTUS_INFO_SUPLY	AS svcManageSttusInfoSuply
+	  		                       , D.SVC_USE_LOG_SUPLY_AT			AS svcUseLogSuplyAt
+	  		                       , D.USER_EDC_SPORT_AT			AS userEdcSportAt
+	  		                       , D.VISIT_EDC_SPORT_AT			AS visitEdcSportAt 
+	  		                       , D.USER_MNL_SUPLY_AT			AS userMnlSuplyAt 
+	  		                       , D.VISIT_TCHNLGY_SPORT_AT		AS visitTchnlgySportAt 
+	  		                       , D.VISIT_ELSE_TCHNLGY_SPORT_AT	AS visitElseTchnlgySportAt
+	  		                       , D.S_SOURC_OTHBC_AT				AS sSourcOthbcAt
+	  		                       , D.S_API_ACCESS_SPORT_AT		AS sApiAccessSportAt
+	  		                       , D.S_DB_MIGRATION_SPORT_AT		AS sDbMigrationSportAt
+	  		                       , D.S_MULTI_PLTFOM_SPORT_AT		AS sMultiPltfomSportAt 
+	  		                       , D.S_OPEN_STD_SPORT_AT			AS sOpenStdSportAt 
+	  		                       , D.S_GVRN_FRMWRK_SPORT_AT		AS sGvrnFrmwrkSportAt 
+	  		                       , D.S_OPEN_SOURC_SW_AT			AS sOpenSourcSwAt
+	  		                       , D.S_PAASTA_AT					AS sPaastaAt
+	  		                       , D.CLUSTERING_SPORT_AT			AS clusteringSportAt 
+	  		                       , D.ATMC_ESTN_SPORT_AT			AS atmcEstnSportAt 
+	  		                       , D.SLA_APPLC_AT					AS slaApplcAt
+	  		                       , D.SFSRV_PROVISIONING_SPORT_AT	AS sfsrvProvisioningSportAt
+	  		                       , D.DATA_CNTER_LC_INFO			AS dataCnterLcInfo
+	  		                       , D.PRIVATE_CLOUD_AT				AS privateCloudAt
+	  		                       , D.PUBLIC_CLOUD_AT				AS publicCloudAt 
+	  		                       , D.HYBRID_CLOUD_AT				AS hybridCloudAt
+	  		                       , (SELECT COUNT(*) FROM TCM_CNTRCT_MANAGE_I WHERE GOODS_CODE = C.GOODS_CODE)	AS cntrctCnt
+	  		                   FROM  TST_CATE_MGMT_M A
+	  		                       , TST_GOOD_CATE_I B
+	  		                       , TST_GOOD_INFO_I C
+	  		                       , TST_GOOD_SPEC_DESCRIBE_I D
+	  		                  WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+	  		                    AND  A.LANG_CODE = '00'
+	  		                    AND  A.CTGRY_DELETE_AT = 'N'
+	  		                    AND  A.CTGRY_USE_YN = 'Y'
+	  		                    AND  B.GOODS_CODE = C.GOODS_CODE
+	  		                    AND  C.MNGR_DELETE_AT = 'N'
+	  		                    AND  C.GOODS_ACTVTY_AT = 'Y'
+	  		                    AND  C.GOODS_REGIST_STTUS = 1006
+	  		                    AND  C.LANG_CODE =  '00'
+	  		                    AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+	  		                    AND  D.GOODS_CODE  (+) = C.GOODS_CODE
+	  		                )  AS A
+	  		            WHERE 1=1
+	  		            <if test='ctgryCode != null and ctgryCode != "" and ctgryCode != "0"'>
+	  		            	AND DECODE(CTGRY_CODE, '6202_343', '6202_344'
+	  		            	                     , '6202_349', '6202_350'
+	  		            	                     , '6202_341', '6202_350'
+	  		            	                     , '6202_351', '6202_348'
+	  		            	                     , '6202_337', '6202_353'
+	  		            	                     , '6202_363', '6202_362'
+	  		            	                     , '6202_363', '6202_362'
+	  		            	                     , '6202_357', '6202_362'
+	  		            	                     , CTGRY_CODE) = #{ctgryCode}
+	  		        	</if>
+	  		         <!-- ORDER  BY CTGRY_GROUP, LANG_CTGRY_NM -->
+            		   <include refid="searchFilterWhere"/>
+            		   <!-- <include refid="searchNewFilterWhere"/> -->
+            		   <include refid="searchWhere"/>
+            		   GROUP BY GOODS_CODE
+            		   <include refid="listSort"/>
+	  		       ) X
+        	) Y
+    </select>
+
+
+    <select id="goodsCountTemp" parameterType="map" resultType="int">
+    	/*_premium.goodsCountTemp*/
+        SELECT COUNT(A.GOODS_CODE) AS totalCount
+          FROM TST_GOOD_INFO_I A 
+         WHERE MNGR_DELETE_AT='N' 
+           AND GOODS_ACTVTY_AT='Y'
+           AND A.GOODS_REGIST_STTUS = 1006
+           AND A.LANG_CODE = #{langCode}
+           AND A.GOODS_CODE IN ( SELECT  A.GOODS_CODE
+                                   FROM  TST_GOOD_CATE_I A
+                                       , TST_CATE_MGMT_M B
+                                  WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+                                    AND  B.LANG_CODE = #{langCode}
+									<if test="selectItems != null and selectItems != ''">
+								   		<if test='selectItem3 != "" and selectItem3 != null'>
+								   		/*서비스 구분*/
+								        	AND B.CTGRY_CL_CD <foreach collection="selectItem3" item="item" index="index" separator="," open="IN (" close=") "> TRIM(#{item}) </foreach>
+								   		</if>
+								  	</if>
+                                    <if test='ctgryCode != null and ctgryCode != "" and ctgryCode != "0"'>
+			                         AND DECODE(A.CTGRY_CODE, '6202_360', '6202_368', '6202_363', '6202_362', '6202_357', '6202_362', A.CTGRY_CODE)
+			                          IN (SELECT DECODE(CTGRY_CODE, '6202_360', '6202_368', '6202_363', '6202_362', '6202_357', '6202_362', CTGRY_CODE) 
+			                                FROM TST_CATE_MGMT_M
+			                               WHERE CTGRY_USE_YN='Y'
+			                                 AND CTGRY_DELETE_AT='N'
+			                                 AND LANG_CODE=#{langCode}
+			                                 <if test='goodsTyCd != 1001'>
+			                                 START WITH DECODE(CTGRY_CODE, '6202_343', '6202_344'
+			                                                             , '6202_349', '6202_350'
+			                                                             , '6202_341', '6202_350'
+			                                                             , '6202_351', '6202_348'
+			                                                             , '6202_337', '6202_353'
+			                                                             , '6202_363', '6202_362'
+			                                                             , '6202_357', '6202_362'
+			                                                             , CTGRY_CODE) = #{ctgryCode}
+			                                 </if>
+			                                 <if test='goodsTyCd == 1001'>
+			                                 START WITH DECODE(ctgry_code,'6202_360', '6202_368', ctgry_code) = #{ctgryCode}
+			                                 </if>
+			                                 CONNECT BY PRIOR CTGRY_CODE = PARNTS_CTGRY_CODE)
+			                         </if>
+         GROUP BY  A.GOODS_CODE )
+	     <include refid="searchFilterWhere"/>
+         <include refid="searchWhere"/>
+    </select>
+
+    <update id="rdcntUpdate" parameterType="premiumVO">
+    	/*_premium.rdcntUpdate*/
+	    UPDATE TST_GOOD_INFO_I SET
+	       GOODS_RDCNT = NVL(GOODS_RDCNT, 0) + 1
+	    WHERE MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+          AND GOODS_REGIST_STTUS = 1006
+	      AND GOODS_CODE = #{goodsCode}
+    </update>
+        <!--     최근서비스등록     -->
+    <update id="rcntUpdate" parameterType="premiumVO">
+    	/*_premium.rcntUpdate*/
+        MERGE INTO
+              TUM_RCNT_GOOD_I T
+        USING (SELECT #{loginUserId} AS USER_ID, #{goodsCode} AS GOODS_CODE) S
+           ON (T.GOODS_CODE = S.GOODS_CODE AND T.USER_ID = S.USER_ID)
+        WHEN MATCHED THEN
+              UPDATE SET  T.INQIRE_DT = SYSDATETIME
+        WHEN NOT MATCHED THEN
+              INSERT
+                  (USER_ID, INQIRE_SEQ, GOODS_CODE, INQIRE_DT)
+              VALUES
+                  (#{loginUserId}, SEQ_AUTO_PLUS.NEXT_VALUE, #{goodsCode}, SYSDATETIME)
+    </update>
+
+    <resultMap id="goodsViewResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="langCode" column="LANG_CODE"/>
+        <collection property="goodsCtgry" column="{goodsCode=GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsCtgryList"/>
+        <collection property="goodsMarkList" column="{goodsCode=GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+        <collection property="goodsStore" column="{userId=USER_ID, langCode=LANG_CODE}" ofType="map" select="goodsStoreList"/>
+        <collection property="goodsTag" column="{goodsCode=GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsTagList"/>
+        <collection property="goodsMetaLang" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaLangList"/>
+        
+<!--    <collection property="goodsImage" column="GOODS_CODE" ofType="map" select="goodsImageList"/> -->
+<!--    <collection property="goodsMark" column="GOODS_CODE" ofType="map" select="goodsMarkImageList"/> -->        
+		<collection property="goodsMetaOS" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaOSList"/>
+<!--    <collection property="goodsMetaTECH" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaTECHList"/> -->
+		<collection property="goodsMetaTAG" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaTAGList"/>
+<!--    <collection property="goodsMnl" column="GOODS_CODE" ofType="map" select="goodsMnlList"/> -->
+<!--	<collection property="goodsScore" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsScoreList"/> -->
+
+        <collection property="cngdMarkList" column="{cntcInsttCd=CNTC_INSTT_CD}" ofType="map" select="cngdMarkImageList"/>
+        <collection property="goodsMetaAS" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaASList"/>				 <!--가격단위 -->        
+        <collection property="goodsMetaPrice" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaPriceList"/>			 <!--가격단위 -->
+        <collection property="goodsMetaExprn" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaExprnList"/>			 <!--무료/체험 -->
+        <collection property="goodsMetaCntrctUnit" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaCntrctUnitList"/> <!--계약단위 -->
+        <collection property="goodsMetaSvc" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaSvcList"/><!--서비스관리 -->
+        <collection property="goodsMetaStd" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaStdList"/><!--호환성(표준) -->
+        <collection property="goodsMetaCnstcMthd" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaCnstcMthdList"/><!--구축방식 -->
+        <collection property="goodsMetaArea" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaAreaList"/><!--지원언어-->
+        <collection property="goodsMetaScqcLv" column="{goodsCode = GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMetaScqcLvList"/><!--CSQC -->
+    </resultMap>
+    
+    <select id="goodsView" parameterType="map" resultMap="goodsViewResult">
+	/*_premium.goodsView*/
+	SELECT A.LANG_CODE
+	, (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) AS langNm
+	, A.GOODS_REGIST_STTUS AS goodsRegistSttus
+	, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1008 AND INDVDLZ_CD = A.GOODS_REGIST_STTUS) AS goodsRegistSttusNm
+	, A.SLE_MTHD_CD AS sleMthdCd
+	, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1007 AND INDVDLZ_CD = A.SLE_MTHD_CD) AS sleMthdNm
+	, A.GOODS_FILE_SEQ AS goodsFileSeq
+	, A.DEMO_EXPRN_URL AS demoExprnUrl
+	, A.GOODS_CODE
+	, A.GOODS_NM AS goodsNm
+	, A.GOODS_PC AS goodsPc
+	, A.GOODS_KND_CD AS goodsKndCd
+	, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1024 AND INDVDLZ_CD = A.GOODS_KND_CD) AS goodsKndNm
+	, A.GOODS_LICENCE_CD AS goodsLicenceCd
+	, A.GOODS_LICENCE_CN AS goodsLicenceCn
+	, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1015 AND INDVDLZ_CD = A.GOODS_LICENCE_CD) AS goodsLicenceNm
+	, A.ARCHTC_SE AS archtcSe
+	, A.GOODS_VER_INFO AS goodsVerInfo
+	, TO_CHAR(TO_DATE(DECODE(A.COMOU_DE,'',null), 'YYYYMMDD'), 'YYYY. MM. DD') AS comouDe
+	, A.GOODS_MAKR AS goodsMakr
+	, A.GOODS_DWLD_URL AS goodsDwldUrl
+	, A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+	, A.GOODS_MNL_FILE_SEQ AS goodsMnlFileSeq1
+	, (SELECT COUNT(*) FROM TST_GOOD_SPEC_DESCRIBE_I WHERE GOODS_CODE = A.GOODS_CODE) AS goodsMnlFileSeq
+	, (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm
+	, USER_ID
+	, ( SELECT CC.indvdlz_cd_nm
+	FROM op_code_indvdlz CC, tst_good_spec_describe_i BB
+	WHERE 1=1
+	AND CC.indvdlz_cd = BB.entrprs_Se
+	AND CC.group_cd = '2075'
+	AND BB.goods_code = A.goods_code
+	AND BB.goods_num = (SELECT MAX(goods_num) FROM tst_good_spec_describe_i
+	WHERE goods_code = A.goods_code)
+	) AS smlpzChk // 기업구분
+
+
+	, ( SELECT AO.svc_Charger_Nm
+	FROM TST_GOOD_SPEC_DESCRIBE_I AO
+	WHERE AO.goods_code = A.goods_code
+	AND AO.goods_num = (SELECT MAX(goods_num) FROM tst_good_spec_describe_i
+	WHERE goods_code = A.goods_code)
+	) AS goodsChargerNm // 담당자
+
+	, ( SELECT AP.svc_charger_telno
+	FROM TST_GOOD_SPEC_DESCRIBE_I AP
+	WHERE AP.goods_code = A.goods_code
+	AND AP.goods_num = (SELECT MAX(goods_num) FROM tst_good_spec_describe_i
+	WHERE goods_code = A.goods_code)
+	) AS goodsChargerCttpc // 담당자 전화번호
+
+	, DECRYPT(( SELECT AU.svc_charger_email
+	FROM TST_GOOD_SPEC_DESCRIBE_I AU
+	WHERE AU.goods_code = A.goods_code
+	AND AU.goods_num = (SELECT MAX(goods_num) FROM tst_good_spec_describe_i
+	WHERE goods_code = A.goods_code)
+	), 'P008') AS goodsChargerEmail //이메일
+	
+	, decrypt(A.GOODS_CHARGER_MBTLNUM, 'P007') AS goodsChargerMbtlnum
+	, A.GOODS_HMPG_URL AS goodsHmpgUrl
+	, A.GOODS_SUMRY AS goodsSumry
+	, A.GOODS_MAIN_FNCT AS goodsMainFnct
+	, A.CSTMR_INFO AS cstmrInfo
+	, A.GOODS_REFER AS goodsRefer
+	, A.SPCLTY_REALM AS spcltyRealm
+	, A.CNSTNT_CO AS cnstntCo
+	, A.CNSL_EXPC_EFFECT AS cnslExpcEffect
+	, TO_CHAR(A.REGIST_DT,'YYYY. MM. DD') AS registDt
+	, TO_CHAR(UPDT_DT,'YYYY. MM. DD') AS updtDt
+	, A.CNTC_INSTT_CD
+	, (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt
+	, (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlCnt
+	, (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_INQR_I WHERE GOODS_CODE = A.GOODS_CODE) AS inqrCnt
+	, A.ITEM_SFE AS itemSfe //특장점
+	, A.ORGPLCE AS orgplce
+	, A.ITEM_VOD_URL as itemVodUrl //체험판 (기존데이타 사용으로 인해 컬럼명 매칭안됨)
+	, A.ITEM_IMG_URL as itemImgUrl
+	, A.MNL_DN_FILE_SEQ AS mnlDnFileSeq //사용자 메뉴얼
+	, A.CNTRCT_NO AS cntrctNo //계약번호 (종합쇼핑몰 연계를 위해 사용)
+	, A.GTWOB_NUMBER AS gtwobNumber //물품일련번호 (종합쇼핑몰 연계를 위해 사용)
+	, A.item_dn_file_seq AS etcFileSeq
+	, A.PRICE_DN_FILE_SEQ AS priceDnFileSeq
+    <!-- {{ DK, 2016.06.22 서비스제공방식 추가 -->
+    , A.SERVICE_OFFER_METHOD AS serviceOfferMethod 
+    , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=2034 AND INDVDLZ_CD = A.SERVICE_OFFER_METHOD) AS serviceOfferMethodNm               
+    <!-- }} -->
+    , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=2076 AND INDVDLZ_CD = A.GOODS_KND_CD) AS goodsTyNm
+    , (SELECT NVL(MAX(goods_num),  0) FROM tst_good_spec_describe_i WHERE goods_code = A.GOODS_CODE) AS specMaxNum /*규격서 체크*/
+    , (SELECT NVL(LENGTH(cmpny_fond_year || cmpny_intrcn || bsns_realm ), 0) FROM tst_good_spec_describe_i WHERE goods_code = A.GOODS_CODE) AS specErr /*규격서 체크*/
+    , A.comou_De AS comouDe
+    , A.SVC_PC AS svcPc
+    , (SELECT indvdlz_cd_nm FROM op_code_indvdlz WHERE 1=1 AND indvdlz_cd = A.SVC_PC_UNT_CD AND group_cd = '2085') AS svcPcUntCd              
+    , (SELECT indvdlz_cd_nm FROM op_code_indvdlz WHERE 1=1 AND indvdlz_cd = A.due_Stdr_Mumm AND group_cd = '2077') AS dueStdrMumm
+           FROM  TST_GOOD_INFO_I A
+       WHERE  MNGR_DELETE_AT='N' 
+       AND  GOODS_ACTVTY_AT='Y'
+       AND  A.GOODS_REGIST_STTUS = 1006
+       AND  A.GOODS_CODE = #{goodsCode}
+    </select>
+
+   <select id="goodsViewInfoCount" parameterType="map" resultType="int">
+		SELECT 
+		COUNT(*) AS cnt 
+		FROM TST_GOOD_SPEC_DESCRIBE_I
+		WHERE  1=1
+		AND GOODS_CODE =#{goodsCode}       
+		AND goods_num = (SELECT MAX(goods_num) FROM TST_GOOD_SPEC_DESCRIBE_I WHERE GOODS_CODE =#{goodsCode}
+		)
+
+	</select>
+
+   <select id="goodsViewInfoCount1" parameterType="map" resultType="String">
+		SELECT NVL(svc_Charger_Nm , '0') AS svc_Charger_Nm FROM
+		(
+		SELECT 
+		DECODE(TRIM(svc_Charger_Nm), '', NULL, '1') AS svc_Charger_Nm
+		FROM TST_GOOD_SPEC_DESCRIBE_I
+		WHERE  1=1
+		AND GOODS_CODE =#{goodsCode}     
+		AND goods_num = (SELECT MAX(goods_num) FROM TST_GOOD_SPEC_DESCRIBE_I WHERE GOODS_CODE =#{goodsCode})
+		)
+
+	</select>
+    
+    
+    
+    <select id="goodsViewInfo" parameterType="map" resultType="premiumVO">
+	/*_premium.goodsViewInfo*/
+		SELECT
+			DECODE(A.smlpz_Chk, 'Y','중소기업','M','중견기업','B','대기업',smlpz_Chk) AS smlpzChk
+			,A.goods_charger_nm AS goodsChargerNm
+			,A.goods_charger_cttpc AS goodsChargerCttpc
+			,DECRYPT(A.goods_charger_email, 'P008') AS goodsChargerEmail			
+          FROM  TST_GOOD_INFO_I A
+         WHERE  MNGR_DELETE_AT='N' 
+           AND  GOODS_ACTVTY_AT='Y'
+           AND  A.GOODS_REGIST_STTUS = 1006
+           AND  A.GOODS_CODE = #{goodsCode}
+    </select>
+    
+    <select id="listCtgryNm" parameterType="map" resultType="String">
+	/*_premium.listCtgryNm*/
+    	SELECT D.lang_ctgry_nm 
+          FROM TST_GOOD_CATE_I C
+              ,TST_CATE_MGMT_M D
+         WHERE C.CTGRY_CODE = D.CTGRY_CODE
+           AND D.LANG_CODE =  #{langCode}
+           AND C.goods_code = #{goodsCode}
+<!--
+           <if test="ctgryCode != null  and ctgryCode != ''">
+           AND DECODE(C.ctgry_code, '6202_360', '6202_368', C.ctgry_code)  = #{ctgryCode}
+       	  </if>
+ -->       	            	  
+    </select>
+    
+    <!--     카테고리     -->
+    <select id="goodsCtgryList" resultType="map">
+    /*_premium.goodsCtgryList*/
+    	SELECT  A.CTGRY_CODE    AS CTGRYCODE
+    	      , (SELECT SYS_CONNECT_BY_PATH(C.ctgry_code, ' > ')
+                   FROM TST_CATE_MGMT_M C
+                  WHERE C.CTGRY_CODE = A.CTGRY_CODE
+                  START WITH C.PARNTS_CTGRY_CODE = '0'
+                CONNECT BY PRIOR C.CTGRY_CODE = C.PARNTS_CTGRY_CODE ) AS CTGRYPATH_CODE
+              , B.CTGRY_CL_CD		AS CTGRYCLCD
+              , (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+                  WHERE LANG_CODE = #{langCode}
+                    AND GROUP_CD = 1005
+                    AND INDVDLZ_CD = B.CTGRY_CL_CD)    AS CTGRYCLNM
+              , (SELECT SYS_CONNECT_BY_PATH(C.LANG_CTGRY_NM, ' > ')
+                   FROM TST_CATE_MGMT_M C
+                  WHERE C.CTGRY_CODE = A.CTGRY_CODE
+                  START WITH C.PARNTS_CTGRY_CODE = '0'
+                CONNECT BY PRIOR C.CTGRY_CODE = C.PARNTS_CTGRY_CODE  )    AS CTGRYPATH
+          FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+         WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+           AND  B.CTGRY_DELETE_AT = 'N'
+           AND  A.GOODS_CODE = #{goodsCode}
+    </select>
+
+    <!--     이미지      -->
+<!--     <select id="goodsImageList" resultType="map">         -->
+<!--        SELECT GOODS_IMAGE_FILE_SEQ AS GOODSIMAGEFILESEQ FROM T_GOODS_IMAGES -->
+<!--         WHERE GOODS_CODE= #{goodsCode} -->
+<!--        ORDER BY GOODS_IMAGE_ORDR -->
+<!--     </select> -->
+    <!--     인증구분     -->
+    <select id="goodsMarkList" resultType="map">
+    	/*_premium.goodsMarkList*/
+        SELECT  B.INDVDLZ_CD AS MARKCD
+              , B.INDVDLZ_CD_NM AS MARKNM
+              , A.MARK_CD AS GOODSMARKCD
+              , (SELECT MARK_IMAGE_FILE_SEQ FROM TST_GOOD_MARK_M WHERE MARK_CD = A.MARK_CD) AS MARKIMAGEFILESEQ
+              , C.CRTFC_SE_FILE_SEQ AS CRTFCSEFILESEQ
+          FROM  OP_CODE_INDVDLZ B LEFT OUTER JOIN TST_GOOD_MARK_I A
+            ON  A.MARK_CD = B.INDVDLZ_CD AND A.GOODS_CODE = #{goodsCode}
+                LEFT OUTER JOIN TST_CTFC_ATCH_I C
+            ON  B.INDVDLZ_CD = C.CRTFC_SE_CD AND C.GOODS_CODE = #{goodsCode}
+         WHERE  B.LANG_CODE = #{langCode}
+           AND  B.GROUP_CD = 1011
+           AND  B.USE_YN = 'Y'
+         ORDER  BY B.CD_SORT_NO
+    </select>
+    
+    <!--     판매자 정보     -->
+    <select id="goodsStoreList" resultType="map">
+    	/*_premium.goodsStoreList*/
+       SELECT ( CASE WHEN A.USER_TY_CD=1002 THEN (SELECT CMPNY_NM FROM OP_USER_OPTION WHERE USER_ID=A.USER_ID)
+                     WHEN A.USER_TY_CD=2002 THEN (SELECT CMPNY_NM FROM OP_USER_ENTRPRS_OPTION WHERE USER_ID=A.USER_ID)
+                 END
+               ) AS CMPNYNM
+             , B.STORE_IMAGE_FILE_SEQ AS STOREIMAGEFILESEQ
+             , B.LANG_STORE_NM AS LANGSTORENM
+             , B.LANG_STORE_INTRCN AS LANGSTOREINTRCN
+             , B.STORE_CHARGER_NM AS STORECHARGERNM
+             , decrypt(B.REPRSNT_EMAIL, 'P008') AS REPRSNTEMAIL
+             , B.REPRSNT_TELNO AS REPRSNTTELNO
+             , A.USER_ID AS USERID
+             , decrypt(A.MBTLNUM, 'P007') AS MBTLNUM
+         FROM  OP_USER A
+             , TUM_SVC_STOR_I B
+        WHERE  A.USER_ID   = B.USER_ID
+          AND  B.LANG_CODE = #{langCode}
+          AND  A.USER_ID   = #{userId}
+           
+    </select>
+    <!--     태그    -->
+    <select id="goodsTagList" resultType="map">
+    	/*_premium.goodsTagList*/
+        SELECT GOODS_TAG_NM AS GOODSTAGNM FROM TST_GOOD_TAG_I
+         WHERE GOODS_CODE = #{goodsCode}
+    </select>
+
+    <select id="goodsMetaLangList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaLangList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+         WHERE  A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD  = B.INDVDLZ_CD  AND A.LANG_CD = B.LANG_CODE
+           AND  A.GOODS_CODE = #{goodsCode}
+           AND  A.GROUP_CD = 1019
+           AND  B.LANG_CODE = #{langCode}
+           AND  B.USE_YN = 'Y'
+    </select>
+    <select id="goodsMetaOSList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaOSList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+         WHERE  A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD  = B.INDVDLZ_CD  AND A.LANG_CD = B.LANG_CODE
+           AND  A.GOODS_CODE = #{goodsCode}
+           AND  A.GROUP_CD = 1020
+           AND  B.LANG_CODE = #{langCode}
+           AND  B.USE_YN = 'Y'
+    </select>
+    <select id="goodsMetaASList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaASList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+         WHERE  A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD  = B.INDVDLZ_CD  AND A.LANG_CD = B.LANG_CODE
+           AND  A.GOODS_CODE = #{goodsCode}
+           AND  A.GROUP_CD = 1021
+           AND  B.LANG_CODE = #{langCode}
+           AND  B.USE_YN = 'Y'
+    </select>
+    <select id="goodsMetaTECHList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaTECHList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+         WHERE  A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD  = B.INDVDLZ_CD  AND A.LANG_CD = B.LANG_CODE
+           AND  A.GOODS_CODE = #{goodsCode}
+           AND  A.GROUP_CD = 1022
+           AND  B.LANG_CODE = #{langCode}
+           AND  B.USE_YN = 'Y'
+    </select>
+    <select id="goodsMetaTAGList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaTAGList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 1023
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y'
+    </select>
+
+    <!-- {{ 2015.12.19 SKYOOU -->
+       <select id="goodsMetaExprnList" parameterType="java.util.Map" resultType="map">
+       	/*_premium.goodsMetaExprnList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2027
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>
+    <select id="goodsMetaCntrctUnitList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaCntrctUnitList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2028
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>
+    <select id="goodsMetaSvcList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaSvcList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2030
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>
+    <select id="goodsMetaStdList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaStdList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2031
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>
+    <select id="goodsMetaCnstcMthdList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaCnstcMthdList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2032
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>
+    <select id="goodsMetaScqcLvList" parameterType="java.util.Map" resultType="map">
+    	/*_premium.goodsMetaScqcLvList*/
+        SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2033
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y' 
+    </select>    
+	<select id="goodsMetaPriceList" parameterType="goodsVO" resultType="map">
+		/*_premium.goodsMetaPriceList*/
+         SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2024
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y'
+    </select>
+  
+    <select id="goodsMetaAreaList" parameterType="goodsVO" resultType="map">
+    	/*_premium.goodsMetaAreaList*/
+         SELECT  A.GOODS_CODE, A.LANG_CD, A.INDVDLZ_CD, B.INDVDLZ_CD_NM, A.META_ETC_CN,
+                B.INDVDLZ_CD_NM
+          FROM  TST_GOOD_META_I A, OP_CODE_INDVDLZ B
+          WHERE A.GROUP_CD = B.GROUP_CD AND A.INDVDLZ_CD = B.INDVDLZ_CD AND A.LANG_CD = B.LANG_CODE
+            AND A.GOODS_CODE = #{goodsCode}
+            AND A.GROUP_CD = 2024
+            AND B.LANG_CODE = #{langCode}
+            AND B.USE_YN = 'Y'
+    </select>
+    
+       <!--     서비스리뷰 수   -->
+    <select id="relationCount" parameterType="premiumVO" resultType="String">
+    /*_premium.relationCount:premium-sqlmap.xml*/
+    SELECT COUNT(A.GOODS_CODE)  AS reviewCount
+		  FROM TST_GOOD_INFO_I A 
+		  WHERE A.MNGR_DELETE_AT='N' 
+		    AND A.GOODS_ACTVTY_AT='Y' 
+		    AND A.GOODS_REGIST_STTUS = 1006 
+		    AND A.LANG_CODE = '00' 
+		    AND A.GOODS_CODE IN (SELECT  A.GOODS_CODE 
+		                           FROM  TST_GOOD_CATE_I A 
+		                               , TST_CATE_MGMT_M B 
+		                          WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+		                            AND  B.LANG_CODE = '00'
+		                            AND  A.CTGRY_CODE IN (SELECT CTGRY_CODE 
+		                                                    FROM TST_GOOD_CATE_I 
+		                                                   WHERE GOODS_CODE = #{goodsCode}
+		                                                 )
+		                          GROUP  BY A.GOODS_CODE 
+		                        ) 
+		    AND A.GOODS_CODE &lt;&gt; #{goodsCode} 
+    </select>
+    
+    
+	<!-- }}  -->
+	
+    <!--     서비스평가 정보      -->
+    <select id="goodsScoreList" resultType="map">
+    	/*_premium.goodsScoreList*/
+        SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') AS SCORE,
+               COUNT(GOODS_CODE) AS CNT
+          FROM TST_GOOD_EVL_I
+         WHERE GOODS_CODE = #{goodsCode}
+    </select>
+
+    <!--     서비스리뷰 수   -->
+    <select id="reviewCount" parameterType="premiumVO" resultType="String">
+    /*_premium.reviewCount:premium-sqlmap.xml */
+      <!--   SELECT COUNT(BBSCTT_SEQ) AS reviewCount
+          FROM OP_BOARD
+          WHERE DOMAIN_CD = #{domainCd}
+            AND BBS_CD = #{bbsCd}
+            AND SUBSTRING(ESTN_COLUMN7,INSTR(ESTN_COLUMN7, '_',1)+1 ) = #{goodsCode}   -->  
+     SELECT COUNT(1) reviewCount FROM TST_GOOD_EVL_I A  WHERE  A.GOODS_CODE   = #{goodsCode}  
+            
+    </select>
+
+    <!--     관심서비스등록     -->
+    <insert id="itstUpdate" parameterType="premiumVO">
+    /* _premium.itstUpdate*/
+        <selectKey order="BEFORE" keyProperty="intrstSn" resultType="int">
+        /* _premium.itstUpdate (BEFORE) */
+            SELECT NVL(MAX(INTRST_SN), 0) + 1 
+              FROM TUM_ITST_GOOD_I
+             WHERE USER_ID = #{loginUserId}
+        </selectKey>
+        
+		MERGE INTO TUM_ITST_GOOD_I T
+	    USING (
+	           SELECT  #{loginUserId} AS USER_ID
+	                 , #{goodsCode}   AS GOODS_CODE
+	          ) S
+	       ON (T.GOODS_CODE = S.GOODS_CODE AND T.USER_ID = S.USER_ID)
+	     WHEN MATCHED THEN
+	          UPDATE SET  T.INTRST_SETUP_DT = SYSDATETIME  -- 의미 없음..!
+	          DELETE WHERE   T.GOODS_CODE = S.GOODS_CODE  AND T.USER_ID = S.USER_ID
+         WHEN NOT MATCHED THEN
+              INSERT (USER_ID, INTRST_SN, GOODS_CODE, INTRST_SETUP_DT)
+	          VALUES (#{loginUserId}, #{intrstSn}, #{goodsCode}, SYSDATETIME)
+    
+    </insert>
+
+    <select id="itstCount" parameterType="premiumVO" resultType="int">
+    /* _premium.itstCount*/
+     SELECT COUNT(*) itstCount 
+       FROM TUM_ITST_GOOD_I A  
+      WHERE A.USER_ID    = #{loginUserId}  
+	    AND A.GOODS_CODE = #{goodsCode}   
+    </select>
+    
+    <!--     다운로드/신청하기     -->
+    <select id="purchsKey" resultType="string">
+    	/*_premium.purchsKey*/
+        SELECT PURCHS_NO_SEQ.NEXT_VALUE AS purchsNo
+    </select>
+    <insert id="pchsInsert" parameterType="premiumVO">
+    	/*_premium.pchsInsert*/
+		INSERT INTO TUM_GOOD_PCHS_I
+		(
+		  USER_ID,	PURCHS_NO,	GOODS_CODE,  PURCHS_DT,  SELER_ID
+		)
+		VALUES
+		(
+		  #{loginUserId}, #{purchsNo}, #{goodsCode}, SYSDATETIME,  #{userId}
+		)
+	</insert>
+    <insert id="ordrInsert" parameterType="premiumVO">
+    	/*_premium.ordrInsert*/
+        <choose>
+        <when test="sleMthdCd == 1001">
+        INSERT INTO TST_GOOD_ORDR_I
+        (
+          GOODS_CODE, PURCHS_NO, ORDRR_ID,  ORDER_DT,
+          MBTLNUM, EMAIL, CMPNY_NM, CMPNY_REPRSNT_TELNO, CHARGER_NM,
+          CHARGER_CTTPC, CHARGER_EMAIL, DLIV_MSSAGE, ORDER_CNFIRM_AT
+        )
+        (
+        SELECT
+            #{goodsCode}, #{purchsNo}, #{loginUserId}, SYSDATETIME,
+            A.MBTLNUM,  A.EMAIL,
+            (CASE WHEN LEFT(A.user_ty_cd,1) = '1' THEN  B.CMPNY_NM
+                  WHEN LEFT(A.user_ty_cd,1) = '2' THEN  C.CMPNY_NM END),
+            (CASE WHEN LEFT(A.user_ty_cd,1) = '1' THEN  B.CMPNY_REPRSNT_TELNO
+                  WHEN LEFT(A.user_ty_cd,1) = '2' THEN  C.CMPNY_REPRSNT_TELNO END),
+            A.USER_NM,  A.MBTLNUM,  A.EMAIL,    '',  'Y'
+          FROM OP_USER A, OP_USER_OPTION B, OP_USER_ENTRPRS_OPTION  C
+         WHERE A.USER_ID = B.USER_ID(+)
+           AND A.USER_ID = C.USER_ID(+)
+           AND A.USER_ID = #{loginUserId}
+        LIMIT 1
+        )
+        </when>
+        <when test="sleMthdCd == 1002">
+		INSERT INTO TST_GOOD_ORDR_I
+		(
+		  GOODS_CODE, PURCHS_NO, ORDRR_ID,	ORDER_DT,
+		  MBTLNUM, EMAIL, CMPNY_NM, CMPNY_REPRSNT_TELNO, CHARGER_NM,
+		  CHARGER_CTTPC, CHARGER_EMAIL,	DLIV_MSSAGE, ORDER_CNFIRM_AT
+		)
+<!-- 		VALUES -->
+		(
+		  <!-- #{goodsCode},	#{purchsNo}, #{loginUserId}, SYSDATETIME,
+		  #{mbtlnum},	#{email},	#{cmpnyNm},   #{cmpnyReprsntTelno},	#{chargerNm},
+		  #{chargerCttpc},	#{chargerEmail},	#{dlivMssage},  'N' -->
+		  <!-- 2016.07.25 수정 -->
+		  SELECT
+            #{goodsCode}, #{purchsNo}, #{loginUserId}, SYSDATETIME,
+            A.MBTLNUM,  A.EMAIL,
+            (CASE WHEN LEFT(A.user_ty_cd,1) = '1' THEN  B.CMPNY_NM
+                  WHEN LEFT(A.user_ty_cd,1) = '2' THEN  C.CMPNY_NM END),
+            (CASE WHEN LEFT(A.user_ty_cd,1) = '1' THEN  B.CMPNY_REPRSNT_TELNO
+                  WHEN LEFT(A.user_ty_cd,1) = '2' THEN  C.CMPNY_REPRSNT_TELNO END),
+            A.USER_NM,  A.MBTLNUM,  #{chargerEmail},	#{dlivMssage},  'N'
+          FROM OP_USER A, OP_USER_OPTION B, OP_USER_ENTRPRS_OPTION  C
+         WHERE A.USER_ID = B.USER_ID(+)
+           AND A.USER_ID = C.USER_ID(+)
+           AND A.USER_ID = #{loginUserId}
+        LIMIT 1
+		)
+		</when>
+        </choose>
+    </insert>
+
+    <resultMap id="goodsOfSellerResult" type="premiumVO">
+        <result property="goodsCode" column="GOODS_CODE"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="langCode" column="LANG_CODE"/>
+        <collection property="goodsMarkList" column="{goodsCode = GOODS_CODE, langCode = LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+        <collection property="cngdMarkList" column="{cntcInsttCd=CNTC_INSTT_CD}" ofType="map" select="cngdMarkImageList"/>
+        
+<!--    <collection property="goodsStore" column="{userId=USER_ID, langCode=LANG_CODE}" ofType="map" select="goodsStoreList"/>         				-->
+    </resultMap>
+    <select id="goodsListOfSeller" parameterType="map" resultMap="goodsOfSellerResult">
+    	/*_premium.goodsListOfSeller*/
+    	SELECT Y.* 
+    	  FROM (SELECT  ROWNUM NUM
+    	              , X.* 
+    	          FROM  (SELECT  A.GOODS_CODE
+    	                       , A.LANG_CODE
+    	                       , A.GOODS_NM AS goodsNm
+    	                       , A.USER_ID
+    	                       , A.GOODS_KND_CD
+    	                       , A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+    	                       , A.GOODS_SUMRY AS goodsSumry
+    	                       , A.GOODS_RDCNT AS goodsRdcnt
+    	                       , A.CNTC_INSTT_CD
+    	                       , TO_CHAR(A.REGIST_DT,'YYYY. MM. DD') AS registDt
+    	                       , (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) AS langNm
+    	                       , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=1007 AND INDVDLZ_CD = A.SLE_MTHD_CD) AS sleMthdNm
+    	                       , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE = A.LANG_CODE AND GROUP_CD=1008 AND INDVDLZ_CD = A.GOODS_REGIST_STTUS) AS goodsRegistSttusNm
+    	                       , (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt
+    	                       , (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore
+    	                       , (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm
+    	                       , (SELECT CMMNTY_ID FROM TCM_CMNT_INFO_I WHERE MNGR_CLS_AT = 'N' AND CMMNTY_STTUS_CD = '1002' AND LANG_CODE = A.LANG_CODE AND USER_ID = A.USER_ID ORDER BY CONFM_DT DESC LIMIT 1) AS cmmntyId
+		                   FROM  TST_GOOD_INFO_I A
+		                  WHERE  A.MNGR_DELETE_AT='N' 
+		                    AND  A.GOODS_ACTVTY_AT='Y'
+		                    AND  A.GOODS_REGIST_STTUS = 1006
+		                    AND  A.LANG_CODE = #{langCode}
+		                    AND  A.USER_ID = #{userId}
+                    <include refid="searchWhere"/>
+		            <include refid="listSort"/>
+                     ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}
+
+
+    </select>
+
+    <select id="goodsListOfSellerCount" parameterType="map" resultType="int">
+    /*_premium.goodsListOfSellerCount*/
+        SELECT COUNT(A.GOODS_CODE) AS totalCount
+          FROM TST_GOOD_INFO_I A
+         WHERE MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+           AND A.GOODS_REGIST_STTUS = 1006
+           AND A.LANG_CODE = #{langCode}
+           AND A.USER_ID = #{userId}
+          <include refid="searchWhere"/>
+    </select>
+    
+    
+<!-- {{SKYOU 20151222 -->    
+    <select id="goodsListOfKindCount"  resultType="map">
+    	/*_premium.goodsListOfKindCount*/
+        SELECT
+            COUNT(CASE WHEN GOODS_KND_CD IN ('1001') THEN A.GOODS_CODE END)  AS PaaSCount,
+            COUNT(CASE WHEN GOODS_KND_CD IN ('1002') THEN  A.GOODS_CODE END) AS SaaSCount,
+            COUNT(CASE WHEN GOODS_KND_CD IN ('1003') THEN  A.GOODS_CODE END) AS IaaSCount,
+            COUNT(CASE WHEN GOODS_KND_CD IN ('1004') THEN  A.GOODS_CODE END) AS SCSCount
+        FROM
+            TST_GOOD_INFO_I A
+        WHERE MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+          AND A.GOODS_REGIST_STTUS = 1006
+          AND A.LANG_CODE = #{langCode}
+          AND A.USER_ID = #{userId}
+          <include refid="searchWhere"/>
+    </select>
+<!-- }} -->    
+    
+    <select id="sellerInfo" parameterType="premiumVO" resultType="goodsVO">
+    /*_premium.sellerInfo 서비스+판매자 정보조회 */
+    SELECT
+		  A.GOODS_CODE AS goodsCode
+		, A.GOODS_NM AS goodsNm
+		, A.GOODS_SUMRY AS goodsSumry
+		, A.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+		, B.USER_ID AS userId
+		, B.USER_NM AS userNm
+		, b.USER_TY_CD AS userTyCd
+		, DECRYPT(B.EMAIL, 'P008') AS email
+		, A.GOODS_CHARGER_NM AS goodsChargerNm /* 2016.07.22 추가 */ 
+        , DECRYPT(A.GOODS_CHARGER_EMAIL, 'P008') AS goodsChargerEmail /* 2016.07.22 추가 */ 
+		FROM
+		    TST_GOOD_INFO_I  A, OP_USER B
+		WHERE A.USER_ID = B.USER_ID
+		AND A.LANG_CODE = #{langCode}
+		AND A.GOODS_CODE = #{goodsCode}
+    </select>
+
+	<resultMap id="cntrctListMap" type="map">
+        <result property="cntrctUnionNo" column="CNTRCT_UNION_NO"/>
+        <result property="cntrctNm" column="CNTRCT_NM"/>
+        <result property="cntrctAmt" column="CNTRCT_AMT"/>
+        <result property="realOrgnNm" column="REAL_ORGN_NM"/>
+    </resultMap>
+    
+	<select id="cntrctList" parameterType="String"  resultMap="cntrctListMap">
+		/*_premium.cntrctList 계약정보 */
+		SELECT  B.CNTRCT_UNION_NO 	as cntrctUnionNo
+		      , B.CNTRCT_NM        as cntrctNm
+		      , B.CNTRCT_AMT       as cntrctAmt
+		      , B.REAL_ORGN_NM		as realOrgnNm
+	      FROM  TCN_CNTRCT_INFO_D A
+	     INNER  JOIN TCN_CNTRCT_INFO_L B ON A.CNTRCT_UNION_NO = B.CNTRCT_UNION_NO
+	     WHERE  A.ITEM_IDNTFC_NO =  #{goodsCode}
+	     GROUP  BY CNTRCT_NO
+	</select>
+	
+	
+	
+	<!--  
+	    서비스별 카테고리 목록[등록 서비스의 카테고리 정보]
+	  @param Map searchMap
+	  @return List
+	  @ 2015.12.23 생성
+	 -->
+	<resultMap id="goodsCateListMap" type="map">
+        <result property="goodsCode"   column="GOODS_CODE"/>
+        <result property="langCtgryNm" column="LANG_CTGRY_NM"/>
+    </resultMap>
+    <select id="goodsCateList" parameterType="String" resultMap="goodsCateListMap">
+		/*_premium.goodsCateList*/
+        SELECT A.GOODS_CODE    AS GOODS_CODE
+             , B.LANG_CTGRY_NM AS LANG_CTGRY_NM
+          FROM TST_GOOD_CATE_I A
+               LEFT JOIN TST_CATE_MGMT_M B
+                      ON A.CTGRY_CODE = B.CTGRY_CODE
+         WHERE A.GOODS_CODE IN (${goodsCode})
+    </select>
+    <select id="suplyCnt" parameterType="map" resultType="int">
+    	/*_premium.suplyCnt*/
+   		SELECT SUM(CNT) AS supplyCnt
+		  FROM (SELECT COUNT(C.GOODS_CODE)	 CNT 
+			      FROM TCN_DVYFG_INFO_L A 
+			     INNER JOIN TCN_PPS_GOOD_INFO_L B ON A.DELIVERY_NUM||A.DELIVERY_ORDER||A.ITEM_NUM = B.CNTR_NUM||LINE_NUM
+				 INNER JOIN TST_GOOD_INFO_I C ON B.GOODS_CODE = C.GOODS_CODE
+			     WHERE C.GOODS_CODE =#{goodsCode}
+				 UNION ALL	
+			     SELECT COUNT(B.GOODS_CODE)	CNT
+			       FROM TCM_CNTRCT_MANAGE_I A,
+			       TCM_CNTRCT_SERVICE_I B
+			      WHERE B.GOODS_CODE = #{goodsCode}
+			        AND A.DELETE_AT !='N'
+			        AND A.ASIS = 'N'
+			        AND A.cntrct_sn = B.cntrct_sn			        
+		       )
+    </select>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_dmandExaminDc">
+    
+    <select id="dmandExaminDcList" parameterType="map" resultType="dmandExaminDcVO">
+    /*_dmandExaminDc.dmandExaminDcList*/
+	SELECT Y.* FROM (
+    	SELECT ROWNUM NUM, X.* FROM (
+    		SELECT A.PARTCPT_SN AS partcptSn
+			     , A.USER_ID AS userId
+			     , B.USER_NM AS userNm
+			     , CASE WHEN C.PBLINSTT_CD = 1000 THEN '기타' ELSE (SELECT UPPER_PBLINSTT_NM FROM OP_DMAND_EXAMIN_PBLINSTT WHERE PBLINSTT_CD = C.PBLINSTT_CD) END AS upperPblinsttNm
+			     , CASE WHEN C.PBLINSTT_CD = 1000 THEN C.PBLINSTT_NM ELSE (SELECT PBLINSTT_NM FROM OP_DMAND_EXAMIN_PBLINSTT WHERE PBLINSTT_CD = C.PBLINSTT_CD) END AS pblinsttNm
+			     , decrypt(B.MBTLNUM, 'P007') AS mbtlnum
+			     , decrypt(B.EMAIL, 'P008') AS email
+			     , A.PARTCPT_SE AS partcptSe
+			     , TO_CHAR(A.PARTCPT_REQST_DT,'YYYY-MM-DD HH24:MI') AS partcptReqstDt
+			     , CASE WHEN A.PARTCPT_SE = 1001 THEN IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161001', 'N', 'Y') ELSE IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161010', 'N', 'Y') END AS partcptAt1
+			  FROM OP_DC_PARTCPT_REQST A
+			  LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+			  LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+			 WHERE A.PARTCPT_SE = #{partcptSe}
+			 ORDER BY A.PARTCPT_REQST_DT DESC
+		) X WHERE ROWNUM &lt;= #{pagingEndNum}
+    ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="dmandExaminDcCount" parameterType="map" resultType="int">
+    /*_dmandExaminDc.dmandExaminDcCount*/      
+	SELECT COUNT(1) AS totalCount
+      FROM OP_DC_PARTCPT_REQST
+     WHERE PARTCPT_SE = #{partcptSe}
+    </select>
+    
+    <select id="dmandExaminDcListExcel" parameterType="map" resultType="dmandExaminDcVO">
+    /*_dmandExaminDc.dmandExaminDcListExcel*/
+	SELECT A.PARTCPT_SN AS partcptSn
+	     , A.USER_ID AS userId
+	     , B.USER_NM AS userNm
+	     , CASE WHEN C.PBLINSTT_CD = 1000 THEN '기타' ELSE (SELECT UPPER_PBLINSTT_NM FROM OP_DMAND_EXAMIN_PBLINSTT WHERE PBLINSTT_CD = C.PBLINSTT_CD) END AS upperPblinsttNm
+	     , CASE WHEN C.PBLINSTT_CD = 1000 THEN C.PBLINSTT_NM ELSE (SELECT PBLINSTT_NM FROM OP_DMAND_EXAMIN_PBLINSTT WHERE PBLINSTT_CD = C.PBLINSTT_CD) END AS pblinsttNm
+	     , decrypt(B.MBTLNUM, 'P007') AS mbtlnum
+	     , decrypt(B.EMAIL, 'P008') AS email
+	     , A.PARTCPT_SE AS partcptSe
+	     , TO_CHAR(A.PARTCPT_REQST_DT,'YYYY-MM-DD HH24:MI') AS partcptReqstDt
+	     , CASE WHEN A.PARTCPT_SE = 1001 THEN IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161001', 'N', 'Y') ELSE IF(TO_CHAR(SYSDATE,'YYYYMMDD') > '20161010', 'N', 'Y') END AS partcptAt1
+	  FROM OP_DC_PARTCPT_REQST A
+	  LEFT JOIN OP_USER B ON B.USER_ID = A.USER_ID
+	  LEFT JOIN OP_USER_PBLINSTT_OPTION C ON C.USER_ID = A.USER_ID
+	 WHERE A.PARTCPT_SE = #{partcptSe}				 
+    </select>
+    
+</mapper>

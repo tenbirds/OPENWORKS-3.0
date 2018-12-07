@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_cmSiteStat">
+
+	<!-- 방문자수 통계 -->
+	<select id="cmSiteVisitCountStat" parameterType="cmSiteStatVO" resultType="resultVO">
+	 /* cmSiteStat-sqlmap.xml  _cmSiteStat.cmSiteVisitCountStat */
+		SELECT 
+				 CNT1 AS value1
+			  	, CNT2 AS value2
+			  	, TRUNCATE((( FORMAT (CNT1,1) - FORMAT (CNT2,1) ) / DECODE(CNT2, 0, NULL, CNT2)) * 100, 2) AS textValue
+		  FROM (
+				SELECT 
+						SUM(CNT1) AS CNT1
+					  	,SUM(CNT2) AS CNT2
+				  FROM (
+						SELECT SUM(CNT) AS CNT1
+							  ,0 AS CNT2
+						  FROM (
+								SELECT VISIT_SESION_ID
+									  ,COUNT(VISIT_SESION_ID) AS CNT
+								  FROM TCM_VSIT_ANAL_S
+								 WHERE 
+								   LANG_CODE 			= #{langCode}
+								   AND CMMNTY_ID 	= #{cmmntyId}
+								   AND VISIT_DT BETWEEN  TO_DATE(#{startDate}, 'YYYYMMDD') AND TO_DATE(#{endDate}, 'YYYYMMDD')+1
+								 GROUP BY VISIT_SESION_ID
+						)
+						UNION ALL
+						SELECT 
+								0 AS CNT1 
+							 	, SUM(CNT) AS CNT2
+						  FROM (
+								SELECT VISIT_SESION_ID
+									  ,COUNT(VISIT_SESION_ID) AS CNT
+								  FROM TCM_VSIT_ANAL_S
+								 WHERE
+								 	LANG_CODE 			= #{langCode}
+								   AND CMMNTY_ID 	= #{cmmntyId}
+								   AND VISIT_DT BETWEEN  TO_DATE(#{pastStartDate}, 'YYYYMMDD') AND TO_DATE(#{pastEndDate}, 'YYYYMMDD')+1
+								 GROUP BY VISIT_SESION_ID
+						)
+				)
+		)
+	</select>
+	
+	<!-- 게시글수 통계 -->
+	<select id="cmSiteBoardCountStat" parameterType="cmSiteStatVO" resultType="resultVO">
+	 /* cmSiteStat-sqlmap.xml  _cmSiteStat.cmSiteBoardCountStat */
+		SELECT 
+				CNT1 AS value1
+			  ,	CNT2 AS value2
+			  ,	TRUNCATE((( FORMAT (CNT1,1) - FORMAT (CNT2,1) ) / DECODE(CNT2, 0, NULL, CNT2)) * 100, 2) AS textValue
+		  FROM (
+				SELECT 
+					SUM(CNT1) AS CNT1
+					  ,SUM(CNT2) AS CNT2
+				  FROM (
+						SELECT 
+								COUNT(CMMNTY_BBS_SEQ) AS CNT1
+							  ,0 AS CNT2
+						  FROM TCM_CMNT_NTT_I
+						 WHERE 
+						 	LANG_CODE 			= #{langCode}
+						   	AND CMMNTY_ID 	= #{cmmntyId}
+						 	AND WRTER_DELETE_AT	= 'N'
+							AND MNGR_DELETE_AT	= 'N'
+							AND REGIST_DT BETWEEN  TO_DATE(#{startDate}, 'YYYYMMDD') AND TO_DATE(#{endDate}, 'YYYYMMDD')+1
+						UNION ALL
+						SELECT 
+								0 AS CNT1
+							  ,COUNT(CMMNTY_BBS_SEQ) AS CNT2
+						  FROM TCM_CMNT_NTT_I 
+						 WHERE 
+						 	LANG_CODE 			= #{langCode}
+						   	AND CMMNTY_ID 	= #{cmmntyId}
+						   	AND WRTER_DELETE_AT	= 'N'
+						   	AND MNGR_DELETE_AT		= 'N'
+						   	AND REGIST_DT BETWEEN  TO_DATE(#{pastStartDate}, 'YYYYMMDD') AND TO_DATE(#{pastEndDate}, 'YYYYMMDD')+1
+				)
+		)
+	</select>
+	
+	<!-- 덧글수 통계 -->
+	<select id="cmSiteBoardCmtCountStat" parameterType="cmSiteStatVO" resultType="resultVO">
+	 /* cmSiteStat-sqlmap.xml  _cmSiteStat.cmSiteBoardCmtCountStat */
+		SELECT 
+				CNT1 AS value1
+			  ,	CNT2 AS value2
+			  ,	TRUNCATE((( FORMAT (CNT1,1) - FORMAT (CNT2,1) ) / DECODE(CNT2, 0, NULL, CNT2)) * 100, 2) AS textValue
+		  FROM (
+				SELECT SUM(CNT1) AS CNT1
+					  ,SUM(CNT2) AS CNT2
+				  FROM (
+						SELECT COUNT(CMMNTY_BBS_SEQ) AS CNT1
+							  ,0 AS CNT2
+						  FROM TCM_NTT_CMT_I
+						 WHERE 
+						 	LANG_CODE 			= #{langCode}
+						   	AND CMMNTY_ID 	= #{cmmntyId}
+						   	AND REGIST_DT BETWEEN  TO_DATE(#{startDate}, 'YYYYMMDD') AND TO_DATE(#{endDate}, 'YYYYMMDD')+1
+						   	AND CMT_DELETE_CD IS NULL
+						UNION ALL
+						SELECT 0 AS CNT1
+							  ,COUNT(CMMNTY_BBS_SEQ) AS CNT2
+						  FROM TCM_NTT_CMT_I
+						 WHERE 
+						 	LANG_CODE			= #{langCode}
+						   	AND CMMNTY_ID 	= #{cmmntyId}
+						   	AND REGIST_DT BETWEEN  TO_DATE(#{pastStartDate}, 'YYYYMMDD') AND TO_DATE(#{pastEndDate}, 'YYYYMMDD')+1
+						   	AND CMT_DELETE_CD IS NULL
+				)
+		)
+	</select>
+	
+	
+	<!-- 페이지뷰 통계 -->
+	<select id="cmSitePageViewCountStat" parameterType="cmSiteStatVO" resultType="resultVO">
+	 /* cmSiteStat-sqlmap.xml  _cmSiteStat.cmSitePageViewCountStat */
+		SELECT 
+				CNT1 AS value1
+			  ,	CNT2 AS value2
+			  ,	TRUNCATE((( FORMAT (CNT1,1) - FORMAT (CNT2,1) ) / DECODE(CNT2, 0, NULL, CNT2)) * 100, 2) AS textValue
+		  FROM (
+				SELECT SUM(CNT1) AS CNT1
+					  ,SUM(CNT2) AS CNT2
+				  FROM (
+						SELECT SUM(CNT) AS CNT1
+							  ,0 AS CNT2
+						  FROM (
+								SELECT COUNT(CONECT_SESION_ID) AS CNT
+								  FROM TCM_PGE_ANAL_S
+								WHERE 
+								   LANG_CODE 			= #{langCode}
+								   AND CMMNTY_ID 	= #{cmmntyId}
+								   AND CONECT_DT BETWEEN  TO_DATE(#{startDate}, 'YYYYMMDD') AND TO_DATE(#{endDate}, 'YYYYMMDD')+1
+						)
+						UNION ALL
+						SELECT 0 AS CNT1 
+							  ,SUM(CNT) AS CNT2
+						  FROM (
+								SELECT COUNT(CONECT_SESION_ID) AS CNT
+								  FROM TCM_PGE_ANAL_S
+								 WHERE 
+								   LANG_CODE 			= #{langCode}
+								   AND CMMNTY_ID 	= #{cmmntyId}
+								   AND CONECT_DT BETWEEN  TO_DATE(#{pastStartDate}, 'YYYYMMDD') AND TO_DATE(#{pastEndDate}, 'YYYYMMDD')+1
+						)
+				)
+		)
+	</select>
+</mapper>

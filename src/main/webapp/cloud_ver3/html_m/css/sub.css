@@ -1,0 +1,118 @@
+@charset "utf-8";
+
+@import url('reset.css');
+@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+/*@import url('https://fonts.googleapis.com/css?family=Roboto');*/
+
+/* 서비스 상세 */
+.new_swView{padding:30px 20px;}
+.pro_title .pro_txt p:nth-child(1) {display: none;}
+.pro_title .pro_txt p:nth-child(2) {font-size:21px; color:#000; font-weight:bold; line-height:40px; letter-spacing:-1px;}
+.pro_title .pro_txt p:nth-child(2) span {background-color:#989898; color:#fff; display:inline-block; font-size:14px; height:46px; line-height:46px; padding-left:15px; vertical-align:middle; margin-left:10px;}
+.pro_title .pro_txt p:nth-child(2) span strong {display:inline-block; background:#000; padding:0 15px; margin-left:15px; height:46px; color:#fff; font-size:15px}
+.pro_title .pro_txt p:nth-child(3) {font-size:14px; color:#7d7d7d; font-weight:normal; margin:12px 0;}
+.pro_title .pro_price {margin:16px 0 12px; font-size:1em; color:#4b4b4b; font-weight:bold; line-height:1.5;}
+.pro_title .pro_price span {display:block;font-size:14px; font-weight:normal;}
+.pro_title div.f_l div:nth-child(3) a{margin:2px;padding:5px;color:#fff;background-color:#478edc}
+
+.new_swView section div{line-height:1.5;}
+.new_swView section h3 i{font-size:1em;}
+.new_swView .f_r {margin-top:15px;}
+
+.normal_table {border:1px solid #cacaca;}
+.normal_table tr th {font-size:0.9em; font-weight:600; height:35px; background-color:#f3f3f3; text-align:left; padding:0 15px;border-top:1px solid #cacaca;}
+.normal_table tr th:last-child {text-align:right; padding-right:10px;}
+.normal_table tr th:last-child a {font-size:12px; font-weight:600; color:#fff; background-color:#989898; width:98px; height:23px; line-height:23px; display:inline-block; text-align:center;}
+.normal_table tr td {font-size:0.9em; border-left:1px solid #cacaca; height:35px; padding:0 15px; border-top:1px solid #cacaca;vertical-align: middle;}
+.normal_table tr td a{font-size:0.9em;}
+.normal_table tr td:first-child {border-left:none;}
+
+/* 기본협약체결 안내 */
+.supContract img{width:100% !important;}
+.supContract p{
+	padding: 0 8px;
+	font-size:1em;
+	line-height:1.2;
+}
+.supContract ol.cont03 li:after{
+	content:'';
+	display:block;
+	clear:both
+}
+.supContract ol.cont03 li{
+	margin: 8px;
+	font-size:1em;
+	line-height: 1.2;
+}
+.supContract ol.cont03 li strong{
+	display: block;
+	float:left;
+	height: 50px;
+	margin-right:10px;
+}
+.supContract ol.cont06 li{
+	margin-bottom: 20px;
+}
+.supContract ol.cont06 li dl:after{
+	content:'';
+	display:block;
+	clear:both
+}
+.supContract ol.cont06 li dl dt{
+	font-size: 1.2em;
+	font-weight: bold;
+	color:#12437d;
+}
+.supContract ol.cont06 li dl dd{
+	float:left;
+	margin: 10px 8px;
+}
+.supContract ol.cont06 li dl dd.dd_left{
+	width:20%;
+}
+.supContract ol.cont06 li dl dd.dd_right{
+	width:69%;
+}
+.supContract ol.cont06 .ico_num{
+	margin:8px;
+	padding: 3px 5px;
+	background-color:#e1e1e1;
+	border-radius: 3px;
+	font-size: 1em;
+	font-weight: bold;
+	color:#000;
+}
+.supContract ol.cont06 .normal_table tr th{
+	padding: 0 10px;
+}
+.supContract ol.cont06 .normal_table tr td{
+	padding: 5px;
+	font-size: 0.85em;
+	line-height: 1.2;
+}
+.supContract ol.cont06 .normal_table tr td strong{
+	display: block;
+	margin:5px 0;
+}
+.supContract ol.cont06 .normal_table tr td.td_h{
+	height: 85px;
+}
+.supContract table.cont07 td{
+	padding: 10px;
+	font-size: 0.85em;
+	line-height: 1.2;
+}
+.supContract table.cont07 td strong{
+	display: block;
+	margin-top:5px;
+}
+.strong01{
+	font-size: 1.2em;
+	font-weight:bold;
+	color:#12437d;
+
+}
+.strong02{
+	font-size:0.85em;
+	color:#ed1c24;
+}

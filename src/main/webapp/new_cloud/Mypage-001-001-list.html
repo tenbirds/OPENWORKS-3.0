@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+	<script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<script type="text/javascript" src="/resources/cmmnty/common/js/fakeselect.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/colobox/themes/theme5/colorbox.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/jquery.datepicker.css">
+	<script type="text/javascript" src="/new_cloud/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script-addon.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>마이페이지</h2>
+					<ul>
+					<li><a href="#">쇼핑내역</a>
+						<ul>
+						<li class="on"><a href="/new_cloud/Mypage-001-001-list.html">- 구매 문의 내역</a></li>
+						<li><a href="/new_cloud/Mypage-001-002-list.html">- 컨설팅 신청 내역</a></li>
+						</ul>
+					</li>
+					<li><a href="#">관심목록</a></li>
+					<li><a href="#">나의 활동내역</a></li>
+					<li><a href="#">전문가상담</a></li>
+					<li><a href="#">커뮤니티</a></li>
+					<li><a href="#">이벤트</a></li>
+					<li><a href="#">회원정보 변경</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>구매 문의 내역</h2>
+				</div>
+				<!-- //title-area -->
+
+				<!-- section -->
+				<div class="section">
+					<div class="tab-search">
+						<table>
+							<caption>검색</caption>
+							<colgroup>
+							<col style="width:130px;"/>
+							<col style="width:;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>상품</th>
+									<td><input type="text" class="w650" /></td>
+								</tr>
+								<tr>
+									<th>기간</th>
+									<td>
+
+										<div class="calendar_input">
+										  <input type="text" class="input" name="sDate" id="sDate" readonly="readonly" title="시작일 레이어 달력 열림" style="width:100px"
+										  value="2015-12-06" />
+										  <button type="button" class="ui-datepicker-trigger">...</button>
+										</div>
+										<span class="divide"> ~ </span>
+										<div class="calendar_input end">
+										  <input type="text" class="input" name="eDate" id="eDate" readonly="readonly" title="종료일 레이어 달력 열림" style="width:100px"
+										  value="2015-12-07" />
+										  <button type="button" class="ui-datepicker-trigger">...</button>
+										</div>
+										 
+										 <a href="#" class="b-btn mr05 type1"><strong><span>오늘</span></strong></a>
+										 <a href="#" class="b-btn mr05 type1"><strong><span>1주일</span></strong></a>
+										 <a href="#" class="b-btn mr05 type1"><strong><span>1개월</span></strong></a>
+										 <a href="#" class="b-btn mr05 type1"><strong><span>3개월</span></strong></a>
+
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //section -->
+				<!-- btn-area -->
+				<div class="btn-area mt10 ar">
+					<a href="#" class="b-btn search type2"><strong><span>검 색</span></strong></a><a href="#" class="b-btn ml10 type1"><strong><span>전체보기</span></strong></a>
+				</div>
+				<!-- //btn-area -->
+				
+				<!-- section -->
+				<div class="section">
+					<h3 class="stitle"></h3>
+					<p class="total-count">총 <strong>5</strong>개</p>
+					<!-- list -->
+					<div class="type-list">
+						<table>
+							<caption>자주찾는 질문</caption>
+							<colgroup>
+							<col style="width:100px;"/>
+							<col style="width:*;"/>
+							<col style="width:100px;"/>
+							<col style="width:100px;"/>
+							<col style="width:100px;"/>
+							<col style="width:120px;"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th>구매문의번호</th>
+									<th>상품명</th>
+									<th>가격(\)</th>
+									<th>확인 유무<br/>신청내용</th>
+									<th>판매자</th>
+									<th>구매일</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td colspan="6">구매내역이 없습니다.</td>
+								</tr>
+								<tr>
+									<td>1</td>
+									<td class="title"><a href="/new_cloud/UI_PCW_LI_001_003.html">ISP (Information Strategy Planning) 컨설팅</a></td>
+									<td>문의요망</td>
+									<td>확인</td>
+									<td>키삭</td>
+									<td>2015. 00.00 10:00</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- //list -->
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

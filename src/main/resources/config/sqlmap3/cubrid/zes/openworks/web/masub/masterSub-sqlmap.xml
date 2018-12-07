@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_masterSub">
+
+	<!-- 마스터/서브관리 의견공유 리스트 -->
+    <select id="subBoardList" parameterType="masterSubVO" resultType="masterSubVO">
+        /* _masterSub.subBoardList */
+        
+        SELECT ROWNUM as seq
+        	, A.MASUB_TITLE AS masubTitle
+        	, A.MASUB_NUM AS masubNum
+        	, A.USER_ID AS userId
+        	, B.USER_NM AS userNm
+        	, TO_CHAR(A.MASUB_ENTR_DATE,'YYYY-MM-DD') AS masubEntrDate
+        	, A.MASUB_SECH_CNT AS masubSechCnt
+		FROM OP_USER_MASUB_L  A 
+			LEFT JOIN OP_USER B
+			ON A.USER_ID = B.USER_ID
+		WHERE 1=1
+		AND A.MASTER_ID = #{masterId}
+		<if test="searchName != null and searchName != '' and searchCode == 'title'">
+			AND A.MASUB_TITLE LIKE '%'||#{searchName}||'%' or A.MASUB_CONTENT LIKE '%'||#{searchName}||'%'
+			</if>
+			<if test="searchName != null and searchName != '' and searchCode == 'user'">
+				B.USER_NM LIKE '%'||#{searchName}||'%'
+			</if>
+		
+		ORDER BY A.MASUB_NUM DESC
+		
+    </select> 
+    
+     <!-- 마스터/서브관리 의견공유 리스트 카운트 -->
+     <select id="subBoardListCount" parameterType="masterSubVO" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+		FROM OP_USER_MASUB_L  A 
+			LEFT JOIN OP_USER B
+			ON A.USER_ID = B.USER_ID
+		WHERE 1=1
+		AND A.MASTER_ID = #{masterId}
+    </select>
+    
+    <!-- 의견공유 게시글등록 -->
+    <update id="subBoardInsert" parameterType="registerUserVO">
+        /* _masterSub.subBoardInsert */
+        MERGE INTO OP_USER_MASUB_L T
+        USING (SELECT #{masterId} AS MASTER_ID
+        			, #{masubNum} AS MASUB_NUM
+        			, #{userId} AS USER_ID
+        			, #{masubTitle} AS MASUB_TITLE
+        			, #{masubContent} AS MASUB_CONTENT
+				) S        
+           ON (T.USER_ID = S.USER_ID AND T.MASUB_NUM = S.MASUB_NUM)                 
+        WHEN MATCHED THEN
+              UPDATE SET  T.MASUB_TITLE = S.MASUB_TITLE
+              			, T.MASUB_CONTENT = S.MASUB_CONTENT   
+        WHEN NOT MATCHED THEN
+              INSERT(
+              		MASTER_ID, 
+					MASUB_NUM, 
+					USER_ID, 
+					MASUB_TITLE, 	/* 게시글제목 */
+					MASUB_CONTENT, 	/* 글내용 */
+					MASUB_FILE, 
+					MASUB_ENTR_DATE, /* 작성일 */
+					MASUB_SECH_CNT 		/* 조회수 */
+				)
+              VALUES(
+              		S.MASTER_ID, 
+					(SELECT NVL(MAX(MASUB_NUM)+1,1) FROM OP_USER_MASUB_L), 
+					S.USER_ID, 
+					S.MASUB_TITLE, 
+					S.MASUB_CONTENT, 
+					0, 
+					SYS_DATETIME, 
+					0 
+                  )
+    </update>
+    
+    <!-- 의견공유 게시글삭제 -->
+    <delete id="subBoardDelete" parameterType="masterSubVO">
+        DELETE FROM OP_USER_MASUB_L
+        WHERE MASUB_NUM = #{masubNum}
+        AND USER_ID = #{userId}
+    </delete>
+    
+    <!-- 의견공유 댓글등록 -->
+    <insert id="replyBoardInsert" parameterType="registerUserVO">
+        INSERT INTO OP_USER_MASUB_REPLY_L(
+				MASTER_ID
+				, MASUB_NUM
+				, REPLY_NUM
+				, USER_ID
+				, MASUB_CONTENT
+				, MASUB_ENTR_DATE
+			)
+			VALUES (
+				#{masterId}
+				, #{masubNum}
+				, (SELECT NVL(MAX(REPLY_NUM)+1,1) FROM OP_USER_MASUB_REPLY_L WHERE MASUB_NUM=#{masubNum})
+				, #{userId}
+				, #{replyContent}
+				, SYS_DATETIME
+			)
+    </insert>
+    
+    <!-- 의견공유 댓글삭제 -->
+    <delete id="replyBoardDelete" parameterType="masterSubVO">
+        DELETE FROM OP_USER_MASUB_REPLY_L
+        WHERE MASUB_NUM = #{masubNum}
+        AND REPLY_NUM = #{replyNum}
+        AND USER_ID = #{replyUserId}
+    </delete>
+    
+    <!-- 의견공유 댓글수정 -->
+    <delete id="replyBoardUpdate" parameterType="masterSubVO">
+        UPDATE OP_USER_MASUB_REPLY_L 
+           SET MASUB_CONTENT = #{replyContent}
+         WHERE MASUB_NUM = #{masubNum}
+        AND REPLY_NUM = #{replyNum}
+        AND USER_ID = #{replyUserId}
+    </delete>
+    
+    <!-- 의견공유 상세 리스트 -->
+     <select id="subBoardDetail" parameterType="masterSubVO" resultType="masterSubVO">
+        SELECT A.MASUB_TITLE AS masubTitle
+        	, A.MASUB_NUM AS masubNum
+        	, A.USER_ID AS userId
+        	, B.USER_NM AS userNm
+        	, TO_CHAR(A.MASUB_ENTR_DATE,'YYYY-MM-DD HH24:MI') AS masubEntrDate
+        	, A.MASUB_SECH_CNT AS masubSechCnt
+        	, A.MASTER_ID AS masterId
+        	, A.MASUB_CONTENT AS masubContent
+		FROM OP_USER_MASUB_L  A 
+			LEFT JOIN OP_USER B
+			ON A.USER_ID = B.USER_ID
+		WHERE 1=1
+		AND A.MASTER_ID = #{masterId}
+		AND A.MASUB_NUM = #{masubNum}
+    </select>
+    
+    <!-- 의견공유 댓글리스트 -->
+     <select id="subBoardReplyDetail" parameterType="masterSubVO" resultType="masterSubVO">
+        SELECT A.MASTER_ID AS masterId
+        	, A.MASUB_NUM AS masubNum
+        	, A.REPLY_NUM AS replyNum
+        	, A.USER_ID AS userId
+        	, A.MASUB_CONTENT AS masubContent
+        	, TO_CHAR(A.MASUB_ENTR_DATE,'YYYY-MM-DD HH24:MI') AS masubEntrDate
+		FROM OP_USER_MASUB_REPLY_L  A 
+		/*	LEFT JOIN OP_USER B
+			ON A.USER_ID = B.USER_ID	*/
+		WHERE 1=1
+		AND A.MASTER_ID = #{masterId}
+		AND A.MASUB_NUM = #{masubNum}
+    </select>
+    
+    <!-- 마스터/서브관리 의견공유 조회카운트 업데이트 -->
+    <insert id="masubSechCntUpdateAction" parameterType="masterSubVO">
+        UPDATE OP_USER_MASUB_L 
+           SET
+               MASUB_SECH_CNT = (SELECT NVL(MAX(MASUB_SECH_CNT)+1,1) FROM OP_USER_MASUB_L WHERE  MASUB_NUM = #{masubNum})
+         WHERE  MASUB_NUM = #{masubNum}
+    </insert>
+    
+</mapper>

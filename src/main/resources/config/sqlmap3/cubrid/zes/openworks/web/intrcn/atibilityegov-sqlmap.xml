@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_atibilityegov">
+
+
+    <sql id="dynamicWhere">
+        <where>
+            <if test="q_searchVal != null  and q_searchVal != ''">
+                AND CMPTB_ANALS_TRGET_NM LIKE '%' || #{q_searchVal} || '%'
+            </if>
+            <if test="q_cmptbClCds != null  and q_cmptbClCds != ''">
+               AND CMPTB_CL_CD
+               <foreach collection="q_cmptbClCds" item="item" index="index" separator="," open="IN (" close=") ">
+                  TRIM(#{item})
+               </foreach>
+            </if>
+            
+           <!-- 날짜 -->
+           <if test="q_beginDate != null  and q_beginDate != ''">
+              AND ANALS_REQST_DE BETWEEN REPLACE(#{q_beginDate},'-') AND REPLACE(#{q_endDate},'-')
+           </if>
+            
+            AND REGIST_ID = #{registId}
+            
+        </where>
+    </sql>
+    
+     <sql id="dynaminLangCode">
+        <choose>
+            <when test="langCd != null and langCd != ''"> #{langCd}</when>
+            <when test="q_langCd != null and q_langCd != ''"> #{q_langCd}</when>
+            <otherwise>'00'</otherwise>
+        </choose>
+    </sql>
+
+    <select id="atibilityEgovList" parameterType="map" resultType="atibilityEgovVO">
+       SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (
+           
+                SELECT CMPTB_CNFIRM_REQST_SEQ AS cmptbCnfirmRegstSeq
+                     , CMPTB_ANALS_TRGET_NM AS cmptbAnalsTrgetNm
+                     , CMPTB_CL_CD AS cmptbClCd                     
+                     , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 1002 AND INDVDLZ_CD = A.CMPTB_CL_CD AND LANG_CODE = <include refid="dynaminLangCode"/>) AS cmptbClNm
+                     , BSNM_NM AS bsnnNm
+                     , ANALS_APPLCNT_NM AS analsApplcntNm
+                     , DECRYPT(APPLCNT_TELNO,'P007') AS applcntTelno
+                     , DECRYPT(APPLCNT_FXNUM,'P007') AS applcntFxnum
+                     , DECRYPT(APPLCNT_EMAIL,'P008') AS applcntEmail
+                     , ANALS_TRGET_DC AS analsTrgetDc
+                     , VER AS ver
+                     , TO_CHAR(TO_DATE(ANALS_REQST_DE,'YYYYMMDD'),'YYYY-MM-DD') AS analsReqstDe                     
+                     , ANALS_PLACE_ZIP AS analsPlaceZip
+                     , ANALS_PLACE_BASS_ADRES AS analsPlaceBassAdres
+                     , ANALS_PLACE_DETAIL_ADRES AS analsPlaceDetailAdres
+                  FROM TCN_EGOV_FRAM_H A
+                  <include refid="dynamicWhere"/>
+           
+       ) X WHERE ROWNUM &lt;= #{pagingEndNum}
+           ) Y WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+    
+    <select id="atibilityEgovCount" parameterType="map" resultType="int">
+    
+            SELECT
+                   COUNT(1)
+              FROM TCN_EGOV_FRAM_H
+            <include refid="dynamicWhere"/>
+                 
+    
+    </select>
+    
+    <select id="atibilityEgovView" parameterType="atibilityEgovVO" resultType="atibilityEgovVO">
+        SELECT CMPTB_CNFIRM_REQST_SEQ AS cmptbCnfirmRegstSeq
+             , CMPTB_ANALS_TRGET_NM AS cmptbAnalsTrgetNm
+             , CMPTB_CL_CD AS cmptbClCd
+             , (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE GROUP_CD = 1002 AND INDVDLZ_CD = A.CMPTB_CL_CD AND LANG_CODE = #{langCd}) AS cmptbClNm
+             , BSNM_NM AS bsnnNm
+             , ANALS_APPLCNT_NM AS analsApplcntNm
+             , DECRYPT(APPLCNT_TELNO,'P007') AS applcntTelno
+             , DECRYPT(APPLCNT_FXNUM,'P007') AS applcntFxnum
+             , DECRYPT(APPLCNT_EMAIL,'P008') AS applcntEmail
+             , ANALS_TRGET_DC AS analsTrgetDc
+             , VER AS ver
+             , TO_CHAR(TO_DATE(ANALS_REQST_DE,'YYYYMMDD'),'YYYY-MM-DD') AS analsReqstDe
+             , ANALS_PLACE_ZIP AS analsPlaceZip
+             , ANALS_PLACE_BASS_ADRES AS analsPlaceBassAdres
+             , ANALS_PLACE_DETAIL_ADRES AS analsPlaceDetailAdres
+             , ARCHTC_IEM_AT AS archtcIemAt 
+             , ARCHTC_IEM_REQST_SUMRY AS archtcImeReqstSumry
+             , GUIDE_IEM_AT AS  guideIemAt
+             , GUIDE_IEM_REQST_SUMRY AS  guideImeReqstSumry
+             , EGOV_FRAME_IEM_AT AS egovFrameIemAt
+             , EGOV_FRAME_IEM_SUMRY AS egovFrameIemSumry
+          FROM TCN_EGOV_FRAM_H A
+         WHERE CMPTB_CNFIRM_REQST_SEQ = #{cmptbCnfirmRegstSeq}
+           AND REGIST_ID = #{registId}
+    </select>
+    
+    
+    <insert id="atibilityEgovInsertAction" parameterType="atibilityEgovVO" >         
+        <selectKey order="BEFORE" keyProperty="cmptbCnfirmRegstSeq" resultType="int">
+            SELECT SEQ_AUTO_PLUS.NEXTVAL 
+        </selectKey>
+        INSERT INTO TCN_EGOV_FRAM_H (
+                    CMPTB_CNFIRM_REQST_SEQ
+                  , CMPTB_ANALS_TRGET_NM
+                  , CMPTB_CL_CD
+                  , BSNM_NM
+                  , ANALS_APPLCNT_NM
+                  , APPLCNT_TELNO
+                  , APPLCNT_FXNUM
+                  , APPLCNT_EMAIL
+                  , ANALS_TRGET_DC
+                  , VER
+                  , ANALS_REQST_DE
+                  , ANALS_PLACE_ZIP
+                  , ANALS_PLACE_BASS_ADRES
+                  , ANALS_PLACE_DETAIL_ADRES
+                  , REGIST_ID
+                  , ARCHTC_IEM_AT
+                  , GUIDE_IEM_AT
+                  , EGOV_FRAME_IEM_AT
+                  , ARCHTC_IEM_REQST_SUMRY
+                  , GUIDE_IEM_REQST_SUMRY
+                  , EGOV_FRAME_IEM_SUMRY
+                  , CMPTB_CNFIRM_REQST_ID
+          )VALUES (
+                    #{cmptbCnfirmRegstSeq}
+                  , #{cmptbAnalsTrgetNm}
+                  , #{cmptbClCd}
+                  , #{bsnnNm}
+                  , #{analsApplcntNm}
+                  , ENCRYPT(#{applcntTelno},'P007')
+                  , ENCRYPT(#{applcntFxnum},'P007')
+                  , ENCRYPT(#{applcntEmail},'P008')
+                  , #{analsTrgetDc}
+                  , #{ver}
+                  , TO_CHAR(TO_DATE(#{analsReqstDe},'YYYY-MM-DD'),'YYYYMMDD') 
+                  , #{analsPlaceZip}
+                  , #{analsPlaceBassAdres}
+                  , #{analsPlaceDetailAdres}
+                  , #{registId}
+                  , NVL(#{archtcIemAt},'N')
+                  , NVL(#{guideIemAt},'N')
+                  , NVL(#{egovFrameIemAt},'N')
+                  , #{archtcImeReqstSumry}
+                  , #{guideImeReqstSumry}
+                  , #{egovFrameIemSumry}
+                  , #{cmptbCnfirmReqstId}
+           )
+    </insert>
+    
+    <update id="atibilityEgovUpdateAction" parameterType="atibilityEgovVO" >
+        UPDATE TCN_EGOV_FRAM_H SET
+               CMPTB_CL_CD = #{cmptbClCd}
+         WHERE CMPTB_CNFIRM_REQST_SEQ = #{cmptbCnfirmRegstSeq}
+    </update>
+
+</mapper>

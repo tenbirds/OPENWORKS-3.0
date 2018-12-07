@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="_recomgoods">
+    <sql id="searchWhere">
+        <!-- 카테고리 -->
+        <if test="q_goodsTyCd != null  and  q_goodsTyCd != ''">
+	        <choose>
+	            <when test="q_ctgryCd3 != null  and q_ctgryCd3 != ''">
+	                AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd3})
+	            </when>
+	            <when test="q_ctgryCd2 != null  and q_ctgryCd2 != ''">
+	                AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd2})
+	            </when>
+	            <when test="q_ctgryCd1 != null  and q_ctgryCd1 != ''">
+	                AND GOODS_CODE IN (SELECT GOODS_CODE FROM TST_GOOD_CATE_I WHERE CTGRY_CODE = #{q_ctgryCd1})
+	            </when>
+	            <otherwise>
+	                AND GOODS_CODE IN
+	                ( SELECT  A.GOODS_CODE
+	                    FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+	                   WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+	                     AND  B.CTGRY_CL_CD = #{q_goodsTyCd}
+	                GROUP BY  A.GOODS_CODE )
+	            </otherwise>
+	        </choose>
+        </if>
+        <if test="q_goodsTyCd == null  or  q_goodsTyCd == ''">
+                     AND GOODS_CODE IN
+                     ( SELECT  A.GOODS_CODE
+                         FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+                        WHERE  A.CTGRY_CODE = B.CTGRY_CODE
+                          AND  B.CTGRY_CL_CD IN (1001, 1002, 1003)
+                     GROUP BY  A.GOODS_CODE )
+        </if>
+
+        <!-- 판매방식 -->
+        <if test="q_sleMthdCd != null  and q_sleMthdCd != ''">
+            AND SLE_MTHD_CD = #{q_sleMthdCd}
+        </if>
+
+        <!-- 서비스 언어 -->
+                    AND A.LANG_CODE IN
+                    <foreach item="item" index="index" collection="q_langCodes" open="(" separator="," close=")">TRIM(#{item})</foreach>
+
+
+
+        <!-- 등록일 -->
+        <if test="q_beginDate != null and q_beginDate != ''">
+            AND REGIST_DT BETWEEN TO_DATE(#{q_beginDate}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDate}, 'YYYY-MM-DD') + 1
+        </if>
+
+        <!-- 전시 유무 -->
+        <choose>
+		    <when test="q_goodsRegistSttus != null and q_goodsRegistSttus != ''">
+                AND GOODS_REGIST_STTUS = #{q_goodsRegistSttus}
+            </when>
+		    <otherwise>
+		        AND GOODS_REGIST_STTUS = 1006
+		    </otherwise>
+        </choose>
+
+        <!-- 인증구분 -->
+        <if test="q_crtfc != null and q_crtfc != ''">
+            AND GOODS_CODE IN
+                ( SELECT  GOODS_CODE
+                    FROM  TST_GOOD_MARK_I
+                   WHERE  MARK_CD = #{q_crtfc}
+                GROUP BY GOODS_CODE )
+        </if>
+
+        <!-- 상세 검색 -->
+        <if test="q_searchKey != null  and q_searchKey != ''">
+	        <choose>
+                <!-- 서비스명 -->
+	            <when test="q_searchKey == '1001'">
+	                AND GOODS_NM LIKE  '%' || #{q_searchVal} || '%'
+	            </when>
+                <!-- 스토어명 -->
+	            <when test="q_searchKey == '1002'">
+	                AND A.USER_ID IN (SELECT USER_ID FROM TUM_SVC_STOR_I WHERE LANG_STORE_NM LIKE '%' || #{q_searchVal} || '%')
+	            </when>
+                <!-- 판매자ID -->
+	            <when test="q_searchKey == '1003'">
+	                AND A.USER_ID = #{q_searchVal}
+	            </when>
+	            <!-- 서비스코드 -->
+	            <when test="q_searchKey == '1004'">
+	                AND A.GOODS_CODE = #{q_searchVal}
+	            </when>
+	        </choose>
+        </if>
+
+    </sql>
+
+    <sql id="listSort">
+        <choose>
+            <when test="q_sortName == 1">
+                ORDER BY goodsRdcnt DESC, REGIST_DT DESC
+            </when>
+            <when test="q_sortName == 2">
+                ORDER BY inqrCnt DESC, REGIST_DT DESC
+            </when>
+            <when test="q_sortName == 3">
+                ORDER BY sellCnt DESC, REGIST_DT DESC
+            </when>
+            <when test="q_sortName == 4">
+                ORDER BY evlScore DESC, REGIST_DT DESC
+            </when>
+            <when test="q_sortName == 5">
+                ORDER BY reviewCnt DESC, REGIST_DT DESC
+            </when>
+            <otherwise>
+                ORDER BY goodsRdcnt DESC, REGIST_DT DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+	<resultMap id="goodsResult" type="recomGoodsVO">
+	    <result property="goodsCode" column="GOODS_CODE"/>
+	    <result property="langCode" column="LANG_CODE"/>
+	    <collection property="goodsType" column="{goodsCode=GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsTyList"/>
+	    <collection property="goodsMarkList" column="{goodsCode=GOODS_CODE, langCode=LANG_CODE}" ofType="map" select="goodsMarkImageList"/>
+    </resultMap>
+    <select id="goodsList" parameterType="map" resultMap="goodsResult">
+       SELECT Y.* FROM (
+           SELECT ROWNUM NUM, X.* FROM (
+               SELECT
+                      A.GOODS_CODE,
+                      A.LANG_CODE,
+                      (SELECT LCASE(LANG_ENG_NM) FROM TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) AS subDomain,
+                      GOODS_NM AS goodsNm,
+                      A.GOODS_RDCNT AS goodsRdcnt,
+                      (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_INQR_I WHERE GOODS_CODE = A.GOODS_CODE) AS inqrCnt,
+                      (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = A.GOODS_CODE) AS sellCnt,
+                      (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = A.GOODS_CODE) AS evlScore,
+                      (SELECT COUNT(BBSCTT_SEQ) FROM OP_BOARD WHERE BBS_CD = 1008
+                          AND DOMAIN_CD = (SELECT DOMAIN_CD FROM TCO_SVC_LANG_C WHERE LANG_CODE=A.LANG_CODE)
+                          AND SUBSTRING(ESTN_COLUMN7,3) = A.GOODS_CODE ) AS reviewCnt,
+                      (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = A.USER_ID AND LANG_CODE = A.LANG_CODE) AS langStoreNm,
+                      USER_ID AS userId,
+                      TO_CHAR(REGIST_DT,'YYYY.MM.DD HH24:MI') AS registDt
+                 FROM TST_GOOD_INFO_I A
+                WHERE MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+                <include refid="searchWhere"/>
+                <include refid="listSort"/>
+             ) X
+            WHERE ROWNUM &lt;= #{pagingEndNum}
+        ) Y
+        WHERE NUM &gt;= #{pagingStartNum}
+    </select>
+
+    <select id="goodsTyList" resultType="map">
+		SELECT  (SELECT INDVDLZ_CD_NM
+                   FROM OP_CODE_INDVDLZ
+		          WHERE LANG_CODE = #{langCode} AND GROUP_CD = 1005 AND INDVDLZ_CD = B.CTGRY_CL_CD) AS GOODSTYNM
+          FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+		 WHERE  A.GOODS_CODE = #{goodsCode}
+		   AND  A.CTGRY_CODE = B.CTGRY_CODE
+		   AND  B.LANG_CODE = #{langCode}
+	  GROUP BY  B.CTGRY_CL_CD
+	  ORDER BY  B.CTGRY_CL_CD
+    </select>
+    <select id="goodsMarkImageList" resultType="map">
+          SELECT   B.MARK_IMAGE_FILE_SEQ AS MARKIMAGEFILESEQ
+            FROM   TST_GOOD_MARK_I A, TST_GOOD_MARK_M B
+           WHERE   A.MARK_CD = B.MARK_CD
+             AND A.GOODS_CODE = #{goodsCode}
+        ORDER BY   A.MARK_CD
+    </select>
+
+    <select id="goodsCount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(A.GOODS_CODE) AS totalCount
+        FROM
+            TST_GOOD_INFO_I A
+        WHERE MNGR_DELETE_AT='N' AND GOODS_ACTVTY_AT='Y'
+        <include refid="searchWhere"/>
+    </select>
+
+    <select id="langList" parameterType="goodsVO" resultType="goodsVO">
+         SELECT
+                LANG_CODE AS langCode
+              , LANG_NM    AS langNm
+              , DOMAIN_CD  AS domainCd
+              , LANG_ENG_ABRV AS  langEngAbrv
+              , LANG_ENG_NM   AS  langEngNm
+           FROM TCO_SVC_LANG_C
+          WHERE DOMAIN_CD IS NOT NULL
+    </select>
+
+    <select id="ctgryList"  parameterType="goodsVO" resultType="goodsVO">
+        SELECT
+               PARNTS_CTGRY_CODE AS parntsCtgryCd
+             , CTGRY_CODE AS ctgryCd
+             , LANG_CTGRY_NM AS ctgryNm
+          FROM TST_CATE_MGMT_M
+         WHERE CTGRY_CL_CD = #{goodsTyCd}
+           AND CTGRY_DP = #{ctgryDp}
+           <if test="ctgryCd != null and ctgryCd != '' and ctgryCd != 'null'">
+                AND PARNTS_CTGRY_CODE = #{ctgryCd}
+           </if>
+           AND CTGRY_USE_YN = 'Y'
+           AND CTGRY_DELETE_AT = 'N'
+         ORDER BY LANG_CODE, SORT_ORDR
+    </select>
+
+    <select id="recomGoodsList" parameterType="recomGoodsVO" resultType="recomGoodsVO">
+        SELECT  A.PRIORT AS priort, B.GOODS_CODE AS goodsCode, B.LANG_CODE AS langCode, (SELECT LCASE(LANG_ENG_NM) FROM TCO_SVC_LANG_C WHERE LANG_CODE = B.LANG_CODE) AS subDomain,
+                B.GOODS_NM AS goodsNm, B.GOODS_RDCNT AS goodsRdcnt,
+		        (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_INQR_I WHERE GOODS_CODE = B.GOODS_CODE) AS inqrCnt,
+			    (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = B.GOODS_CODE) AS sellCnt,
+			    NVL((SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = B.GOODS_CODE), 0) AS evlScore,
+			    (SELECT COUNT(BBSCTT_SEQ) FROM OP_BOARD WHERE BBS_CD = 1008
+			        AND DOMAIN_CD = (SELECT DOMAIN_CD FROM TCO_SVC_LANG_C WHERE LANG_CODE=B.LANG_CODE)
+			        AND SUBSTRING(ESTN_COLUMN7,3) = B.GOODS_CODE ) AS reviewCnt,
+			    (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS langStoreNm,
+		        B.USER_ID AS userId,
+		        TO_CHAR(NVL(A.APPN_DT,SYSDATETIME),'YYYY.MM.DD HH24:MI') AS appnDt
+		        <if test="recomGoodsCodes1 != null and recomGoodsCodes1 !=''">
+		  FROM  TST_RCMD_GOOD_M A RIGHT OUTER JOIN TST_GOOD_INFO_I B
+		     ON   A.GOODS_CODE=B.GOODS_CODE  AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}  AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+		     WHERE  B.LANG_CODE = #{langCode}
+		        AND  B.GOODS_CODE IN
+                   <foreach item="item" index="index" collection="recomGoodsCodes1" open="(" separator="," close=")">#{item}</foreach>
+		        </if>
+		        <if test="recomGoodsCodes1 == null or recomGoodsCodes1 == ''">
+		        FROM  TST_RCMD_GOOD_M A,  TST_GOOD_INFO_I B
+		     WHERE  A.GOODS_CODE=B.GOODS_CODE
+		        AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}
+		        AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+		        AND  B.LANG_CODE = #{langCode}
+		        </if>
+	  ORDER BY  A.PRIORT
+    </select>
+    <select id="recomGoodsCount" parameterType="recomGoodsVO" resultType="int">
+        SELECT  COUNT(B.GOODS_CODE) AS totalCount
+
+         <if test="recomGoodsCodes1 != null and recomGoodsCodes1 !=''">
+          FROM  TST_RCMD_GOOD_M A RIGHT OUTER JOIN TST_GOOD_INFO_I B
+             ON   A.GOODS_CODE=B.GOODS_CODE  AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}  AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+         WHERE  B.LANG_CODE = #{langCode}
+            AND  B.GOODS_CODE IN
+                       <foreach item="item" index="index" collection="recomGoodsCodes1" open="(" separator="," close=")">#{item}</foreach>
+         </if>
+         <if test="recomGoodsCodes1 == null or recomGoodsCodes1 == ''">
+              FROM  TST_RCMD_GOOD_M A,  TST_GOOD_INFO_I B
+             WHERE  A.GOODS_CODE=B.GOODS_CODE
+                AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}
+                AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+                AND  B.LANG_CODE = #{langCode}
+         </if>
+    </select>
+
+    <select id="recomGoodsList2" parameterType="recomGoodsVO" resultType="recomGoodsVO">
+        SELECT  A.PRIORT AS priort, B.GOODS_CODE AS goodsCode, B.LANG_CODE AS langCode, (SELECT LCASE(LANG_ENG_NM) FROM TCO_SVC_LANG_C WHERE LANG_CODE = B.LANG_CODE) AS subDomain,
+                B.GOODS_NM AS goodsNm, B.GOODS_RDCNT AS goodsRdcnt,
+                (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_INQR_I WHERE GOODS_CODE = B.GOODS_CODE) AS inqrCnt,
+                (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = B.GOODS_CODE) AS sellCnt,
+                NVL((SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = B.GOODS_CODE), 0) AS evlScore,
+                (SELECT COUNT(BBSCTT_SEQ) FROM OP_BOARD WHERE BBS_CD = 1008
+                    AND DOMAIN_CD = (SELECT DOMAIN_CD FROM TCO_SVC_LANG_C WHERE LANG_CODE=B.LANG_CODE)
+                    AND SUBSTRING(ESTN_COLUMN7,3) = B.GOODS_CODE ) AS reviewCnt,
+                (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = B.USER_ID AND LANG_CODE = B.LANG_CODE) AS langStoreNm,
+                B.USER_ID AS userId,
+                TO_CHAR(NVL(A.APPN_DT,SYSDATETIME),'YYYY.MM.DD HH24:MI') AS appnDt
+                <if test="recomGoodsCodes2 != null and recomGoodsCodes2 !=''">
+          FROM  TST_RCMD_GOOD_M A RIGHT OUTER JOIN TST_GOOD_INFO_I B
+             ON   A.GOODS_CODE=B.GOODS_CODE  AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}  AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+             WHERE  B.LANG_CODE = #{langCode}
+                AND  B.GOODS_CODE IN
+                   <foreach item="item" index="index" collection="recomGoodsCodes2" open="(" separator="," close=")">#{item}</foreach>
+                </if>
+                <if test="recomGoodsCodes2 == null or recomGoodsCodes2 ==''">
+                FROM  TST_RCMD_GOOD_M A,  TST_GOOD_INFO_I B
+             WHERE  A.GOODS_CODE=B.GOODS_CODE
+                AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}
+                AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+                AND  B.LANG_CODE = #{langCode}
+                </if>
+      ORDER BY  PRIORT
+    </select>
+    <select id="recomGoodsCount2" parameterType="recomGoodsVO" resultType="int">
+        SELECT  COUNT(B.GOODS_CODE) AS totalCount
+        <if test="recomGoodsCodes2 != null and recomGoodsCodes2 !=''">
+          FROM  TST_RCMD_GOOD_M A RIGHT OUTER JOIN TST_GOOD_INFO_I B
+             ON   A.GOODS_CODE=B.GOODS_CODE  AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}  AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+         WHERE  B.LANG_CODE = #{langCode}
+            AND  B.GOODS_CODE IN
+                   <foreach item="item" index="index" collection="recomGoodsCodes2" open="(" separator="," close=")">#{item}</foreach>
+         </if>
+         <if test="recomGoodsCodes2 == null or recomGoodsCodes2 ==''">
+              FROM  TST_RCMD_GOOD_M A,  TST_GOOD_INFO_I B
+             WHERE  A.GOODS_CODE=B.GOODS_CODE
+                AND  A.RECOMEND_LC_SE_CD=#{recomendLcSeCd}
+                AND  A.RECOMEND_SE_CD=#{recomendSeCd}
+                AND  B.LANG_CODE = #{langCode}
+         </if>
+    </select>
+    <insert id="recomGoodsInsert" parameterType="recomGoodsVO">
+<!--         <selectKey order="BEFORE" keyProperty="priort" resultType="integer"> -->
+<!--             SELECT  NVL(MIN(PRIORT), 0) - 1 -->
+<!--               FROM  TST_RCMD_GOOD_M -->
+<!--              WHERE  RECOMEND_LC_SE_CD = #{recomendLcSeCd} -->
+<!--                AND  RECOMEND_SE_CD = #{recomendSeCd} -->
+<!--         </selectKey> -->
+        MERGE INTO
+              TST_RCMD_GOOD_M T
+        USING (SELECT #{goodsCode} AS GOODS_CODE, #{recomendLcSeCd} AS RECOMEND_LC_SE_CD, #{recomendSeCd} AS RECOMEND_SE_CD) S
+           ON (T.GOODS_CODE = S.GOODS_CODE AND T.RECOMEND_LC_SE_CD = S.RECOMEND_LC_SE_CD AND T.RECOMEND_SE_CD = S.RECOMEND_SE_CD)
+        WHEN MATCHED THEN
+              UPDATE SET  T.PRIORT = #{priort}, T.APPN_DT = SYSDATETIME
+        WHEN NOT MATCHED THEN
+              INSERT
+                  (GOODS_CODE, RECOMEND_LC_SE_CD, RECOMEND_SE_CD, PRIORT, APPN_DT)
+              VALUES
+                  (#{goodsCode}, #{recomendLcSeCd}, #{recomendSeCd}, #{priort}, NVL(#{appnDt}, SYSDATETIME))
+    </insert>
+
+    <delete id="recomGoodsDelete" parameterType="recomGoodsVO">
+<!--         <if test="goodsCodes != null"> -->
+        DELETE FROM TST_RCMD_GOOD_M
+        WHERE
+<!--               GOODS_CODE IN  -->
+<!--                    <foreach item="item" index="index" collection="goodsCodes" open="(" separator="," close=")">#{item}</foreach>             -->
+              (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_INFO_I WHERE GOODS_CODE = TST_RCMD_GOOD_M.GOODS_CODE AND LANG_CODE = #{langCode})
+          AND RECOMEND_LC_SE_CD = #{recomendLcSeCd}
+          AND RECOMEND_SE_CD = #{recomendSeCd}
+<!--         </if>   -->
+    </delete>
+
+    <select id="goodsTy" parameterType="recomGoodsVO" resultType="Integer">
+        SELECT  COUNT(B.CTGRY_CL_CD)
+          FROM  TST_GOOD_CATE_I A, TST_CATE_MGMT_M B
+         WHERE  A.GOODS_CODE = #{goodsCode}
+           AND  A.CTGRY_CODE = B.CTGRY_CODE
+           AND  B.CTGRY_CL_CD = #{recomendSeCd}
+      GROUP BY  B.CTGRY_CL_CD
+      ORDER BY  B.CTGRY_CL_CD
+    </select>
+
+</mapper>

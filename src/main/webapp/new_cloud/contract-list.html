@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+	<script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<script type="text/javascript" src="/resources/cmmnty/common/js/fakeselect.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/colobox/themes/theme5/colorbox.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/jquery.datepicker.css">
+	<script type="text/javascript" src="/new_cloud/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script-addon.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<? include $_SERVER["DOCUMENT_ROOT"]."/new_cloud/include/header.html" ?>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>마이페이지</h2>
+					<ul>
+					<li><a href="#">쇼핑내역</a>
+						<ul>
+						<li class="on"><a href="/new_cloud/Mypage-001-001-list.html">- 구매 문의 내역</a></li>
+						<li><a href="/new_cloud/Mypage-001-002-list.html">- 컨설팅 신청 내역</a></li>
+						</ul>
+					</li>
+					<li><a href="#">관심목록</a></li>
+					<li><a href="#">나의 활동내역</a></li>
+					<li><a href="#">전문가상담</a></li>
+					<li><a href="#">커뮤니티</a></li>
+					<li><a href="#">이벤트</a></li>
+					<li><a href="#">회원정보 변경</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>계약관리</h2>
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section">
+					<h3 class="stitle"></h3>
+					<div class="mt-15 fr"><a href="/new_cloud/contract_write.html" class="b-btn type3"><strong><span>계약서 등록</span></strong></a></div>
+					<p class="total-count">총 <strong>5</strong>개</p>					
+					<!-- list -->
+					<div class="type-list">
+						<table>
+							<caption>자주찾는 질문</caption>
+							<colgroup>
+							<col style="width:50px;"/>
+							<col style="width:*;"/>
+							<col style="width:150px;"/>
+							<col style="width:130px;"/>
+							<col style="width:150px;"/>
+							<col style="width:80px;"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>서비스명</th>
+									<th>계약기간</th>
+									<th>구매기관</th>
+									<th>판매기관</th>
+									<th>계약서</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td class="title"><a href="#">행정정보 클라우드 사업</a></td>
+									<td>2016.02.00 ~ 2016.02.00</td>
+									<td>한국정보진흥원</td>
+									<td>LG유플러스</td>
+									<td><a href="#"><img src="/new_cloud/images/icon-btn/Note.png" alt="계약서" style="width:15px;" /></a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- //list -->
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<? include $_SERVER["DOCUMENT_ROOT"]."/new_cloud/include/footer.html" ?>
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

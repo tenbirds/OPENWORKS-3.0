@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<title>씨앗 마켓</title>	
+	<link rel="shortcut icon" href="/new_cloud/images/common/seart_favicon.ico">
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/sub.css" />
+	<script type="text/javascript" src="/new_cloud/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/style.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/common.js"></script>
+
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/jquery-migrate-1.1.1.min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_globalConfig.do"></script>
+	<script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+	<script type="text/javascript" src="/resources/web/theme/default/js/common.js"></script>
+	<script type="text/javascript" src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<script type="text/javascript" src="/resources/cmmnty/common/js/fakeselect.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/notice/jquery.notice.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/notice/jquery.notice.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/colobox/themes/theme5/colorbox.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/colobox/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/openworks/spi/jquery/printPreview/print-preview.css" />
+    <script type="text/javascript" src="/resources/openworks/spi/jquery/printPreview/jquery.print-preview.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/new_cloud/css/jquery.datepicker.css">
+	<script type="text/javascript" src="/new_cloud/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script.min.js"></script>
+	<script type="text/javascript" src="/new_cloud/js/jquery.script-addon.js"></script>
+	<!--[if lt IE 9]>
+		<script src="/resources/web/theme/common/js/html5shiv.js"></script> 
+	<![endif]-->
+</head>
+<body>
+	<!-- skip navi -->
+	<ul class="skip_navi">	
+		<li><a href="#contents">본문내용으로 바로가기</a></li>
+	</ul>
+	<!-- //skip navi -->
+	<div id="wrap">
+		<!-- header -->
+		<header>
+			<div id="header">
+				<h1><a href="#"><img src="/new_cloud/images/common/logo.png" alt="씨앗마켓" /></a></h1>
+				<!-- quick -->
+				<div class="quick">
+					<!-- search -->
+					<form class="sech_form" onsubmit="return false">
+						<fieldset>
+							<legend><span>검색</span></legend>
+							<div class="form">
+								<span onkeydown="javascript:if(event.keyCode == 13){ fn_mainSearch(); }"><input type="text" class="input" title="검색하실 단어 입력" id="totalKeyword" name="totalKeyword" value=""></span>
+								<input type="button" onclick="javascript:fn_mainSearch();" alt="search" class="btn" title="검색">
+							</div>
+						</fieldset>
+					</form>
+					<!-- //search -->
+					<!-- 로그인 전 -->
+					<ul>
+					<li><a href="#">로그인</a></li>
+					<li><a href="#">회원가입</a></li>
+					</ul>					
+					<!-- //로그인 전 -->
+
+					<!-- 로그인 후 -->										
+					<!--
+					<ul>
+					<li><a href="#">로그아웃</a></li>
+					<li><a href="#">마이페이지</a></li>
+					<li><a href="#">판매하기</a></li>
+					<li class="prd"><a href="#">12</a></li>
+					</ul>
+					-->
+					<!-- //로그인 후 -->
+
+					<!-- 구글번역 -->
+					<div id="google_translate_element" class="google"></div>
+					<script type="text/javascript">
+					function googleTranslateElementInit() {
+						new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+					}
+					</script>
+					<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+					<!-- //구글번역 -->
+				</div>
+				<!-- //quick -->
+				<div class="navi">
+					<ul>
+					<li><a href="#">SaaS</a></li><!-- //선택되었을때 li에 클래스 on 적용 -->
+					<li><a href="#">PaaS</a></li>
+					<li><a href="#">IaaS</a></li>
+					<li><a href="#">지식</a></li>
+					<li><a href="#">소개</a></li>
+					<li><a href="#">전문가상담</a></li>
+					</ul>
+				</div>
+			</div>
+		</header>
+		<!-- //header -->
+
+		<!-- container -->
+		<div id="container" class="multi-left">
+			
+			<!-- right -->
+			<div class="side-content">
+				<div class="lnb">
+					<h2>지식</h2>
+					<ul>
+					<li class="on"><a href="#">지식맵</a></li>
+					<li><a href="#">지식나눔</a></li>
+					<li><a href="#">행사 및 이벤트</a></li>
+					<li><a href="#">나라장터 입찰정보</a></li>
+					<li><a href="#">기타 입찰정보</a></li>
+					<li><a href="#">성공스토리</a></li>
+					<li><a href="#">뉴스레터</a></li>
+					<li><a href="#">커뮤니티</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- //right -->
+
+			<!-- contents -->
+			<div class="contents">
+				<!-- title-area -->
+				<div class="title-area">
+					<h2>전체 커뮤니티</h2>
+					<!-- sorting -->
+					<div class="sech_form">
+						<div class="cont_wrap">
+							<div class="selected">
+							</div>
+							
+							<div class="selected">
+								<span class="selectbox_title" style="width:115px;vertical-align:middle;display:inline-block;cursor:pointer;"><strong>커뮤니티이름+설명</strong></span><select name="q_searchKeyType" id="q_searchKeyType" title="검색하실 단어 제목, 내용 중 선택" onchange="if($(this).val() != ''){$(this).next().focus().select();}" style="width: 115px; position: absolute; left: -100000px; height: auto;">
+									<option value="">커뮤니티이름+설명</option>
+									<option value="BBSCTT_SJ_BBSCTT_CN">개설자명</option>
+								</select>
+							</div>
+							<div class="search">
+								<input type="hidden" name="q_searchKey" value="">
+								<input type="text" name="q_searchVal" id="q_searchVal" value="" maxlength="50" class="input" title="검색하실 단어 입력">
+
+								<!-- <input type="image" alt="검색옵션" src="/resources/web/theme/default/images/btn/btn_g_searchoption.gif" onclick="jsToggleSearchOption(this); return false;" /> -->
+								<input type="button" class="btn" title="검색" onclick="jsSearch(); return false;">
+							</div>
+						</div>
+					</div>
+					<!-- //sorting -->
+
+				</div>
+				<!-- //title-area -->
+				
+				<!-- section -->
+				<div class="section">
+					
+					<!-- tab -->
+					<div class="tab-area">
+						<ul class="fl">
+						<li class="on"><a href="#">전체</a></li>
+						<li><a href="#">랭킹 TOP 10</a></li>
+						<li><a href="#">신규개설</a></li>
+						</ul>
+						<p class="mt5 mr10 ar"><a href="/new_cloud/UI_PCW_LI_003_008-1.html" class="m-btn type3"><strong><span>커뮤니티 가입</span></strong></a></p>
+					</div>
+					<!-- //tab -->
+
+				</div>
+				<!-- //section -->
+
+				<!-- section -->
+				<div class="section">
+					<p class="total-count">총 <strong>44</strong>개</p>
+					<!-- list -->
+					<div class="type-thumb">
+						<ul>
+						<li class="cont">
+							<dl class="explain fl">
+								<dt><a href="#">한국교육학술정보원 클라우드 서비스 사업</a></dt>
+								<dd>
+									<p>Weather planet은 기상센서 제조사와 저가형 AWS를 공동개발하고 이동통신 기지국의 설치하여 서비스를 제공합니다. 지자체나 공공기관에서 재난/방재용으로 특정지역의 기상정보를 수집하고 해당 지역의 국지 예보가 필요할 경우 인근 기지국을 활용하여 기상 정보 서비스를 제공 받을 수 있습니다. Weather planet의 AWS 구축/운영 서비스는 경제적이고, 전원 공급 및 낙뢰 재해에 안전하며 99% 이상의 수신율을 제공합니다.</p>
+								</dd>
+							</dl>
+							<div class="community-info fr">
+								<ul>
+								<li><span class="date">개설일</span>2015.09.11</li>
+								<li><span class="user">개설자</span>운영자</li>
+								<li><span class="member">회원수</span>1</li>
+								<li><span class="message">게시글</span>3</li>
+								</ul>
+							</div>
+						</li>
+						</ul>
+						<ul>
+						<li class="cont">
+							<dl class="explain fl">
+								<dt><a href="#">한국교육학술정보원 클라우드 서비스 사업</a></dt>
+								<dd>미래부 소속 산하기관 클라우드 정책협의를 위한 커뮤니티입니다.</dd>
+							</dl>
+							<div class="community-info fr">
+								<ul>
+								<li><span class="date">개설일</span>2015.09.11</li>
+								<li><span class="user">개설자</span>운영자</li>
+								<li><span class="member">회원수</span>1</li>
+								<li><span class="message">게시글</span>3</li>
+								</ul>
+							</div>
+						</li>
+						</ul>
+						<ul>
+						<li class="cont">
+							<dl class="explain fl">
+								<dt><a href="#">한국교육학술정보원 클라우드 서비스 사업</a></dt>
+								<dd>미래부 소속 산하기관 클라우드 정책협의를 위한 커뮤니티입니다.</dd>
+							</dl>
+							<div class="community-info fr">
+								<ul>
+								<li><span class="date">개설일</span>2015.09.11</li>
+								<li><span class="user">개설자</span>운영자</li>
+								<li><span class="member">회원수</span>1</li>
+								<li><span class="message">게시글</span>3</li>
+								</ul>
+							</div>
+						</li>
+						</ul>
+					</div>
+					<!-- //list -->
+
+					<!-- paging -->
+					<div class="paging">
+						<a href="#" class="on">1</a><a href="#">2</a><!-- 선택 클래스 on 적용 -->
+					</div>
+					<!-- //paging -->
+				</div>
+				<!-- //section -->
+
+			</div>
+			<!-- //contents -->
+		</div>
+		<!-- //container -->
+
+		<!-- footer -->
+		<footer>
+			<div id="footer">
+				<h1><img src="/new_cloud/images/common/logo-footer.png" alt="씨앗마켓" /></h1>
+				<!-- quick -->
+				<div class="quick">
+					<ul>
+					<li><a href="#">고객센터</a></li>
+					<li><a href="#">공지사항</a></li>
+					<li><a href="#">시스템 이용약관</a></li>
+					<li><a href="#">개인정보 보호정책</a></li>
+					<li><a href="#">이메일 수집거부</a></li>
+					<li><a href="#">오시는 길</a></li>
+					<li><a href="#">사이트맵</a></li>
+					</ul>
+				</div>
+				<!-- //quick -->
+				<address>
+					<p><strong>본사</strong><span>대구광역시 동구 첨단로 53 (41068)</span> <strong>서울사무소</strong><span>서울특별시 중구 청계천로 14 (04520)</span></p>
+					<p><strong>대표전화</strong><span>070-4870-4015</span><strong>이메일</strong><span>ceart@ceart.kr</span><strong>개인정보보호 책임자</strong><span>실장 송명원</span></p>
+					<p class="copyright"> Copyright 2015 한국정보화진흥원 All Rights Reserved.</p>
+				</address>
+				
+			</div>
+		</footer>		
+		<!-- 구글번역 -->
+		<!-- <div id="google_translate_element"></div>
+		<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({pageLanguage: 'ko', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+		}
+		</script>
+		<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+		<!-- //구글번역 -->
+		<!-- //footer-->
+	</div>
+
+</body>
+</html>

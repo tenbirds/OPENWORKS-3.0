@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="_myCm">
+	
+	<!--  Where  01-->
+	<sql id="myCmWhere01">
+		<where>
+				b.LANG_CODE = #{langCode}
+				AND b.CMMNTY_MBER_ID = #{userId}
+				AND c.USER_ID =  b.CMMNTY_MBER_ID
+				AND tmi.LANG_CODE = b.LANG_CODE
+				AND tmi.CMMNTY_ID = b.CMMNTY_ID
+			<if test=' q_nmSearch != null and q_nmSearch != "" '>
+				AND tmi.CMMNTY_NM || tmi.CMMNTY_DC  LIKE '%' || #{q_nmSearch} || '%' 
+			</if>
+			<if test=' q_mberStateTab1 ==  "1001" and  q_mberStateTab2 ==  "1003" and q_mberStateTab3 ==  "1004"  '>
+				AND b.MBER_STATE_CD IN (1001, 1003, 1004)
+			</if>
+			<if test=' q_mberStateTab1 ==  "1001" and  q_mberStateTab2 == null and q_mberStateTab3 ==  null  '> 
+				AND b.MBER_STATE_CD	= 1001
+			</if>
+			<if test=' q_mberStateTab2 ==  "1003" and  q_mberStateTab1 == null and q_mberStateTab3 ==  null'> 
+				AND b.MBER_STATE_CD	= 1003
+			</if>
+			<if test=' q_mberStateTab3 ==  "1004"  and  q_mberStateTab1 == null and q_mberStateTab2 ==  null'> 
+				AND b.MBER_STATE_CD	= 1004
+			</if>
+			<if test=' q_mberStateTab1 ==  "1001"  and  q_mberStateTab2 == "1003" and q_mberStateTab3 ==  null'> 
+				AND b.MBER_STATE_CD IN (1001, 1003)
+			</if>
+			<if test=' q_mberStateTab1 ==  null  and  q_mberStateTab2 == "1003" and q_mberStateTab3 == "1004" '> 
+				AND b.MBER_STATE_CD IN (1003, 1004)
+			</if>
+			
+			<if test=' q_mberDateSearch ==  "1001" and q_startDt  !=  "" and q_startDt  !=  null and q_endDt  !=  "" and q_endDt  !=  null '><!-- 개설일 -->
+				AND tmi.CONFM_DT  BETWEEN  TO_DATE(#{q_startDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDt}, 'YYYY-MM-DD')+1
+			</if>
+			<if test=' q_mberDateSearch ==  "1002" and q_startDt  !=  "" and q_startDt  !=  null and q_endDt  !=  "" and q_endDt  !=  null '><!-- 최종 방문일 -->
+			 	AND (SELECT MAX(cmmVisitD.VISIT_DT) FROM TCM_VSIT_ANAL_S cmmVisitD
+                        WHERE cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                        AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                       AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID)
+                  BETWEEN  TO_DATE(#{q_startDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDt}, 'YYYY-MM-DD')+1
+			</if>
+			<if test=' q_mberDateSearch ==  "1003" and q_startDt  !=  "" and q_startDt  !=  null and q_endDt  !=  "" and q_endDt  !=  null '><!-- 가입일 -->
+			 	AND b.SBSCRB_REQST_DT
+			 	 BETWEEN  TO_DATE(#{q_startDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDt}, 'YYYY-MM-DD')+1
+			</if>
+			<if test=' q_mberDateSearch ==  "1004" and q_startDt  !=  "" and q_startDt  !=  null and q_endDt  !=  "" and q_endDt  !=  null '><!-- 탈퇴일 -->
+			 	AND b.SECSN_DT
+			 	 BETWEEN  TO_DATE(#{q_startDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDt}, 'YYYY-MM-DD')+1
+			</if>
+			<if test=' q_mberDateSearch ==  "1001" '> <!--  가입신청일시  -->
+			 ORDER BY  tmi.ESTBL_REQST_DT DESC
+			</if>
+			<if test=' q_mberDateSearch ==  "1002" '> <!-- 최종 방문일 -->
+			 ORDER BY    (SELECT MAX(cmmVisitD.VISIT_DT) FROM TCM_VSIT_ANAL_S cmmVisitD
+                        WHERE cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                        AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                       AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) DESC
+			</if>
+			<if test=' q_mberDateSearch ==  "1003" '> <!-- 가입일 -->
+			 ORDER BY   b.SBSCRB_REQST_DT DESC
+			</if>
+			<if test=' q_mberDateSearch ==  "1004" '> <!--  탈퇴일  -->
+			 ORDER BY  b.SECSN_DT	 DESC
+			</if>
+			<if test=' q_mberDateSearch ==  "" and q_mberDateSearch  == null '> <!--  가입신청일시  -->
+			 ORDER BY  b.SBSCRB_REQST_DT	 DESC
+			</if>
+			
+			
+		</where>
+	</sql>
+	
+	<sql id="myCmWhere02">
+		<where>
+			    b.USER_ID = #{userId}
+			    AND c.USER_ID = b.USER_ID
+			    AND b.LANG_CODE = #{langCode}
+<!-- 				AND b.CMMNTY_STTUS_CD = 1002  커뮤니티 신청 진행 상태 1001 신청 1002 승인 1003 거절  1004 폐쇄 1005 폐쇄중 -->
+				<if test=' q_nmSearch != null and q_nmSearch != "" '>
+				AND b.CMMNTY_NM  LIKE '%' || #{q_nmSearch} || '%'  
+<!-- 				OR  b.CMMNTY_DC  LIKE '%' || #{q_nmSearch} || '%'  -->
+				</if>
+				<if test=' q_startDt  !=  "" and q_startDt  !=  null and q_endDt  !=  "" and q_endDt  !=  null '><!-- 가입일 -->
+				AND b.CONFM_DT  BETWEEN  TO_DATE(#{q_startDt}, 'YYYY-MM-DD') AND TO_DATE(#{q_endDt}, 'YYYY-MM-DD')+1
+				</if>
+			
+		</where>
+	</sql>
+ 	<!-- 커뮤니티 마이페이지 가입 회원 목록  -->
+ 	<select  id="myCmJoinList"   parameterType="map"  resultType="cmManageVO" >
+ 	/* myCm-sqlmap.xml  _myCm.myCmJoinList */
+	 	SELECT * FROM
+					(SELECT	 	
+						A.langCode			
+						, A.cmmntyId		    
+						, A.cmmntyMberId	
+						, A.ncnm			    
+						, A.mberStateCd		
+						, A.mberStateNm    
+						, A.sbscrbRejectResn	    
+						, A.sbscrbReqstDt	    
+						, A.sbscrbConfmDt	
+						, A.enfrcSecsnCd		
+						, A.enfrcSecsnNm    
+						, A.sbscrbRejectDt  
+						, A.secsnDt
+						, A.userTyCd 
+						, A.userTyNm
+						, A.visitDt
+						, A.cmMberBbsCount
+						, A.cmMberBbsCmtCount
+						
+						, A.cmVisitCount
+						, A.cmMberCount
+						, A.cmmntyNm
+						, A.estblReqstDt
+						, A.confmDt
+						, A.cmmntyDc
+						, A.cmmntyUrl
+						, ROWNUM RNUM
+						FROM
+							(	SELECT 
+									b.LANG_CODE					AS langCode			
+									, b.CMMNTY_ID				AS cmmntyId		
+									, b.CMMNTY_MBER_ID		AS cmmntyMberId	
+									, b.NCNM						AS ncnm			
+									, b.MBER_STATE_CD			AS mberStateCd	
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2003
+										AND opcode.INDVDLZ_CD = b.MBER_STATE_CD )		AS mberStateNm	
+									, b.SBSCRB_REJECT_RESN	AS sbscrbRejectResn	
+									, TO_CHAR( b.SBSCRB_REQST_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbReqstDt   
+									, TO_CHAR( b.SBSCRB_CONFM_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbConfmDt   	
+									, b.ENFRC_SECSN_CD		AS enfrcSecsnCd		
+									,  (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2004
+										AND opcode.INDVDLZ_CD = b.ENFRC_SECSN_CD )	AS enfrcSecsnNm
+									, TO_CHAR( b.SBSCRB_REJECT_DT, 'YYYY-MM-DD HH24:MI') 	AS sbscrbRejectDt   
+									, TO_CHAR( b.SECSN_DT, 'YYYY-MM-DD HH24:MI') 	AS secsnDt   
+									, c.USER_TY_CD				AS userTyCd
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD )	AS userTyNm
+									, TO_CHAR((SELECT MAX(cmmVisitD.VISIT_DT) 
+                                                FROM TCM_VSIT_ANAL_S cmmVisitD
+                                                WHERE
+                                                cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                                                AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                                                AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) ,'YYYY-MM-DD HH24:MI' ) AS visitDt 
+									, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+										FROM TCM_CMNT_NTT_I tbbs
+										WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.REGIST_ID = b.CMMNTY_MBER_ID )				AS cmMberBbsCount 
+				
+									, (	SELECT  COUNT( tbbscmt.CMMNTY_ID) 
+										FROM TCM_NTT_CMT_I tbbscmt
+										WHERE
+										tbbscmt.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbscmt.LANG_CODE = b.LANG_CODE
+										AND tbbscmt.REGIST_ID = b.CMMNTY_MBER_ID 
+										AND tbbscmt.CMT_DELETE_CD IS NULL
+										)			AS cmMberBbsCmtCount 
+									,  (	SELECT  COUNT( cmmVisit.CMMNTY_ID) 
+										FROM TCM_VSIT_ANAL_S cmmVisit
+										WHERE
+										cmmVisit.CMMNTY_ID	 = b.CMMNTY_ID
+										AND cmmVisit.LANG_CODE = b.LANG_CODE
+										AND cmmVisit.USER_ID = b.CMMNTY_MBER_ID )			AS cmVisitCount 
+									, (	SELECT  COUNT( info.CMMNTY_ID) 
+										FROM TCM_CMNT_MBER_I info 
+										WHERE
+										info.CMMNTY_ID	 = b.CMMNTY_ID
+										AND info.LANG_CODE = b.LANG_CODE)						AS cmMberCount 
+									,  tmi.CMMNTY_NM 														AS cmmntyNm
+									, TO_CHAR( tmi.ESTBL_REQST_DT , 'YYYY-MM-DD HH24:MI' )  		AS estblReqstDt   
+									, TO_CHAR( tmi.CONFM_DT , 'YYYY-MM-DD HH24:MI' )  		AS confmDt
+									, tmi.CMMNTY_DC															AS cmmntyDc
+									, tmi.CMMNTY_URL															AS cmmntyUrl  
+								FROM 
+									OP_USER c,
+									TCM_CMNT_MBER_I b,
+									TCM_CMNT_INFO_I tmi
+									<include refid="myCmWhere01"/>
+							
+							) A
+				)
+			WHERE 
+			RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+ 	</select>
+ 	 
+ 	 <!--  커뮤니티 마이페이지 가입 회원 목록 카운트  -->
+ 	<select  id="myCmJoinListCount" parameterType="map" resultType="int">
+ 	/* myCm-sqlmap.xml  _myCm.myCmJoinListCount */
+			 	SELECT	 	
+					COUNT (A.cmmntyId)		    
+						FROM
+							(	SELECT 
+									b.LANG_CODE					AS langCode			
+									, b.CMMNTY_ID				AS cmmntyId		
+									, b.CMMNTY_MBER_ID		AS cmmntyMberId	
+									, b.NCNM						AS ncnm			
+									, b.MBER_STATE_CD			AS mberStateCd	
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2003
+										AND opcode.INDVDLZ_CD = b.MBER_STATE_CD )		AS mberStateNm	
+									, b.SBSCRB_REJECT_RESN	AS sbscrbRejectResn	
+									, b.SBSCRB_REQST_DT		AS sbscrbReqstDt	
+									, b.SBSCRB_CONFM_DT		AS sbscrbConfmDt	
+									, b.ENFRC_SECSN_CD		AS enfrcSecsnCd		
+									, b.SBSCRB_REJECT_DT		AS sbscrbRejectDt
+									, c.USER_TY_CD				AS userTyCd
+									,TO_CHAR((SELECT MAX(cmmVisitD.VISIT_DT) 
+                                                FROM TCM_VSIT_ANAL_S cmmVisitD
+                                                WHERE
+                                                cmmVisitD.CMMNTY_ID     = b.CMMNTY_ID
+                                                AND cmmVisitD.LANG_CODE = b.LANG_CODE
+                                                AND cmmVisitD.USER_ID = b.CMMNTY_MBER_ID) ,'YYYY-MM-DD HH24:MI' ) AS visitDt 
+									, (	SELECT opcode.INDVDLZ_CD_NM 
+										FROM OP_CODE_INDVDLZ opcode
+										WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD )	AS userTyNm
+				
+									, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+										FROM TCM_CMNT_NTT_I tbbs
+										WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.REGIST_ID = b.CMMNTY_MBER_ID )	AS cmBbsCount 
+				
+									, (	SELECT  COUNT( tbbscmt.CMMNTY_ID) 
+										FROM TCM_NTT_CMT_I tbbscmt
+										WHERE
+										tbbscmt.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbscmt.LANG_CODE = b.LANG_CODE
+										AND tbbscmt.REGIST_ID = b.CMMNTY_MBER_ID
+										AND tbbscmt.CMT_DELETE_CD IS NULL	
+									 ) 	AS cmBbsCmtCount 
+										
+									, (	SELECT  COUNT( info.CMMNTY_ID) 
+									FROM TCM_CMNT_MBER_I info 
+									WHERE
+										info.CMMNTY_ID	 = b.CMMNTY_ID
+										AND info.LANG_CODE = b.LANG_CODE)						AS cmMberCount 
+									,  tmi.CMMNTY_NM 						AS cmmntyNm
+									, TO_CHAR( tmi.ESTBL_REQST_DT , 'YYYY-MM-DD HH24:MI' )  		AS estblReqstDt   
+									, TO_CHAR( tmi.CONFM_DT , 'YYYY-MM-DD HH24:MI' )  		AS confmDt
+									, tmi.CMMNTY_DC															AS cmmntyDc
+								FROM 
+									OP_USER c,
+									TCM_CMNT_MBER_I b,
+									TCM_CMNT_INFO_I tmi
+									<include refid="myCmWhere01"/>
+				
+							) A
+ 	</select>
+ 	
+ 	<!-- 마이페이지 개설 커뮤니티   목록  -->
+	<select 	id="myCmOpenList"  parameterType="map"  resultType="cmManageVO">
+		 	/* myCm-sqlmap.xml  _myCm.myCmOpenList */
+		SELECT * FROM
+				(SELECT	 	
+					A.userId                                                          
+					, A.langCode     
+					, A.langNm 
+					, A.langEngNm                                                
+					, A.cmmntyId                                                                                                                                           								
+					, A.logoTitleNo                                                  
+					, A.cmmntyUrl                                                   
+					, A.cmmntyNm                                                  
+					, A.cmmntyDc                                                    
+					, A.cmmntyCtgryCd     
+					, A.cmmntyCtgryNm                                       
+					, A.cmmntySbscrbMthd                                      
+					, A.logoFileSeq                                                   
+					, A.logoTitleWidthLc                                           
+					, A.logoTitleVrticlLc                                            
+					, A.logoTitleFont                                                
+					, A.logoTitleColor                                               
+					, A.estblReqstDt                                                 
+					, A.estblReqstId  
+					, A.estblReqstNm                                     
+					, A.estblReqstResn                                             
+					, A.confmRejectResn                                          
+					, A.cmmntySttusCd   
+					, A.cmmntySttusNm                                         
+					, A.cmmntyClsReqstDt                                        
+					, A.cmmntyClsDt                                                
+					, A.cmmntyClsId   
+
+					, A.cmmntyClsUserNm   
+					, A.cmmntyClsManagerNm   
+					                                             
+					, A.cmmntyClsResn                                            
+					, A.mngrClsAt                                                    
+					, A.updtId                   			                
+					, A.updtDt   
+					, A.confmDt
+					, A.nationCode                            								
+					, A.userNm                                                        
+					, A.userTyCd 
+					, A.userTyNm                                                     
+					, A.userGradCode                                               
+					, A.userSttusCd      
+					, A.cmMberCount      
+					, A.cmBbsCount                                         
+					, ROWNUM RNUM
+					FROM
+						( SELECT
+								 b.USER_ID																		AS userId                    
+								, b.LANG_CODE																AS langCode         
+								, (SELECT tsvc.LANG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 						AS langNm 
+								, (SELECT tsvc.LANG_ENG_NM FROM TCO_SVC_LANG_C tsvc 
+								WHERE tsvc.LANG_CODE =  b.LANG_CODE ) 						AS langEngNm
+								, b.CMMNTY_ID																AS cmmntyId           
+								, b.LOGO_TITLE_NO															AS logoTitleNo            
+								, b.CMMNTY_URL																AS cmmntyUrl             
+								, b.CMMNTY_NM																AS cmmntyNm            
+								, b.CMMNTY_DC																AS cmmntyDc             
+								, b.CMMNTY_CTGRY_CD													AS cmmntyCtgryCd    
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE
+										AND opcode.GROUP_CD = 2011
+										AND opcode.INDVDLZ_CD = b.CMMNTY_CTGRY_CD) 	AS cmmntyCtgryNm
+								, b.CMMNTY_SBSCRB_MTHD												AS cmmntySbscrbMthd
+								, b.LOGO_FILE_SEQ															AS logoFileSeq             
+								, b.LOGO_TITLE_WIDTH_LC												AS logoTitleWidthLc     
+								, b.LOGO_TITLE_VRTICL_LC												AS logoTitleVrticlLc      
+								, b.LOGO_TITLE_FONT														AS logoTitleFont          
+								, b.LOGO_TITLE_COLOR														AS logoTitleColor         
+								, TO_CHAR( b.ESTBL_REQST_DT, 'YYYY-MM-DD HH24:MI')  		AS estblReqstDt        
+								, b.ESTBL_REQST_ID															AS estblReqstId           
+								,( SELECT opu.USER_NM FROM OP_USER opu WHERE opu.USER_ID  = b.ESTBL_REQST_ID	) AS estblReqstNm
+								, b.ESTBL_REQST_RESN														AS estblReqstResn       
+								, b.CONFM_REJECT_RESN													AS confmRejectResn    
+								, b.CMMNTY_STTUS_CD													AS cmmntySttusCd      
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2008
+										AND opcode.INDVDLZ_CD = b.CMMNTY_STTUS_CD) 		AS cmmntySttusNm   	
+								, TO_CHAR( b.CMMNTY_CLS_REQST_DT, 'YYYY-MM-DD HH24:MI')  		AS cmmntyClsReqstDt   
+								, TO_CHAR( b.CMMNTY_CLS_DT, 'YYYY-MM-DD HH24:MI')  				AS cmmntyClsDt
+								, TO_CHAR (b.CMMNTY_CLS_DT -1, 'YYYY-MM-DD HH24:MI') AS cmmntyBeforeClsDt
+								, b.CMMNTY_CLS_ID															AS cmmntyClsId       
+								,( SELECT opu.USER_NM FROM OP_USER opu WHERE opu.USER_ID  = b.CMMNTY_CLS_ID	) AS cmmntyClsUserNm   
+								,( SELECT opm.MNGR_NM FROM OP_MNGR opm WHERE opm.MNGR_ID  = b.CMMNTY_CLS_ID	) AS cmmntyClsManagerNm   
+								, b.CMMNTY_CLS_RESN														AS cmmntyClsResn      
+								, b.MNGR_CLS_AT															AS mngrClsAt             
+								, b.UPDT_ID																	AS updtId                   			
+								, TO_CHAR( b.UPDT_DT, 'YYYY-MM-DD HH24:MI')  				AS updtDt   
+								, TO_CHAR( b.CONFM_DT, 'YYYY-MM-DD HH24:MI')  			AS confmDt  
+								, c.NATION_CODE															AS nationCode
+								, c.USER_NM																	AS userNm
+								, c.USER_TY_CD																AS userTyCd
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 5
+										AND opcode.INDVDLZ_CD = c.USER_TY_CD) 	AS userTyNm   
+								, c.USER_GRAD_CODE														AS userGradCode
+								, c.USER_STTUS_CD															AS userSttusCd
+								, (	SELECT  COUNT( info.CMMNTY_ID) 
+									FROM TCM_CMNT_MBER_I info 
+									WHERE
+										info.CMMNTY_ID	 = b.CMMNTY_ID
+										AND info.LANG_CODE = b.LANG_CODE
+										AND info.MBER_STATE_CD = 1003
+									)						AS cmMberCount 
+								, (	SELECT  COUNT( tbbs.CMMNTY_ID) 
+									FROM TCM_CMNT_NTT_I tbbs
+									WHERE
+										tbbs.CMMNTY_ID	 = b.CMMNTY_ID
+										AND tbbs.LANG_CODE = b.LANG_CODE
+										AND tbbs.WRTER_DELETE_AT		= 'N'
+										AND tbbs.MNGR_DELETE_AT		= 'N'
+										)						AS cmBbsCount 
+							FROM 
+								TCM_CMNT_INFO_I b ,
+								OP_USER c
+								
+							<include refid="myCmWhere02"/>
+							
+							ORDER BY   b.CONFM_DT DESC
+					) A
+			)
+			WHERE 
+			RNUM BETWEEN #{pagingStartNum} AND #{pagingEndNum}
+		</select>
+		
+		<!-- 마이페이지 개설 커뮤니티   목록  카운트-->
+	 	<select id="myCmOpenListCount" parameterType="map" resultType="int">
+	 			/* cmMy-sqlmap.xml  _cmMy.myCmOpenListCount */
+				SELECT	 	
+					COUNT(	A.cmmntyId) 
+					FROM
+						( SELECT
+									b.USER_ID																AS userId                    
+								, b.LANG_CODE															AS langCode        
+								, b.CMMNTY_ID															AS cmmntyId           
+								, b.LOGO_TITLE_NO														AS logoTitleNo            
+								, b.CMMNTY_URL															AS cmmntyUrl             
+								, b.CMMNTY_NM															AS cmmntyNm            
+								, b.CMMNTY_DC															AS cmmntyDc             
+								, b.CMMNTY_CTGRY_CD												AS cmmntyCtgryCd    
+								, (SELECT 
+											opcode.INDVDLZ_CD_NM 
+									FROM OP_CODE_INDVDLZ opcode
+									WHERE 
+										opcode.LANG_CODE = b.LANG_CODE 
+										AND opcode.GROUP_CD = 2011
+										AND opcode.INDVDLZ_CD = b.CMMNTY_CTGRY_CD) AS cmmntyCtgryNm
+								, b.CMMNTY_SBSCRB_MTHD											AS cmmntySbscrbMthd
+								, b.LOGO_FILE_SEQ														AS logoFileSeq             
+								, b.LOGO_TITLE_WIDTH_LC											AS logoTitleWidthLc     
+								, b.LOGO_TITLE_VRTICL_LC											AS logoTitleVrticlLc      
+								, b.LOGO_TITLE_FONT													AS logoTitleFont          
+								, b.LOGO_TITLE_COLOR													AS logoTitleColor         
+								, TO_CHAR( b.ESTBL_REQST_DT, 'YYYY-MM-DD HH24:MI')  AS estblReqstDt        
+								, b.ESTBL_REQST_ID														AS estblReqstId           
+								, b.ESTBL_REQST_RESN													AS estblReqstResn       
+								, b.CONFM_REJECT_RESN												AS confmRejectResn    
+								, b.CMMNTY_STTUS_CD												AS cmmntySttusCd      
+								, b.CMMNTY_CLS_REQST_DT											AS cmmntyClsReqstDt 
+								, b.CMMNTY_CLS_DT													AS cmmntyClsDt         
+								, b.CMMNTY_CLS_ID														AS cmmntyClsId          
+								, b.CMMNTY_CLS_RESN													AS cmmntyClsResn      
+								, b.MNGR_CLS_AT														AS mngrClsAt             
+								, b.UPDT_ID																AS updtId                   			
+								, TO_CHAR( b.UPDT_DT, 'YYYY-MM-DD HH24:MI')  			AS updtDt    
+								, c.USER_NM																AS userNm
+								, c.USER_TY_CD															AS userTyCd
+								, c.USER_GRAD_CODE													AS userGradCode
+								, c.USER_STTUS_CD														AS userSttusCd
+							FROM 
+								TCM_CMNT_INFO_I b ,
+								OP_USER c
+							<include refid="myCmWhere02"/>
+						) A
+	 	</select>
+</mapper>
