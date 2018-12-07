@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<SFConfig>
+	<ISC port="7000" threadno="30" >
+		<TimeOut API="3" Searcher="5" />
+		<QueryLog path="/search/sf-1/log/querylog/isc/common" />
+        <CollectionQueryLog path="/search/sf-1/log/querylog/isc/collection" />
+		<RecentQuery length="100" duplicate="n" />
+		<Monitor port="7100" period="3" />
+	</ISC>
+
+	<Global> <!-- 색인 타겟 전역 설정 /-->
+		<TargetPath value="/search/sf-1/collection/target" />
+	</Global>  
+
+	<LocalSearcher id="sc" threadno="50">
+		<CollectionSet>
+			<Collection id="bizmatc" />
+			<Collection id="communication" />
+			<Collection id="notice" />
+			<Collection id="customer" />
+			<Collection id="premium" />
+			<Collection id="solution" />
+			<Collection id="consulting" />
+			<Collection id="introduction" />
+			<Collection id="narabid" />
+			<Collection id="naracntrct" />
+			
+			<Collection id="bizmatc_cloud" />
+			<Collection id="communication_cloud" />
+			<Collection id="notice_cloud" />
+			<Collection id="customer_cloud" />
+			
+			<Collection id="cloud_service" />
+			<Collection id="paas_cloud" />
+			<Collection id="saas_cloud" />
+			<Collection id="iaas_cloud" />
+			<Collection id="introduction_cloud" />
+			<Collection id="narabid_cloud" />
+			<Collection id="naracntrct_cloud" />
+			<!-- <Collection id="biddingnotice_cloud" /> -->
+			<!--
+			<Collection id="en_bizmatc" />
+			<Collection id="en_communication" />
+			<Collection id="en_notice" />
+			<Collection id="en_customer" />
+			<Collection id="en_premium" />
+			<Collection id="en_solution" />
+			<Collection id="en_consulting" />
+			<Collection id="en_introduction" />
+			<Collection id="sp_bizmatc" />
+			<Collection id="sp_communication" />
+			<Collection id="sp_notice" />
+			<Collection id="sp_customer" />
+			<Collection id="sp_premium" />
+			<Collection id="sp_solution" />
+			<Collection id="sp_consulting" />
+			<Collection id="sp_introduction" /> -->
+			
+
+		</CollectionSet>
+	</LocalSearcher>
+
+	<Regulation>
+		<Regulator id="R1" method="allow"  value="#+-" code="" />
+		<Regulator id="R2" method="divide" value=""   code="0x0020,0x0021~0x002F,0x003A~0x0040" />
+		<Regulator id="R3" method="unite"  value=""   code="" />
+	</Regulation>
+
+	<LAE>
+			<SpellerDictionary path="/search/sf-1/knowledge/speller" />
+			<RestrictDictionary path="/search/sf-1/knowledge/restrict" />
+			<KoreanDictionary path="/search/sf-1/knowledge/korean" usepreanalysis="n"/>
+
+			<Method id="token"		analysis="token" />
+			<Method id="ngram"		analysis="ngram" />
+			<Method id="like"		analysis="like" />
+			<Method id="matrix"		analysis="matrix" />
+			<Method id="kma"		analysis="korean" option="" specialchar="#+-" />
+			<Method id="kmanoun"	analysis="korean" option="A-" specialchar="#+-" usepreanalysis="n" expansion="searchonly" soundex="n"/>
+	</LAE>
+
+
+<!-- optional: config include 파일-->
+	<Include xml="/search/sf-1/config/collection/kor/bizmatc.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/communication.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/notice.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/customer.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/premium.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/solution.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/consulting.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/introduction.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/narabid.xml" />
+	<Include xml="/search/sf-1/config/collection/kor/naracntrct.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/cloud_service.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/paas_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/saas_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/iaas_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/bizmatc_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/communication_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/notice_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/customer_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/introduction_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/narabid_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/kor_cloud/naracntrct_cloud.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_bizmatc.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_communication.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_notice.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_customer.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_premium.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_solution.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_consulting.xml" />
+	<Include xml="/search/sf-1/config/collection/en/en_introduction.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_bizmatc.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_communication.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_notice.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_customer.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_premium.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_solution.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_consulting.xml" />
+	<Include xml="/search/sf-1/config/collection/sp/sp_introduction.xml" />
+
+</SFConfig>

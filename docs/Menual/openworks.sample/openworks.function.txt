@@ -1,0 +1,141 @@
+* 표준 메시지 지원 스크립트 설명
+
+    데코레이터(/WEB-INF/pages/common/decorator/admin)에 아래와 같은 스크립트 코드가 설정되어 있으며,
+    이 스크립트가 지원하는 것은 /docs/산출물/OpenWorks-1.0 설명서.docx 내에 기술되어 있는 것과 같이
+    /resources/config/commons/message-config.xml 파일내에 정해져 있는 메시지를 Javascript에서도
+    함께 표준으로 사용하기 위한 스크립트이다.
+
+    <script type="text/javascript" src="/component/javascript/MD_massageConfig.do"></script>
+
+    예 : Message.msg prefix를 사용함으로 메시지를 사용할 수 있다.
+
+        Message.msg.insertOk       :  요청정보를 성공적으로 등록했습니다."
+        Message.msg.deleteOk      :  요청정보를 성공적으로 삭제했습니다."
+        Message.msg.updateOk     :  요청정보를 성공적으로 수정했습니다."
+        Message.msg.processFail :  요청에 대한 처리가 실패되었습니다."
+        Message.msg.processOk  :   요청처리를 성공적으로 수행하였습니다."
+
+* 단순히 처리 결과만 필요한경우에는 위의 메시지를 사용하도록 한다.
+
+
+1. jsSysErrorBox 메소드 사용법
+
+   * Controller 메소드에서 리턴 타입에 따라서 크게 두가지 형태로 나눠 사용한다.
+   
+   * reponseText 의 경우는 multipart 폼 서브밋이 아닌 경우 사용을 자제한다.
+      multipart의 경우는 json으로 요청을 처리하는 경우 파일 저장이 요청되므로 사용하면 안됨
+
+- reponseText(model, 성공/실패);
+
+         Controller 코딩
+         ---------------------------------------------
+         if( true ) {
+             // 프로세스가 정상적으로 완료 된경우
+             return responseText(model, Messages.TRUE);
+         }
+         // 프로세스가 실패로 끝난 경우
+         return responseText(model, Messages.FALSE);
+
+
+        JavaScript 코딩
+        ----------------------------------------------
+        * $.ajax() 메소드 사용을 권장함
+        $.post(), $.get(), ajaxSubmit() dadaType : "text" 등의 예
+    
+        $.post("URL", {
+        },
+        function(response){
+            try {                                   <--- 오류메시지를 거르기 위해 필요한 구문
+                if(eval(response)) {
+                    jsSuccessBox(Message.msg.processOk);
+                    기타 성공시 프로세스......
+                } else {
+                    jsErrorBox(Message.msg.processFail);
+                    기타 실패시 프로세스......
+                }
+            } catch (e) {
+                // 시스템 오류 발생시 처리 구간
+                jsSysErrorBox(response, e);
+                return;
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            dataType : "text",   <-- text 요청으로 미 지정시 기본값
+            url: "URL",
+            data: {},
+            success: function(response){
+                if(eval(response)) {
+                    jsSuccessBox(Message.msg.processOk);
+                    기타 성공시 프로세스......
+                } else {
+                    jsErrorBox(Message.msg.processFail);
+                    기타 실패시 프로세스......
+                }
+            },
+            error :  function(response) {
+                // 시스템 오류 발생시 처리 구간
+                jsSysErrorBox(response.responseText);
+                return;
+            }
+        });
+
+
+- responseJson 은 아래 두가지 방식으로 사용. 첫번째 방식은 GenerallController 에서 자동 설정됨(옵션 항목은 다를 수 있음)
+
+        responseJson(model, Messages.TRUE, "1001", Messages.COMMON_PROCESS_OK); 
+
+        JsonVO jsonVo = new JsonVO().setResult(Messages.TRUE).setValue("1001").setMessage(Messages.COMMON_PROCESS_OK);
+        responseJson(model, jsonVo);
+
+        Controller 코딩
+         ---------------------------------------------
+        if( true ) {
+            return responseJson(model, Messages.TRUE, "1001", Messages.COMMON_PROCESS_OK);
+        }
+        return responseJson(model, Messages.FALSE, "1002", Messages.COMMON_PROCESS_FAIL);
+
+
+        JavaScript 코딩
+        ----------------------------------------------
+        ajaxSubmit 등 dataType : "json" 타입으로 요청하는 경우.
+
+        success 메소드로 값을 받는 경우는 거의 대부분 error 메소드를 통하여 오류 내용을 전달받을 수 있음
+
+        $('#form').ajaxSubmit({
+            .....
+            dataType: "json",                                                         <-- json 요청
+            success  : function(response) {
+                if(response.result) {
+                    jsSuccessBox(response.value  + "코드변경 " +response.message);
+                    기타 성공시 프로세스......
+                } else {
+                    jsErrorBox(response.value  + "코드변경 " +response.message);
+                    기타 실패시 프로세스......
+                }
+            },
+            error :  function(response) {
+                // 시스템 오류 발생시 처리 구간
+                jsSysErrorBox(response.responseText);
+                return;
+            }
+        });
+
+!! 결과요청 유형이 json 인경우 아래 메소드를 사용하여 간단히 작성할 수 있다.(내용 추가)
+
+        $('#form').ajaxSubmit({
+            .....
+            dataType: "json",                                                         <-- json 요청
+            success  : function(response) {
+                jsJsonBox(response); 또는 jsJsonBox(response, "추가 메시지");
+            },
+            error :  function(response) {
+                // 시스템 오류 발생시 처리 구간
+                jsSysErrorBox(response.responseText);
+                return;
+            }
+        });
+
+
+

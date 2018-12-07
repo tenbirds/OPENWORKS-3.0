@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SFConfig>
+
+<Collection id="cloud_service">
+	<Date format="none_time_t" />
+  	<BasePath value="/search/sf-1/collection/cloud_service"/>
+    	<Index>
+      	<Field name="GOODSNM"			method="kma"	highlight="y"	snippet="y"/>
+        <Field name="GOODSSUMRY"	method="kma"	highlight="y"	snippet="y" useoffset="y"/>
+				<Field name="LANGSTORENM"	method="like"	highlight="y"	/>
+    	</Index>
+
+    	<Document>
+				<Field name="DOCID"								type="varchar"	/>
+				<Field name="REGISTDT"						type="varchar"	/>
+				<Field name="LANGCODE"						type="varchar"	/>
+				<Field name="GOODSNM"							type="varchar"	/>
+				<Field name="USERID"							type="varchar"	/>
+				<Field name="GOODSIMAGEFILESEQ"		type="varchar"	/>
+				<Field name="GOODSSUMRY"					type="varchar"	/>
+				<Field name="GOODSRDCNT"					type="varchar"	/>
+				<Field name="CNTCINSTTCD"					type="varchar"	/>
+				<Field name="LANGNM"							type="varchar"	/>
+				<Field name="SLEMTHDNM"						type="varchar"	/>
+				<Field name="GOODSREGISTSTTUSNM"	type="varchar"	/>
+				<Field name="SELLCNT"							type="varchar"	/>
+				<Field name="EVLSCORE"						type="varchar"	/>
+				<Field name="LANGSTORENM"					type="varchar"	/>
+				<Field name="CMMNTYID"						type="varchar"	/>
+				<Field name="MARK_IMG"						type="varchar"	/>
+				<Field name="META1"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--기업구분	sMeta1 -->
+				<Field name="META2"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--공공기관 이용 필터	sMeta2 (클라우드서비스보안인증(CSAP)) -->
+				<Field name="META3"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--서비스 구분	sMeta12, sMeta3-->
+				<Field name="META4"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--인증정보	sMeta4	-->
+				<Field name="META5"								type="char"		maxlen="128"	fastaccess="y"	/>  <!-- 서비스기술지원	sMeta5	-->
+				<Field name="META6"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--호환성 지원	sMeta6	-->
+				<Field name="META7"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--클라우드 구축방식	sMeta7     -->
+				<Field name="META8"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--개발지원	sMeta8-->
+				<Field name="META9"								type="char"		maxlen="128"	fastaccess="y"	/>  <!--교육, 기술지원	sMeta9   -->
+				<Field name="META10"							type="char"		maxlen="128"	fastaccess="y"	/>  <!--관리정보제공	sMeta10	-->
+				<Field name="META11"							type="char"		maxlen="128"	fastaccess="y"	/>  <!--고객지원	sMeta11	-->
+				<Field name="META12"							type="char"		maxlen="128"	fastaccess="y"	/>  <!--서비스 구분	sMeta12, sMeta3    -->
+				<Field name="META13"							type="char"		maxlen="128"	fastaccess="y"	/>  <!--서비스 구분 sMeta13	-->
+				<Field name="ENTNM"								type="varchar" />
+				<Field name="CATE_NM"							type="varchar" />
+				<Field name="GOODSMAINIMAGE"			type="varchar" />
+				<Field name="CTGRY_CODE" 					type="varchar" />
+				<Field name="LANG_CTGRY_NM" 			type="varchar" />
+				<Field name="CTGRY_CL_CD" 				type="varchar" />
+				<Field name="CTGRY_GROUP" 				type="varchar" />
+				<Field name="CTGRY_DP" 						type="varchar" />
+				<Field name="PARNTS_CTGRY_CODE" 	type="varchar" />
+				<Field name="SUB_CNT" 						type="varchar" />	
+    	</Document>
+</Collection>
+
+<Source id="cloud_service" type="DB">
+	<RefColl id="cloud_service"/>
+	<SCDdir path="/search/sf-1/collection/cloud_service/scd"/>
+	<Date dbformat="none" order="1"/>
+	<CatalogInfo>
+		<Mapping colnum="0"			tagname="DOCID" />
+		<Mapping colnum="1"			tagname="REGISTDT" />
+		<Mapping colnum="2"			tagname="LANGCODE" />
+		<Mapping colnum="3"			tagname="GOODSNM" />
+		<Mapping colnum="4"			tagname="USERID" />
+		<Mapping colnum="5"			tagname="GOODSIMAGEFILESEQ" />
+		<Mapping colnum="6"			tagname="GOODSSUMRY" />
+		<Mapping colnum="7"			tagname="GOODSRDCNT" />
+		<Mapping colnum="8"			tagname="CNTCINSTTCD" />
+		<Mapping colnum="9"			tagname="LANGNM" />
+		<Mapping colnum="10"		tagname="SLEMTHDNM" />
+		<Mapping colnum="11"		tagname="GOODSREGISTSTTUSNM" />
+		<Mapping colnum="12"		tagname="SELLCNT" />
+		<Mapping colnum="13"		tagname="EVLSCORE" />
+		<Mapping colnum="14"		tagname="LANGSTORENM" />
+		<Mapping colnum="15"		tagname="CMMNTYID" />
+		<Mapping colnum="16"		tagname="MARK_IMG" />
+		<Mapping colnum="17"		tagname="META1"  />  <!--기업구분	sMeta1 -->
+		<Mapping colnum="18"		tagname="META2"  />  <!--공공기관 이용 필터	sMeta2  (국내 데이터센터 위치, 나라장터종합쇼핑몰 서비스) -->
+		<Mapping colnum="19"		tagname="META3"  />  <!--서비스 구분	sMeta12, sMeta3-->
+		<Mapping colnum="20"		tagname="META4"  />  <!--인증정보	sMeta4	-->
+		<Mapping colnum="21"		tagname="META5"  />  <!--서비스기술지원	sMeta5	-->
+		<Mapping colnum="22"		tagname="META6"  />  <!--호환성 지원	sMeta6	-->
+		<Mapping colnum="23"		tagname="META7"  />  <!--클라우드 구축방식	sMeta7     -->
+		<Mapping colnum="24"		tagname="META8"  />  <!--개발지원	sMeta8-->
+		<Mapping colnum="25"		tagname="META9"  />  <!--교육, 기술지원	sMeta9   -->
+		<Mapping colnum="26"		tagname="META10" />  <!--관리정보제공	sMeta10	-->
+		<Mapping colnum="27"		tagname="META11" />  <!--고객지원	sMeta11	-->
+		<Mapping colnum="28"		tagname="META12" />  <!--서비스 구분	sMeta12, sMeta3    -->
+		<Mapping colnum="29"		tagname="META13" />  <!--공공기관 이용 필터  sMeta13	-->
+		<Mapping colnum="30"		tagname="ENTNM" />
+		<Mapping colnum="31"		tagname="CATE_NM" />
+		<Mapping colnum="32"		tagname="GOODSMAINIMAGE" />
+		<Mapping colnum="33"		tagname="CTGRY_CODE" />
+		<Mapping colnum="34"		tagname="LANG_CTGRY_NM" />
+		<Mapping colnum="35"		tagname="CTGRY_CL_CD" />
+		<Mapping colnum="36"		tagname="CTGRY_GROUP" />
+		<Mapping colnum="37"		tagname="CTGRY_DP" />
+		<Mapping colnum="38"		tagname="PARNTS_CTGRY_CODE" />
+		<Mapping colnum="39"		tagname="SUB_CNT" />
+	</CatalogInfo>
+
+	<DSN type="target" dsn="cubrid_cloud" />
+	<DSN type="log" dsn="cubrid_cloud" />
+
+	<SubQuery>
+		<!-- MARK_IMG -->
+		<Sub order="16" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+			<sql statement="n">
+      	<![CDATA[
+					SELECT	C.FILE_URL
+						FROM  TST_GOOD_MARK_I A, TST_GOOD_MARK_M B, OP_FILE C
+					 WHERE  A.MARK_CD = B.MARK_CD
+						 AND  B.mark_image_file_seq = C.file_seq
+						 AND  A.GOODS_CODE =?
+					]]>
+      	</sql>
+      </Sub>
+      
+      <!--기업구분	META1 -->
+    <Sub order="17" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+    	<sql statement="n">
+      	<![CDATA[
+      		SELECT SMLPZ_CHK 
+      		  FROM TST_GOOD_INFO_I
+      		 WHERE GOODS_CODE = ?
+      	]]>
+      </sql>
+    </Sub>
+
+			<!-- 공공기관 이용 필터 (국내 데이터센터 위치, 나라장터종합쇼핑몰 서비스): META2 -->
+		<Sub order="18" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+    	<sql statement="n">
+      	<![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2060'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+      </sql>
+    </Sub>
+      
+			<!-- 서비스구분: META3 -->
+		<Sub order="19" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+     	<sql statement="n">
+       <![CDATA[
+				SELECT  A.CTGRY_CL_CD 
+				  FROM  TST_CATE_MGMT_M A
+				      , TST_GOOD_CATE_I B
+				      , TST_GOOD_INFO_I C
+				 WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+				   AND  A.LANG_CODE = '00'
+				   AND  A.CTGRY_DELETE_AT = 'N'
+				   AND  A.CTGRY_USE_YN = 'Y'
+				   AND  B.GOODS_CODE = C.GOODS_CODE
+				   AND  C.MNGR_DELETE_AT = 'N'
+				   AND  C.GOODS_ACTVTY_AT = 'Y'
+				   AND  C.GOODS_REGIST_STTUS = 1006
+				   AND  C.LANG_CODE =  '00'
+				   AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+				   AND  C.GOODS_CODE = ?
+				 GROUP  BY C.GOODS_CODE
+			]]>
+       </sql>
+     </Sub>
+      
+			<!-- 인증정보: META4 -->
+			<Sub order="20" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+        	SELECT A.MARK_CD
+					  FROM TST_GOOD_MARK_I A 
+					 WHERE GOODS_CODE = ?
+				]]>
+        </sql>
+      </Sub>
+  
+  			<!-- 서비스기술지원: META5 -->
+			<Sub order="21" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2030'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+
+			<!-- 호환성 지원: META6 -->
+			<Sub order="22" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2031'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+      
+			<!-- 클라우드 구축방식: META7 -->
+			<Sub order="23" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2032'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+      
+			<!-- 개발지원: META8 -->
+			<Sub order="24" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2056'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+
+			<!-- 교육, 기술지원: META9 -->
+			<Sub order="25" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2057'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+      
+			<!-- 관리정보제공: META10 -->
+			<Sub order="26" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2058'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+
+			<!-- 고객지원: META11 -->
+			<Sub order="27" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+						SELECT CAST(A.GROUP_CD AS  VARCHAR) + CAST(A.INDVDLZ_CD AS  VARCHAR)
+						  FROM TST_GOOD_META_I A, OP_CODE_INDVDLZ B 
+						 WHERE 1=1 
+							 AND A.GROUP_CD = B.GROUP_CD 
+							 AND A.INDVDLZ_CD = B.INDVDLZ_CD 
+							 AND A.LANG_CD = B.LANG_CODE
+							 AND B.LANG_CODE = '00' 
+							 AND B.USE_YN = 'Y'
+							 AND CAST(A.GROUP_CD AS  VARCHAR) = '2059'
+							 AND A.GOODS_CODE = ?
+						 GROUP BY A.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+
+			<!-- 서비스구분: META12 -->
+			<Sub order="28" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+					SELECT  A.CTGRY_CL_CD 
+					  FROM  TST_CATE_MGMT_M A
+					      , TST_GOOD_CATE_I B
+					      , TST_GOOD_INFO_I C
+					 WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+					   AND  A.LANG_CODE = '00'
+					   AND  A.CTGRY_DELETE_AT = 'N'
+					   AND  A.CTGRY_USE_YN = 'Y'
+					   AND  B.GOODS_CODE = C.GOODS_CODE
+					   AND  C.MNGR_DELETE_AT = 'N'
+					   AND  C.GOODS_ACTVTY_AT = 'Y'
+					   AND  C.GOODS_REGIST_STTUS = 1006
+					   AND  C.LANG_CODE =  '00'
+					   AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+					   AND  C.GOODS_CODE = ?
+					 GROUP  BY C.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+
+			<!-- 공공기관 이용 필터 (클라우드서비스보안인증(CSAP)): META13 -->
+			<Sub order="29" type="subQuery" seperator="||" wherecnt="1" className="0x00">
+      	<sql statement="n">
+        <![CDATA[
+					SELECT  A.CTGRY_CL_CD 
+					  FROM  TST_CATE_MGMT_M A
+					      , TST_GOOD_CATE_I B
+					      , TST_GOOD_INFO_I C
+					 WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+					   AND  A.LANG_CODE = '00'
+					   AND  A.CTGRY_DELETE_AT = 'N'
+					   AND  A.CTGRY_USE_YN = 'Y'
+					   AND  B.GOODS_CODE = C.GOODS_CODE
+					   AND  C.MNGR_DELETE_AT = 'N'
+					   AND  C.GOODS_ACTVTY_AT = 'Y'
+					   AND  C.GOODS_REGIST_STTUS = 1006
+					   AND  C.LANG_CODE =  '00'
+					   AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+					   AND  C.GOODS_CODE = ?
+					 GROUP  BY C.GOODS_CODE
+				]]>
+        </sql>
+      </Sub>
+		</SubQuery>
+
+    <Static>
+        <Select>
+            <sql>
+            <![CDATA[
+          	SELECT  DOCID
+									, REGISTDT
+									, LANGCODE
+									, GOODSNM
+									, USERID
+									, GOODSIMAGEFILESEQ
+									, GOODSSUMRY
+									, GOODSRDCNT
+									, CNTCINSTTCD
+									, LANGNM
+									, SLEMTHDNM
+									, GOODSREGISTSTTUSNM
+									, SELLCNT
+									, EVLSCORE
+									, LANGSTORENM
+									, CMMNTYID
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, GOODS_CODE
+									, CATE_NM
+									, GOODSMAINIMAGE
+									, CTGRY_CODE
+									, LANG_CTGRY_NM
+									, CTGRY_CL_CD
+									, CTGRY_GROUP
+									, CTGRY_DP
+									, PARNTS_CTGRY_CODE
+									, SUB_CNT
+						  FROM  (SELECT  CTGRY_CODE
+													 , LANG_CTGRY_NM
+													 , CTGRY_CL_CD
+													 , CTGRY_GROUP
+													 , CTGRY_DP
+													 , PARNTS_CTGRY_CODE
+													 , SUB_CNT
+													 , GOODS_CODE  AS DOCID
+													 , LANG_CODE AS LANGCODE
+													 , goodsNm AS GOODSNM
+													 , userId AS USERID 
+													 , goodsImageFileSeq AS GOODSIMAGEFILESEQ
+													 , goodsSumry AS GOODSSUMRY
+													 , goodsRdcnt AS GOODSRDCNT
+													 , CNTC_INSTT_CD AS CNTCINSTTCD 
+													 , LANGNM
+													 , SLEMTHDNM
+													 , GOODSREGISTSTTUSNM
+													 , SELLCNT
+													 , EVLSCORE
+													 , LANGSTORENM
+													 , CMMNTYID
+													 , GOODS_CODE
+													 , REGIST_DT
+													 , CONFM_DT
+													 , TO_CHAR(A.REGIST_DT,'YYYYMMDDHH24MISS') AS REGISTDT
+													 , cntrctCnt
+													 , SMALL_BUSINESS_CHK
+													 , ENTNM //회사명
+													 , CATE_NM
+													 , GOODSMAINIMAGE /*상품메인이미지*/
+											 FROM  (SELECT  DECODE(A.CTGRY_CODE, '6202_343', '6202_344', '6202_349', '6202_350', '6202_341', '6202_350', '6202_351', '6202_348', '6202_337', '6202_353', A.CTGRY_CODE) AS CTGRY_CODE
+																		, DECODE(A.CTGRY_CODE, '6202_343', '마케팅/세일즈', '6202_350', '산업', '6202_349', '산업', '6202_341', '산업', '6202_348', '교육/도서', '6202_351', '교육/도서', '6202_353', '방송/문화/콘텐츠', '6202_337', '방송/문화/콘텐츠', A.LANG_CTGRY_NM) AS LANG_CTGRY_NM
+																		, A.CTGRY_CL_CD
+																		, A.CTGRY_GROUP
+																		, A.CTGRY_DP
+																		, A.PARNTS_CTGRY_CODE
+																		, 0 AS SUB_CNT
+																		, B.CTGRY_CODE AS CTGRYCODE
+																		, C.GOODS_CODE
+																		, C.LANG_CODE
+																		, C.GOODS_NM AS goodsNm
+																		, C.USER_ID AS userId
+																		, C.GOODS_IMAGE_FILE_SEQ AS goodsImageFileSeq
+																		, C.GOODS_SUMRY AS goodsSumry
+																		, C.GOODS_RDCNT AS goodsRdcnt
+																		, C.CNTC_INSTT_CD
+																		, (SELECT LANG_NM FROM TCO_SVC_LANG_C WHERE LANG_CODE = A.LANG_CODE) AS LANGNM
+																		, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1007 AND INDVDLZ_CD = C.SLE_MTHD_CD) AS SLEMTHDNM
+																		, (SELECT INDVDLZ_CD_NM FROM OP_CODE_INDVDLZ WHERE LANG_CODE=A.LANG_CODE AND GROUP_CD=1008 AND INDVDLZ_CD = C.GOODS_REGIST_STTUS) AS GOODSREGISTSTTUSNM
+																		, (SELECT COUNT(GOODS_CODE) FROM TST_GOOD_ORDR_I WHERE GOODS_CODE = B.GOODS_CODE) AS SELLCNT
+																		, (SELECT TO_CHAR(AVG(EVL_SCORE), '9.9') FROM TST_GOOD_EVL_I WHERE GOODS_CODE = B.GOODS_CODE) AS EVLSCORE
+																		, (SELECT LANG_STORE_NM FROM TUM_SVC_STOR_I WHERE USER_ID = C.USER_ID AND LANG_CODE = A.LANG_CODE) AS LANGSTORENM
+																		, (SELECT CMMNTY_ID FROM TCM_CMNT_INFO_I WHERE MNGR_CLS_AT = 'N' AND CMMNTY_STTUS_CD = '1002' AND LANG_CODE = A.LANG_CODE AND USER_ID = C.USER_ID ORDER BY CONFM_DT DESC LIMIT 1) AS CMMNTYID     
+																		, C.REGIST_DT
+																		, C.CONFM_DT
+																		, C.USER_ID
+																		, C.SMLPZ_CHK
+																		, (SELECT COUNT(*) FROM TCM_CNTRCT_MANAGE_I WHERE GOODS_CODE = C.GOODS_CODE) AS cntrctCnt
+																		, DECODE(C.SMLPZ_CHK,'Y','on','') AS SMALL_BUSINESS_CHK  //중소기업 여부 체크 (Y, N)    
+																		, (SELECT cmpny_nm FROM op_user_entrprs_option WHERE USER_ID = C.USER_ID) AS ENTNM //회사명
+																		, lang_ctgry_nm AS CATE_NM
+																		, (SELECT FILE_URL FROM OP_FILE WHERE FILE_SEQ = C.GOODS_IMAGE_FILE_SEQ ORDER BY FILE_ORDR_NO ASC LIMIT 1) AS GOODSMAINIMAGE /*상품메인이미지*/
+													      FROM  TST_CATE_MGMT_M A, TST_GOOD_CATE_I B, TST_GOOD_INFO_I C
+															 WHERE  A.PARNTS_CTGRY_CODE >=  '0'
+															   AND  A.LANG_CODE = '00'
+															   AND  A.CTGRY_DELETE_AT = 'N'
+															   AND  A.CTGRY_USE_YN = 'Y'
+															   AND  B.GOODS_CODE = C.GOODS_CODE
+															   AND  C.MNGR_DELETE_AT = 'N'
+															   AND  C.GOODS_ACTVTY_AT = 'Y'
+															   AND  C.GOODS_REGIST_STTUS = 1006
+															   AND  C.LANG_CODE =  '00'
+															   AND A.CTGRY_CL_CD IN ('1001', '1002', '1003', '1004')	 /* 카테고리구분 [ex) PaaS:1001, SaaS:1002, IaaS : 1003, 	SCS : 1004]*/								
+															   AND  DECODE(A.CTGRY_CODE, '6202_368', '6202_360', A.CTGRY_CODE)  = B.CTGRY_CODE
+					                    )  AS A
+				                  WHERE  1=1
+				                  GROUP  BY DOCID,GOODSNM
+			              ) Y
+            ]]>
+            </sql>
+        </Select>
+    </Static>
+    <PrimaryKey>
+        <Column name="DOCID"/>
+    </PrimaryKey>
+</Source>
+</SFConfig>
