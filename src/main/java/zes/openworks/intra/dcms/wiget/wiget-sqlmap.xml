@@ -1,0 +1,735 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--
+    =========================================================
+    * Description : 사용자메뉴 컨텐츠관리 sqlmap 정의 파일
+    * Create      : xanadu
+    * $Id: content-sqlmap.xml 398 2012-02-17 05:03:33Z xanadu $
+    =========================================================
+-->
+
+<sqlMap namespace="intra.dcms.wiget">
+
+    <typeAlias alias="wigetVo" type="zes.openworks.intra.dcms.wiget.WigetVO"/>
+    <typeAlias alias="boardVO" type="zes.openworks.intra.board.BoardVO" /> 
+    
+    <!-- 화면 폼 목록 검색 조건절-->
+	<sql id="pageFormSearchDynamic">
+		<dynamic prepend="WHERE">
+        	<isNotEmpty property="q_useYn" prepend="AND">
+           		A.USE_YN = #q_useYn#
+        	</isNotEmpty>
+        	<isNotEmpty property="q_pageFormName" prepend="AND">
+        		A.PAGE_FORM_NAME LIKE '%' || #q_pageFormName# || '%'
+        	</isNotEmpty>            		
+        </dynamic>
+	</sql>
+	
+    <!-- 화면 폼 목록 -->
+    <select id="getWigetFormList" parameterClass="map" resultClass="wigetVo">
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.*, TO_CHAR(X.REG_DT, 'YYYY-MM-DD') AS regDt FROM (
+                SELECT
+                    A.PAGE_FORM_CD AS pageFormCd,
+                    A.PAGE_FORM_NAME AS pageFormName,
+                    A.USE_YN AS useYn,
+                    A.REG_DT                    
+                FROM
+                    OP_CMS_PAGE_FORM A
+                <include refid="pageFormSearchDynamic" />
+                ORDER BY A.PAGE_FORM_CD DESC
+                ) X
+            WHERE ROWNUM &lt;= #pagingEndNum#
+         ) Y
+         WHERE NUM &gt;= #pagingStartNum#
+    </select>
+
+	<!-- 화면 폼 목록 카운터 -->
+    <select id="getWigetFormListCount" parameterClass="map" resultClass="int">
+        SELECT
+            COUNT(A.PAGE_FORM_CD) AS cnt
+        FROM
+            OP_CMS_PAGE_FORM A
+        <include refid="pageFormSearchDynamic" />        
+    </select>
+    
+    <!-- 화면 폼 상세 -->
+    <select id="getPageForm" parameterClass="map" resultClass="wigetVo">
+        SELECT
+            A.PAGE_FORM_CD AS pageFormCd,
+            A.PAGE_FORM_NAME AS pageFormName,
+            A.USE_YN AS useYn,
+            A.CELL_SIZE AS cellSize,
+            A.FORM_SIZE_WIDTH AS formSizeWidth,
+            A.FORM_SIZE_HEIGHT AS formSizeHeight,
+            A.WIGET_GRAP AS wigetGrap,
+            A.REG_ID AS regId,            
+            to_char(A.REG_DT, 'YYYY-MM-DD') AS regDt,
+            A.MOD_ID AS modId,
+            to_char(A.MOD_DT, 'YYYY-MM-DD') AS modDt            
+        FROM
+            OP_CMS_PAGE_FORM A
+        WHERE
+            A.PAGE_FORM_CD = #q_pageFormCd#            
+    </select>
+    
+    <!-- 화면 폼 등록 -->
+    <insert id="insertPageForm" parameterClass="wigetVo">
+        <selectKey resultClass="string" keyProperty="pageFormCd">
+            SELECT NVL(MAX(PAGE_FORM_CD), 0) + 1
+                FROM OP_CMS_PAGE_FORM           
+        </selectKey>
+        INSERT INTO OP_CMS_PAGE_FORM (
+            PAGE_FORM_CD,
+            PAGE_FORM_NAME,
+            USE_YN,
+            CELL_SIZE,
+            FORM_SIZE_WIDTH,
+            FORM_SIZE_HEIGHT,            
+            WIGET_GRAP,            
+            REG_ID,           
+            REG_DT,            
+            MOD_ID,
+            MOD_DT
+        ) VALUES (
+            #pageFormCd#,
+            #pageFormName#,
+            #useYn#,
+            #cellSize#,
+            #formSizeWidth#,
+            #formSizeHeight#,            
+            #wigetGrap#,            
+            #regId#,            
+            SYSDATE,           
+            #regId#,
+            SYSDATE
+        )
+    </insert>
+    
+    <!-- 화면 폼 위젯 영역 등록 -->
+    <insert id="insertWigetArea" parameterClass="wigetVo">
+        <selectKey resultClass="string" keyProperty="wigetAreaCd">
+            SELECT NVL(MAX(WIGET_AREA_CD), 0) + 1
+                FROM OP_CMS_WIGET_AREA           
+        </selectKey>
+        INSERT INTO OP_CMS_WIGET_AREA (
+            PAGE_FORM_CD,
+            WIGET_AREA_CD,
+            SIZE_WIDTH,
+            SIZE_HEIGHT,
+            START_X,
+            START_Y, 
+            REG_ID,           
+            REG_DT,            
+            MOD_ID,
+            MOD_DT
+        ) VALUES (
+            #pageFormCd#,
+            #wigetAreaCd#,
+            #sizeWidth#,
+            #sizeHeight#,
+            #startX#,
+            #startY#,
+            #regId#,            
+            SYSDATE,           
+            #regId#,
+            SYSDATE
+        )
+    </insert>
+    
+    <!-- 화면 폼 위젯 영역 목록 -->
+    <select id="getWigetAreaList" parameterClass="wigetVo" resultClass="wigetVo">       
+    	SELECT
+        	A.PAGE_FORM_CD AS pageFormCd,
+            A.WIGET_AREA_CD AS wigetAreaCd,
+            A.SIZE_WIDTH AS sizeWidth,
+            A.SIZE_HEIGHT AS sizeHeight,
+            A.START_X AS startX,
+            A.START_Y AS startY, 
+            A.REG_ID AS regId,   
+            to_char(A.REG_DT, 'YYYY-MM-DD') AS regDt,
+            A.MOD_ID AS modId,
+            to_char(A.MOD_DT, 'YYYY-MM-DD') AS modDt                               
+        FROM
+            OP_CMS_WIGET_AREA A
+        WHERE PAGE_FORM_CD = #pageFormCd#                
+        ORDER BY A.WIGET_AREA_CD ASC                
+    </select>
+    
+    <!-- 화면 폼 수정 -->
+    <update id="updatePageForm" parameterClass="wigetVo">
+        UPDATE OP_CMS_PAGE_FORM SET        	
+            PAGE_FORM_NAME = #pageFormName#,
+            USE_YN = #useYn#,
+            CELL_SIZE = #cellSize#,
+            FORM_SIZE_WIDTH = #formSizeWidth#,
+            FORM_SIZE_HEIGHT = #formSizeHeight#,         
+            WIGET_GRAP = #wigetGrap#,  
+            MOD_ID = #modId#, 
+            MOD_DT = SYSDATE
+        WHERE
+                PAGE_FORM_CD = #q_pageFormCd#
+    </update>
+    
+    <!-- 화면 폼 위젯 영역 삭제 -->
+    <delete id="deleteWigetArea" parameterClass="wigetVo">
+        DELETE FROM
+            OP_CMS_WIGET_AREA
+        WHERE
+            PAGE_FORM_CD = #q_pageFormCd#
+    </delete>    
+    
+    <!-- 위젯 목록 검색 조건절-->
+	<sql id="wigetSearchDynamic">
+		<dynamic prepend="WHERE">
+        	<isNotEmpty property="q_useYn" prepend="AND">
+           		A.USE_YN = #q_useYn#
+        	</isNotEmpty>
+        	<isNotEmpty property="q_wigetName" prepend="AND">
+        		A.WIGET_NAME LIKE '%' || #q_wigetName# || '%'           		
+        	</isNotEmpty>  
+        	<isNotEmpty property="q_wigetSizeWidth" prepend="AND">
+        		A.WIGET_SIZE_WIDTH = #q_wigetSizeWidth#           		
+        	</isNotEmpty>   
+        	<isNotEmpty property="q_wigetSizeHeight" prepend="AND">
+        		A.WIGET_SIZE_HEIGHT = #q_wigetSizeHeight#           		
+        	</isNotEmpty>   
+        	<isNotEmpty property="a_pageCd" prepend="AND">
+        		A.WIGET_CD IN (SELECT WIGET_CD FROM OP_CMS_PAGE_WIGET WHERE PAGE_CD = #a_pageCd# AND WIGET_CD=A.WIGET_CD)           		
+        	</isNotEmpty>
+        </dynamic>
+	</sql>
+	
+    <!-- 위젯 목록 -->
+    <select id="getWigetList" parameterClass="map" resultClass="wigetVo">
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.*, TO_CHAR(X.REG_DT, 'YYYY-MM-DD') AS regDt FROM (
+                SELECT
+                    A.WIGET_CD AS wigetCd,
+                    A.WIGET_NAME AS wigetName,
+                    A.USE_YN AS useYn,
+                    A.REG_DT                    
+                FROM
+                    OP_CMS_WIGET A
+                <include refid="wigetSearchDynamic" />
+                ORDER BY A.WIGET_CD DESC
+                ) X
+            WHERE ROWNUM &lt;= #pagingEndNum#
+         ) Y
+         WHERE NUM &gt;= #pagingStartNum#
+    </select>
+
+	<!-- 위젯 목록 카운터 -->
+    <select id="getWigetListCount" parameterClass="map" resultClass="int">
+        SELECT
+            COUNT(A.WIGET_CD) AS cnt
+        FROM
+            OP_CMS_WIGET A
+        <include refid="wigetSearchDynamic" />        
+    </select>
+    
+    <!-- 위젯 상세 -->
+    <select id="getWiget" parameterClass="map" resultClass="wigetVo">
+        SELECT
+            A.WIGET_CD AS wigetCd,
+            A.WIGET_NAME AS wigetName,
+            A.USE_YN AS useYn,
+            A.CELL_SIZE AS cellSize,
+            A.WIGET_SIZE_WIDTH AS wigetSizeWidth,
+            A.WIGET_SIZE_HEIGHT AS wigetSizeHeight,
+            A.WIGET_TYPE AS wigetType,
+            A.WIGET_URL AS wigetUrl,
+            A.WIGET_HTML AS wigetHtml,
+            A.BBS_CD AS bbsCd,
+            A.BBS_VIEW_NUM AS bbsViewNum,
+            A.OVER_RIZING_USEYN AS overRizingUseyn,
+            A.OVER_RIZING_HTML AS overRizingHtml,
+            A.OVER_RIZING_START_X AS overRizingStartX,
+            A.OVER_RIZING_START_Y AS overRizingStartY,
+            A.OVER_RIZING_WIDTH AS overRizingWidth,
+            A.OVER_RIZING_HEIGHT AS overRizingHeight,
+            A.REG_ID AS regId,            
+            to_char(A.REG_DT, 'YYYY-MM-DD') AS regDt,
+            A.MOD_ID AS modId,
+            to_char(A.MOD_DT, 'YYYY-MM-DD') AS modDt            
+        FROM
+            OP_CMS_WIGET A
+        WHERE
+            A.WIGET_CD = #q_wigetCd#            
+    </select>
+    
+    <!-- 게시판 목록 -->
+    <select id="getBbsConfList" resultClass="wigetVo">
+		SELECT A.BBS_CD			AS bbsCd,
+			   A.BBS_NM			AS bbsNm
+		FROM OP_BOARD_CONF A	
+		WHERE A.USE_YN = 'Y'			
+		ORDER BY A.BBS_NM ASC
+	</select>
+    
+    <!-- 위젯 등록 -->
+    <insert id="insertWiget" parameterClass="wigetVo">
+        <selectKey resultClass="string" keyProperty="wigetCd">
+            SELECT NVL(MAX(WIGET_CD), 0) + 1
+                FROM OP_CMS_WIGET           
+        </selectKey>
+        INSERT INTO OP_CMS_WIGET (
+            WIGET_CD,
+            WIGET_NAME,
+            USE_YN,
+            CELL_SIZE,
+            WIGET_SIZE_WIDTH,
+            WIGET_SIZE_HEIGHT,
+            WIGET_TYPE, 
+            WIGET_URL, 
+            WIGET_HTML, 
+            BBS_CD, 
+            BBS_VIEW_NUM, 
+            OVER_RIZING_USEYN, 
+            OVER_RIZING_HTML, 
+            OVER_RIZING_START_X, 
+            OVER_RIZING_START_Y, 
+            OVER_RIZING_WIDTH, 
+            OVER_RIZING_HEIGHT,            
+            REG_ID,           
+            REG_DT,            
+            MOD_ID,
+            MOD_DT
+        ) VALUES (
+            #wigetCd#,
+            #wigetName#,
+            #useYn#,
+            #cellSize#,
+            #wigetSizeWidth#,
+            #wigetSizeHeight#,
+            #wigetType#,
+            #wigetUrl#,
+            #wigetHtml#,
+            #bbsCd#,
+            #bbsViewNum#,
+            #overRizingUseyn#,
+            #overRizingHtml#,
+            #overRizingStartX#,
+            #overRizingStartY#,
+            #overRizingWidth#,
+            #overRizingHeight#,
+            #regId#,            
+            SYSDATE,           
+            #regId#,
+            SYSDATE
+        )
+    </insert>
+    
+    <!-- 위젯 수정 -->
+    <update id="updateWiget" parameterClass="wigetVo">
+        UPDATE OP_CMS_WIGET SET          	
+            WIGET_NAME = #wigetName#,
+            USE_YN = #useYn#,
+            CELL_SIZE = #cellSize#,
+            WIGET_SIZE_WIDTH = #wigetSizeWidth#,
+            WIGET_SIZE_HEIGHT = #wigetSizeHeight#,
+            WIGET_TYPE = #wigetType#,
+            WIGET_URL = #wigetUrl#,
+            WIGET_HTML = #wigetHtml#,
+            BBS_CD = #bbsCd#,
+            BBS_VIEW_NUM = #bbsViewNum#,
+            OVER_RIZING_USEYN = #overRizingUseyn#,
+            OVER_RIZING_HTML = #overRizingHtml#, 
+            OVER_RIZING_START_X = #overRizingStartX#,
+            OVER_RIZING_START_Y = #overRizingStartY#,
+            OVER_RIZING_WIDTH = #overRizingWidth#,
+            OVER_RIZING_HEIGHT = #overRizingHeight#,
+            MOD_ID = #modId#, 
+            MOD_DT = SYSDATE
+        WHERE
+                WIGET_CD = #q_wigetCd#
+    </update>
+    
+    <!-- 위젯 삭제 -->
+    <delete id="deleteWiget" parameterClass="wigetVo">
+        DELETE FROM
+            OP_CMS_WIGET
+        WHERE
+            WIGET_CD = #q_wigetCd#
+    </delete> 
+    
+    <!-- 화면관리 검색 조건절-->
+	<sql id="pageSearchDynamic">
+		<dynamic prepend="WHERE">
+        	<isNotEmpty property="q_useYn" prepend="AND">
+           		A.USE_YN = #q_useYn#
+        	</isNotEmpty>
+        	<isNotEmpty property="q_pageName" prepend="AND">
+        		A.PAGE_NAME LIKE '%' || #q_pageName# || '%'
+        	</isNotEmpty>            		
+        </dynamic>
+	</sql>
+	
+    <!-- 화면 목록 -->
+    <select id="getPageList" parameterClass="map" resultClass="wigetVo">
+        SELECT Y.* FROM (
+            SELECT ROWNUM NUM, X.*, TO_CHAR(X.REG_DT, 'YYYY-MM-DD') AS regDt FROM (
+                SELECT
+                    A.PAGE_CD AS pageCd,
+                    A.PAGE_NAME AS pageName,
+                    A.USE_YN AS useYn,
+                    A.REG_DT                    
+                FROM
+                    OP_CMS_PAGE A
+                <include refid="pageSearchDynamic" />
+                ORDER BY A.PAGE_CD DESC
+                ) X
+            WHERE ROWNUM &lt;= #pagingEndNum#
+         ) Y
+         WHERE NUM &gt;= #pagingStartNum#
+    </select>
+
+	<!-- 화면 목록 카운터 -->
+    <select id="getPageListCount" parameterClass="map" resultClass="int">
+        SELECT
+            COUNT(A.PAGE_CD) AS cnt
+        FROM
+            OP_CMS_PAGE A
+        <include refid="pageSearchDynamic" />        
+    </select>
+    
+    <!-- 화면 상세 -->
+    <select id="getPage" parameterClass="map" resultClass="wigetVo">
+        SELECT
+            A.PAGE_CD AS pageCd,
+            A.PAGE_NAME AS pageName,
+            A.PAGE_FORM_CD AS pageFormCd,
+            A.USE_YN AS useYn,            
+            A.REG_ID AS regId,            
+            to_char(A.REG_DT, 'YYYY-MM-DD') AS regDt,
+            A.MOD_ID AS modId,
+            to_char(A.MOD_DT, 'YYYY-MM-DD') AS modDt,
+            A.DEPLOY_TYPE AS deployType,
+            A.DEPLOY_URL AS deployUrl,
+            A.DEPLOY_DELAY AS deployDelay,
+            B.PAGE_FORM_NAME AS pageFormName,
+            B.CELL_SIZE AS cellSize,
+            B.WIGET_GRAP AS wigetGrap,
+            B.FORM_SIZE_WIDTH AS formSizeWidth,
+            B.FORM_SIZE_HEIGHT AS formSizeHeight           
+        FROM
+            OP_CMS_PAGE A, OP_CMS_PAGE_FORM B
+        WHERE
+            A.PAGE_CD = #q_pageCd#
+            AND A.PAGE_FORM_CD = B.PAGE_FORM_CD            
+    </select>
+    
+    <!-- 사용 가능한 화면 폼 목록 -->
+    <select id="getUsePageFormList" resultClass="wigetVo">        
+		SELECT
+			A.PAGE_FORM_CD AS pageFormCd,
+			A.PAGE_FORM_NAME AS pageFormName
+		FROM
+			OP_CMS_PAGE_FORM A
+		WHERE A.USE_YN = 'Y'
+		ORDER BY A.PAGE_FORM_CD DESC                
+    </select>
+    
+    <!-- 화면 폼 및 화면 폼 위젯 목록 -->
+    <select id="getPageFormAreaList" parameterClass="wigetVo" resultClass="wigetVo">        
+		SELECT
+			A.PAGE_FORM_CD AS pageFormCd,
+            A.PAGE_FORM_NAME AS pageFormName,
+            A.USE_YN AS useYn,
+            A.CELL_SIZE AS cellSize,
+            A.FORM_SIZE_WIDTH AS formSizeWidth,
+            A.FORM_SIZE_HEIGHT AS formSizeHeight,
+            A.WIGET_GRAP AS wigetGrap,
+            B.WIGET_AREA_CD AS wigetAreaCd,
+            B.SIZE_WIDTH AS sizeWidth,
+            B.SIZE_HEIGHT AS sizeHeight,
+            B.START_X AS startX,
+            B.START_Y AS startY                  
+		FROM
+			OP_CMS_PAGE_FORM A, OP_CMS_WIGET_AREA B
+		WHERE A.PAGE_FORM_CD = #pageFormCd#
+		AND A.PAGE_FORM_CD = B.PAGE_FORM_CD
+		AND A.USE_YN = 'Y'
+		ORDER BY A.PAGE_FORM_CD DESC                
+    </select>
+    
+    <!-- 사이즈가 동일한 위젯 목록 -->
+    <select id="getEqualSizeWigetList" parameterClass="wigetVo" resultClass="wigetVo">        
+		SELECT
+			A.PAGE_FORM_CD AS pageFormCd,
+            A.WIGET_AREA_CD AS wigetAreaCd,
+            A.SIZE_WIDTH AS sizeWidth,
+            A.SIZE_HEIGHT AS sizeHeight,
+            A.START_X AS startX,
+            A.START_Y AS startY,
+            B.WIGET_CD AS wigetCd,
+            B.WIGET_NAME AS wigetName,
+            B.CELL_SIZE AS cellSize,
+            B.WIGET_SIZE_WIDTH AS wigetSizeWidth,
+            B.WIGET_SIZE_HEIGHT AS wigetSizeHeight,
+            B.WIGET_TYPE AS wigetType,
+            B.WIGET_URL AS wigetUrl,
+            B.WIGET_HTML AS wigetHtml,
+            B.BBS_CD AS bbsCd,
+            B.BBS_VIEW_NUM AS bbsViewNum,
+            B.OVER_RIZING_USEYN AS overRizingUseyn,
+            B.OVER_RIZING_HTML AS overRizingHtml,
+            B.OVER_RIZING_START_X AS overRizingStartX,
+            B.OVER_RIZING_START_Y AS overRizingStartY,
+            B.OVER_RIZING_WIDTH AS overRizingWidth,
+            B.OVER_RIZING_HEIGHT AS overRizingHeight                              
+		FROM
+			OP_CMS_WIGET_AREA A, OP_CMS_WIGET B
+		WHERE A.WIGET_AREA_CD = #wigetAreaCd#
+		AND A.SIZE_WIDTH = B.WIGET_SIZE_WIDTH
+		AND A.SIZE_HEIGHT = B.WIGET_SIZE_HEIGHT
+		AND B.USE_YN = 'Y'
+		AND B.CELL_SIZE = (SELECT CELL_SIZE FROM OP_CMS_PAGE_FORM WHERE PAGE_FORM_CD=A.PAGE_FORM_CD)
+		ORDER BY B.WIGET_NAME ASC                
+    </select>
+    
+    <!-- 화면 정보 등록 -->
+    <insert id="insertPage" parameterClass="wigetVo">
+        <selectKey resultClass="string" keyProperty="pageCd">
+            SELECT NVL(MAX(PAGE_CD), 0) + 1
+                FROM OP_CMS_PAGE           
+        </selectKey>
+        INSERT INTO OP_CMS_PAGE (
+            PAGE_CD,
+            PAGE_NAME,
+            PAGE_FORM_CD,
+            USE_YN,             
+            REG_ID,           
+            REG_DT,            
+            MOD_ID,
+            MOD_DT,
+            DEPLOY_TYPE,
+            DEPLOY_URL,
+            DEPLOY_DELAY
+        ) VALUES (
+        	#pageCd#,
+        	#pageName#,
+            #pageFormCd#,            
+            #useYn#,                   
+            #regId#,            
+            SYSDATE,           
+            #regId#,
+            SYSDATE,
+            #deployType#,
+            #deployUrl#,
+            #deployDelay#
+        )
+    </insert>
+    
+    <!-- 화면 정보 수정 -->
+    <update id="updatePage" parameterClass="wigetVo">
+        UPDATE OP_CMS_PAGE SET  
+        	PAGE_NAME = #pageName#,
+            PAGE_FORM_CD = #pageFormCd#,
+            USE_YN = #useYn#,
+            MOD_ID = #modId#,
+            MOD_DT = SYSDATE,
+            DEPLOY_TYPE = #deployType#,
+            DEPLOY_URL = #deployUrl#,
+            DEPLOY_DELAY = #deployDelay#
+        WHERE
+                PAGE_CD = #q_pageCd#
+    </update>
+    
+    <!-- 화면 정보 삭제 -->
+    <delete id="deletePage" parameterClass="wigetVo">
+        DELETE FROM
+            OP_CMS_PAGE
+        WHERE
+            PAGE_CD = #q_pageCd#
+    </delete> 
+    
+    <!-- 화면 위젯 정보 삭제 -->
+    <delete id="deletePageWiget" parameterClass="wigetVo">
+        DELETE FROM
+            OP_CMS_PAGE_WIGET
+        WHERE
+            PAGE_CD = #q_pageCd#
+    </delete> 
+    
+    <!-- 화면 위젯 등록 -->
+    <insert id="insertPageWiget" parameterClass="wigetVo">
+        <selectKey resultClass="string" keyProperty="wigetSeq">
+            SELECT NVL(MAX(WIGET_SEQ), 0) + 1
+                FROM OP_CMS_PAGE_WIGET           
+        </selectKey>
+        INSERT INTO OP_CMS_PAGE_WIGET (        	
+            PAGE_CD,
+            WIGET_SEQ,            
+            PAGE_FORM_CD,
+            WIGET_AREA_CD,
+            WIGET_CD,                      
+            REG_ID,           
+            REG_DT,            
+            MOD_ID,
+            MOD_DT
+        ) VALUES (
+        	#pageCd#,        	
+        	#wigetSeq#,
+            #pageFormCd#,            
+            #wigetAreaCd#,             
+            #wigetCd#,       
+            #regId#,            
+            SYSDATE,           
+            #regId#,
+            SYSDATE
+        )
+    </insert>
+    
+    <!-- 화면 위젯 목록 -->
+    <select id="getPageWigetList" parameterClass="wigetVo" resultClass="wigetVo">        
+		SELECT
+			A.PAGE_CD AS pageCd,
+            A.WIGET_SEQ AS wigetSeq,
+            A.PAGE_FORM_CD AS pageFormCd,
+            A.WIGET_AREA_CD AS wigetAreaCd,
+            A.WIGET_CD AS wigetCd,
+            B.WIGET_NAME AS wigetName,
+            B.WIGET_HTML AS wigetHtml,
+            B.WIGET_SIZE_WIDTH AS wigetSizeWidth,
+            B.WIGET_SIZE_HEIGHT AS wigetSizeHeight,
+            B.WIGET_TYPE AS wigetType,
+            B.WIGET_URL AS wigetUrl,
+            B.BBS_CD AS bbsCd,
+            B.BBS_VIEW_NUM AS bbsViewNum,
+            B.OVER_RIZING_USEYN AS overRizingUseyn,
+            B.OVER_RIZING_HTML AS overRizingHtml,
+            B.CELL_SIZE AS cellSize,
+            B.OVER_RIZING_START_X AS overRizingStartX,
+            B.OVER_RIZING_START_Y AS overRizingStartY,
+            B.OVER_RIZING_WIDTH AS overRizingWidth,
+            B.OVER_RIZING_HEIGHT AS overRizingHeight             
+		FROM
+			OP_CMS_PAGE_WIGET A, OP_CMS_WIGET B
+		WHERE A.PAGE_CD = #pageCd#
+		AND A.WIGET_CD = B.WIGET_CD		
+		ORDER BY A.WIGET_SEQ DESC                
+    </select>
+    
+    <!-- 화면에 등록된 위젯 정보 가져오기 -->
+    <select id="getSetPageWigetList" parameterClass="wigetVo" resultClass="wigetVo">        
+		SELECT
+			A.PAGE_FORM_CD AS pageFormCd,
+            A.WIGET_AREA_CD AS wigetAreaCd,
+            A.SIZE_WIDTH AS sizeWidth,
+            A.SIZE_HEIGHT AS sizeHeight,
+            A.START_X AS startX,
+            A.START_Y AS startY,
+            B.WIGET_CD AS wigetCd,
+            B.WIGET_NAME AS wigetName,
+            B.CELL_SIZE AS cellSize,
+            B.WIGET_SIZE_WIDTH AS wigetSizeWidth,
+            B.WIGET_SIZE_HEIGHT AS wigetSizeHeight,
+            B.WIGET_TYPE AS wigetType,
+            B.WIGET_URL AS wigetUrl,
+            B.WIGET_HTML AS wigetHtml,
+            B.BBS_CD AS bbsCd,
+            B.BBS_VIEW_NUM AS bbsViewNum,
+            B.OVER_RIZING_USEYN AS overRizingUseyn,
+            B.OVER_RIZING_HTML AS overRizingHtml,
+            B.OVER_RIZING_START_X AS overRizingStartX,
+            B.OVER_RIZING_START_Y AS overRizingStartY,
+            B.OVER_RIZING_WIDTH AS overRizingWidth,
+            B.OVER_RIZING_HEIGHT AS overRizingHeight                              
+		FROM
+			OP_CMS_WIGET_AREA A, OP_CMS_WIGET B
+		WHERE A.WIGET_AREA_CD = #wigetAreaCd#
+		AND A.SIZE_WIDTH = B.WIGET_SIZE_WIDTH
+		AND A.SIZE_HEIGHT = B.WIGET_SIZE_HEIGHT
+		AND B.USE_YN = 'Y'
+		ORDER BY B.WIGET_NAME ASC                
+    </select>
+    
+    <!-- 화면 위젯 정보 가져오기 -->
+    <select id="getAreaPageWigetList" parameterClass="wigetVo" resultClass="wigetVo">        
+		SELECT 			
+			A.PAGE_FORM_CD AS pageFormCd,
+			A.WIGET_AREA_CD AS wigetAreaCd,
+    		A.SIZE_WIDTH AS sizeWidth,
+    		A.SIZE_HEIGHT AS sizeHeight,
+    		A.START_X AS startX,
+    		A.START_Y AS startY,
+    		B.PAGE_CD AS pageCd,
+    		B.WIGET_SEQ AS wigetSeq,
+    		B.WIGET_CD AS wigetCd 
+		FROM OP_CMS_WIGET_AREA A, OP_CMS_PAGE_WIGET B
+		WHERE A.PAGE_FORM_CD = #pageFormCd#
+		AND B.PAGE_CD = #pageCd#
+		AND A.WIGET_AREA_CD=B.WIGET_AREA_CD(+)                
+    </select>
+    
+    <!-- 게시물 목록 가져오기 -->
+    <select id="getBoardList" parameterClass="boardVo" resultClass="boardVo">        
+		SELECT ROWNUM NUM, X.* FROM (
+			SELECT 
+				A.BBS_CD   AS bbsCd,
+				A.BBSCTT_SEQ      AS bbscttSeq,
+				A.REFRN_CMT_SEQ    AS refrnCmtSeq,
+				A.BBSCTT_ORDR_NO     AS bbscttOrdrNo,
+				A.BBSCTT_DP        AS bbscttDp,
+				A.CTG_CD        AS ctgCd,
+				(SELECT CTG_NM FROM OP_BOARD_CTG WHERE BBS_CD = A.BBS_CD AND CTG_CD = A.CTG_CD) AS ctgNm,
+				DECODE (A.NOTICE_BBSCTT_AT, 'Y', 'Y', 'N') AS noticeBbscttAt,
+				A.BBSCTT_SJ        AS bbscttSj,           
+				LENGTHB(A.BBSCTT_SJ) AS bbscttSjLength,
+				A.BBSCTT_CN    AS bbscttCn,
+				A.CN_SUMRY    AS cnSumry,
+				A.FILE_SEQ    AS fileSeq,
+				A.RDCNT    AS rdcnt,
+				A.ACCUSE_CNT    AS accuseCnt,
+				A.RECOMEND_CNT    AS recomendCnt,
+				A.IP_ADRES    AS ipAdres, 
+				A.BRWSR_AGENT        AS brwsrAgent,
+				A.OTHBC_AT    AS othbcAt,
+				A.BANNED_WORD_AT        AS bannedWordAt,
+				DECODE(A.REGIST_PASSWORD, '', 'N', 'Y') AS registPassword,
+				A.REGISTER_NM        AS registerNm,
+				A.REGIST_ID        AS registId,
+				A.USER_KEY    AS userKey,
+				TO_CHAR(A.REGIST_DT, 'YYYY/MM/DD') AS registDt,
+				A.UPDT_ID        AS updtId,
+				TO_CHAR(A.UPDT_DT, 'YYYY/MM/DD') AS updtDt,
+				A.MNGR_ID        AS mngrId,
+				A.MNGR_NM        AS mngrNm,
+				A.DEPT_CODE     AS deptCode,
+				A.DEPT_NM    AS deptNm,
+				TRUNC(TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD')) - TRUNC(TO_DATE(TO_CHAR(A.REGIST_DT, 'YYYYMMDD'), 'YYYYMMDD')) AS passDay,
+				A.ESTN_COLUMN1 AS estnColumn1,
+				A.ESTN_COLUMN2 AS estnColumn2,
+				A.ESTN_COLUMN3 AS estnColumn3,
+				A.ESTN_COLUMN4 AS estnColumn4,
+				A.ESTN_COLUMN5 AS estnColumn5,
+				A.ESTN_COLUMN6 AS estnColumn6,
+				A.ESTN_COLUMN7 AS estnColumn7,
+				A.ESTN_COLUMN8 AS estnColumn8,
+				A.ESTN_COLUMN9 AS estnColumn9,
+				A.ESTN_COLUMN10 AS estnColumn10,
+				A.MNGR_DELETE_AT     AS mngrDeleteAt
+            FROM OP_BOARD A            
+            WHERE A.BBS_CD = #bbsCd# AND A.NOTICE_BBSCTT_AT = 'N'                   
+            ORDER BY A.REFRN_SEQ DESC, A.BBSCTT_ORDR_NO
+		) X
+		WHERE ROWNUM &lt;= #q_rowPerPage#                 
+    </select>
+    
+    <!-- 화면 전체 목록 -->
+    <select id="getPageAllList" resultClass="wigetVo">        
+    	SELECT
+			A.PAGE_CD AS pageCd,
+			A.PAGE_NAME AS pageName,
+			A.USE_YN AS useYn,
+			A.REG_DT                    
+		FROM
+			OP_CMS_PAGE A 		                
+		ORDER BY A.PAGE_CD DESC                
+    </select>
+    
+</sqlMap>
